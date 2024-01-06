@@ -9,6 +9,9 @@ Este repositório contém diversos subprojetos relacionados ao aplicativo. Cada 
 
 ## Subprojetos e Diretórios
 
+### `/`
+Aqui estão as configurações e definições de infraestrutura para os serviços Firebase utilizados nos subprojetos.
+
 ### `/android`
 Este diretório contém o subprojeto Android. Desenvolvido com Kotlin e Android Compose.
 
@@ -20,9 +23,6 @@ Este diretório é dedicado ao subprojeto Web, desenvolvido com React e Deno.
 
 ### `/backend`
 Contém todas as funções e configurações do backend, potencialmente usando Firebase Cloud Functions.
-
-### `/firebase`
-Aqui estão as configurações e definições de infraestrutura para os serviços Firebase utilizados nos subprojetos.
 
 ### `/site`
 Aqui esta o subprojeto do site institucional e spa buildado.
@@ -57,7 +57,6 @@ git submodule update --remote
 
 ### Etapa 2: Autenticação e Segurança
 - Implementação do login com Google e Apple ID.
-- Desenvolvimento da lógica para criação e armazenamento seguro da senha de criptografia.
 
 ### Etapa 3: Interface do Usuário e Fluxo de Navegação
 - Design e implementação das telas iniciais (Splash, Login, Registro).
@@ -77,6 +76,7 @@ git submodule update --remote
 - Associação de despesas com contas bancárias e cartões de crédito.
 
 ### Etapa 5: Criptografia Client-Side
+- Desenvolvimento da lógica para criação e armazenamento seguro da senha de criptografia.
 - Implementação da criptografia de dados no front-end.
 - Desenvolvimento de lógicas de criptografia e descriptografia.
 
@@ -84,17 +84,62 @@ git submodule update --remote
 - Implementação de testes unitários e de integração.
 - Testes de usabilidade e experiência do usuário.
 
-### Etapa 7: Preparação para o Lançamento
+### Etapa 7: Maior Etapa
+- Planejamento e implementação de novas funcionalidades com base no feedback.
+- Melhorias contínuas e atualizações de manutenção.
+
+#### Features Planejadas:
+
+- Dash Board
+    - Cards com informações mais importantes para o usuário
+- Contas
+    - Registros
+    - Despesas Fixas
+    - Despesas Periodicas
+    - Link Valor de Faturas Pagas e Futuras
+    - Saldo Atual Baseados em Registros Efetivados
+    - Saldo Previsto Baseado em Registros Futuros
+    - Soma de Itens
+    - Categorização
+    - Visão Somente Efetivadas, Somente Previstas e Tudo.
+    - Filtro
+        - Filtros Salvos
+        - Filtro Default
+- Categorias
+    - Cadastro e Edição de Categorias e SubCategorias
+    - Transferencias de Categorias (Pago)
+- Cartões
+    - Cadastro de Cartões
+    - Fatura
+    - Categorização
+    - Limite Disponível
+    - Despesas Fixas / Previsões
+- Investimentos
+    - Como sub-contas
+- Transações
+    - Transferencias entre contas.
+    - Lista de Transferencias
+    - Transferencia Futura.
+- Objetivos
+    - Cadastro de Objetivo
+    - Vincular a Uma Conta/Saldo
+- Facilidades
+    - Importar e Exportar Dados
+    - Calculadora no campos de valores
+    - Adição Rápida (Templates de Gastos comums e repetivos como Uber, Onibus, Comidas etc..)
+      Essa vale descrição: a Adição rapida é uma feature para evitar selecionar informações obvias como Nome, Categoria, Qual conta ou cartão para gastos repetitivos. Dessa forma, rapidamente pode se por somente o valor.
+- App Wearable
+    - Adições Rapidas
+    - Saldos
+    - Limites
+
+### Etapa 8: Preparação para o Lançamento
 - Revisão final e otimização de desempenho.
 - Estratégia de lançamento e marketing.
 
-### Etapa 8: Lançamento e Feedback
+### Etapa 9: Lançamento e Feedback
 - Lançamento do MVP.
 - Coleta e análise de feedback dos usuários.
-
-### Etapa 9: Iterações e Melhorias
-- Planejamento e implementação de novas funcionalidades com base no feedback.
-- Melhorias contínuas e atualizações de manutenção.
 
 ## Contribuições
 - Instruções para contribuições externas (se aplicável).
