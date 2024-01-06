@@ -4,6 +4,9 @@
 [submodule "iOS"]
 	path = iOS
 	url = git@github.com:GolderUnicorn/iOS.git
-[submodule "Firebase"]
-	path = Firebase
-	url = git@github.com:GolderUnicorn/Firebase.git
+[submodule "Web"]
+	path = Web
+	url = git@github.com:GolderUnicorn/Web.git
+[submodule "Site"]
+	path = Site
+	url = git@github.com:GolderUnicorn/Site.git
