@@ -1,0 +1,9 @@
+[submodule "Android"]
+	path = Android
+	url = git@github.com:GolderUnicorn/Android.git
+[submodule "iOS"]
+	path = iOS
+	url = git@github.com:GolderUnicorn/iOS.git
+[submodule "Firebase"]
+	path = Firebase
+	url = git@github.com:GolderUnicorn/Firebase.git
