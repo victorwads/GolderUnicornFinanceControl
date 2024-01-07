@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  GolderUnicorn
+//  GoldenUnicorn
 //
 //  Created by Victor Wads Laureano on 07/01/24.
 //

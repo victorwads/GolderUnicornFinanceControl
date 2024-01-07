@@ -1,14 +1,14 @@
 //
-//  GolderUnicornTests.swift
-//  GolderUnicornTests
+//  GoldenUnicornTests.swift
+//  GoldenUnicornTests
 //
 //  Created by Victor Wads Laureano on 07/01/24.
 //
 
 import XCTest
-@testable import GolderUnicorn
+@testable import GoldenUnicorn
 
-final class GolderUnicornTests: XCTestCase {
+final class GoldenUnicornTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

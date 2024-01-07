@@ -1,4 +1,4 @@
-name: GolderUnicorn
+name: GoldenUnicorn
 options:
   xcodeVersion: 15.1
   bundleIdPrefix: br.com.victorwads
@@ -11,7 +11,7 @@ packages:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.19.0
 targets:
-  GolderUnicorn:
+  GoldenUnicorn:
     type: application
     platform: iOS
     deploymentTarget:
@@ -30,10 +30,10 @@ targets:
       language: pt-BR
       gatherCoverageData: true
       coverageTargets:
-        - GolderUnicorn
+        - GoldenUnicorn
       testTargets:
-        - GolderUnicornTests
-        - GolderUnicornUITests
+        - GoldenUnicornTests
+        - GoldenUnicornUITests
     settings:
       base:
         CURRENT_PROJECT_VERSION: 8
@@ -54,23 +54,23 @@ targets:
     info:
       path: Resources/Info.plist
       properties:
-        CFBundleDisplayName: Uptime Logger
+        CFBundleDisplayName: Golden Unicorn
         CFBundleShortVersionString: "1.0.0"
         CFBundleURLTypes:
-          - CFBundleURLName: "GolderUnicorn"
+          - CFBundleURLName: "GoldenUnicorn"
             CFBundleURLSchemes:
-              - GolderUnicornFC
-  GolderUnicornTests:
+              - GoldenUnicornFC
+  GoldenUnicornTests:
     type: bundle.unit-test
     platform: iOS
     sources:
       - path: Tests
     dependencies:
-      - target: GolderUnicorn
-  GolderUnicornUITests:
+      - target: GoldenUnicorn
+  GoldenUnicornUITests:
     type: bundle.ui-testing
     platform: iOS
     sources:
       - path: UITests
     dependencies:
-      - target: GolderUnicorn
+      - target: GoldenUnicorn

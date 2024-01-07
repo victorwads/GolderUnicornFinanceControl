@@ -1,6 +1,6 @@
 //
-//  GolderUnicornApp.swift
-//  GolderUnicorn
+//  GoldenUnicornApp.swift
+//  GoldenUnicorn
 //
 //  Created by Victor Wads Laureano on 07/01/24.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct GolderUnicornApp: App {
+struct GoldenUnicornApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     

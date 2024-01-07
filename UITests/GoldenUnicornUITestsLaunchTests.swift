@@ -1,13 +1,13 @@
 //
-//  GolderUnicornUITestsLaunchTests.swift
-//  GolderUnicornUITests
+//  GoldenUnicornUITestsLaunchTests.swift
+//  GoldenUnicornUITests
 //
 //  Created by Victor Wads Laureano on 07/01/24.
 //
 
 import XCTest
 
-final class GolderUnicornUITestsLaunchTests: XCTestCase {
+final class GoldenUnicornUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
