@@ -57,9 +57,9 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
     - Limites
 - Compartilhamento de contas
     - Compartilhar conta/semente com outro usuário.
-- Criptografia Client Side de alguns dados [(Detalhamento)](./PrivacyEncrypt.md)
+- Criptografia Client Side de alguns dados [(Detalhamento)](./docs/PrivacyEncrypt.md)
 
-O [Plano base para Desenvolvimento](./FeaturePlan.md) das features detalha um pouco sobre a organização para desenvolve-las
+O [Plano base para Desenvolvimento](./docs/FeaturePlan.md) das features detalha um pouco sobre a organização para desenvolve-las
 
 ## Estrutura do Repositórios
 
