@@ -1,4 +1,4 @@
-package br.com.victorwads.golderunicorn
+package br.com.victorwads.goldenunicorn
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("br.com.victorwads.golderunicorn", appContext.packageName)
+        assertEquals("br.com.victorwads.goldenunicorn", appContext.packageName)
     }
 }

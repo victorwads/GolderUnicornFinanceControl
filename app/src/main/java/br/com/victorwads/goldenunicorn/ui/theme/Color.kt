@@ -1,4 +1,4 @@
-package br.com.victorwads.golderunicorn.ui.theme
+package br.com.victorwads.goldenunicorn.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

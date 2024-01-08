@@ -1,4 +1,4 @@
-package br.com.victorwads.golderunicorn
+package br.com.victorwads.goldenunicorn
 
 import org.junit.Test
 

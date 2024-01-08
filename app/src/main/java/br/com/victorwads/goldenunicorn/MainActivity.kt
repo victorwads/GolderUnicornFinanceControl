@@ -1,4 +1,4 @@
-package br.com.victorwads.golderunicorn
+package br.com.victorwads.goldenunicorn
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,13 +10,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import br.com.victorwads.golderunicorn.ui.theme.GolderUnicornTheme
+import br.com.victorwads.goldenunicorn.ui.theme.GoldenUnicornTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            GolderUnicornTheme {
+            GoldenUnicornTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -40,7 +40,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    GolderUnicornTheme {
+    GoldenUnicornTheme {
         Greeting("Android")
     }
 }

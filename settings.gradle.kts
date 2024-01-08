@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Golder Unicorn"
+rootProject.name = "Golden Unicorn"
 include(":app")

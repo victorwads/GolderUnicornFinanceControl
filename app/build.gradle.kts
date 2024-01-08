@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "br.com.victorwads.golderunicorn"
+    namespace = "br.com.victorwads.goldenunicorn"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "br.com.victorwads.golderunicorn"
+        applicationId = "br.com.victorwads.goldenunicorn"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
