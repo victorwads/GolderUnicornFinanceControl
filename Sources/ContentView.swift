@@ -46,7 +46,7 @@ struct ContentView: View {
                 .padding(25)
             }
             Spacer()
-        }
+        }.background(Color(hex: 0x282c34))
     }
 
 }
