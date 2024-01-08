@@ -8,25 +8,28 @@
 import _AuthenticationServices_SwiftUI
 import FirebaseAuth
 import SwiftUI
+import GoogleSignInSwift
 
 
 struct ContentView: View {
     
     @ObservedObject var authManager = AuthenticationManager()
+    var previewInfo: String? = nil
 
     var body: some View {
         VStack {
             Spacer()
-            if let userInfo = authManager.userInfo {
+            if let userInfo = previewInfo ?? authManager.userInfo {
                 Text("Olá, \(userInfo)")
                     .foregroundColor(.white)
                 Button("Logout") {
                     authManager.logOut()
                 }
-               .foregroundColor(.white)
-               .padding()
-               .background(Color.gray)
-               .cornerRadius(5)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                .background(.white)
+                .cornerRadius(5)
             } else {
                 SignInWithAppleButton(.signIn) { request in
                     request.nonce = authManager.getShaNonce()
@@ -43,12 +46,25 @@ struct ContentView: View {
                 }
                 .signInWithAppleButtonStyle(.whiteOutline)
                 .frame(height: 45)
-                .padding(25)
+                Button("Sign In With Google") {
+                    authManager.googleLogin()
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                .background(.white)
+                .cornerRadius(5)
             }
             Spacer()
-        }.background(Color(hex: 0x282c34))
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color(hex: 0x282c34))
     }
+}
 
+#Preview {
+    ContentView(previewInfo: "User - email")
 }
 
 #Preview {

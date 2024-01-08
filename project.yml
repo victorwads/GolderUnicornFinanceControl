@@ -10,6 +10,9 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.19.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    exactVersion: 7.0.0
 targets:
   GoldenUnicorn:
     type: application
@@ -29,6 +32,8 @@ targets:
         product: FirebaseFirestoreSwift
       - package: Firebase
         product: FirebaseRemoteConfigSwift
+      - package: GoogleSignIn
+        product: GoogleSignInSwift
     sources:
       - path: Sources
       - path: Resources
@@ -57,9 +62,9 @@ targets:
         UILaunchStoryboardName: Launch Screen.storyboard
         CFBundleShortVersionString: "1.0.0"
         CFBundleURLTypes:
-          - CFBundleURLName: "GoldenUnicorn"
+          - CFBundleURLName: "GoogleLogin"
             CFBundleURLSchemes:
-              - GoldenUnicornFC
+              - com.googleusercontent.apps.171192137987-qs0uo8b7kac0so3un19fk7hnj0vcpc6i
         UIRequiresFullScreen: true
         UIStatusBarStyle: 
         UISupportedInterfaceOrientations:

@@ -20,10 +20,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>GoldenUnicorn</string>
+			<string>GoogleLogin</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>GoldenUnicornFC</string>
+				<string>com.googleusercontent.apps.171192137987-qs0uo8b7kac0so3un19fk7hnj0vcpc6i</string>
 			</array>
 		</dict>
 	</array>
