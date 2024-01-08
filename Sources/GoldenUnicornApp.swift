@@ -15,6 +15,8 @@ struct GoldenUnicornApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .background(Color(hex: 0x282c34))
+                .ignoresSafeArea()
         }
     }
 }

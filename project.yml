@@ -23,6 +23,12 @@ targets:
         product: FirebaseCrashlytics
       - package: Firebase
         product: FirebaseInstallations
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestoreSwift
+      - package: Firebase
+        product: FirebaseRemoteConfigSwift
     sources:
       - path: Sources
       - path: Resources
@@ -36,21 +42,13 @@ targets:
         - GoldenUnicornUITests
     settings:
       base:
+        PRODUCT_BUNDLE_IDENTIFIER: br.com.victorwads.goldenunicorn
         CURRENT_PROJECT_VERSION: 8
         IPHONEOS_DEPLOYMENT_TARGET: 17.2
         MARKETING_VERSION: 1.0.0
-#        OTHER_CODE_SIGN_FLAGS: --deep --timestamp
-#      configs:
-#        Debug:
-#          CODE_SIGNING_REQUIRED: NO
-#          CODE_SIGN_ENTITLEMENTS: Resources/Debug.entitlements
-#          CODE_SIGN_IDENTITY: "-"
-#          PROVISIONING_PROFILE_SPECIFIER: 
-#        Release:
-#          CODE_SIGN_ENTITLEMENTS: Resources/Release.entitlements
-#          DEVELOPMENT_TEAM[sdk=macosx*]: DU6489YN3U
-#          PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]: UptimeLogger2027
-#          CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_REQUIRED: YES
+        CODE_SIGN_ENTITLEMENTS: Resources/GoldenUnicorn.entitlements
+        DEVELOPMENT_TEAM: DU6489YN3U
     info:
       path: Resources/Info.plist
       properties:
