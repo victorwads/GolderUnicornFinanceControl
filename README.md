@@ -9,10 +9,13 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
 
 ### Features Planejadas:
 
+- Criaçåõ da Conta
+    - Warning de criação de nova conta para caso o usuário já tenha uma conta (* prioritário com Apple Id)
+    - OnBoarding
 - Dash Board
     - Cards com informações mais importantes para o usuário
     - Cards de Saldos por filtro
-- Contas
+- Contas Bancarias
     - Registros
     - Despesas Fixas
     - Despesas Periodicas
@@ -51,6 +54,9 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
     - Adição Rápida (Templates de Gastos comums e repetivos como Uber, Onibus, Comidas etc..)
       Essa vale descrição: a Adição rapida é uma feature para evitar selecionar informações obvias como Nome, Categoria, Qual conta ou cartão para gastos repetitivos. Dessa forma, rapidamente pode se por somente o valor.
     - Modo viagem
+- Configurações
+    - Dashboard
+        - Mês financeiro
 - App Wearable
     - Adições Rapidas
     - Saldos

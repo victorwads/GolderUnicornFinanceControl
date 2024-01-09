@@ -9,8 +9,7 @@
 - Implementação do login com Google e Apple ID.
 
 ## Etapa 3: Interface do Usuário e Fluxo de Navegação
-- Design e implementação das telas iniciais (Splash, Login, Registro).
-- Estruturação dos Termos de Uso e Política de Privacidade.
+- Design e implementação das telas iniciais (Splash, Login, Dashboard).
 
 ## Etapa 4: MVP - Funcionalidades Básicas
 ### 4.1 Cadastro de Contas Bancárias
@@ -37,9 +36,10 @@
 ## Etapa 7: Maior Etapa
 - Planejamento e implementação de novas funcionalidades com base no feedback.
 - Melhorias contínuas e atualizações de manutenção.
-
+- Implementar Features listadas no planejamento
 
 ## Etapa 8: Preparação para o Lançamento
+- Estruturação dos Termos de Uso e Política de Privacidade.
 - Revisão final e otimização de desempenho.
 - Estratégia de lançamento e marketing.
 
