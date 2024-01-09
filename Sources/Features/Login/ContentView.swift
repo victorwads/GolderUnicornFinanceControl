@@ -7,12 +7,10 @@
 
 import _AuthenticationServices_SwiftUI
 import FirebaseAuth
-import SwiftUI
 import GoogleSignInSwift
-
+import SwiftUI
 
 struct ContentView: View {
-    
     @ObservedObject var authManager = AuthenticationManager()
     var previewInfo: String? = nil
 
@@ -27,7 +25,7 @@ struct ContentView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
-                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                .frame(maxWidth: .infinity)
                 .background(.white)
                 .cornerRadius(5)
             } else {
@@ -36,10 +34,10 @@ struct ContentView: View {
                     request.requestedScopes = [.fullName, .email]
                 } onCompletion: { result in
                     switch result {
-                    case .success(let authResults):
+                    case let .success(authResults):
                         authManager.continueFirebaseLogin(authResults)
                         print("Authorisation successful")
-                    case .failure(let error):
+                    case let .failure(error):
                         authManager.updateUser()
                         print("Authorisation failed: \(error.localizedDescription)")
                     }
@@ -51,7 +49,7 @@ struct ContentView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
-                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                .frame(maxWidth: .infinity)
                 .background(.white)
                 .cornerRadius(5)
             }
@@ -59,7 +57,7 @@ struct ContentView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(hex: 0x282c34))
+        .background(Color(hex: 0x282C34))
     }
 }
 

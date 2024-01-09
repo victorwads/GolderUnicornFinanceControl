@@ -9,9 +9,8 @@ import SwiftUI
 
 @main
 struct GoldenUnicornApp: App {
-    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
