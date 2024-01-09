@@ -5,13 +5,10 @@ import { AuthProvider, OAuthProvider, getAuth, onAuthStateChanged, signInWithPop
 const isLogged = () => getAuth().currentUser
 
 function loginIn(providerName: string) {
-  let provider: AuthProvider
+  let provider: OAuthProvider
   switch (providerName) {
     case "apple.com":
-      let authProvider = new OAuthProvider(providerName)
-      authProvider.addScope('email');
-      authProvider.addScope('name');
-      provider = authProvider
+      provider = new OAuthProvider(providerName)
       break;
     case "google.com":
       provider = new OAuthProvider(providerName)
@@ -20,6 +17,9 @@ function loginIn(providerName: string) {
     default:
       return;
   }
+  provider.addScope('email');
+  provider.addScope('name');
+  provider.addScope('profile');
 
   let auth = getAuth()
   auth.useDeviceLanguage()
