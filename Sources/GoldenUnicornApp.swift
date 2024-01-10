@@ -13,7 +13,7 @@ struct GoldenUnicornApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainContentView()
         }
     }
 }

@@ -13,12 +13,13 @@ import Foundation
 import GoogleSignIn
 
 class AuthenticationManager: ObservableObject {
-	private let auth = Auth.auth()
-	private var currentNonce: String?
 
-	@Published var userInfo: String?
+    @Published var loggedUser: Bool = false
+    let auth = Auth.auth()
+	
+    private var currentNonce: String?
 
-	init() {
+    init() {
 		setupAuthenticationListener()
 	}
 
@@ -69,10 +70,10 @@ class AuthenticationManager: ObservableObject {
 	func updateUser(_ user: FirebaseAuth.User? = nil) {
 		let user = user ?? auth.currentUser
 		guard let safeUser = user else {
-			userInfo = nil
+            loggedUser = false
 			return
 		}
-		userInfo = "\(safeUser.displayName ?? "") - \(safeUser.email ?? "")"
+        loggedUser = true
 	}
 
 	func continueFirebaseLogin(_ authorization: ASAuthorization) {
@@ -132,6 +133,6 @@ class AuthenticationManager: ObservableObject {
 		} catch let signOutError as NSError {
 			print("Error signing out: %@", signOutError)
 		}
-		userInfo = nil
+		loggedUser = false
 	}
 }
