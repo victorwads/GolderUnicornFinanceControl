@@ -1,6 +1,6 @@
 name: GoldenUnicorn
 options:
-  xcodeVersion: 15.1
+  xcodeVersion: 15.2
   bundleIdPrefix: br.com.victorwads
   groupOrdering: 
     - order: [Service, Tests, Resources, Sources]
@@ -52,7 +52,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: br.com.victorwads.goldenunicorn
         CURRENT_PROJECT_VERSION: 1
         IPHONEOS_DEPLOYMENT_TARGET: 15.0
-        MARKETING_VERSION: 1.0.0
         CODE_SIGNING_REQUIRED: YES
         CODE_SIGN_ENTITLEMENTS: Resources/GoldenUnicorn.entitlements
         DEVELOPMENT_TEAM: DU6489YN3U
@@ -60,7 +59,7 @@ targets:
       path: Resources/Info.plist
       properties:
         UILaunchStoryboardName: Launch Screen.storyboard
-        CFBundleShortVersionString: "1.0.0"
+        CFBundleShortVersionString: "1.0.1"
         CFBundleURLTypes:
           - CFBundleURLName: "GoogleLogin"
             CFBundleURLSchemes:
