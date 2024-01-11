@@ -1,0 +1,36 @@
+.TabView {
+    display: flex;
+    max-width: 900px;
+    margin: 0 auto;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.TabViewBox {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.TabViewNav {
+    display: flex;
+    flex-direction: row;
+    border-top: 1px solid #000;
+    border-radius: 15px 15px 0 0;
+    overflow: hidden;
+}
+
+.TabViewNav > a {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    padding: 1em 2em;
+    border-right: 1px solid #000;
+    color: #fff;
+    text-decoration: none;
+}
+
+.TabViewNav > a:first-child {
+    border-left: 1px solid #000;
+}

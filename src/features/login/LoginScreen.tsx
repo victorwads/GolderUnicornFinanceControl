@@ -35,7 +35,7 @@ function loginIn(providerName: string) {
 
 const LoginScreen = () => {
 
-    return <div className="">
+    return <div className="LoginScreen">
         <a className='long-button' onClick={() => loginIn("google.com")}>Login com Google</a>
         <a className='long-button' onClick={() => loginIn("apple.com")}>Login com Apple ID</a>
     </div>
