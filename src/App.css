@@ -9,10 +9,3 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
-.long-button {
-  padding: 1.5vmin 4vmin;
-  margin: 1vmin;
-  background-color: rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-}

@@ -1,12 +1,12 @@
+import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { firebaseConfig } from "./google-services";
+
+import { firebaseConfig } from "./data/firebase/google-services";
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

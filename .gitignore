@@ -3,3 +3,5 @@ node_modules/
 .vscode
 build/
 src/google-services.js
+
+yarn.lock

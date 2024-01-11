@@ -1,39 +1,43 @@
-import { useEffect, useState } from 'react';
 import './App.css';
-import { AuthProvider, OAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Navigate, RouterProvider, createBrowserRouter, useParams } from 'react-router-dom';
 
-const isLogged = () => getAuth().currentUser
+import TabScreen from './features/TabScreen';
+import LoginScreen from './features/login/LoginScreen';
+import AccountsScreen from './features/accounts/AccountsScreen';
+import CreditCardsScreen from './features/creaditcards/CreditCardsScreen';
+import DashboardScreen from './features/dashboard/DashboardScreen';
+import SettingsScreen from './features/settings/SettingsScreen';
+import TimelineScreen from './features/timeline/TimelineScreen';
 
-function loginIn(providerName: string) {
-  let provider: OAuthProvider
-  switch (providerName) {
-    case "apple.com":
-      provider = new OAuthProvider(providerName)
-      break;
-    case "google.com":
-      provider = new OAuthProvider(providerName)
-      break;
-
-    default:
-      return;
-  }
-  provider.addScope('email');
-  provider.addScope('name');
-  provider.addScope('profile');
-
-  let auth = getAuth()
-  auth.useDeviceLanguage()
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      console.log(result)
-      alert(`Sucesso = ${result.user.displayName}`)
-    })
-    .catch((error) => {
-      console.log(error)
-      alert(error.message)
-    })
+interface TestInfoParams {
+  info: string
 }
 
+function TesteIdInfo({info}: TestInfoParams) {
+  let { id } = useParams()
+
+  return <>
+    <div>{info}</div>
+    <div>Id: {id}</div>
+  </>
+}
+
+const router = createBrowserRouter([
+  {path: "/", element: <Navigate to="/main/dashboard" replace /> },
+  {path: '/main', element: <TabScreen />, children: [
+    {path: 'dashboard', element: <DashboardScreen />},
+    {path: 'timeline', element: <TimelineScreen />},
+    {path: 'settings', element: <SettingsScreen />},
+  ]},
+  {path: '/accounts', element: <AccountsScreen />},
+  {path: '/accounts/create', element: <div>TODO: Create Account</div>},
+  {path: '/accounts/edit/:id', element: <TesteIdInfo info='TODO: Edit Account' />},
+  {path: '/creditcards', element: <CreditCardsScreen />},
+  {path: '/creditcards/create', element: <div>TODO: Create Credit Card</div>},
+  {path: '/creditcards/edit/:id', element: (<TesteIdInfo info='TODO: Edit Credit Card' />)},
+])
 
 function App() {
 
@@ -46,13 +50,7 @@ function App() {
 
   return (
     <div className="App">
-      {user ? <>
-        <p>Olá, {user.displayName} - {user.email}</p>
-        <a className='long-button' onClick={() => signOut(getAuth())}>Sair</a>
-      </> : <>
-        <a className='long-button' onClick={() => loginIn("google.com")}>Login com Google</a>
-        <a className='long-button' onClick={() => loginIn("apple.com")}>Login com Apple ID</a>
-      </>}
+      {user ? <RouterProvider router={router} /> : <LoginScreen />}
     </div>
   );
 }

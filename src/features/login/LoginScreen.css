@@ -1,0 +1,7 @@
+.long-button {
+    display: block;
+    padding: 1.5vmin 4vmin;
+    margin: 1vmin;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+  }
