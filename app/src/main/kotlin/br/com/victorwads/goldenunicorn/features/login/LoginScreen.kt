@@ -78,10 +78,8 @@ fun LoginScreenWithGoogle(firebaseAuth: FirebaseAuth) {
             loggedUser = it.currentUser != null
         }
     }
-    if (loggedUser && !stateLogin) {
-        TempUserScreen(firebaseAuth.currentUser.let { "${it?.displayName} - ${it?.email}" }) {
-            firebaseAuth.signOut()
-        }
+    if (loggedUser || stateLogin) {
+        LoginScreenLoading()
     } else {
         LoginScreen(launcher, {
             val provider = OAuthProvider.newBuilder("apple.com")
@@ -95,30 +93,6 @@ fun LoginScreenWithGoogle(firebaseAuth: FirebaseAuth) {
                 )
             }
         }, stateLogin)
-    }
-}
-
-@Preview
-@Composable
-private fun TempUserScreen(
-    userInfo: String = "User - Email",
-    logOut: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(userInfo)
-        Button(
-            onClick = logOut,
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Text("Logout")
-        }
     }
 }
 
