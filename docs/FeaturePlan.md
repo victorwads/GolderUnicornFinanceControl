@@ -9,6 +9,7 @@
 - Implementação do login com Google e Apple ID.
 
 ## Etapa 3: Interface do Usuário e Fluxo de Navegação
+- Estrutura de Navegação
 - Design e implementação das telas iniciais (Splash, Login, Dashboard).
 
 ## Etapa 4: MVP - Funcionalidades Básicas

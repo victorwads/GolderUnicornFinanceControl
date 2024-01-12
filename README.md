@@ -9,7 +9,7 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
 
 ### Features Planejadas:
 
-- Criaçåõ da Conta
+- Criação da Conta
     - Warning de criação de nova conta para caso o usuário já tenha uma conta (* prioritário com Apple Id)
     - OnBoarding
 - Dash Board
