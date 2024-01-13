@@ -5,3 +5,5 @@ build/
 src/google-services.js
 
 yarn.lock
+
+.dev/

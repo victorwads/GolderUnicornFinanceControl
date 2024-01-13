@@ -25,7 +25,6 @@ function loginIn(providerName: string) {
   signInWithPopup(auth, provider)
     .then((result) => {
       console.log(result)
-      alert(`Sucesso = ${result.user.displayName}`)
     })
     .catch((error) => {
       console.log(error)

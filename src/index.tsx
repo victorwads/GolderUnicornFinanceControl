@@ -3,19 +3,24 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { CACHE_SIZE_UNLIMITED, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 
-import { firebaseConfig } from "./data/firebase/google-services";
+import './global'
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { firebaseConfig } from "./data/firebase/google-services";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 getAnalytics(app);
+initializeFirestore(app, {localCache: persistentLocalCache({
+  cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+  tabManager: persistentMultipleTabManager()
+})});
 
-const root = ReactDOM.createRoot(
+ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
-);
-root.render(
+).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

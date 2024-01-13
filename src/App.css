@@ -1,12 +1,47 @@
+*.dark *, *.dark {
+  --font-color-default: #fff;
+  --font-color-link: #bbb;
+  --bg-color-default: #282c34;
+  --bg-color-highlight: rgba(0, 0, 0, 0.08);
+  --divider-color-default: rgba(0, 0, 0, 0.2);
+  --divider-color-soft: rgba(0, 0, 0, 0.1);
+}
+
+*.light *, *.light {
+  --font-color-default: #333;
+  --font-color-link: blue;
+  --bg-color-default: #fefefe;
+  --bg-color-highlight: rgba(0, 0, 0, 0.05);
+  --divider-color-default: rgba(0, 0, 0, 0.2);
+  --divider-color-soft: rgba(0, 0, 0, 0.1);
+}
+
 .App {
-  background-color: #282c34;
+  background-color: var(--bg-color-default);
   min-height: 100vh;
-  color: #fff;
+  color: var(--font-color-default);
 }
 
 .Screen {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: block;
+  overflow: auto;
   flex: 1;
+}
+
+.PopUp {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: none;
+  opacity: 0;
+  background-color: var(--bg-color-default);
+  transition: display .5s, opacity .5s;
+  z-index: 10;
+}
+
+.PopUp.active {
+  display: block;
+  opacity: 1;
 }

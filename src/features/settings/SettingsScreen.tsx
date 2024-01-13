@@ -1,11 +1,14 @@
-import './SettingsScreen.css'
-import { useState } from "react"
+import "./SettingsScreen.css";
+import { getAuth, signOut } from "firebase/auth";
 
 const SettingsScreen = () => {
 
-    return <div className="Screen">
-        SettingsScreen
+  return (
+    <div>
+      Settings Screen:
+      <a className="long-button" onClick={() => signOut(getAuth())}>Sair</a>
     </div>
-}
+  );
+};
 
-export default SettingsScreen
+export default SettingsScreen;

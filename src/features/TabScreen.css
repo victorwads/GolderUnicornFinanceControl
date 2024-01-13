@@ -3,13 +3,14 @@
     max-width: 900px;
     margin: 0 auto;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
 }
 
 .TabViewBox {
     display: flex;
     flex-direction: column;
     flex: 1;
+    overflow: auto;
 }
 
 .TabViewNav {
@@ -27,7 +28,7 @@
     align-items: center;
     padding: 1em 2em;
     border-right: 1px solid #000;
-    color: #fff;
+    color: var(--font-color-default);
     text-decoration: none;
 }
 

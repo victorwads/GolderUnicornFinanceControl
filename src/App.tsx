@@ -5,24 +5,17 @@ import { Navigate, RouterProvider, createBrowserRouter, useParams } from 'react-
 
 import TabScreen from './features/TabScreen';
 import LoginScreen from './features/login/LoginScreen';
-import AccountsScreen from './features/accounts/AccountsScreen';
-import CreditCardsScreen from './features/creaditcards/CreditCardsScreen';
 import DashboardScreen from './features/dashboard/DashboardScreen';
-import SettingsScreen from './features/settings/SettingsScreen';
 import TimelineScreen from './features/timeline/TimelineScreen';
-
-interface TestInfoParams {
-  info: string
-}
-
-function TesteIdInfo({info}: TestInfoParams) {
-  let { id } = useParams()
-
-  return <>
-    <div>{info}</div>
-    <div>Id: {id}</div>
-  </>
-}
+import SettingsScreen from './features/settings/SettingsScreen';
+import AccountsScreen from './features/accounts/AccountsScreen';
+import AddAccountScreen from './features/accounts/AddAccountScreen';
+import EditAccountScreen from './features/accounts/EditAccountScreen';
+import ViewAccountScreen from './features/accounts/ViewAccountScreen';
+import CreditCardsScreen from './features/creaditcards/CreditCardsScreen';
+import AddCreditCardsScreen from './features/creaditcards/AddCreditCardsScreen';
+import ViewCreditCardsScreen from './features/creaditcards/ViewCreditCardsScreen';
+import EditCreditCardsScreen from './features/creaditcards/EditCreditCardsScreen';
 
 const router = createBrowserRouter([
   {path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -32,11 +25,13 @@ const router = createBrowserRouter([
     {path: 'settings', element: <SettingsScreen />},
   ]},
   {path: '/accounts', element: <AccountsScreen />},
-  {path: '/accounts/create', element: <div>TODO: Create Account</div>},
-  {path: '/accounts/edit/:id', element: <TesteIdInfo info='TODO: Edit Account' />},
+  {path: '/accounts/create', element: <AddAccountScreen />},
+  {path: '/accounts/edit/:id', element: <EditAccountScreen />},
+  {path: '/accounts/view/:id', element: <ViewAccountScreen />},
   {path: '/creditcards', element: <CreditCardsScreen />},
-  {path: '/creditcards/create', element: <div>TODO: Create Credit Card</div>},
-  {path: '/creditcards/edit/:id', element: (<TesteIdInfo info='TODO: Edit Credit Card' />)},
+  {path: '/creditcards/create', element: <AddCreditCardsScreen />},
+  {path: '/creditcards/edit/:id', element: (<EditCreditCardsScreen />)},
+  {path: '/creditcards/view/:id', element: (<ViewCreditCardsScreen />)},
 ])
 
 function App() {
@@ -49,7 +44,7 @@ function App() {
   )
 
   return (
-    <div className="App">
+    <div className="App dark">
       {user ? <RouterProvider router={router} /> : <LoginScreen />}
     </div>
   );
