@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import br.com.victorwads.goldenunicorn.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -35,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
 
+val clientIDRef = com.firebase.ui.auth.R.string.default_web_client_id
 @Composable
 fun LoginScreenWithGoogle(firebaseAuth: FirebaseAuth) {
     var stateLogin by remember { mutableStateOf(false) }
@@ -63,7 +63,7 @@ fun LoginScreenWithGoogle(firebaseAuth: FirebaseAuth) {
     val launcher = {
         stateLogin = true
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestIdToken(context.getString(clientIDRef))
             .requestId()
             .requestEmail()
             .requestProfile()

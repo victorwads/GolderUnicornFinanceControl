@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,10 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Preview
 @Composable
-private fun TempUserScreen(
-    userInfo: String = "User - Email",
-    logOut: () -> Unit = {}
-) {
+fun DashBoardScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -26,23 +22,6 @@ private fun TempUserScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(userInfo)
-        Button(
-            onClick = logOut,
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Text("Logout")
-        }
-    }
-}
-
-@Preview
-@Composable
-fun DashBoardScreen() {
-    val firebaseAuth = FirebaseAuth.getInstance()
-
-    TempUserScreen(firebaseAuth.currentUser.let { "${it?.displayName} - ${it?.email}" }) {
-        firebaseAuth.signOut()
+        Text(FirebaseAuth.getInstance().currentUser.let { "${it?.displayName} - ${it?.email}" })
     }
 }

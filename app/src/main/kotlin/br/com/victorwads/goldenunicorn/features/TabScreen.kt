@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Preview
 @Composable
-fun TabScreen(firebaseAuth: FirebaseAuth) {
+fun TabScreen() {
     val tabNavController = rememberNavController()
     Column {
         NavHost(
