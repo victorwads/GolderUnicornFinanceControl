@@ -1,11 +1,11 @@
 import './TimelineScreen.css'
 import { useEffect, useState } from "react"
 
-import Bank from '../../data/models/Bank';
-import BanksRepository from '../../data/repositories/BanksRepository';
+import Bank from '../../../data/models/Bank';
+import BanksRepository from '../../../data/repositories/BanksRepository';
 
-import BankInfo from '../banks/BankInfo';
-import { SearchBarScreen } from '../components/SearchBar';
+import BankInfo from '../../banks/BankInfo';
+import { SearchBarScreen } from '../../components/SearchBar';
 
 const TimelineScreen = () => {
 

@@ -4,9 +4,9 @@ import { useState } from "react"
 import { useNavigate, Link } from 'react-router-dom'
 import { getAuth, signOut } from 'firebase/auth'
 
-import Card from '../components/Card'
-import Bank from '../../data/models/Bank'
-import BankInfo from '../banks/BankInfo'
+import Card from '../../components/Card'
+import Bank from '../../../data/models/Bank'
+import BankInfo from '../../banks/BankInfo'
 
 const DashboardScreen = () => {
 

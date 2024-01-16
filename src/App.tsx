@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Navigate, RouterProvider, createBrowserRouter, useParams } from 'react-router-dom';
 
-import TabScreen from './features/TabScreen';
+import TabScreen from './features/tabs/TabScreen';
 import LoginScreen from './features/login/LoginScreen';
-import DashboardScreen from './features/dashboard/DashboardScreen';
-import TimelineScreen from './features/timeline/TimelineScreen';
-import SettingsScreen from './features/settings/SettingsScreen';
+import DashboardScreen from './features/tabs/dashboard/DashboardScreen';
+import TimelineScreen from './features/tabs/timeline/TimelineScreen';
+import SettingsScreen from './features/tabs/settings/SettingsScreen';
 import AccountsScreen from './features/accounts/AccountsScreen';
 import AddAccountScreen from './features/accounts/AddAccountScreen';
 import EditAccountScreen from './features/accounts/EditAccountScreen';
