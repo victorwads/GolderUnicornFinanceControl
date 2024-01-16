@@ -14,6 +14,11 @@
 
 ## Etapa 4: MVP - Funcionalidades Básicas
 ### 4.1 Cadastro de Contas Bancárias
+- Criaçãos dos primeiros componentes
+    - Base SearchBar
+    - Card
+    - Input
+    - PopUp / Sheets
 - Interface para adição de contas bancárias.
 - Lógica para armazenamento e gerenciamento das contas.
 

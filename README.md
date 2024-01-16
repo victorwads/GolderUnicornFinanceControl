@@ -7,6 +7,12 @@ A Motivação para desenvolvimento é para uso pessoal e organização das finan
 
 O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de infra, os dados dos clientes sejam privados e compartilhados somente com quem eles querem.
 
+## Published Links (Alpha Version)
+
+- [Play Store - Only Internal Testing](https://play.google.com/store/apps/details?id=br.com.victorwads.goldenunicorn)
+- [App Store - Only TestFlight](https://apps.apple.com/br/app/id6475685779)
+- [Web App](https://goldenunicornfc.firebaseapp.com/)
+
 ### Features Planejadas:
 
 - Criação da Conta
@@ -65,7 +71,7 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
     - Compartilhar conta/semente com outro usuário.
 - Criptografia Client Side de alguns dados [(Detalhamento)](./docs/PrivacyEncrypt.md)
 
-O [Plano base para Desenvolvimento](./docs/FeaturePlan.md) das features detalha um pouco sobre a organização para desenvolve-las
+O [Plano base para Desenvolvimento](./docs/DevelopmentPlan.md) das features detalha um pouco sobre a organização para desenvolve-las
 
 ## Estrutura do Repositórios
 
