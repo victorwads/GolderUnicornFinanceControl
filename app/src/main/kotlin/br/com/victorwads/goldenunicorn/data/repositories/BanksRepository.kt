@@ -10,7 +10,6 @@ import com.google.firebase.firestore.toObject
 import java.util.Date
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
 class BanksRepository(context: Context) {
 
     private val bd = FirebaseFirestore.getInstance()

@@ -1,4 +1,4 @@
-package br.com.victorwads.goldenunicorn.features.settings
+package br.com.victorwads.goldenunicorn.features.tabs.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -1,4 +1,4 @@
-package br.com.victorwads.goldenunicorn.features.timeline
+package br.com.victorwads.goldenunicorn.features.tabs.timeline
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement

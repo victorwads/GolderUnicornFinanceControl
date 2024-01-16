@@ -18,7 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import br.com.victorwads.goldenunicorn.features.TabScreen
+import br.com.victorwads.goldenunicorn.features.tabs.TabScreen
 import br.com.victorwads.goldenunicorn.features.login.LoginScreenWithGoogle
 import br.com.victorwads.goldenunicorn.ui.theme.GoldenUnicornTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     val firebaseAuth = FirebaseAuth.getInstance()
                     var loggedUser by remember { mutableStateOf(firebaseAuth.currentUser != null) }
 
-                    if (loggedUser) TabScreen(firebaseAuth)
+                    if (loggedUser) TabScreen()
                     else LoginScreenWithGoogle(firebaseAuth)
 
                     LaunchedEffect(Unit) {

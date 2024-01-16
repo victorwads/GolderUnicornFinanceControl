@@ -1,4 +1,4 @@
-package br.com.victorwads.goldenunicorn.features
+package br.com.victorwads.goldenunicorn.features.tabs
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -10,12 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import br.com.victorwads.goldenunicorn.features.dashboard.DashBoardScreen
-import br.com.victorwads.goldenunicorn.features.settings.SettingsScreen
-import br.com.victorwads.goldenunicorn.features.timeline.TimelineScreen
+import br.com.victorwads.goldenunicorn.features.Screens
+import br.com.victorwads.goldenunicorn.features.tabs.dashboard.DashBoardScreen
+import br.com.victorwads.goldenunicorn.features.tabs.settings.SettingsScreen
+import br.com.victorwads.goldenunicorn.features.tabs.timeline.TimelineScreen
 import br.com.victorwads.goldenunicorn.ui.extensions.NavHost
 import br.com.victorwads.goldenunicorn.ui.extensions.composable
-import com.google.firebase.auth.FirebaseAuth
 
 @Preview
 @Composable
