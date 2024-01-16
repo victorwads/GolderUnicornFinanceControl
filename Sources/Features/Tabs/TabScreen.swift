@@ -13,13 +13,22 @@ struct TabsScreen: View {
 
     var body: some View {
         TabView {
-            DashboardScreen(authManager: authManager).tabItem {
+            NavigationView {
+                ScrollView {
+                    DashboardScreen(authManager: authManager)
+                }
+            }.navigationViewStyle(.stack)
+            .tabItem {
                 Label("Dash", systemImage: "square.on.square.dashed")
             }
-            TimelineScreen().tabItem {
+            ScrollView {
+                TimelineScreen()
+            }.tabItem {
                 Label("Timeline", systemImage: "list.dash")
             }
-            SettingsScreen().tabItem {
+            ScrollView {
+                SettingsScreen(authManager: authManager)
+            }.tabItem {
                 Label("Configurações", systemImage: "gearshape")
             }
         }

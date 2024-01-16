@@ -1,5 +1,7 @@
-struct Bank: Codable {
-    var id: String?
+import FirebaseFirestoreSwift
+
+struct Bank: Codable, Identifiable {
+    @DocumentID var id: String? = nil
     var name: String
     var fullName: String = ""
     var logoUrl: String

@@ -58,8 +58,9 @@ targets:
     info:
       path: Resources/Info.plist
       properties:
+        ITSAppUsesNonExemptEncryption: false
         UILaunchStoryboardName: Launch Screen.storyboard
-        CFBundleShortVersionString: "1.0.1"
+        CFBundleShortVersionString: "1.0.3"
         CFBundleURLTypes:
           - CFBundleURLName: "GoogleLogin"
             CFBundleURLSchemes:

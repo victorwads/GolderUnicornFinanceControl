@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseFirestoreSwift
 
 enum AccountType: String, Codable {
     case current = "CURRENT"
@@ -7,26 +8,26 @@ enum AccountType: String, Codable {
     case investment = "INVESTMENT"
 }
 
-struct Account: Codable {
-    var id: String
-    var name: String
-    var initialBalance: Double
-    var bankId: String
-    var type: AccountType
-    var color: String
-    var includeInTotal: Bool
-    var createdAt: Date
-    var updatedAt: Date
+struct Account: Codable, Identifiable {
+    @DocumentID var id: String? = nil
+    var name: String = ""
+    var initialBalance: Double = 0
+    var bankId: String? = nil
+    var type: AccountType = .current
+    var color: String? = nil
+    var includeInDash: Bool = true
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
 
     enum CodingKeys: String, CodingKey {
         case id
         case name
-        case initialBalance = "initial_balance"
-        case bankId = "bank_id"
+        case initialBalance = "initialBalance"
+        case bankId = "bankId"
         case type
         case color
-        case includeInTotal = "include_in_total"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
+        case includeInDash = "includeInDash"
+        case createdAt = "createdAt"
+        case updatedAt = "updatedAt"
     }
 }
