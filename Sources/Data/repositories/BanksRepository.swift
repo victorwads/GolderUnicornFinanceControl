@@ -6,6 +6,7 @@ class BanksRepository {
 
     static private let lastUpdateKey = "lastBanksUpdate"
     static private let cacheDuration: CGFloat = 2592000000
+    static private var banksLocalCache: [String:Bank] = [:]
 
     private let db: Firestore
     private let collectionRef: CollectionReference
@@ -41,12 +42,19 @@ class BanksRepository {
                 for document in snapshot!.documents {
                     if let bank = try? document.data(as: Bank.self) {
                         banks.append(bank)
+                        if let id = bank.id {
+                            BanksRepository.banksLocalCache[id] = bank
+                        }
                     }
                 }
                 banks.sort { $0.name < $1.name }
                 completion(banks)
             }
         }
+    }
+    
+    func getById(bankId: String?) -> Bank? {
+        return BanksRepository.banksLocalCache[bankId ?? ""]
     }
 
     func getFiltered(search: String, completion: @escaping ([Bank]) -> Void) {

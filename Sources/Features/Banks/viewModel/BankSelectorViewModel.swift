@@ -19,7 +19,7 @@ class BankSelectorViewModel: ObservableObject {
     }
 
     func fetch() {
-        repository.getAll() {result in
+        repository.getAll(forceCache: true) {result in
             self.banks = result
         }
     }

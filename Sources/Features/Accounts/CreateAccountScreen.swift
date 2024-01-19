@@ -17,7 +17,6 @@ struct CreateAccountScreen: View {
             }.frame(height: 80)
             Text("- Tipo de Conta").font(.footnote)
             Text("-  Cor da Conta").font(.footnote)
-            Text("-  Saldo no Inicio").font(.footnote)
         }
         HStack {
             Button("Cancelar", action: {
