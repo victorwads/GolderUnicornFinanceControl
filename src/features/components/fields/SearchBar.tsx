@@ -1,7 +1,7 @@
-import { useSearchParams } from 'react-router-dom'
 import './SearchBar.css'
 
 interface SearchBarParams {
+    value: string
     onSearchEach?: (search: string) => void
 }
 
@@ -9,7 +9,7 @@ const SearchBar = (params: SearchBarParams) => {
     return <div className='SearchBar'>
         <input onChange={it => {
             if(params.onSearchEach) params.onSearchEach(it.target.value)
-        } } placeholder='Pesquisar' />
+        } } placeholder='Pesquisar' value={params.value} />
         <span></span>
     </div>
 }
@@ -20,7 +20,7 @@ interface SearchBarScreenParams extends SearchBarParams {
 
 export const SearchBarScreen = (params: SearchBarScreenParams) => {
     return <div className='SearchBarScreen'>
-        <SearchBar onSearchEach={params.onSearchEach} />
+        <SearchBar {...params}  />
         <div className='content'>
             {params.children}
         </div>

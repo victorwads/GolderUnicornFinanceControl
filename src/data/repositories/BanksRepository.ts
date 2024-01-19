@@ -5,6 +5,8 @@ import Bank from '../models/Bank'
 class BanksRepository {
     private static lastUpdateKey = 'lastBanksUpdate';
     private static cacheDuration = 30 * 24 * 60 * 60 * 1000;
+    private static banksLocalCache: { [key: string]: Bank } = {};
+
     private db: Firestore
     private ref: CollectionReference<Bank, DocumentData>;
 
@@ -23,7 +25,6 @@ class BanksRepository {
         localStorage.setItem(BanksRepository.lastUpdateKey, Date.now().toString());
     }
 
-
     public getAll = async (forceCache: boolean = false) => {
         let source: Promise<QuerySnapshot<Bank>>
         if(forceCache || this.shouldUseCache()) {
@@ -34,6 +35,10 @@ class BanksRepository {
         }
         return source.then(result => {
             let banks = result.docs.map(snap => snap.data())
+            BanksRepository.banksLocalCache = {}
+            banks.forEach(bank => {
+                BanksRepository.banksLocalCache[bank.id] = bank
+            })
             return banks.sort((a, b) => a.name.localeCompare(b.name))
         })
                 
@@ -45,6 +50,10 @@ class BanksRepository {
             bank.name.prepareCompare().includes(search.prepareCompare()) ||
             bank.fullName.prepareCompare().includes(search.prepareCompare())
         )
+    }
+
+    public getById = (bankId?: string): Bank | undefined => {
+        return BanksRepository.banksLocalCache[bankId ?? ""]
     }
 
 }

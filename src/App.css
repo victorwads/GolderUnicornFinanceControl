@@ -1,8 +1,10 @@
 *.dark *, *.dark {
   --font-color-default: #fff;
   --font-color-link: #bbb;
+  --font-color-input: #fff;
   --bg-color-default: #282c34;
   --bg-color-highlight: rgba(0, 0, 0, 0.08);
+  --bg-color-input: #555;
   --divider-color-default: rgba(0, 0, 0, 0.2);
   --divider-color-soft: rgba(0, 0, 0, 0.1);
 }
@@ -10,8 +12,10 @@
 *.light *, *.light {
   --font-color-default: #333;
   --font-color-link: blue;
+  --font-color-input: #222;
   --bg-color-default: #fefefe;
   --bg-color-highlight: rgba(0, 0, 0, 0.05);
+  --bg-color-input: #CCC;
   --divider-color-default: rgba(0, 0, 0, 0.2);
   --divider-color-soft: rgba(0, 0, 0, 0.1);
 }

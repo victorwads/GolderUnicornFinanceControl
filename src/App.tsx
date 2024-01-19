@@ -16,32 +16,46 @@ import CreditCardsScreen from './features/creaditcards/CreditCardsScreen';
 import AddCreditCardsScreen from './features/creaditcards/AddCreditCardsScreen';
 import ViewCreditCardsScreen from './features/creaditcards/ViewCreditCardsScreen';
 import EditCreditCardsScreen from './features/creaditcards/EditCreditCardsScreen';
+import CategoriesScreen from './features/categories/CategoriesScreen';
+import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
+import BanksRepository from './data/repositories/BanksRepository';
+import CategoriesRepository from './data/repositories/CategoriesRepository';
 
 const router = createBrowserRouter([
-  {path: "/", element: <Navigate to="/main/dashboard" replace /> },
-  {path: '/main', element: <TabScreen />, children: [
-    {path: 'dashboard', element: <DashboardScreen />},
-    {path: 'timeline', element: <TimelineScreen />},
-    {path: 'settings', element: <SettingsScreen />},
-  ]},
-  {path: '/accounts', element: <AccountsScreen />},
-  {path: '/accounts/create', element: <AddAccountScreen />},
-  {path: '/accounts/edit/:id', element: <EditAccountScreen />},
-  {path: '/accounts/view/:id', element: <ViewAccountScreen />},
-  {path: '/creditcards', element: <CreditCardsScreen />},
-  {path: '/creditcards/create', element: <AddCreditCardsScreen />},
-  {path: '/creditcards/edit/:id', element: (<EditCreditCardsScreen />)},
-  {path: '/creditcards/view/:id', element: (<ViewCreditCardsScreen />)},
+  { path: "/", element: <Navigate to="/main/dashboard" replace /> },
+  {
+    path: '/main', element: <TabScreen />, children: [
+      { path: 'dashboard', element: <DashboardScreen /> },
+      { path: 'timeline', element: <TimelineScreen /> },
+      { path: 'settings', element: <SettingsScreen /> },
+    ]
+  },
+  { path: '/accounts', element: <AccountsScreen /> },
+  { path: '/accounts/create', element: <AddAccountScreen /> },
+  { path: '/accounts/edit/:id', element: <EditAccountScreen /> },
+  { path: '/accounts/view/:id', element: <ViewAccountScreen /> },
+  { path: '/creditcards', element: <CreditCardsScreen /> },
+  { path: '/creditcards/create', element: <AddCreditCardsScreen /> },
+  { path: '/creditcards/edit/:id', element: (<EditCreditCardsScreen />) },
+  { path: '/creditcards/view/:id', element: (<ViewCreditCardsScreen />) },
+  { path: '/categories', element: (<CategoriesScreen />) },
+  { path: '/categories/create', element: <AddCategoriesScreen /> },
 ])
 
 function App() {
 
   const [user, setUser] = useState(getAuth().currentUser)
 
-  useEffect(
-    () => onAuthStateChanged(getAuth(), (currentUser) => setUser(currentUser))
-    , []
-  )
+  useEffect(() => {
+    onAuthStateChanged(getAuth(), (currentUser) => setUser(currentUser))
+  }, [])
+
+  useEffect(() => {
+    if (user) {
+      new BanksRepository().getAll()
+      new CategoriesRepository().getAll()
+    }
+  }, [user])
 
   return (
     <div className="App dark">

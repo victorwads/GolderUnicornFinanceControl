@@ -1,0 +1,18 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  margin: 12px 18px;
+}
+
+.Field > label {
+  margin-bottom: 2px;
+  font-size: 0.8em;
+}
+
+.Field > input {
+  color: var(--font-color-input);
+  background-color: var(--bg-color-input);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+}

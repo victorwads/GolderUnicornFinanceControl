@@ -9,12 +9,12 @@ export default class AccountsRepository {
     private ref: CollectionReference<AccountsRegistry, DocumentData>;
 
     constructor(
+        public accountId: string,
         public userId: string,
-        public accountId: string
-    ){
+    ) {
         this.db = getFirestore()
         this.ref = collection(this.db, `${Collections.Users}/${userId}/${Collections.Accounts}/${accountId}/${Collections.Registers}`)
-        .withConverter(AccountsRegistry.firestoreConverter)
+            .withConverter(AccountsRegistry.firestoreConverter)
     }
 
     private shouldUseCache() {
@@ -28,7 +28,7 @@ export default class AccountsRepository {
 
     public getAll = async (forceSource: null | 'server' | 'cache') => {
         let source: Promise<QuerySnapshot<AccountsRegistry>>
-        if(forceSource == 'cache' || (this.shouldUseCache() && forceSource != 'server')) {
+        if (forceSource == 'cache' || (this.shouldUseCache() && forceSource != 'server')) {
             source = getDocsFromCache(this.ref)
         } else {
             source = getDocs(this.ref)
@@ -38,7 +38,7 @@ export default class AccountsRepository {
             let banks = result.docs.map(snap => snap.data())
             return banks.sort((a, b) => a.when.localeCompare(b.when))
         })
-                
+
     }
 
     public add = async (account: AccountsRegistry) => {
