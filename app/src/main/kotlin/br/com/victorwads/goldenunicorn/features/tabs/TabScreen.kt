@@ -3,11 +3,14 @@ package br.com.victorwads.goldenunicorn.features.tabs
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.victorwads.goldenunicorn.features.Screens
@@ -17,7 +20,7 @@ import br.com.victorwads.goldenunicorn.features.tabs.timeline.TimelineScreen
 import br.com.victorwads.goldenunicorn.ui.extensions.NavHost
 import br.com.victorwads.goldenunicorn.ui.extensions.composable
 
-@Preview
+@Preview(showSystemUi = true)
 @Composable
 fun TabScreen() {
     val tabNavController = rememberNavController()
@@ -37,7 +40,8 @@ fun TabScreen() {
                 SettingsScreen()
             }
         }
-        Row{
+        Divider()
+        Row {
             tabNavController.TabButton(
                 modifier = Modifier.weight(1f), "DashBoard", Screens.Main.DashBoard
             )
@@ -57,9 +61,12 @@ fun NavController.TabButton(
     label: String,
     route: Screens.Main
 ) {
-    Column(modifier = modifier.clickable {
-        this.navigate(route.route)
-    }, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = modifier
+            .clickable { this.navigate(route.route) }
+            .padding(vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(label)
     }
 }

@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.persistentCacheSettings
 
-class Application : Application() {
+class GoldenApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         val db = FirebaseFirestore.getInstance()
@@ -15,5 +15,10 @@ class Application : Application() {
                 setSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
             })
         }
+        publicApplication = this
+    }
+
+    companion object {
+        lateinit var publicApplication: Application
     }
 }

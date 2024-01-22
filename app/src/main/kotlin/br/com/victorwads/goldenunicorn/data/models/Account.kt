@@ -7,7 +7,7 @@ import java.util.Date
 data class Account(
     @DocumentId val id: String,
     @PropertyName("name") val name: String,
-    @PropertyName("type") val type: Account.Type = Type.CURRENT,
+    @PropertyName("type") val type: Type = Type.CURRENT,
     @PropertyName("color") val color: String?,
     @PropertyName("bankId") val bankId: String?,
 

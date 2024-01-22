@@ -5,6 +5,6 @@ object Collections {
     const val Users = "Users"
     const val Accounts = "Accounts"
     const val CreditCards = "CreditCards"
-    const val Registers = "Registers"
+    const val Registries = "Registries"
     const val FirestoreCacheKeys = "FirestoreCacheKeys"
 }

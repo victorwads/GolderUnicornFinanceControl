@@ -18,8 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import br.com.victorwads.goldenunicorn.features.tabs.TabScreen
 import br.com.victorwads.goldenunicorn.features.login.LoginScreenWithGoogle
+import br.com.victorwads.goldenunicorn.features.tabs.TabScreen
 import br.com.victorwads.goldenunicorn.ui.theme.GoldenUnicornTheme
 import com.google.firebase.auth.FirebaseAuth
 
