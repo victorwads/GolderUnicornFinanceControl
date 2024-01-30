@@ -1,14 +1,14 @@
 package br.com.victorwads.goldenunicorn.data.repositories
 
 import br.com.victorwads.goldenunicorn.data.firebase.Collections
-import br.com.victorwads.goldenunicorn.data.models.Registry
+import br.com.victorwads.goldenunicorn.data.models.DebitRegistry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 
 class AccountRegistryRepository(
     userId: String? = FirebaseAuth.getInstance().currentUser?.uid,
     accountId: String
-): BaseRepository<Registry>(Registry::class.java)  {
+): BaseRepository<DebitRegistry>(DebitRegistry::class.java)  {
 
     override val cacheDuration: Long = 0
     override val ref: CollectionReference
@@ -23,5 +23,5 @@ class AccountRegistryRepository(
             .collection(Collections.Registries)
     }
 
-    suspend fun getAll(forceCache: Boolean = false): List<Registry> = getAllItems(forceCache)
+    suspend fun getAll(forceCache: Boolean = false): List<DebitRegistry> = getAllItems(forceCache)
 }
