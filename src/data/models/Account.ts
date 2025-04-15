@@ -3,17 +3,17 @@ import  { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotO
 export enum AccountType {
     CURRENT = "CURRENT",
     SAVINGS = "SAVINGS",
-    CREDIT_CARD = "CREDIT_CARD",
-    INVESTMENT = "INVESTMENT"
+    INVESTMENT = "INVESTMENT",
+    CASH = "CASH",
 }
 
 export interface IAccount {
-    id: string;
+    id?: string;
     name: string;
     initialBalance: number;
     bankId: string;
     type: AccountType;
-    color: string;
+    color?: string;
     includeInTotal: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -26,24 +26,17 @@ export default class Account implements IAccount {
         public initialBalance: number,
         public bankId: string,
         public type: AccountType,
-        public color: string,
-        public includeInTotal: boolean,
-        public createdAt: Date,
-        public updatedAt: Date
+        public color?: string,
+        public includeInTotal: boolean = false,
+        public createdAt: Date = new Date(),
+        public updatedAt: Date = new Date()
     ) {}
 
     static firestoreConverter: FirestoreDataConverter<Account> = {
         toFirestore(account: Account): DocumentData {
-            return {
-                name: account.name,
-                initialBalance: account.initialBalance,
-                bankId: account.bankId,
-                type: account.type,
-                color: account.color,
-                includeInTotal: account.includeInTotal,
-                createdAt: account.createdAt,
-                updatedAt: account.updatedAt
-            };
+            const data = { ...account } as any;
+            delete data.id;
+            return data
         },
         fromFirestore(
             snapshot: QueryDocumentSnapshot,

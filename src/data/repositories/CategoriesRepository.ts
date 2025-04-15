@@ -52,8 +52,10 @@ export default class CategoriesRepository {
 		let querySnapshot: QuerySnapshot<Category>;
 		if (forceSource == "cache" || (this.shouldUseCache() && forceSource != 'server')) {
 			querySnapshot = await getDocsFromCache(this.ref);
+			console.log("CategoriesRepository: getDocsFromCache");
 		} else {
 			querySnapshot = await getDocs(this.ref);
+			console.log("CategoriesRepository: getDocs");
 			this.setLastUpdate()
 		}
 

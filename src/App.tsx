@@ -1,7 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Navigate, RouterProvider, createBrowserRouter, useParams } from 'react-router-dom';
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import TabScreen from './features/tabs/TabScreen';
 import LoginScreen from './features/login/LoginScreen';
@@ -49,13 +49,6 @@ function App() {
   useEffect(() => {
     onAuthStateChanged(getAuth(), (currentUser) => setUser(currentUser))
   }, [])
-
-  useEffect(() => {
-    if (user) {
-      new BanksRepository().getAll()
-      new CategoriesRepository().getAll()
-    }
-  }, [user])
 
   return (
     <div className="App dark">

@@ -36,7 +36,7 @@ export default class AccountsRepository {
         }
         return source.then(result => {
             let banks = result.docs.map(snap => snap.data())
-            return banks.sort((a, b) => a.when.localeCompare(b.when))
+            return banks.sort((a, b) => a.date.localCompare(b.date))
         })
 
     }

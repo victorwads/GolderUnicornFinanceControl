@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 
 import { SearchBarScreen } from "../components/fields/SearchBar"
 import BaseField from "../components/fields/BaseField"
@@ -17,14 +17,16 @@ interface BankSelectorParams {
 
 const BankSelector: React.FC<BankSelectorParams> = ({ label, bank, onChange }) => {
 
+	const repository = useMemo(() => new BanksRepository(), []);
 	let [isOpen, setIsOpen] = useState(false);
 	let [banks, setBanks] = useState<Bank[]>([]);
 	let [searchValue, setSearchValue] = useState("");
-	let repository = new BanksRepository();
 
 	useEffect(() => {
-		repository.getAll().then(setBanks)
-	}, []);
+		repository.waitInit().then(() => {
+			repository.getItems().then(setBanks)
+		});
+	}, [repository]);
 
 	function search(search: string = '') {
 		setSearchValue(search)

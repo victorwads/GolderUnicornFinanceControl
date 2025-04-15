@@ -17,15 +17,19 @@ const AccountsCard: React.FC<{}> = () => {
     let accountRepository = new AccountsRepository()
 
     useEffect(() => {
-        accountRepository.getAll().then(setAccounts)
+        banksRepository.waitInit().then(() => {
+            accountRepository.getItems().then(setAccounts)
+        })
     },[])
 
     return <>
         <Link to={'/accounts'}>Contas</Link>
         <Card>
             {accounts.map(account =>
-                <BankInfo bank={new Bank('', account.name, '',
-                    banksRepository.getById(account.bankId)?.logoUrl ?? '')} />
+                <BankInfo bank={new Bank(
+                    account.bankId, account.name, '',
+                    banksRepository.getLocalById(account.bankId)?.logoUrl
+                )} />
             )}
             <div style={{ textAlign: 'right' }}>
                 <Link to={'/accounts/create'}>Adicionar Conta</Link>
