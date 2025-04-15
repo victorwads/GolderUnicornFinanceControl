@@ -18,6 +18,10 @@ service cloud.firestore {
     match /Users/{userId} {
       allow read, write: if isOwner(userId);
 
+      match /Categories/{id} {
+        allow read, write: if isOwner(userId);
+      }
+
       match /Accounts/{id} {
         allow read, write: if isOwner(userId);
       }

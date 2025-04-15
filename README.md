@@ -51,6 +51,8 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
     - Transferencias entre contas.
     - Lista de Transferencias
     - Transferencia Futura.
+    - Duplicar Transação Debito
+    - Duplicar Transação Crédito
 - Objetivos
     - Cadastro de Objetivo
     - Vincular a Uma Conta/Saldo
@@ -60,6 +62,10 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
     - Adição Rápida (Templates de Gastos comums e repetivos como Uber, Onibus, Comidas etc..)
       Essa vale descrição: a Adição rapida é uma feature para evitar selecionar informações obvias como Nome, Categoria, Qual conta ou cartão para gastos repetitivos. Dessa forma, rapidamente pode se por somente o valor.
     - Modo viagem
+- Pessoas e Entidades
+    - Cadastro de Pessoas e Entidades
+    - Vincular a Entradas e Saidas
+    - Relatórios de Entradas e Saidas por Pessoas e Entidades
 - Configurações
     - Dashboard
         - Mês financeiro
