@@ -76,7 +76,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     console.log('Importação de despesas de conta finalizada.', Object.keys(this.items).length);
   }
   
-  private alreadyExists(registro: AccountsRegistry): number {
+  protected alreadyExists(registro: AccountsRegistry): number {
     return Object.values(this.items).filter(item =>
       item.accountId === registro.accountId &&
       item.value === registro.value &&
@@ -99,13 +99,5 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
       return acc;
     }, {} as any);
     console.log('Total por conta:', totalPorConta);
-  }
-
-  private async loadExistentes() {
-    const snapshot = await this.collection.get();
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      this.items[doc.id] = data;
-    });
   }
 }

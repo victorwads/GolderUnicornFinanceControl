@@ -62,13 +62,12 @@ export default class AccountsImporter extends Importer<Account, JsonConta> {
     console.log('Processamento concluído.', this.collection.id);
   }
 
-  private async loadExistentes() {
-    const snapshot = await this.collection.get();
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const key = data.id;
-      this.items[key] = data;
-    });
+  protected alreadyExists(item: Account): number {
+    return Object.values(this.items).filter(account => {
+      return account.name.toLowerCase() === item.name.toLowerCase() &&
+        account.bankId === item.bankId &&
+        account.type === item.type;
+    }).length;
   }
 
   public findByName(name: string): Account | undefined {

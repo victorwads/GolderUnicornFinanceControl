@@ -78,7 +78,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
     console.log('Importação de despesas de cartão finalizada.', Object.keys(this.items).length);
   }
 
-  private alreadyExists(registro: CreditCardRegistry): number {
+  protected alreadyExists(registro: CreditCardRegistry): number {
     return Object.values(this.items).filter(item =>
       item.cardId === registro.cardId &&
       item.value === registro.value &&

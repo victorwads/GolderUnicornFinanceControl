@@ -43,7 +43,7 @@ export default class CardsImporter extends Importer<CreditCard, JsonCartao> {
         docRef.id,
         jsonCard.nome,
         jsonCard.limite,
-        jsonCard.bandeira,
+        jsonCard.bandeira === "Outro" ? "elo" : jsonCard.bandeira.toLowerCase(),
         account?.id!,
         jsonCard.fechamento,
         jsonCard.vencimento,
@@ -55,15 +55,6 @@ export default class CardsImporter extends Importer<CreditCard, JsonCartao> {
     await batch.commit();
 
     console.log('Importação de cartões concluída.', this.collection.id);
-  }
-
-  private async loadExistentes() {
-    const snapshot = await this.collection.get();
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const key = data.id;
-      this.items[key] = data;
-    });
   }
 
   public findByName(name: string): CreditCard | undefined {

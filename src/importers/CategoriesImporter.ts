@@ -41,7 +41,7 @@ export default class CategoriesImporter extends Importer<Category, JsonCategoria
     );
   }
 
-  private async loadExistentes() {
+  protected async loadExistentes() {
     const snapshot = await this.collection.get();
     snapshot.forEach(doc => {
       const data = doc.data();

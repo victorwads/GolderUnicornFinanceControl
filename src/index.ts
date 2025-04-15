@@ -28,7 +28,7 @@ async function main() {
 
   const banks = new BanksImporter(db);
   await banks.loadFrom(dbProd);
-  // await banks.process();
+  await banks.process();
   
   const userPath = 'Users/fUztrRAGqQZ3lzT5AmvIki5x0443/';
   const categorias = new CategoriesImporter(db, userPath);  
