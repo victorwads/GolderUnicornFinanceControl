@@ -18,8 +18,6 @@ import ViewCreditCardsScreen from './features/creaditcards/ViewCreditCardsScreen
 import EditCreditCardsScreen from './features/creaditcards/EditCreditCardsScreen';
 import CategoriesScreen from './features/categories/CategoriesScreen';
 import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
-import BanksRepository from './data/repositories/BanksRepository';
-import CategoriesRepository from './data/repositories/CategoriesRepository';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },

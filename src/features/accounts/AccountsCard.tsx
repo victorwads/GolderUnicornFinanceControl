@@ -17,9 +17,10 @@ const AccountsCard: React.FC<{}> = () => {
     let accountRepository = new AccountsRepository()
 
     useEffect(() => {
-        banksRepository.waitInit().then(() => {
+        (async () => {
+            await banksRepository.waitInit()
             accountRepository.getItems().then(setAccounts)
-        })
+        })()
     },[])
 
     return <>
