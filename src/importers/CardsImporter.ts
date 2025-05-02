@@ -41,6 +41,8 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
         account?.id!,
         jsonCard.fechamento,
         jsonCard.vencimento,
+        jsonCard.arquivado ? true : false,
+        jsonCard.conta_id?.toString(),
       );
 
       batch.set(docRef, this.items[docRef.id]);

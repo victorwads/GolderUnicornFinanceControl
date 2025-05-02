@@ -48,9 +48,10 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
         json.valor,
         json.descricao,
         json.mes, json.ano, new Date(json.data_despesa),
+        json.tags?.split(',').map(tag => tag.trim()) ?? [],
         categoria.id,
         json.observacao?.toString(),
-        idx
+        json.id?.toString()
       );
 
       if (this.alreadyExists(registro) > 0) {

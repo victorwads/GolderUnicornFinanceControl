@@ -53,6 +53,6 @@ export default function processDataXlsx(): void {
       `[${chalk.yellow(sheetName)}] -> ${chalk.green(newFileName)}`
     );
 
-    generateInterfacesFromData(json, newFileName, resultDir, 'Csv');
+    generateInterfacesFromData(json, newFileName, resultDir, 'xlsx');
   });
 }

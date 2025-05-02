@@ -48,6 +48,7 @@ export default class AccountsImporter extends Importer<Account, Contas> {
         jsonAccount.saldo_inicial,
         bank?.id!,
         TiposToTypes[jsonAccount.tipo as keyof typeof TiposToTypes],
+        jsonAccount.arquivado ? true : false,
       );
 
       batch.set(docRef, this.items[docRef.id]);

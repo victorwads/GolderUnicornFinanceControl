@@ -55,6 +55,6 @@ export default function processCsvFiles(): void {
     fs.writeFileSync(jsonPath, JSON.stringify(json, null, 2), 'utf8');
     console.log(`Convertido: ${chalk.red(file)} -> ${chalk.green(newFileName)}`);
 
-    generateInterfacesFromData(json, newFileName, resultDir, 'Csv');
+    generateInterfacesFromData(json, newFileName, resultDir, 'csv');
   });
 }

@@ -48,9 +48,11 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
         json.valor,
         json.descricao,
         new Date(json.data_despesa),
+        json.situacao === 'PAGO',
+        json.tags ? json.tags.split(',').map(tag => tag.trim()) : [],
         categoria.id,
         json.observacao,
-        idx
+        json.id?.toString()
       );
 
       if (this.alreadyExists(registro) > 0) {
@@ -70,12 +72,14 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
   
   protected alreadyExists(registro: AccountsRegistry): number {
     return Object.values(this.items).filter(item =>
+      (item.importInfo === registro.importInfo) || (
       item.accountId === registro.accountId &&
       item.value === registro.value &&
       item.description === registro.description &&
       item.categoryId === registro.categoryId &&
       item.date.getTime() === registro.date.getTime() &&
       item.importInfo === registro.importInfo
+      )
     ).length;
   }
   
