@@ -20,8 +20,8 @@ export default abstract class Importer<T, JT> {
     });
   }
 
-  protected readJsonFile(fileName: string): JT[] {
-    const filePath = path.join(process.env.HOME || '', 'Downloads', 'mobills', fileName);
+  protected readJsonFile(fileInfo: {type: string, name: string}): JT[] {
+    const filePath = path.join(__dirname, '..', 'converter', 'result', fileInfo.type, fileInfo.name);
     const content = fs.readFileSync(filePath, 'utf8');
     console.log(`Lendo arquivo: ${filePath}`);
     return JSON.parse(content) as JT[];

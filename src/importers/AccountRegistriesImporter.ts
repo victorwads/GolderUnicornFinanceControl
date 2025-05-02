@@ -3,19 +3,9 @@ import CategoriesImporter from './CategoriesImporter';
 import { Collections } from '../data/firebase/Collections';
 import AccountsImporter from './AccountsImporter';
 import AccountsRegistry from '../data/models/AccountRegistry';
+import {Despesas, DespesasFile} from '../converter/result/csv/despesas';
 
-interface JsonAccountRegistry {
-  valor: number;
-  descricao: string;
-  data_despesa: string;
-  categoria: string;
-  sub_categoria?: string;
-  conta: string;
-  observacao?: string;
-}
-
-
-export default class AccountRegistriesImporter extends Importer<AccountsRegistry, JsonAccountRegistry> {
+export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas> {
 
   constructor(
     private accounts: AccountsImporter,
@@ -31,7 +21,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    const data = this.readJsonFile('despesas.json');
+    const data = this.readJsonFile(DespesasFile);
 
     const batch = this.db.batch();
 
