@@ -7,7 +7,7 @@ import BankInfo from "../banks/BankInfo"
 import Bank from "../../data/models/Bank"
 import BanksRepository from "../../data/repositories/BanksRepository"
 import CreditCard from "../../data/models/CreditCard"
-import CreditcardsRepository from "../../data/repositories/CreditcardsRepository"
+import CreditcardsRepository from "../../data/repositories/CreditCardsRepository"
 import AccountsRepository from "../../data/repositories/AccountsRepository"
 
 
@@ -20,7 +20,7 @@ const CreditCardsCard: React.FC<{}> = () => {
 
     useEffect(() => {
         (async () => {
-            creditCardsRepository.getItems().then(setCreditCards)
+            creditCardsRepository.getAll().then(setCreditCards)
         })()
     },[])
 

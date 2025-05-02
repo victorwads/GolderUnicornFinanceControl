@@ -10,7 +10,7 @@ export interface IAccountsRegistry {
   tags?: string[],
   categoryId?: string,
   observation?: string,
-  importInfo?: any
+  importInfo?: string
 }
 
 export default class AccountsRegistry implements IAccountsRegistry {
@@ -24,7 +24,7 @@ export default class AccountsRegistry implements IAccountsRegistry {
     public tags: string[] = [],
     public categoryId?: string,
     public observation?: string,
-    public importInfo?: any
+    public importInfo?: string
   ) { }
 
   static firestoreConverter: FirestoreDataConverter<AccountsRegistry> = {

@@ -24,7 +24,7 @@ const BankSelector: React.FC<BankSelectorParams> = ({ label, bank, onChange }) =
 
 	useEffect(() => {
 		repository.waitInit().then(() => {
-			repository.getItems().then(setBanks)
+			repository.getAll().then(setBanks)
 		});
 	}, [repository]);
 

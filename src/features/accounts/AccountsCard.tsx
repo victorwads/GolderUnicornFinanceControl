@@ -20,7 +20,7 @@ const AccountsCard: React.FC<{}> = () => {
 
         (async () => {
             await banksRepository.waitInit()
-            accountRepository.getItems().then(setAccounts)
+            accountRepository.getAll().then(setAccounts)
         })()
     },[])
 

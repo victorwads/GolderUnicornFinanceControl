@@ -1,69 +1,21 @@
-import {
-	getFirestore,
-	collection,
-	addDoc,
-	CollectionReference,
-	DocumentData,
-	Firestore,
-	getDocs,
-	getDocsFromCache,
-	QuerySnapshot,
-} from "firebase/firestore";
-import { Collections } from "../../data/firebase/Collections";
+import BaseRepository from "./Repository";
+
 import Category from "../models/Category";
-import { getAuth } from "firebase/auth";
+import { Collections } from "../../data/firebase/Collections";
 
-interface RootCategory {
-	category: Category;
-	children: Category[];
-}
+export default class CategoriesRepository extends BaseRepository<Category> {
 
-export default class CategoriesRepository {
-	private static lastUpdateKey = 'lastCategoriesUpdate';
-	private static cacheDuration = 24 * 60 * 60 * 1000;
-	private db: Firestore;
-	private ref: CollectionReference<Category, DocumentData>;
-
-	private static rootCategoriesCache: RootCategory[] = [];
-	private static categoriesCache: Map<string, Category> = new Map();
+	protected cacheDuration: number = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 	constructor(userId?: string) {
-		let finalUserId = userId ?? getAuth().currentUser?.uid ?? ""
-		if (finalUserId == "") {
-			throw new Error("Invalid userId")
-		}
-		this.db = getFirestore();
-		this.ref = collection(this.db, `${Collections.Users}/${finalUserId}/${Collections.Categories}`)
-			.withConverter(Category.firestoreConverter);
+		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category.firestoreConverter, true);
 	}
 
-	private shouldUseCache() {
-		let lastUpdate: string = localStorage.getItem(CategoriesRepository.lastUpdateKey) ?? "0"
-		return (Date.now() - parseInt(lastUpdate)) < CategoriesRepository.cacheDuration
-	}
-
-	private setLastUpdate() {
-		localStorage.setItem(CategoriesRepository.lastUpdateKey, Date.now().toString());
-	}
-
-	public addCategory = async (category: Category) => addDoc(this.ref, category);
-
-	public getAll = async (forceSource: null | "server" | "cache" = null): Promise<RootCategory[]> => {
-		let querySnapshot: QuerySnapshot<Category>;
-		if (forceSource == "cache" || (this.shouldUseCache() && forceSource != 'server')) {
-			querySnapshot = await getDocsFromCache(this.ref);
-			console.log("CategoriesRepository: getDocsFromCache");
-		} else {
-			querySnapshot = await getDocs(this.ref);
-			console.log("CategoriesRepository: getDocs");
-			this.setLastUpdate()
-		}
-
+	public getAllRoots = async (): Promise<RootCategory[]> => {
 		let rootCategories: RootCategory[] = [];
 		let categories: Map<string, Category> = new Map();
 
-		querySnapshot.forEach((doc) => {
-			const category = doc.data();
+		(await this.getAll()).forEach((category) => {
 			categories.set(category.id, category);
 			if (!category.parentId) {
 				rootCategories.push({
@@ -88,6 +40,13 @@ export default class CategoriesRepository {
 		return rootCategories;
 	};
 
+	private static rootCategoriesCache: RootCategory[] = [];
+	private static categoriesCache: Map<string, Category> = new Map();
 	public static getById = (id?: string): Category | undefined =>
 		id ? CategoriesRepository.categoriesCache.get(id) : undefined;
+}
+
+interface RootCategory {
+	category: Category;
+	children: Category[];
 }

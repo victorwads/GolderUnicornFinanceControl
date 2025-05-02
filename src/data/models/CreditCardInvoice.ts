@@ -10,6 +10,7 @@ export interface ICreditCardInvoice {
   paidValue: number,
   paymentDate: Date,
   paymentAccountId: string,
+  importInfo?: string
 }
 
 
@@ -24,6 +25,7 @@ export default class CreditCardInvoice implements ICreditCardInvoice {
     public paymentDate: Date,
     public paymentAccountId: string,
     public paidValue: number,
+    public importInfo?: string
   ) { }
 
   static firestoreConverter: FirestoreDataConverter<CreditCardInvoice> = {
@@ -44,6 +46,7 @@ export default class CreditCardInvoice implements ICreditCardInvoice {
         data.paymentDate.toDate(),
         data.paymentAccountId,
         data.paidValue,
+        data.importInfo
       );
     },
   };

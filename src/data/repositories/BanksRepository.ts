@@ -1,13 +1,14 @@
+import BaseRepository from './Repository';
+
 import Bank from '../models/Bank'
 import { Collections } from '../../data/firebase/Collections'
-import BaseRepository from './BaseRepository';
 
 class BanksRepository extends BaseRepository<Bank> {
     
-    protected cacheDuration = 30 * 24 * 60 * 60 * 1000;
+    protected cacheDuration = 30 * 24 * 60 * 60 * 1000 // 30 days
 
     constructor() {
-        super(Collections.Banks, Bank.firestoreConverter, true)
+        super(Collections.Banks, Bank.firestoreConverter, true, false)
     }
 
     public getFiltered = async (search: string) => {
