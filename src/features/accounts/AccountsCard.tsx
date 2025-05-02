@@ -15,8 +15,8 @@ interface WithInfoAccount extends Account {
 }
 
 const AccountsCard: React.FC<{}> = () => {
-
-    let [accounts, setAccounts] = useState<WithInfoAccount[]>([])
+    const [accounts, setAccounts] = useState<WithInfoAccount[]>([])
+    const [showArchived, setShowArchived] = useState(false)
     
     useEffect(() => {
         const banksRepository = new BanksRepository();
@@ -26,9 +26,7 @@ const AccountsCard: React.FC<{}> = () => {
             await banksRepository.waitInit()
             await accountRepository.waitInit()
             setAccounts(
-                accountRepository.getCache()
-                .map(account => {
-                    let bank = banksRepository.getLocalById(account.bankId)!;
+                accountRepository.getCache().map(account => {
                     return {
                         ...account,
                         bank: new Bank(
@@ -43,9 +41,12 @@ const AccountsCard: React.FC<{}> = () => {
     },[])
 
     return <>
+        <div>
+            <span onClick={() => setShowArchived(!showArchived)}><input type="checkbox" checked={showArchived} /> Show archived</span>
+        </div>
         <Link to={'/accounts'}>Contas</Link>
         <Card>
-            {accounts.map(account => <Link to={'/main/timeline/' + account.id} key={account.id}>
+            {accounts.filter(account => showArchived || !account.archived).map(account => <Link to={'/main/timeline/' + account.id} key={account.id}>
                 <BankInfo bank={account.bank} balance={account.balance} />
             </Link>)}
             <div style={{ textAlign: 'right' }}>

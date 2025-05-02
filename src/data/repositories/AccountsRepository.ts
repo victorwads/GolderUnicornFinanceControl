@@ -29,18 +29,22 @@ export default class AccountsRepository extends BaseRepository<Account> {
         super.waitInit();
     }
 
-    public getAccountBalance(accountId?: string): number {
-        return this.getAccountItems(accountId).reduce((acc, item) =>
+    public getAccountBalance(accountId?: string, showArchived: boolean = false): number {
+        return this.getAccountItems(accountId, showArchived).reduce((acc, item) =>
             item.paid ? acc + item.value : acc,
             this.getLocalById(accountId)?.initialBalance ?? 0
         );
     }
 
-    public getAccountItems(accountId?: string): AccountsRegistry[] {
+    public getAccountItems(accountId?: string, showArchived: boolean = false): AccountsRegistry[] {
         const registries = this.registries.getCache()
-            .filter(registry => !accountId || registry.accountId === accountId);
+        .filter(registry => (
+            accountId
+            ? registry.accountId === accountId
+            : showArchived || !this.getLocalById(registry.accountId)?.archived
+        ));
         const invoices = this.invoices.getCache()
-            .filter(registry => !accountId || this.cards.getLocalById(registry.cardId)?.accountId === accountId);;
+            .filter(registry => !accountId || registry.paymentAccountId === accountId);
 
         invoices.forEach((invoice) => {
             const invoiceRegistry = new AccountsRegistry(

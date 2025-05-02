@@ -21,6 +21,7 @@ interface WithInfoRegistry extends AccountsRegistry {
 }
 
 const TimelineScreen = () => {
+  const [showArchived, setShowArchived] = useState(false)
   const [registries, setRegistries] = useState<WithInfoRegistry[]>([]);
   const [selectedBank, setSelectedBank] = useState<Bank|null>(null);
   const [total, setTotal] = useState(0);
@@ -43,8 +44,8 @@ const TimelineScreen = () => {
           banks.getLocalById(accounts.getLocalById(params.id)?.bankId ?? "") ?? null
         );
       }
-      setTotal(registries.getAccountBalance(params.id));
-      setRegistries(registries.getAccountItems(params.id).map((registry) => {
+      setTotal(registries.getAccountBalance(params.id, showArchived));
+      setRegistries(registries.getAccountItems(params.id, showArchived).map((registry) => {
         return {
           ...registry,
           category: categories.getLocalById(registry.categoryId),
@@ -52,7 +53,7 @@ const TimelineScreen = () => {
         };
       }));
     })();
-  }, [params.id]);
+  }, [params.id, showArchived]);
 
   let perDayTotal = total;
   let currentDay = registries[0]?.date.getDate();
@@ -65,6 +66,9 @@ const TimelineScreen = () => {
           <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
             {formatNumber(total)}
           </span>
+        </div>
+        <div>
+            <span onClick={() => setShowArchived(!showArchived)}><input type="checkbox" checked={showArchived} /> Show archived</span>
         </div>
       </div>
       <div className="TimelineList">
@@ -108,6 +112,9 @@ const TimelineScreen = () => {
           </div>
           </>
         })}
+        <div className={`TimelineItemTodayLine ${perDayTotal >= 0 ? "positive" : "negative"}`}>
+          {formatNumber(perDayTotal)}
+        </div>
       </div>
     </div>
   );
