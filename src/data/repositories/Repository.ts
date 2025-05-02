@@ -44,6 +44,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   }
 
   public async waitInit(): Promise<void> {
+    this.validateCache();
     await BaseRepository.localCacheStates[this.collectionName];
   }
 
@@ -52,8 +53,8 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     queryBuilder: (ref: CollectionReference<Model>) => Query<Model> = (ref) => ref,
     onItemDecoded: (model: Model) => void = () => {}
   ): Promise<Model[]> {
-    if (this.useLocalCache && BaseRepository.localCache[this.collectionName]) {
-      await this.waitInit();
+    if (this.useLocalCache) {
+      await BaseRepository.localCacheStates[this.collectionName];
     }
 
     console.log("getAll", this.collectionName, forceCache);
@@ -78,6 +79,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   }
 
   public getLocalById(id?: string): Model | undefined {
+    this.validateCache();
     return BaseRepository.localCache[this.collectionName][id ?? ""] as Model;
   }
 
@@ -90,7 +92,8 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     return result;
   }
 
-  protected getCache(): Model[] {
+  public getCache(): Model[] {
+    this.validateCache();
     return Object.values(BaseRepository.localCache[this.collectionName] || {}) as Model[];
   }
 
@@ -103,7 +106,13 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     localStorage.setItem(this.lastUpdateKey, Date.now().toString());
   }
 
-  protected getUserId(custom?: string): string {
+  private validateCache(): void {
+    if (!this.useLocalCache) {
+      throw new Error("Local cache is not enabled for this repository");
+    }
+  }
+
+  private getUserId(custom?: string): string {
     const userId = custom ?? getAuth().currentUser?.uid;
     if (!userId) {
       throw new Error("Invalid userId");

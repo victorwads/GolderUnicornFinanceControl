@@ -8,6 +8,6 @@ export default class CreditCardInvoicesRepository extends BaseRepository<CreditC
   protected cacheDuration = 24 * 60 * 60 * 1000; // 1 dia
 
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.CreditCardInvoices}`, CreditCardInvoice.firestoreConverter);
+    super(`${Collections.Users}/{userId}/${Collections.CreditCardInvoices}`, CreditCardInvoice.firestoreConverter, true);
   }
 }

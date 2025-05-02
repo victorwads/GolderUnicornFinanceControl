@@ -2,10 +2,8 @@ import "./TimelineScreen.css";
 import { useEffect, useState } from "react";
 
 import AccountsRegistry from "../../../data/models/AccountRegistry";
-import AccountRegistriesRepository from "../../../data/repositories/AccountsRegistryRepository";
 import CategoriesRepository from "../../../data/repositories/CategoriesRepository";
-import CreditCardInvoicesRepository from "../../../data/repositories/CreditCardsInvoicesRepository";
-import CreditcardsRepository from "../../../data/repositories/CreditCardsRepository";
+import AccountsRepository from "../../../data/repositories/AccountsRepository";
 
 const getById = CategoriesRepository.getById;
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
@@ -18,35 +16,18 @@ const TimelineScreen = () => {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const card = new CreditcardsRepository();
-    const registries = new AccountRegistriesRepository();
-    const categories = new CategoriesRepository().getAll()
-    const invoices = new CreditCardInvoicesRepository().getAll();
+    const registries = new AccountsRepository();
+    const categories = new CategoriesRepository();
 
-    registries.getAll().then(async (data) => {
-      await card.waitInit();
+    (async () => {
+      await registries.waitInit();
+      await categories.waitInit();
 
-      (await invoices).forEach((invoice) => {
-        const invoiceRegistry = new AccountsRegistry(
-          'invoice-' + invoice.id,
-          card.getLocalById(invoice.cardId)?.accountId ?? "",
-          invoice.paidValue * -1,
-          "Pagamento de fatura",
-          new Date(invoice.paymentDate)
-        );
-        data.push(invoiceRegistry);
-      });
-
-      const now = new Date();
-      const sortedData = data
-      .filter((registry) => registry.date.getTime() <= now.getTime())
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
-
-      const totalValue = sortedData.reduce((acc, registry) => acc + registry.value, 0);
-      await categories;
+      const all = registries.getAccountItems();
+      const totalValue = all.reduce((acc, registry) => acc + registry.value, 0);
       setTotal(totalValue);
-      setRegistries(sortedData);
-    });
+      setRegistries(all);
+    })();
   }, []);
 
   let perDayTotal = total;

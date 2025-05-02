@@ -8,6 +8,6 @@ export default class AccountsRegistryRepository extends BaseRepository<AccountsR
   protected cacheDuration = 24 * 60 * 60 * 1000; // 1 dia
 
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.AccountsRegistries}`, AccountsRegistry.firestoreConverter);
+    super(`${Collections.Users}/{userId}/${Collections.AccountsRegistries}`, AccountsRegistry.firestoreConverter, true);
   }
 }
