@@ -15,6 +15,7 @@ export interface IAccount {
     type: AccountType;
     color?: string;
     includeInTotal: boolean;
+    archived: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -26,6 +27,7 @@ export default class Account implements IAccount {
         public initialBalance: number,
         public bankId: string,
         public type: AccountType,
+        public archived: boolean = false,
         public color?: string,
         public includeInTotal: boolean = false,
         public createdAt: Date = new Date(),
@@ -49,6 +51,7 @@ export default class Account implements IAccount {
                 data.initialBalance,
                 data.bankId,
                 data.type,
+                data.archived,
                 data.color,
                 data.includeInTotal,
                 data.createdAt.toDate(),

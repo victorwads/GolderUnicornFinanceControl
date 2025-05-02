@@ -1,23 +1,25 @@
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore'
 
-export interface ICard {
+export interface ICardRegistry {
   id: string,
   cardId: string,
   value: number,
   description: string,
-  month: string, year: number, date: Date,
+  month: number, year: number, date: Date,
+  tags?: string[],
   categoryId?: string,
   observation?: string,
-  importInfo: any
+  importInfo?: string
 }
 
-export default class CreditCardRegistry {
+export default class CreditCardRegistry implements ICardRegistry {
   constructor(
     public id: string,
     public cardId: string,
     public value: number,
     public description: string,
     public month: number, public year: number, public date: Date,
+    public tags: string[] = [],
     public categoryId?: string,
     public observation?: string,
     public importInfo?: any
@@ -40,6 +42,7 @@ export default class CreditCardRegistry {
         data.value,
         data.description,
         data.month, data.year, data.date.toDate(),
+        data.tags ?? [],
         data.categoryId,
         data.observation,
         data.importInfo

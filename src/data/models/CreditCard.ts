@@ -6,10 +6,10 @@ export interface ICard {
   limit: number;
   brand: string;
   accountId: string;
-  closingDay: number;
-  dueDay: number;
-  createdAt: Date;
-  updatedAt: Date;
+  closingDay: number; dueDay: number;
+  createdAt: Date; updatedAt: Date;
+  archived?: boolean,
+  importInfo?: string
 }
 
 export default class CreditCard implements ICard {
@@ -21,8 +21,10 @@ export default class CreditCard implements ICard {
     public accountId: string,
     public closingDay: number,
     public dueDay: number,
+    public archived: boolean = false,
+    public importInfo?: any,
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
   ) { }
 
   static firestoreConverter: FirestoreDataConverter<CreditCard> = {
@@ -44,8 +46,10 @@ export default class CreditCard implements ICard {
         data.accountId,
         data.closingDay,
         data.dueDay,
-        data.createdAt.toDate(),
-        data.updatedAt.toDate()
+        data.archived,
+        data.importInfo,
+        data.createdAt?.toDate(),
+        data.updatedAt?.toDate(),
       );
     }
   };

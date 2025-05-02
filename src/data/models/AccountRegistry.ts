@@ -6,6 +6,8 @@ export interface IAccountsRegistry {
   value: number,
   description: string,
   date: Date,
+  paid: boolean,
+  tags?: string[],
   categoryId?: string,
   observation?: string,
   importInfo?: any
@@ -18,6 +20,8 @@ export default class AccountsRegistry implements IAccountsRegistry {
     public value: number,
     public description: string,
     public date: Date,
+    public paid: boolean = false,
+    public tags: string[] = [],
     public categoryId?: string,
     public observation?: string,
     public importInfo?: any
@@ -40,6 +44,8 @@ export default class AccountsRegistry implements IAccountsRegistry {
         data.value,
         data.description,
         data.date.toDate(),
+        data.paid,
+        data.tags ?? [],
         data.categoryId,
         data.observation,
         data.importInfo
