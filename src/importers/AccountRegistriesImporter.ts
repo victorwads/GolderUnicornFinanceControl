@@ -51,9 +51,10 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
         return;
       }
 
-      multiplier = multiplier === 0
-        ? (json.descricao === "Transferência de Saída" ? -1 : 1)
-        : multiplier;
+      if('data_transferencia' in json) {
+        multiplier = json.descricao === "Transferência de Saída" ? -1 : 1
+        console.log(`Transferência ${json.descricao} ${multiplier}`);
+      }
 
       const registro = new AccountsRegistry(
         "",
@@ -66,7 +67,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
           (json as Transferencias).data_transferencia
         ),
         'situacao' in json
-          ? json.situacao === 'PAGO' || json.situacao === "PENDENTE"
+          ? json.situacao === 'PAGO' || json.situacao === "RECEBIDO"
           : true,
         json.tags ? json.tags.split(',').map(tag => tag.trim()) : [],
         categoria?.id,
