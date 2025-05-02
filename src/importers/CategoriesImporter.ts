@@ -56,7 +56,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
     for (const item of raiz) {
       const key = `root__${item.nome}`;
 
-      const ref = this.collection.doc(this.items[key]?.id);
+      const ref = this.items[key]?.id ? this.collection.doc(this.items[key]?.id) : this.collection.doc();
       this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor));
 
       batchRaiz.set(ref, this.items[key]);
@@ -77,7 +77,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
 
       const key = `${parentCategory.id}__${item.nome}`;
 
-      const ref = this.collection.doc(this.items[key]?.id);
+      const ref = this.items[key]?.id ? this.collection.doc(this.items[key]?.id) : this.collection.doc();
       this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor), parentCategory.id);
 
       batchFilhas.set(ref, this.items[key]);

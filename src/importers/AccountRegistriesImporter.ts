@@ -35,8 +35,6 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
     let equals = 0;
     data.forEach((json, idx) => {
-      const docRef = this.collection.doc();
-
       const account = this.accounts.findByName(json.conta);
       if (!account?.id) {
         console.error(`Bank account ${json.conta} não encontrado.`);
@@ -49,7 +47,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
       }
 
       const registro = new AccountsRegistry(
-        docRef.id,
+        "",
         account.id,
         json.valor * multiplier,
         json.descricao,
@@ -64,11 +62,12 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
         json.id?.toString()
       );
 
-      if (this.alreadyExists(registro) > 0) {
+      const some = this.alreadyExists(registro);
+      if (some) {
         equals++;
-        return;
       }
 
+      const docRef = some?.id ? this.collection.doc(some?.id) : this.collection.doc();
       this.items[docRef.id] = registro;
       batch.set(docRef, registro);
     });
@@ -79,17 +78,16 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     console.log('Importação de despesas de conta finalizada.', Object.keys(this.items).length);
   }
   
-  protected alreadyExists(registro: AccountsRegistry): number {
-    return Object.values(this.items).filter(item =>
+  protected alreadyExists(registro: AccountsRegistry): AccountsRegistry | undefined {
+    return Object.values(this.items).find(item =>
       (item.importInfo === registro.importInfo) || (
       item.accountId === registro.accountId &&
       item.value === registro.value &&
       item.description === registro.description &&
       item.categoryId === registro.categoryId &&
-      item.date.getTime() === registro.date.getTime() &&
-      item.importInfo === registro.importInfo
+      item.date.getTime() === registro.date.getTime()
       )
-    ).length;
+    );
   }
   
   private sumAndPrint() {

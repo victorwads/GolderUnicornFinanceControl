@@ -26,7 +26,6 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
     const batch = this.db.batch();
 
     for (const json of data) {
-      const docRef = this.collection.doc();
       const invoiceDate = new Date(json.data_fatura);
       const card = this.cards.findByName(json.cartao);
       if(!card) {
@@ -41,7 +40,7 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
       }
 
       const invoice = new CreditCardInvoice(
-        docRef.id,
+        "",
         card.id,
         invoiceDate,
         invoiceDate.getUTCFullYear(),
@@ -50,7 +49,12 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
         new Date(json.data_pagamento),
         account?.id,
         json.valor_pago,
+        json.id?.toString(),
       );
+
+      const existing = this.alreadyExists(invoice);
+      const docRef = existing ? this.collection.doc(existing.id) : this.collection.doc();
+      invoice.id = docRef.id;
 
       this.items[docRef.id] = invoice;
       batch.set(docRef, invoice);
@@ -60,4 +64,17 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
 
     console.log('Importação de faturas finalizada.');
   }
+
+    protected alreadyExists(registro: CreditCardInvoice): CreditCardInvoice | undefined {
+      return Object.values(this.items).find(item =>
+        (item.importInfo === registro.importInfo) || (
+        item.cardId === registro.cardId &&
+        item.year === registro.year &&
+        item.month === registro.month &&
+        item.paidValue === registro.paidValue &&
+        item.paymentDate.getTime() === registro.paymentDate.getTime() &&
+        item.value === registro.value
+        )
+      );
+    }
 }
