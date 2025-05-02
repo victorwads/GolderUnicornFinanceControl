@@ -1,11 +1,14 @@
 import "./TimelineScreen.css";
+import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 
+import Bank from "../../../data/models/Bank";
+import Account from "../../../data/models/Account";
+import Category from "../../../data/models/Category";
+import BanksRepository from "../../../data/repositories/BanksRepository";
 import AccountsRegistry from "../../../data/models/AccountRegistry";
 import CategoriesRepository from "../../../data/repositories/CategoriesRepository";
 import AccountsRepository from "../../../data/repositories/AccountsRepository";
-import Category from "../../../data/models/Category";
-import Account from "../../../data/models/Account";
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -14,27 +17,34 @@ const formatNumber = (number: number) => number.toLocaleString(navigator.languag
 
 interface WithInfoRegistry extends AccountsRegistry {
   category?: Category;
-  account?: Account;
+  account: Account;
 }
 
 const TimelineScreen = () => {
   const [registries, setRegistries] = useState<WithInfoRegistry[]>([]);
+  const [selectedBank, setSelectedBank] = useState<Bank|null>(null);
   const [total, setTotal] = useState(0);
+  const params = useParams<{ id?: string }>();
 
   useEffect(() => {
     const registries = new AccountsRepository();
     const categories = new CategoriesRepository();
     const accounts = new AccountsRepository();
+    const banks = new BanksRepository();
 
     (async () => {
       await registries.waitInit();
       await categories.waitInit();
       await accounts.waitInit();
+      await banks.waitInit();
 
-      const all = registries.getAccountItems();
-      const totalValue = all.reduce((acc, registry) => acc + registry.value, 0);
-      setTotal(totalValue);
-      setRegistries(all.map((registry) => {
+      if(params.id) {
+        setSelectedBank(
+          banks.getLocalById(accounts.getLocalById(params.id)?.bankId ?? "") ?? null
+        );
+      }
+      setTotal(registries.getAccountBalance(params.id));
+      setRegistries(registries.getAccountItems(params.id).map((registry) => {
         return {
           ...registry,
           category: categories.getLocalById(registry.categoryId),
@@ -42,14 +52,14 @@ const TimelineScreen = () => {
         };
       }));
     })();
-  }, []);
+  }, [params.id]);
 
   let perDayTotal = total;
   let currentDay = registries[0]?.date.getDate();
   return (
     <div className="Screen">
       <div className="ScreenHeader">
-        <h1>Timeline</h1>
+        <h1>Timeline{selectedBank ? ` - ${selectedBank.name}` : ''}</h1>
         <div className="ScreenTotal">
           <span>Total:</span>
           <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
@@ -57,7 +67,6 @@ const TimelineScreen = () => {
           </span>
         </div>
       </div>
-      <h1>Timeline</h1>
       <div className="TimelineList">
         {registries.map((registry) => {
           const isCurrentDay = registry.date.getDate() === currentDay;
@@ -79,12 +88,14 @@ const TimelineScreen = () => {
 
             {/* Área Central: Informações principais */}
             <div className="TimelineContent">
-              {registry.id}
+              {registry.paid.toString()}
               <div className="TimelineDescription">{registry.description}</div>
               <div className="TimelineDetails">
                 <span className="TimelineDate">{registry.date.toLocaleDateString()}</span>
                 {registry.categoryId && <span className="TimelineCategoryName">{registry.category?.name}</span>}
-                {registry.account && <span className="TimelineBankName">{registry.account.name}</span>}
+                <Link to={'/main/timeline/' + registry.accountId}>
+                  <span className="TimelineBankName">{registry.account.name}</span>
+                </Link>
               </div>
             </div>
 

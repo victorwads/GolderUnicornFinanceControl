@@ -24,7 +24,7 @@ const router = createBrowserRouter([
   {
     path: '/main', element: <TabScreen />, children: [
       { path: 'dashboard', element: <DashboardScreen /> },
-      { path: 'timeline', element: <TimelineScreen /> },
+      { path: 'timeline/:id?', element: <TimelineScreen /> },
       { path: 'settings', element: <SettingsScreen /> },
     ]
   },

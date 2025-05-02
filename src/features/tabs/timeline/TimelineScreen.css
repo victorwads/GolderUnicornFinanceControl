@@ -2,6 +2,10 @@
   padding: 16px;
 }
 
+.ScreenHeader {
+  margin-bottom: 30px;
+}
+
 .TimelineList {
   display: flex;
   flex-direction: column;

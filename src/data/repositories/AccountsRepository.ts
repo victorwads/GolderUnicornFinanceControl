@@ -30,7 +30,10 @@ export default class AccountsRepository extends BaseRepository<Account> {
     }
 
     public getAccountBalance(accountId?: string): number {
-        return this.getAccountItems(accountId).reduce((acc, item) => acc + item.value, 0);
+        return this.getAccountItems(accountId).reduce((acc, item) =>
+            item.paid ? acc + item.value : acc,
+            this.getLocalById(accountId)?.initialBalance ?? 0
+        );
     }
 
     public getAccountItems(accountId?: string): AccountsRegistry[] {
@@ -44,8 +47,9 @@ export default class AccountsRepository extends BaseRepository<Account> {
                 'invoice-' + invoice.id,
                 this.cards.getLocalById(invoice.cardId)?.accountId ?? "",
                 invoice.paidValue * -1,
-                "Pagamento de fatura",
-                new Date(invoice.paymentDate)
+                `Pagamento de fatura - ${this.cards.getLocalById(invoice.cardId)?.name}`,
+                new Date(invoice.paymentDate),
+                true
             );
             registries.push(invoiceRegistry);
         });

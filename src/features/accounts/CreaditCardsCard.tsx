@@ -31,7 +31,7 @@ const CreditCardsCard: React.FC<{}> = () => {
                 let account = accountRepository.getLocalById(creditCard.accountId);
                 let bank = banksRepository.getLocalById(account?.bankId);
                 if (!bank) return null
-                return <BankInfo bank={new Bank('', creditCard.name, '', creditCard.brand.toLowerCase() + '.png')} />
+                return <BankInfo key={creditCard.id} bank={new Bank('', creditCard.name, '', creditCard.brand.toLowerCase() + '.png')} />
             })}
             <div style={{ textAlign: 'right' }}>
                 <Link to={'/creditcards/create'}>Adicionar Conta</Link>

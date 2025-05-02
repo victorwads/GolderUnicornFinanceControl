@@ -53,7 +53,6 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     queryBuilder: (ref: CollectionReference<Model>) => Query<Model> = (ref) => ref,
     onItemDecoded: (model: Model) => void = () => {}
   ): Promise<Model[]> {
-    console.log("getAllInit", this.collectionName, forceCache);
     let result: QuerySnapshot<Model>;
     if (forceCache || this.shouldUseCache()) {
       result = await getDocsFromCache(queryBuilder(this.ref));
@@ -71,7 +70,6 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       return item;
     });
 
-    console.log("getAllEnd", this.collectionName, items);
     return items;
   }
 

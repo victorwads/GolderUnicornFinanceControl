@@ -9,30 +9,45 @@ import BanksRepository from "../../data/repositories/BanksRepository"
 import Account from "../../data/models/Account"
 import AccountsRepository from "../../data/repositories/AccountsRepository"
 
+interface WithInfoAccount extends Account {
+    bank: Bank
+    balance: number
+}
+
 const AccountsCard: React.FC<{}> = () => {
 
-    let [accounts, setAccounts] = useState<Account[]>([])
-    const banksRepository = new BanksRepository();
-    const accountRepository = new AccountsRepository();
+    let [accounts, setAccounts] = useState<WithInfoAccount[]>([])
     
     useEffect(() => {
+        const banksRepository = new BanksRepository();
+        const accountRepository = new AccountsRepository();
+
         (async () => {
             await banksRepository.waitInit()
             await accountRepository.waitInit()
-            setAccounts(accountRepository.getCache())
+            setAccounts(
+                accountRepository.getCache()
+                .map(account => {
+                    let bank = banksRepository.getLocalById(account.bankId)!;
+                    return {
+                        ...account,
+                        bank: new Bank(
+                            account.bankId, account.name, '',
+                            banksRepository.getLocalById(account.bankId)?.logoUrl
+                        ),
+                        balance: accountRepository.getAccountBalance(account.id)
+                    }
+                })
+            )
         })()
     },[])
 
     return <>
         <Link to={'/accounts'}>Contas</Link>
         <Card>
-            {accounts.map(account => <>
-                <BankInfo bank={new Bank(
-                    account.bankId, account.name, '',
-                    banksRepository.getLocalById(account.bankId)?.logoUrl
-                )} balance={accountRepository.getAccountBalance(account.id)} />
-                
-            </>)}
+            {accounts.map(account => <Link to={'/main/timeline/' + account.id} key={account.id}>
+                <BankInfo bank={account.bank} balance={account.balance} />
+            </Link>)}
             <div style={{ textAlign: 'right' }}>
                 <Link to={'/accounts/create'}>Adicionar Conta</Link>
             </div>
