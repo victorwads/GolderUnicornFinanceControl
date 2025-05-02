@@ -1,4 +1,4 @@
-import Importer from './Importer';
+import Importer, { FileInfo } from './Importer';
 import AccountsImporter from './AccountsImporter';
 import CategoriesImporter from './CategoriesImporter';
 
@@ -6,8 +6,9 @@ import { Collections } from '../data/firebase/Collections';
 import AccountsRegistry from '../data/models/AccountRegistry';
 
 import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
+import {Receitas, ReceitasFile} from '../converter/result/xlsx/receitas';
 
-export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas> {
+export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas|Receitas> {
 
   constructor(
     private accounts: AccountsImporter,
@@ -23,7 +24,12 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    const data = this.readJsonFile(DespesasFile);
+    this.processFile(DespesasFile, -1);
+    this.processFile(ReceitasFile, 1);
+  }
+
+  async processFile(file: FileInfo, multiplier: number): Promise<void> {
+    const data = await this.readJsonFile(file);
 
     const batch = this.db.batch();
 
@@ -45,13 +51,16 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
       const registro = new AccountsRegistry(
         docRef.id,
         account.id,
-        json.valor,
+        json.valor * multiplier,
         json.descricao,
-        new Date(json.data_despesa),
-        json.situacao === 'PAGO',
+        new Date(
+          (json as Despesas).data_despesa ??
+          (json as Receitas).data_receita
+        ),
+        json.situacao === 'PAGO' || json.situacao === "PENDENTE",
         json.tags ? json.tags.split(',').map(tag => tag.trim()) : [],
         categoria.id,
-        json.observacao,
+        json.observacao?.toString(),
         json.id?.toString()
       );
 

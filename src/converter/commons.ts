@@ -82,6 +82,7 @@ export function generateInterfacesFromData(
 
   const interfaceName = generateInterfaceName(fileName);
   const fields: Record<string, Set<string>> = {};
+  const values: Record<string, string[]> = {};
 
   data.forEach(row => {
     Object.entries(row).forEach(([key, value]) => {
@@ -90,6 +91,14 @@ export function generateInterfacesFromData(
         fields[key] = new Set([type]);
       } else if (!fields[key].has(type)) {
         fields[key].add(type);
+      }
+      if(typeof value === 'string' && value.trim() !== '') {
+        if (!values[key]) {
+          values[key] = [];
+        }
+        if (!values[key].includes(value)) {
+          values[key].push(value);
+        }
       }
     });
   });
@@ -102,7 +111,12 @@ export function generateInterfacesFromData(
         const typeArray = Array.from(types);
         const isNullable = typeArray.includes('null');
         const filteredTypes = typeArray.filter(t => t !== 'null');
-        const typeString = filteredTypes.join(' | ');
+        let typeString = filteredTypes.join(' | ');
+        if (typeString === 'string' && values[key]?.length <= 5 && values[key]?.length > 1)
+          typeString = `(${values[key].map(v => JSON.stringify(v)).join(' | ')})`;
+        if(typeString === '')
+          typeString = 'any';
+
         return `  ${key}${isNullable ? '?' : ''}: ${typeString};`;
       })
       .join('\n') +

@@ -2,6 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { CollectionReference } from 'firebase-admin/firestore';
 
+export interface FileInfo {
+  type: string;
+  name: string;
+}
+
 export default abstract class Importer<T, JT> {
   protected items: Record<string, T> = {};
 
@@ -20,7 +25,7 @@ export default abstract class Importer<T, JT> {
     });
   }
 
-  protected readJsonFile(fileInfo: {type: string, name: string}): JT[] {
+  protected readJsonFile(fileInfo: FileInfo): JT[] {
     const filePath = path.join(__dirname, '..', 'converter', 'result', fileInfo.type, fileInfo.name);
     const content = fs.readFileSync(filePath, 'utf8');
     console.log(`Lendo arquivo: ${filePath}`);
