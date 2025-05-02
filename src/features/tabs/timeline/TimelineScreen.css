@@ -1,0 +1,35 @@
+.Screen {
+  padding: 16px;
+}
+
+.TimelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.TimelineItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.TimelineDate {
+  font-weight: bold;
+  color: #555;
+}
+
+.TimelineDescription {
+  flex: 1;
+  margin: 0 16px;
+  color: #333;
+}
+
+.TimelineValue {
+  font-weight: bold;
+  color: #007bff;
+}

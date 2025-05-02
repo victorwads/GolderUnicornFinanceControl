@@ -1,4 +1,3 @@
-import CreditCard from '../../../../Web/src/data/models/CreditCard';
 export const Collections = {
     Banks: "Banks",
     Users: "Users",

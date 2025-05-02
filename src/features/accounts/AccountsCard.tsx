@@ -9,14 +9,15 @@ import BanksRepository from "../../data/repositories/BanksRepository"
 import Account from "../../data/models/Account"
 import AccountsRepository from "../../data/repositories/AccountsRepository"
 
+const banksRepository = new BanksRepository()
 
 const AccountsCard: React.FC<{}> = () => {
 
     let [accounts, setAccounts] = useState<Account[]>([])
-    let banksRepository = new BanksRepository()
-    let accountRepository = new AccountsRepository()
 
     useEffect(() => {
+        let accountRepository = new AccountsRepository();
+
         (async () => {
             await banksRepository.waitInit()
             accountRepository.getItems().then(setAccounts)

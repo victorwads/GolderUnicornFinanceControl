@@ -9,10 +9,9 @@ export default class AccountsRepository extends BaseRepository<Account> {
     protected cacheDuration = 24 * 60 * 60 * 1000;
 
     constructor(userId?: string) {
-        let finalUserId = userId ?? getAuth().currentUser?.uid ?? ""
-        if (finalUserId === "") {
+        let finalUserId = userId ?? getAuth().currentUser?.uid ?? (() => {
             throw new Error("Invalid userId")
-        }
+        })();
         super(`${Collections.Users}/${finalUserId}/${Collections.Accounts}`, Account.firestoreConverter, true);
     }
 
