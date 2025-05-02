@@ -115,7 +115,7 @@ export function generateInterfacesFromData(
         if (typeString === 'string' && values[key]?.length <= 5 && values[key]?.length > 1)
           typeString = `(${values[key].map(v => JSON.stringify(v)).join(' | ')})`;
         if(typeString === '')
-          typeString = 'any';
+          typeString = 'string';
 
         return `  ${key}${isNullable ? '?' : ''}: ${typeString};`;
       })

@@ -7,8 +7,9 @@ import AccountsRegistry from '../data/models/AccountRegistry';
 
 import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
 import {Receitas, ReceitasFile} from '../converter/result/xlsx/receitas';
+import {Transferencias, TransferenciasFile} from '../converter/result/xlsx/transferencias';
 
-export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas|Receitas> {
+export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas|Receitas|Transferencias> {
 
   constructor(
     private accounts: AccountsImporter,
@@ -26,6 +27,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     await this.loadExistentes();
     this.processFile(DespesasFile, -1);
     this.processFile(ReceitasFile, 1);
+    this.processFile(TransferenciasFile, 0);
   }
 
   async processFile(file: FileInfo, multiplier: number): Promise<void> {
@@ -40,11 +42,18 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
         console.error(`Bank account ${json.conta} não encontrado.`);
         return;
       }
-      const categoria = this.categorias.findByName(json.categoria, json.sub_categoria);
-      if (!categoria?.id) {
+
+      const categoria = 'categoria' in json
+        ? this.categorias.findByName(json.categoria, json.sub_categoria)
+        : undefined;
+      if ('categoria' in json && !categoria?.id) {
         console.error(`Categoria ${json.categoria} > ${json.sub_categoria} não encontrada.`);
         return;
       }
+
+      multiplier = multiplier === 0
+        ? (json.descricao === "Transferência de Saída" ? -1 : 1)
+        : multiplier;
 
       const registro = new AccountsRegistry(
         "",
@@ -53,11 +62,14 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
         json.descricao,
         new Date(
           (json as Despesas).data_despesa ??
-          (json as Receitas).data_receita
+          (json as Receitas).data_receita ??
+          (json as Transferencias).data_transferencia
         ),
-        json.situacao === 'PAGO' || json.situacao === "PENDENTE",
+        'situacao' in json
+          ? json.situacao === 'PAGO' || json.situacao === "PENDENTE"
+          : true,
         json.tags ? json.tags.split(',').map(tag => tag.trim()) : [],
-        categoria.id,
+        categoria?.id,
         json.observacao?.toString(),
         json.id?.toString()
       );
@@ -69,18 +81,19 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
       const docRef = some?.id ? this.collection.doc(some?.id) : this.collection.doc();
       this.items[docRef.id] = registro;
+      registro.id = docRef.id;
       batch.set(docRef, registro);
     });
     await batch.commit();
 
     this.sumAndPrint();
     console.log(`Registros iguais encontrados: ${equals} de ${data.length}`);
-    console.log('Importação de despesas de conta finalizada.', Object.keys(this.items).length);
+    console.log(`Importação de ${file.name} de conta finalizada.`, Object.keys(this.items).length);
   }
   
   protected alreadyExists(registro: AccountsRegistry): AccountsRegistry | undefined {
     return Object.values(this.items).find(item =>
-      (item.importInfo === registro.importInfo) || (
+      (item.importInfo === registro.importInfo && item.description === registro.description) || (
       item.accountId === registro.accountId &&
       item.value === registro.value &&
       item.description === registro.description &&
