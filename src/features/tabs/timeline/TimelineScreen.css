@@ -10,26 +10,73 @@
 
 .TimelineItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.TimelineDate {
-  font-weight: bold;
-  color: #555;
+.TimelineCategory {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.TimelineContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .TimelineDescription {
-  flex: 1;
-  margin: 0 16px;
+  font-size: 16px;
+  font-weight: bold;
   color: #333;
 }
 
-.TimelineValue {
+.TimelineDetails {
+  font-size: 14px;
+  color: #777;
+  display: flex;
+  gap: 8px;
+}
+
+.TimelineDate {
+  font-style: italic;
+}
+
+.TimelineCategoryName {
   font-weight: bold;
-  color: #007bff;
+}
+
+.TimelineValue {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.TimelineList .positive {
+  color: #0a7d0a;
+}
+
+.TimelineList .negative {
+  color: #ad1717;
+}
+
+.TimelineItemTodayLine {
+  border-top: 3px solid #000;
+  text-align: right;
+  padding: 5px;
+  margin-bottom: 12px;
+}
+
+.TimelineItemTodayLine.positive {
+  border-top-color: #33cc33;
+}
+
+.TimelineItemTodayLine.negative {
+  border-top-color: #ff3333;
 }

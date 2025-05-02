@@ -88,6 +88,6 @@ export default class CategoriesRepository {
 		return rootCategories;
 	};
 
-	public getById = (id: string): Category | undefined =>
-		CategoriesRepository.categoriesCache.get(id);
+	public static getById = (id?: string): Category | undefined =>
+		id ? CategoriesRepository.categoriesCache.get(id) : undefined;
 }
