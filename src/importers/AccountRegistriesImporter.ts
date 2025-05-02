@@ -1,9 +1,11 @@
 import Importer from './Importer';
-import CategoriesImporter from './CategoriesImporter';
-import { Collections } from '../data/firebase/Collections';
 import AccountsImporter from './AccountsImporter';
+import CategoriesImporter from './CategoriesImporter';
+
+import { Collections } from '../data/firebase/Collections';
 import AccountsRegistry from '../data/models/AccountRegistry';
-import {Despesas, DespesasFile} from '../converter/result/csv/despesas';
+
+import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
 
 export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas> {
 

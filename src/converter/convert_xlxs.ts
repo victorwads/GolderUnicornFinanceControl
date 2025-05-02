@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk'
 import xlsx, { WorkSheet } from 'xlsx';
 import { toSnakeCase, convertStringToType, sortByFirstDateField, generateInterfacesFromData } from './commons';
 
@@ -11,11 +12,7 @@ function convertSheetToJson(sheet: WorkSheet): Record<string, any>[] {
   const headers = rows[0].map(header => toSnakeCase(header as string));
   const data = rows.slice(1).map(row => {
     const result = headers.reduce<Record<string, any>>((obj, key, index) => {
-      const value = row[index];
-      if (value === undefined || value === null || value.toString().trim() === '') {
-        obj[key] = null;
-        return obj;
-      }
+      const value = row[index] || '';
       obj[key] = convertStringToType(value.toString());
       return obj;
     }, {});
@@ -51,7 +48,10 @@ export default function processDataXlsx(): void {
     const newFileName = toSnakeCase(sheetName) + '.json';
     const jsonPath = path.join(resultDir, newFileName);
     fs.writeFileSync(jsonPath, JSON.stringify(json, null, 2), 'utf8');
-    console.log(`Convertido: ${fileName} [${sheetName}] -> ${newFileName}`);
+    console.log(
+      `Convertido: ${chalk.red(fileName)} ` +
+      `[${chalk.yellow(sheetName)}] -> ${chalk.green(newFileName)}`
+    );
 
     generateInterfacesFromData(json, newFileName, resultDir, 'Csv');
   });

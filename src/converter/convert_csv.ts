@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk';
 import { toSnakeCase, convertStringToType, sortByFirstDateField, generateInterfacesFromData } from './commons';
 
 // Função para listar arquivos CSV do diretório atual
@@ -23,8 +24,7 @@ function convertCsvToJson(csvContent: string): Record<string, any>[] {
   const data = lines.slice(1).map(line => {
     const values = line.split(';');
     const result = headers.reduce<Record<string, any>>((obj, key, index) => {
-      const value = values[index]?.trim();
-      if (!value) return obj;
+      const value = values[index]?.trim() || '';
       obj[key] = convertStringToType(value);
       return obj;
     }, {});
@@ -53,7 +53,7 @@ export default function processCsvFiles(): void {
     const newFileName = file.replace(/\.csv$/i, '.json');
     const jsonPath = path.join(resultDir, newFileName);
     fs.writeFileSync(jsonPath, JSON.stringify(json, null, 2), 'utf8');
-    console.log(`Convertido: ${file} -> ${newFileName}`);
+    console.log(`Convertido: ${chalk.red(file)} -> ${chalk.green(newFileName)}`);
 
     generateInterfacesFromData(json, newFileName, resultDir, 'Csv');
   });

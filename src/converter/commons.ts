@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk';
 
 export function toSnakeCase(str: string): string {
   return str
@@ -12,15 +13,22 @@ export function toSnakeCase(str: string): string {
     .toLowerCase();
 }
 
+function isValidDateFormat(value: string): boolean {
+  const dateRegex = /^(?:\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2}(?:\.\d{3})?)?)$/;
+  return dateRegex.test(value);
+}
+
 export function convertStringToType(value: string): any {
   const trimmedValue = value.trim();
-  if (!isNaN(Number(trimmedValue))) {
+  if (trimmedValue === '' || trimmedValue === 'null') {
+    return null;
+  } else if (!isNaN(Number(trimmedValue))) {
     return parseFloat(trimmedValue);
   } else if (trimmedValue.toLowerCase() === 'true') {
     return true;
   } else if (trimmedValue.toLowerCase() === 'false') {
     return false;
-  } else if (!isNaN(Date.parse(trimmedValue))) {
+  } else if (isValidDateFormat(trimmedValue)) {
     return new Date(trimmedValue);
   } else {
     return trimmedValue;
@@ -43,7 +51,7 @@ export function sortByFirstDateField(data: Record<string, any>[]): void {
 }
 
 function determineType(value: any): string {
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || value === 'null') {
     return 'null';
   } else if (typeof value === 'number') {
     return Number.isInteger(value) ? 'number' : 'number';
@@ -75,7 +83,6 @@ export function generateInterfacesFromData(
   const interfaceName = generateInterfaceName(fileName);
   const fields: Record<string, Set<string>> = {};
 
-  console.log(`Generating interface for file: ${fileName}`);
   data.forEach(row => {
     Object.entries(row).forEach(([key, value]) => {
       const type = determineType(value);
@@ -83,9 +90,6 @@ export function generateInterfacesFromData(
         fields[key] = new Set([type]);
       } else if (!fields[key].has(type)) {
         fields[key].add(type);
-        console.log(`Discovering one more type for field: ${key}: ${
-          Array.from(fields[key]).join(', ')
-        } by value: ${value}`);
       }
     });
   });
@@ -107,5 +111,5 @@ export function generateInterfacesFromData(
   const tsFileName = fileName.replace(/\.json$/i, '.ts');
   const tsFilePath = path.join(resultDir, tsFileName);
   fs.writeFileSync(tsFilePath, interfaceContent, 'utf8');
-  console.log(`Interface gerada: ${tsFilePath}`);
+  console.log(chalk.blue('Interface gerada: ') + chalk.white(tsFileName));
 }

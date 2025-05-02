@@ -1,23 +1,13 @@
 import Importer from './Importer';
 import CardsImporter from './CardsImporter';
 import CategoriesImporter from './CategoriesImporter';
-import CreditCardRegistry from '../data/models/CreditCardRegistry';
+
 import { Collections } from '../data/firebase/Collections';
+import CreditCardRegistry from '../data/models/CreditCardRegistry';
 
-interface JsonCardRegistry {
-  valor: number;
-  descricao: string;
-  data_despesa: string;
-  mes: number;
-  ano: number;
-  categoria: string;
-  sub_categoria?: string;
-  carto: string;
-  observacao?: string;
-}
+import {DespesasDeCartao, DespesasDeCartaoFile} from '../converter/result/xlsx/despesas_de_cartao';
 
-
-export default class CardsRegistriesImporter extends Importer<CreditCardRegistry, JsonCardRegistry> {
+export default class CardsRegistriesImporter extends Importer<CreditCardRegistry, DespesasDeCartao> {
 
   constructor(
     private cards: CardsImporter,
@@ -33,7 +23,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    const data = this.readJsonFile('despesas_cartao.json');
+    const data = this.readJsonFile(DespesasDeCartaoFile);
 
     const batch = this.db.batch();
 
@@ -41,9 +31,9 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
     data.forEach((json, idx) => {
       const docRef = this.collection.doc();
 
-      const card = this.cards.findByName(json.carto);
+      const card = this.cards.findByName(json.cartao);
       if (!card?.id) {
-        console.error(`Cartão ${json.carto} não encontrado.`);
+        console.error(`Cartão ${json.cartao} não encontrado.`);
         return;
       }
       const categoria = this.categorias.findByName(json.categoria, json.sub_categoria);
@@ -59,7 +49,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
         json.descricao,
         json.mes, json.ano, new Date(json.data_despesa),
         categoria.id,
-        json.observacao,
+        json.observacao?.toString(),
         idx
       );
 

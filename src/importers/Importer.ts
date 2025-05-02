@@ -1,6 +1,6 @@
-import { CollectionReference } from 'firebase-admin/firestore';
 import fs from 'fs';
 import path from 'path';
+import { CollectionReference } from 'firebase-admin/firestore';
 
 export default abstract class Importer<T, JT> {
   protected items: Record<string, T> = {};

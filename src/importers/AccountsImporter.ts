@@ -1,14 +1,10 @@
+import Importer from "./Importer";
+import BanksImporter from "./BanksImporter";
+
 import { Collections } from "../data/firebase/Collections";
 import Account, { AccountType } from "../data/models/Account";
-import BanksImporter from "./BanksImporter";
-import Importer from "./Importer";
 
-interface JsonConta {
-  nome: string;
-  saldo_inicial: number;
-  tipo: keyof typeof TiposToTypes;
-  instituicao: string;
-}
+import {Contas, ContasFile} from '../converter/result/xlsx/contas';
 
 const TiposToTypes = {
   "Conta Corrente": AccountType.CURRENT,
@@ -17,7 +13,7 @@ const TiposToTypes = {
   "Dinheiro": AccountType.CASH,
 };
 
-export default class AccountsImporter extends Importer<Account, JsonConta> {
+export default class AccountsImporter extends Importer<Account, Contas> {
 
   constructor(
     private banks: BanksImporter,
@@ -31,7 +27,7 @@ export default class AccountsImporter extends Importer<Account, JsonConta> {
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    const data = this.readJsonFile('contas.json') as JsonConta[];
+    const data = this.readJsonFile(ContasFile) as Contas[];
 
     const batch = this.db.batch();
 
@@ -51,7 +47,7 @@ export default class AccountsImporter extends Importer<Account, JsonConta> {
         jsonAccount.nome,
         jsonAccount.saldo_inicial,
         bank?.id!,
-        TiposToTypes[jsonAccount.tipo],
+        TiposToTypes[jsonAccount.tipo as keyof typeof TiposToTypes],
       );
 
       batch.set(docRef, this.items[docRef.id]);

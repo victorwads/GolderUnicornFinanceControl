@@ -1,19 +1,13 @@
 import Importer from './Importer';
 import CardsImporter from './CardsImporter';
 import AccountsImporter from './AccountsImporter';
+
 import CreditCardInvoice from '../data/models/CreditCardInvoice';
 import { Collections } from '../data/firebase/Collections';
 
-interface JsonCardInvoice {
-  data_fatura: string;
-  carto: string;
-  valor: number;
-  valor_pago: number;
-  data_pagamento: string;
-  conta: string;
-}
+import {Faturas, FaturasFile} from '../converter/result/xlsx/faturas';
 
-export default class CardInvoceImporter extends Importer<CreditCardInvoice, JsonCardInvoice> {
+export default class CardInvoceImporter extends Importer<CreditCardInvoice, Faturas> {
   constructor(
     private cards: CardsImporter,
     private accounts: AccountsImporter,
@@ -27,16 +21,16 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Json
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    const data = this.readJsonFile('faturas.json') as JsonCardInvoice[];
+    const data = this.readJsonFile(FaturasFile) as Faturas[];
 
     const batch = this.db.batch();
 
     for (const json of data) {
       const docRef = this.collection.doc();
       const invoiceDate = new Date(json.data_fatura);
-      const card = this.cards.findByName(json.carto);
+      const card = this.cards.findByName(json.cartao);
       if(!card) {
-        console.error(`Cartão ${json.carto} não encontrado.`);
+        console.error(`Cartão ${json.cartao} não encontrado.`);
         return;
       }
 

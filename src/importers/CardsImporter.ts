@@ -1,18 +1,12 @@
-import { Collections } from "../data/firebase/Collections";
-import CreditCard from "../data/models/CreditCard";
-import AccountsImporter from "./AccountsImporter";
 import Importer from "./Importer";
+import AccountsImporter from "./AccountsImporter";
 
-interface JsonCartao {
-  nome: string;
-  limite: number;
-  bandeira: string;
-  fechamento: number;
-  vencimento: number;
-  conta: string;
-}
+import CreditCard from "../data/models/CreditCard";
+import { Collections } from "../data/firebase/Collections";
 
-export default class CardsImporter extends Importer<CreditCard, JsonCartao> {
+import {Cartoes, CartoesFile} from '../converter/result/xlsx/cartoes';
+
+export default class CardsImporter extends Importer<CreditCard, Cartoes> {
 
   constructor(
     private accounts: AccountsImporter,
@@ -26,7 +20,7 @@ export default class CardsImporter extends Importer<CreditCard, JsonCartao> {
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    const data = this.readJsonFile('cartoes.json') as JsonCartao[];
+    const data = this.readJsonFile(CartoesFile) as Cartoes[];
 
     const batch = this.db.batch();
 

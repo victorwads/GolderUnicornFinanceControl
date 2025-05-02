@@ -1,14 +1,11 @@
-import { Collections } from "../data/firebase/Collections";
-import Category from "../data/models/Category";
 import Importer from "./Importer";
 
-interface JsonCategoria {
-  nome: string;
-  categoria_pai?: string;
-  tipo: string;
-}
+import { Collections } from "../data/firebase/Collections";
+import Category from "../data/models/Category";
 
-export default class CategoriesImporter extends Importer<Category, JsonCategoria> {
+import {Categorias, CategoriasFile} from '../converter/result/xlsx/categorias';
+
+export default class CategoriesImporter extends Importer<Category, Categorias> {
   
   constructor(db: FirebaseFirestore.Firestore, userPath: string) {
     super(db, db
@@ -20,7 +17,7 @@ export default class CategoriesImporter extends Importer<Category, JsonCategoria
   async process(): Promise<void> {
     await this.loadExistentes();
 
-    const data = this.readJsonFile('categorias.json') as JsonCategoria[];
+    const data = this.readJsonFile(CategoriasFile) as Categorias[];
     this.processRoot(data.filter(d => !d.categoria_pai));
     this.processChildren(data.filter(d => d.categoria_pai));
     // this.printTree();
@@ -50,7 +47,7 @@ export default class CategoriesImporter extends Importer<Category, JsonCategoria
     });
   }
 
-  private async processRoot(raiz: JsonCategoria[]): Promise<void> {
+  private async processRoot(raiz: Categorias[]): Promise<void> {
     const batchRaiz = this.db.batch();
     for (const item of raiz) {
       const key = `root__${item.nome}`;
@@ -65,7 +62,7 @@ export default class CategoriesImporter extends Importer<Category, JsonCategoria
     await batchRaiz.commit();
   }
 
-  private async processChildren(filhas: JsonCategoria[]): Promise<void> {
+  private async processChildren(filhas: Categorias[]): Promise<void> {
     const batchFilhas = this.db.batch();
     for (const item of filhas) {
       const parentKey = `root__${item.categoria_pai}`;

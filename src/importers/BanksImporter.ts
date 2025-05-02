@@ -1,6 +1,7 @@
-import { Collections } from "../data/firebase/Collections";
-import Bank from "../data/models/Bank";
 import Importer from "./Importer";
+
+import Bank from "../data/models/Bank";
+import { Collections } from "../data/firebase/Collections";
 
 export default class BanksImporter extends Importer<Bank, Bank> {
 
@@ -34,7 +35,7 @@ export default class BanksImporter extends Importer<Bank, Bank> {
     console.log('Bancos existentes carregados:', Object.keys(this.items).length);
   }
 
-  public getByName(name: string): Bank | undefined {
+  public getByName(name?: string): Bank | undefined {
     return Object.values(this.items).find(bank => 
       bank.name?.toLowerCase()?.trim() === name?.toLowerCase().trim()
       || bank.fullName?.toLowerCase()?.trim() === name?.toLowerCase().trim()
