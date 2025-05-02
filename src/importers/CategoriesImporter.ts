@@ -5,6 +5,10 @@ import Category from "../data/models/Category";
 
 import {Categorias, CategoriasFile} from '../converter/result/xlsx/categorias';
 
+function intToHexColor(color?: number): string | undefined {
+  return color ? `#${color.toString(16).padStart(6, '0')}` : undefined;
+}
+
 export default class CategoriesImporter extends Importer<Category, Categorias> {
   
   constructor(db: FirebaseFirestore.Firestore, userPath: string) {
@@ -51,10 +55,9 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
     const batchRaiz = this.db.batch();
     for (const item of raiz) {
       const key = `root__${item.nome}`;
-      if (this.items[key]) continue;
 
-      const ref = this.collection.doc();
-      this.items[key] = new Category(ref.id, item.nome);
+      const ref = this.collection.doc(this.items[key]?.id);
+      this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor));
 
       batchRaiz.set(ref, this.items[key]);
       console.log(`Categoria raiz adicionada: ${key}`);
@@ -73,10 +76,9 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
       }
 
       const key = `${parentCategory.id}__${item.nome}`;
-      if (this.items[key]) continue;
 
-      const ref = this.collection.doc();
-      this.items[key] = new Category(ref.id, item.nome, undefined, undefined, parentCategory.id);
+      const ref = this.collection.doc(this.items[key]?.id);
+      this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor), parentCategory.id);
 
       batchFilhas.set(ref, this.items[key]);
       console.log(`Categoria filha adicionada: ${key}`);
