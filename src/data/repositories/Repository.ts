@@ -53,11 +53,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     queryBuilder: (ref: CollectionReference<Model>) => Query<Model> = (ref) => ref,
     onItemDecoded: (model: Model) => void = () => {}
   ): Promise<Model[]> {
-    if (this.useLocalCache) {
-      await BaseRepository.localCacheStates[this.collectionName];
-    }
-
-    console.log("getAll", this.collectionName, forceCache);
+    console.log("getAllInit", this.collectionName, forceCache);
     let result: QuerySnapshot<Model>;
     if (forceCache || this.shouldUseCache()) {
       result = await getDocsFromCache(queryBuilder(this.ref));
@@ -75,6 +71,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       return item;
     });
 
+    console.log("getAllEnd", this.collectionName, items);
     return items;
   }
 
@@ -98,6 +95,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   }
 
   private shouldUseCache(): boolean {
+    return false;
     const lastUpdate = Number(localStorage.getItem(this.lastUpdateKey));
     return this.cacheDuration > 0 && Date.now() - (lastUpdate || 0) < this.cacheDuration;
   }

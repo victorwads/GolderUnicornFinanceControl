@@ -16,7 +16,6 @@ const AccountsCard: React.FC<{}> = () => {
     const accountRepository = new AccountsRepository();
     
     useEffect(() => {
-
         (async () => {
             await banksRepository.waitInit()
             await accountRepository.waitInit()

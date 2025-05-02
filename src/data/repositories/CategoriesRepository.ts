@@ -7,7 +7,7 @@ export default class CategoriesRepository extends BaseRepository<Category> {
 
 	protected cacheDuration: number = 1000 * 60 * 60 * 24 * 30; // 30 days
 
-	constructor(userId?: string) {
+	constructor() {
 		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category.firestoreConverter, true);
 	}
 
@@ -35,15 +35,8 @@ export default class CategoriesRepository extends BaseRepository<Category> {
 			});
 		});
 
-		CategoriesRepository.categoriesCache = categories;
-		CategoriesRepository.rootCategoriesCache = rootCategories;
 		return rootCategories;
 	};
-
-	private static rootCategoriesCache: RootCategory[] = [];
-	private static categoriesCache: Map<string, Category> = new Map();
-	public static getById = (id?: string): Category | undefined =>
-		id ? CategoriesRepository.categoriesCache.get(id) : undefined;
 }
 
 interface RootCategory {

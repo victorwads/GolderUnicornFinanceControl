@@ -4,29 +4,43 @@ import { useEffect, useState } from "react";
 import AccountsRegistry from "../../../data/models/AccountRegistry";
 import CategoriesRepository from "../../../data/repositories/CategoriesRepository";
 import AccountsRepository from "../../../data/repositories/AccountsRepository";
+import Category from "../../../data/models/Category";
+import Account from "../../../data/models/Account";
 
-const getById = CategoriesRepository.getById;
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
   currency: "BRL",
 });
 
+interface WithInfoRegistry extends AccountsRegistry {
+  category?: Category;
+  account?: Account;
+}
+
 const TimelineScreen = () => {
-  const [registries, setRegistries] = useState<AccountsRegistry[]>([]);
+  const [registries, setRegistries] = useState<WithInfoRegistry[]>([]);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const registries = new AccountsRepository();
     const categories = new CategoriesRepository();
+    const accounts = new AccountsRepository();
 
     (async () => {
       await registries.waitInit();
       await categories.waitInit();
+      await accounts.waitInit();
 
       const all = registries.getAccountItems();
       const totalValue = all.reduce((acc, registry) => acc + registry.value, 0);
       setTotal(totalValue);
-      setRegistries(all);
+      setRegistries(all.map((registry) => {
+        return {
+          ...registry,
+          category: categories.getLocalById(registry.categoryId),
+          account: accounts.getLocalById(registry.accountId)!,
+        };
+      }));
     })();
   }, []);
 
@@ -46,9 +60,6 @@ const TimelineScreen = () => {
       <h1>Timeline</h1>
       <div className="TimelineList">
         {registries.map((registry) => {
-          const category = getById(registry.categoryId);
-          console.log(category);
-
           const isCurrentDay = registry.date.getDate() === currentDay;
           if (!isCurrentDay) {
             currentDay = registry.date.getDate();
@@ -63,15 +74,17 @@ const TimelineScreen = () => {
             {/* Área Esquerda: Círculo com cor da categoria */}
             <div
               className="TimelineCategory"
-              style={{ backgroundColor: category?.color ?? "#ccc" }}
+              style={{ backgroundColor: registry.category?.color ?? "#ccc" }}
             ></div>
 
             {/* Área Central: Informações principais */}
             <div className="TimelineContent">
+              {registry.id}
               <div className="TimelineDescription">{registry.description}</div>
               <div className="TimelineDetails">
                 <span className="TimelineDate">{registry.date.toLocaleDateString()}</span>
-                {registry.categoryId && <span className="TimelineCategoryName">{category?.name}</span>}
+                {registry.categoryId && <span className="TimelineCategoryName">{registry.category?.name}</span>}
+                {registry.account && <span className="TimelineBankName">{registry.account.name}</span>}
               </div>
             </div>
 
