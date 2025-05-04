@@ -1,18 +1,15 @@
 import {
-  collection,
-  getDocs,
-  getDocsFromCache,
-  QuerySnapshot,
-  DocumentData,
-  Query,
   getFirestore,
-  Firestore,
-  CollectionReference,
-  FirestoreDataConverter,
-  addDoc,
-  DocumentReference,
+  // Types
+  Firestore, FirestoreDataConverter,
+  Query, QuerySnapshot, CollectionReference,
+  QueryDocumentSnapshot, DocumentData, DocumentReference,
+  // Actions
+  addDoc, getDocsFromCache, getDocsFromServer, setDoc,
+  collection, doc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { EncryptorSingletone } from "../crypt/Encryptor";
 
 export default abstract class BaseRepository<Model extends DocumentData> {
   private static localCache: { [key: string]: { [key: string]: DocumentData } } = {};
@@ -20,7 +17,8 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   private lastUpdateKey: string;
 
   protected db: Firestore;
-  protected ref: CollectionReference<Model>;
+  protected ref: CollectionReference<any>;
+  protected converter: FirestoreDataConverter<Model>;
 
   protected abstract cacheDuration: number;
 
@@ -35,7 +33,8 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     }
     this.lastUpdateKey = `last${collectionName}Update`;
     this.db = getFirestore();
-    this.ref = collection(this.db, this.collectionName).withConverter(firestoreConverter);
+    this.ref = collection(this.db, this.collectionName);
+    this.converter = firestoreConverter;
 
     if (!BaseRepository.localCache[this.collectionName] && this.useLocalCache) {
       BaseRepository.localCache[this.collectionName] = {};
@@ -57,20 +56,21 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     if (forceCache || this.shouldUseCache()) {
       result = await getDocsFromCache(queryBuilder(this.ref));
     } else {
-      result = await getDocs(queryBuilder(this.ref));
+      result = await getDocsFromServer(queryBuilder(this.ref));
       this.setLastUpdate();
     }
 
-    const items = result.docs.map((snap) => {
-      const item = snap.data();
+    const items = result.docs.map(async (snap) => {
+      let item = await this.handleSnapDecryption(snap);
       onItemDecoded(item);
+
       if (this.useLocalCache) {
         BaseRepository.localCache[this.collectionName][snap.id] = item;
       }
       return item;
     });
 
-    return items;
+    return Promise.all(items);
   }
 
   public getLocalById(id?: string): Model | undefined {
@@ -78,9 +78,18 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     return BaseRepository.localCache[this.collectionName][id ?? ""] as Model;
   }
 
-  public async add(model: Model): Promise<DocumentReference<Model>> {
-    const result = await addDoc(this.ref, model);
+  public async set(model: Model, id?: string): Promise<DocumentReference<Model>> {
+    let data = await this.handleSnapEncryption(model);
+    let result;
+    if(id) {
+      result = doc(this.ref, id);
+      console.log("encrypted data", result.path, data);
+      // await setDoc(result, data);
+    } else {
+      result = await addDoc(this.ref, data);
+    }
     (model as any).id = result.id;
+
     if (this.useLocalCache) {
       BaseRepository.localCache[this.collectionName][model.id] = model;
     }
@@ -114,5 +123,25 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       throw new Error("Invalid userId");
     }
     return userId;
+  }
+
+  private async handleSnapDecryption(snap: QueryDocumentSnapshot<Model, DocumentData>): Promise<Model> {
+    let data = snap.data();
+    if (data.encrypted) {
+      data = await EncryptorSingletone.decrypt(data);
+      snap.data = () => data;
+    }
+    data = this.converter.fromFirestore(snap);
+
+    if(!data.encrypted && this.collectionName.includes('Categories')) {
+      this.set(data, snap.id);
+    }
+    return data;
+  }
+
+  private async handleSnapEncryption(model: Model): Promise<DocumentData> {
+    return await EncryptorSingletone.encrypt(
+      this.converter.toFirestore(model)
+    );
   }
 }

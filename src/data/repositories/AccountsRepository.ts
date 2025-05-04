@@ -1,7 +1,7 @@
 import BaseRepository from './Repository';
 
 import Account from '../models/Account'
-import AccountsRegistry from '../models/AccountRegistry';
+import AccountsRegistry, { RegistryType } from '../models/AccountRegistry';
 import { Collections } from '../../data/firebase/Collections'
 
 import CreditcardsRepository from './CreditCardsRepository';
@@ -49,6 +49,7 @@ export default class AccountsRepository extends BaseRepository<Account> {
         invoices.forEach((invoice) => {
             const invoiceRegistry = new AccountsRegistry(
                 'invoice-' + invoice.id,
+                RegistryType.INVOICE,
                 this.cards.getLocalById(invoice.cardId)?.accountId ?? "",
                 invoice.paidValue * -1,
                 `Pagamento de fatura - ${this.cards.getLocalById(invoice.cardId)?.name}`,

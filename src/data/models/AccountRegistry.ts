@@ -1,21 +1,18 @@
 import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore'
 
-export interface IAccountsRegistry {
-  id: string,
-  accountId: string,
-  value: number,
-  description: string,
-  date: Date,
-  paid: boolean,
-  tags?: string[],
-  categoryId?: string,
-  observation?: string,
-  importInfo?: string
+export enum RegistryType {
+  ACCOUNT,
+  CREDIT,
+  TRANSFER,
+  INVOICE,
+  CARD_RECURRENT,
+  ACCOUNT_RECURRENT,
 }
 
-export default class AccountsRegistry implements IAccountsRegistry {
+export default class AccountsRegistry {
   constructor(
     public id: string,
+    public type: RegistryType,
     public accountId: string,
     public value: number,
     public description: string,
@@ -24,13 +21,14 @@ export default class AccountsRegistry implements IAccountsRegistry {
     public tags: string[] = [],
     public categoryId?: string,
     public observation?: string,
-    public importInfo?: string
+    public relatedInfo?: string
   ) { }
 
   static firestoreConverter: FirestoreDataConverter<AccountsRegistry> = {
     toFirestore(registry: AccountsRegistry): DocumentData {
       const data = { ...registry } as any;
       delete data.id;
+      
       return data;
     },
     fromFirestore(
@@ -40,6 +38,7 @@ export default class AccountsRegistry implements IAccountsRegistry {
       const data = snapshot.data(options);
       return new AccountsRegistry(
         snapshot.id,
+        data.type,
         data.accountId,
         data.value,
         data.description,
