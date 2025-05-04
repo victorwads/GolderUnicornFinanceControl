@@ -68,7 +68,7 @@ const TimelineScreen = () => {
           </span>
         </div>
         <div>
-            <span onClick={() => setShowArchived(!showArchived)}><input type="checkbox" checked={showArchived} /> Show archived</span>
+            <span onClick={() => setShowArchived(!showArchived)}><input type="checkbox" defaultChecked={showArchived} /> Show archived</span>
         </div>
       </div>
       <div className="TimelineList">
@@ -78,39 +78,38 @@ const TimelineScreen = () => {
             currentDay = registry.date.getDate();
           }
           perDayTotal -= registry.value;
-          return <>
-          {/* Renderiza o item da linha do tempo */
-          !isCurrentDay && <div className={`TimelineItemTodayLine ${perDayTotal >= 0 ? "positive" : "negative"}`}>
-            {formatNumber(perDayTotal)}
-          </div>}
-          <div key={registry.id} className="TimelineItem">
-            {/* Área Esquerda: Círculo com cor da categoria */}
-            <div
-              className="TimelineCategory"
-              style={{ backgroundColor: registry.category?.color ?? "#ccc" }}
-            ></div>
+          return [
+            !isCurrentDay && <div
+              key={registry.id + 'title'}
+              className={`TimelineItemTodayLine ${perDayTotal >= 0 ? "positive" : "negative"}`}
+            >{formatNumber(perDayTotal)}</div>,
+            <div key={registry.id} className="TimelineItem" style={{opacity: registry.paid ? 1 : 0.7}}>
+              {/* Área Esquerda: Círculo com cor da categoria */}
+              <div
+                className="TimelineCategory"
+                style={{ backgroundColor: registry.category?.color ?? "#ccc" }}
+              ></div>
 
-            {/* Área Central: Informações principais */}
-            <div className="TimelineContent">
-              {registry.paid.toString()}
-              <div className="TimelineDescription">{registry.description}</div>
-              <div className="TimelineDetails">
-                <span className="TimelineDate">{registry.date.toLocaleDateString()}</span>
-                {registry.categoryId && <span className="TimelineCategoryName">{registry.category?.name}</span>}
-                <Link to={'/main/timeline/' + registry.accountId}>
-                  <span className="TimelineBankName">{registry.account.name}</span>
-                </Link>
+              {/* Área Central: Informações principais */}
+              <div className="TimelineContent">
+                <div className="TimelineDescription">{registry.description}</div>
+                <div className="TimelineDetails">
+                  <span className="TimelineDate">{registry.date.toLocaleDateString()}</span>
+                  {registry.categoryId && <span className="TimelineCategoryName">{registry.category?.name}</span>}
+                  <Link to={'/main/timeline/' + registry.accountId}>
+                    <span className="TimelineBankName">{registry.account.name}</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Área Direita: Valor formatado */}
+              <div
+                className={`TimelineValue ${registry.value >= 0 ? "positive" : "negative"}`}
+              >
+                {formatNumber(registry.value)}
               </div>
             </div>
-
-            {/* Área Direita: Valor formatado */}
-            <div
-              className={`TimelineValue ${registry.value >= 0 ? "positive" : "negative"}`}
-            >
-              {formatNumber(registry.value)}
-            </div>
-          </div>
-          </>
+          ]
         })}
         <div className={`TimelineItemTodayLine ${perDayTotal >= 0 ? "positive" : "negative"}`}>
           {formatNumber(perDayTotal)}

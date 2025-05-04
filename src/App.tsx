@@ -8,16 +8,10 @@ import LoginScreen from './features/login/LoginScreen';
 import DashboardScreen from './features/tabs/dashboard/DashboardScreen';
 import TimelineScreen from './features/tabs/timeline/TimelineScreen';
 import SettingsScreen from './features/tabs/settings/SettingsScreen';
-import AccountsScreen from './features/accounts/AccountsScreen';
-import AddAccountScreen from './features/accounts/AddAccountScreen';
-import EditAccountScreen from './features/accounts/EditAccountScreen';
-import ViewAccountScreen from './features/accounts/ViewAccountScreen';
-import CreditCardsScreen from './features/creaditcards/CreditCardsScreen';
-import AddCreditCardsScreen from './features/creaditcards/AddCreditCardsScreen';
-import ViewCreditCardsScreen from './features/creaditcards/ViewCreditCardsScreen';
-import EditCreditCardsScreen from './features/creaditcards/EditCreditCardsScreen';
 import CategoriesScreen from './features/categories/CategoriesScreen';
 import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
+import EmptyScreen from './commons/EmptyScreen';
+import { EncryptorSingletone } from './data/crypt/Encryptor';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -28,15 +22,20 @@ const router = createBrowserRouter([
       { path: 'settings', element: <SettingsScreen /> },
     ]
   },
-  { path: '/accounts', element: <AccountsScreen /> },
-  { path: '/accounts/create', element: <AddAccountScreen /> },
-  { path: '/accounts/edit/:id', element: <EditAccountScreen /> },
-  { path: '/accounts/view/:id', element: <ViewAccountScreen /> },
-  { path: '/creditcards', element: <CreditCardsScreen /> },
-  { path: '/creditcards/create', element: <AddCreditCardsScreen /> },
-  { path: '/creditcards/edit/:id', element: (<EditCreditCardsScreen />) },
-  { path: '/creditcards/view/:id', element: (<ViewCreditCardsScreen />) },
-  { path: '/categories', element: (<CategoriesScreen />) },
+  { path: '/accounts', element: <EmptyScreen title='Accounts' /> },
+  { path: '/accounts/create', element: <EmptyScreen title='Accounts' /> },
+  { path: '/accounts/:id/edit', element: <EmptyScreen title='Accounts' /> },
+  { path: '/accounts/:id/view', element: <EmptyScreen title='Accounts' /> },
+  { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
+  { path: '/creditcards', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards/:id', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards/:id/edit', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards/:id/invoces', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards/:id/invoces', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
+  { path: '/categories', element: <CategoriesScreen /> },
+  { path: '/categories/:id', element: <EmptyScreen title='Category' /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
 ])
 
@@ -45,7 +44,12 @@ function App() {
   const [user, setUser] = useState(getAuth().currentUser)
 
   useEffect(() => {
-    onAuthStateChanged(getAuth(), (currentUser) => setUser(currentUser))
+    onAuthStateChanged(getAuth(), (currentUser) => {
+      if(currentUser) {
+        EncryptorSingletone.init(currentUser.uid)
+      }
+      setUser(currentUser)
+    })
   }, [])
 
   return (

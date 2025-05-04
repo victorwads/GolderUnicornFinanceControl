@@ -16,7 +16,7 @@ const CategoriesScreen: React.FC = () => {
   const handleAddCategory = async () => {
     if (newCategoryName) {
       const newCategory = new Category('', newCategoryName);
-      await categoriesRepository.add(newCategory);
+      await categoriesRepository.set(newCategory);
       setCategories([...categories, newCategory]);
       setNewCategoryName('');
     }
