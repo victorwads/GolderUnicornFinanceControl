@@ -8,6 +8,7 @@ import AccountsRegistry from '../data/models/AccountRegistry';
 import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
 import {Receitas, ReceitasFile} from '../converter/result/xlsx/receitas';
 import {Transferencias, TransferenciasFile} from '../converter/result/xlsx/transferencias';
+import { RegistryType } from '../../../Web/src/data/models/AccountRegistry';
 
 export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas|Receitas|Transferencias> {
 
@@ -25,18 +26,18 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    this.processFile(DespesasFile, -1);
-    this.processFile(ReceitasFile, 1);
-    this.processFile(TransferenciasFile, 0);
+    this.processFile(DespesasFile, -1, RegistryType.ACCOUNT);
+    this.processFile(ReceitasFile, 1, RegistryType.ACCOUNT);
+    this.processFile(TransferenciasFile, 0, RegistryType.TRANSFER);
   }
 
-  async processFile(file: FileInfo, multiplier: number): Promise<void> {
+  async processFile(file: FileInfo, multiplier: number, type: RegistryType): Promise<void> {
     const data = await this.readJsonFile(file);
 
     const batch = this.db.batch();
 
     let equals = 0;
-    data.forEach((json, idx) => {
+    data.forEach((json) => {
       const account = this.accounts.findByName(json.conta);
       if (!account?.id) {
         console.error(`Bank account ${json.conta} não encontrado.`);
@@ -53,11 +54,11 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
       if('data_transferencia' in json) {
         multiplier = json.descricao === "Transferência de Saída" ? -1 : 1
-        console.log(`Transferência ${json.descricao} ${multiplier}`);
       }
 
       const registro = new AccountsRegistry(
         "",
+        type,
         account.id,
         json.valor * multiplier,
         json.descricao,
@@ -94,7 +95,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
   
   protected alreadyExists(registro: AccountsRegistry): AccountsRegistry | undefined {
     return Object.values(this.items).find(item =>
-      (item.importInfo === registro.importInfo && item.description === registro.description) || (
+      (item.relatedInfo === registro.relatedInfo && item.description === registro.description) || (
       item.accountId === registro.accountId &&
       item.value === registro.value &&
       item.description === registro.description &&
