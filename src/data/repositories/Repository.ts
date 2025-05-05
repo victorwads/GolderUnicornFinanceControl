@@ -60,17 +60,17 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       this.setLastUpdate();
     }
 
-    const items = result.docs.map(async (snap) => {
-      let item = await this.handleSnapDecryption(snap);
-      onItemDecoded(item);
-
+    const encryptedItems = result.docs.map(snap => ({id: snap.id, data: snap.data()}));
+    const items = [];
+    for(const snap of encryptedItems) {
+      let item = await this.handleSnapDecryption(snap.id, snap.data);
       if (this.useLocalCache) {
         BaseRepository.localCache[this.collectionName][snap.id] = item;
       }
-      return item;
-    });
-
-    return Promise.all(items);
+      onItemDecoded(item);
+      items.push(item);
+    };
+    return items;
   }
 
   public getLocalById(id?: string): Model | undefined {
@@ -83,8 +83,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     let result;
     if(id) {
       result = doc(this.ref, id);
-      console.log("encrypted data", result.path, data);
-      // await setDoc(result, data);
+      await setDoc(result, data);
     } else {
       result = await addDoc(this.ref, data);
     }
@@ -125,23 +124,24 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     return userId;
   }
 
-  private async handleSnapDecryption(snap: QueryDocumentSnapshot<Model, DocumentData>): Promise<Model> {
-    let data = snap.data();
-    if (data.encrypted) {
-      data = await EncryptorSingletone.decrypt(data);
-      snap.data = () => data;
+  private async handleSnapDecryption(id: string, data: any): Promise<Model> {
+    if (data.encrypted === true) {
+      const newData = await EncryptorSingletone.decrypt(data);
+      return this.converter.fromFirestore({ id, data: () => newData} as any);
     }
-    data = this.converter.fromFirestore(snap);
+    const model = this.converter.fromFirestore({ id, data: () => data} as any);
+    if(this.collectionName.includes('Account')) { // TOD REMOVE
+      this.set(model, id);
+    }
 
-    if(!data.encrypted && this.collectionName.includes('Categories')) {
-      this.set(data, snap.id);
-    }
-    return data;
+    return model;
   }
 
   private async handleSnapEncryption(model: Model): Promise<DocumentData> {
-    return await EncryptorSingletone.encrypt(
-      this.converter.toFirestore(model)
+    const data = this.converter.toFirestore(model);
+    const encrypted = await EncryptorSingletone.encrypt(data);
+    return Object.fromEntries(
+      Object.entries(encrypted).filter(([_, v]) => v !== undefined) // RESOLVER DE OUTRA FORMA
     );
   }
 }

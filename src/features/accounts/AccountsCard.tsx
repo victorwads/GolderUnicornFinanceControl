@@ -38,7 +38,7 @@ const AccountsCard: React.FC<{}> = () => {
                 })
             )
         })()
-    },[])
+    },[showArchived])
 
     return <>
         <div>

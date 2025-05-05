@@ -44,9 +44,9 @@ function App() {
   const [user, setUser] = useState(getAuth().currentUser)
 
   useEffect(() => {
-    onAuthStateChanged(getAuth(), (currentUser) => {
+    onAuthStateChanged(getAuth(), async (currentUser) => {
       if(currentUser) {
-        EncryptorSingletone.init(currentUser.uid)
+        await EncryptorSingletone.init(currentUser.uid)
       }
       setUser(currentUser)
     })

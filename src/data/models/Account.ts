@@ -44,7 +44,7 @@ export default class Account implements IAccount {
             snapshot: QueryDocumentSnapshot,
             options: SnapshotOptions
         ): Account {
-            const data = snapshot.data(options)!;
+            const data = snapshot.data(options);
             return new Account(
                 snapshot.id,
                 data.name,
