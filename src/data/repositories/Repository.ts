@@ -55,7 +55,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     cacheDuration: number|true = 0,
   ) {
     this.collectionName = this.parseCollectionName(collectionName);
-    this.lastUpdateKey = `last${collectionName}Update`;
+    this.lastUpdateKey = `last${this.collectionName}Update`;
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
     this.converter = firestoreConverter;
@@ -83,7 +83,10 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       result = await getDocs(queryBuilder(this.ref));
       setLastUpdate = () => this.setLastUpdate();
     }
-    if (result.docs.length > 0) localStorage.removeItem(this.lastUpdateKey);
+    if (result.metadata.fromCache && result.docs.length === 0 && localStorage.getItem(this.lastUpdateKey)) {
+      localStorage.removeItem(this.lastUpdateKey);
+      return this.getAll(forceCache, queryBuilder, onItemDecoded);
+    }
     if (!BaseRepository.cache[this.collectionName]) {
       BaseRepository.cache[this.collectionName] = {};
     }
