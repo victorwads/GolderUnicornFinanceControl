@@ -76,16 +76,18 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     onItemDecoded: (model: Model) => void = () => {}
   ): Promise<Model[]> {
     let result: QuerySnapshot<Model>;
+    let setLastUpdate = () => {};
     if (forceCache || this.shouldUseCache()) {
       result = await getDocsFromCache(queryBuilder(this.ref));
     } else {
       result = await getDocs(queryBuilder(this.ref));
-      this.setLastUpdate();
+      setLastUpdate = () => this.setLastUpdate();
     }
-
+    if (result.docs.length > 0) localStorage.removeItem(this.lastUpdateKey);
     if (!BaseRepository.cache[this.collectionName]) {
       BaseRepository.cache[this.collectionName] = {};
     }
+
     const encryptedItems = result.docs.map(snap => ({id: snap.id, data: snap.data()}));
     const items = [];
 
@@ -97,12 +99,15 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       onItemDecoded(item);
       items.push(item);
     };
+    this.proccessEncryptionQueue();
+
+    if (this.cacheDuration) setLastUpdate();
     BaseRepository.updateUse((use) => {
       const useInfo: keyof DatabasesUse = result.metadata.fromCache ? 'local' : 'remote';
       use[useInfo].queryReads++;
       use[useInfo].docReads += result.docs.length;
     });
-    this.proccessEncryptionQueue();
+
     return items;
   }
 
@@ -201,6 +206,9 @@ export default abstract class BaseRepository<Model extends DocumentData> {
 
           model = this.encryptQueeue.pop();
         }
+      }).catch((error) => {
+        localStorage.removeItem(this.lastUpdateKey);
+        console.error("Transaction failed: ", error);
       });
     }
   }
