@@ -3,8 +3,8 @@ const MASK_SIZE = BigInt(MASK.toString(2).length);
 const MAX_SAFE_INTEGER = BigInt(Number.MAX_SAFE_INTEGER);
 const FLOAT_PRECISION = 1000;
 
-const MAX_MULTIPLIER = (2**4); // 6 bits for multiplier
-const MAX_OFFSET = (2**16); // 20 bits for offset
+const MAX_MULTIPLIER = (2**4); // 4 bits for multiplier
+const MAX_OFFSET = (2**16); // 16 bits for offset
 
 const BOOLEAN_MASK = 0b1n;
 const BOOLEAN_INDEXER_SHIFT = 32n; // 32 bits for boolean places,
@@ -21,6 +21,12 @@ const MaskDataType = {
 
 export default class NumericEncryptor {
 
+  public static readonly MAX_SAFE_INTEGER = Number(
+    BigInt(
+      Math.trunc((Number.MAX_SAFE_INTEGER - MAX_OFFSET) / MAX_MULTIPLIER)
+    ) << MASK_SIZE
+  );
+
   private offset: bigint;
   private booleanOffset: bigint;
   private multiplier: bigint;
@@ -34,7 +40,7 @@ export default class NumericEncryptor {
 
   public encrypt(value: number|Date|boolean): number {
     const encodedValue = this.encode(value);
-    const encrypted = (encodedValue + this.offset) * this.multiplier;
+    const encrypted = (encodedValue * this.multiplier) + this.offset;
     if (encrypted > MAX_SAFE_INTEGER) {
       throw new Error(`Encrypted value exceeds safe integer limit: ${encrypted}`);
     }
@@ -42,7 +48,7 @@ export default class NumericEncryptor {
   }
 
   public decrypt(flaggedEncryptedNumber: number): number|Date|boolean {
-    const encodedValue = (BigInt(flaggedEncryptedNumber) / this.multiplier) - this.offset;
+    const encodedValue = (BigInt(flaggedEncryptedNumber) - this.offset) / this.multiplier;
     return this.decode(encodedValue);
   }
 

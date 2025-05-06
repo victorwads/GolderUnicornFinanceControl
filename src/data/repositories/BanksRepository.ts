@@ -8,7 +8,7 @@ class BanksRepository extends BaseRepository<Bank> {
     protected cacheDuration = 30 * 24 * 60 * 60 * 1000 // 30 days
 
     constructor() {
-        super(Collections.Banks, Bank.firestoreConverter, true, false)
+        super(Collections.Banks, Bank.firestoreConverter, true)
     }
 
     public getFiltered = async (search: string) => {

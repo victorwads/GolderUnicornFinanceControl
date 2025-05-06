@@ -14,22 +14,26 @@ interface CreditCardWithInfos extends CreditCard {
 
 const CreditCardsCard: React.FC<{}> = () => {
 
-    let [creditCards, setCreditCards] = useState<CreditCard[]>([])
+    let [creditCards, setCreditCards] = useState<CreditCardWithInfos[]>([])
 
     useEffect(() => {
         const creditCardsRepository = new CreditcardsRepository();
         (async () => {
             await creditCardsRepository.waitInit();
-            
-            setCreditCards(creditCardsRepository.getCache())
+
+            const cards = creditCardsRepository.getCache().map(creditCard => ({
+                ...creditCard,
+                bank: new Bank('', creditCard.name, '', creditCard.brand.toLowerCase() + '.png')
+            }));
+            setCreditCards(cards)
         })()
     },[])
 
     return <>
         <Link to={'/creditcards'}>Cartões</Link>
         <Card>
-            {creditCards.map(creditCard => <Link to={'/creditcards/:id'}>
-                <BankInfo key={creditCard.id} bank={new Bank('', creditCard.name, '', creditCard.brand.toLowerCase() + '.png')} />
+            {creditCards.map(creditCard => <Link key={creditCard.id} to={'/creditcards/:id'}>
+                <BankInfo bank={creditCard.bank} />
             </Link>)}
             <div style={{ textAlign: 'right' }}>
                 <Link to={'/creditcards/create'}>Adicionar Conta</Link>

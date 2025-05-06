@@ -5,10 +5,12 @@ describe('NumericEncryptor', () => {
   const encryptor = new NumericEncryptor(hash);
 
   test('encrypt and decrypt integers', () => {
-    const originalValue = Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER/(2**6)));
-    const encryptedValue = encryptor.encrypt(originalValue);
-    const decryptedValue = encryptor.decrypt(encryptedValue);
-    expect(decryptedValue).toBe(originalValue);
+    for (let i = 0; i < 10000; i++) {
+      const originalValue = Math.floor(Math.random() * (NumericEncryptor.MAX_SAFE_INTEGER));
+      const encryptedValue = encryptor.encrypt(originalValue);
+      const decryptedValue = encryptor.decrypt(encryptedValue);
+      expect(decryptedValue).toBe(originalValue);
+    }
   });
 
   test('encrypt and decrypt floats with precision loss beyond 3 decimal places', () => {

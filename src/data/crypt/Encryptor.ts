@@ -49,7 +49,7 @@ export default class FirebaseEncryptor {
           return this.numberHandler?.encrypt(data);
         }
 
-        if(Object.keys(data).includes('encrypted') && data.encrypted !== true)
+        if(Object.keys(data).includes('encrypted'))
           throw new Error('Invalid crypt object using reserved key: encrypted');
 
         const sourceData = {...data};

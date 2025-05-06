@@ -3,10 +3,11 @@ import {
   // Types
   Firestore, FirestoreDataConverter,
   Query, QuerySnapshot, CollectionReference,
-  QueryDocumentSnapshot, DocumentData, DocumentReference,
+  DocumentData, DocumentReference,
   // Actions
   addDoc, getDocsFromCache, getDocsFromServer, setDoc,
   collection, doc,
+  runTransaction,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { EncryptorSingletone } from "../crypt/Encryptor";
@@ -14,7 +15,14 @@ import { EncryptorSingletone } from "../crypt/Encryptor";
 export default abstract class BaseRepository<Model extends DocumentData> {
   private static localCache: { [key: string]: { [key: string]: DocumentData } } = {};
   private static localCacheStates: { [key: string]: Promise<any> } = {};
+  private static readonly databaseUseInfo = {
+    reads: 0,
+    writes: 0,
+  }
+
+  private encryptQueeue: Model[] = [];
   private lastUpdateKey: string;
+  private useUser: boolean = false
 
   protected db: Firestore;
   protected ref: CollectionReference<any>;
@@ -26,11 +34,8 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     private collectionName: string,
     firestoreConverter: FirestoreDataConverter<Model>,
     private useLocalCache: boolean = false,
-    private useUser: boolean = true
   ) {
-    if (this.useUser) {
-      this.collectionName = collectionName.replace(/\{userId\}/g, this.getUserId());
-    }
+    this.collectionName = this.parseCollectionName(collectionName);
     this.lastUpdateKey = `last${collectionName}Update`;
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
@@ -70,6 +75,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       onItemDecoded(item);
       items.push(item);
     };
+    this.proccessEncryptionQueue();
     return items;
   }
 
@@ -86,9 +92,10 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       await setDoc(result, data);
     } else {
       result = await addDoc(this.ref, data);
+      (model as any).id = result.id;
     }
-    (model as any).id = result.id;
 
+    BaseRepository.databaseUseInfo.writes++;
     if (this.useLocalCache) {
       BaseRepository.localCache[this.collectionName][model.id] = model;
     }
@@ -116,12 +123,14 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     }
   }
 
-  private getUserId(custom?: string): string {
-    const userId = custom ?? getAuth().currentUser?.uid;
-    if (!userId) {
-      throw new Error("Invalid userId");
-    }
-    return userId;
+  private parseCollectionName(collectionName: string): string {
+    if (!collectionName.includes("{userId}")) return collectionName;
+
+    this.useUser = true;
+    const userId = getAuth().currentUser?.uid;
+    if (!userId) throw new Error("Invalid userId");
+
+    return collectionName.replace(/\{userId\}/g, userId);
   }
 
   private async handleSnapDecryption(id: string, data: any): Promise<Model> {
@@ -130,15 +139,28 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       return this.converter.fromFirestore({ id, data: () => newData} as any);
     }
     const model = this.converter.fromFirestore({ id, data: () => data} as any);
-    if(this.collectionName.includes('Account')) { // TOD REMOVE
-      this.set(model, id);
-    }
 
+    if(this.useUser) this.encryptQueeue.push(model);
     return model;
   }
 
   private async handleSnapEncryption(model: Model): Promise<DocumentData> {
     const data = this.converter.toFirestore(model);
     return await EncryptorSingletone.encrypt(data);
+  }
+
+  private proccessEncryptionQueue() {
+    if (this.encryptQueeue.length > 0) {
+      runTransaction(this.db, async (transaction) => {
+        let model = this.encryptQueeue.pop()
+        while (model) {
+          const data = this.converter.toFirestore(model);
+          const encryptedData = await EncryptorSingletone.encrypt(data);
+          transaction.set(doc(this.ref, model.id), encryptedData);
+
+          model = this.encryptQueeue.pop();
+        }
+      });
+    }
   }
 }
