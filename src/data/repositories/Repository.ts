@@ -8,6 +8,7 @@ import {
   addDoc, getDocsFromCache, getDocs, setDoc,
   collection, doc,
   runTransaction,
+  Timestamp,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { EncryptorSingletone } from "../crypt/Encryptor";
@@ -183,9 +184,16 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     return collectionName.replace(/\{userId\}/g, userId);
   }
 
+  private dataValueDecryptor(value: any): any {
+    if (value instanceof Date) {
+      return Timestamp.fromDate(value);
+    }
+    return value;
+  }
+
   private async handleSnapDecryption(id: string, data: any): Promise<Model> {
     if (data.encrypted === true) {
-      const newData = await EncryptorSingletone.decrypt(data);
+      const newData = await EncryptorSingletone.decrypt(data, this.dataValueDecryptor);
       return this.converter.fromFirestore({ id, data: () => newData} as any);
     }
     const model = this.converter.fromFirestore({ id, data: () => data} as any);

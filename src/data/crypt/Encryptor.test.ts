@@ -1,12 +1,12 @@
 import { TextEncoder, TextDecoder } from 'util';
 import crypto from "crypto";
 
-import FirebaseEncryptor from './Encryptor';
+import Encryptor from './Encryptor';
 Object.assign(global, { TextDecoder, TextEncoder, crypto: crypto.webcrypto});
 
 describe('FirebaseEncryptor', () => {
     const secretKey = 'my-secret-key';
-    let encryptor = new FirebaseEncryptor();
+    let encryptor = new Encryptor();
 
     beforeAll(async () => {
         await encryptor.init(secretKey);

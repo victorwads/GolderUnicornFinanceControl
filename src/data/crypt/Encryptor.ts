@@ -2,7 +2,7 @@ import NumericEncryptor from "./NumericEncryptor";
 
 type Map = { [key: string]: any;};
 
-export default class FirebaseEncryptor {
+export default class Encryptor {
   private static ENCRYPTED_PREFIX = '$O';
 
   private secretKey: CryptoKey | null = null;
@@ -23,10 +23,10 @@ export default class FirebaseEncryptor {
     return this.encryptData(data, ignoreKeys);
   }
 
-  async decrypt<T extends {[key: string]: any}>(data: T): Promise<T> {
+  async decrypt<T extends {[key: string]: any}>(data: T, customValueDecoder: (value: any) => any = (v) => v): Promise<T> {
     if (!this.secretKey) throw this.invalidKey;
 
-    return await this.decryptData(data);
+    return await this.decryptData(data, customValueDecoder);
   }
 
   private async encryptData(data: any, ignoreKeys: string[] = []): Promise<any> {
@@ -43,12 +43,9 @@ export default class FirebaseEncryptor {
       case 'boolean': 
         return this.numberHandler?.encrypt(data);
       case 'string':
-        return FirebaseEncryptor.ENCRYPTED_PREFIX + await this.encryptString(data);
+        return Encryptor.ENCRYPTED_PREFIX + await this.encryptString(data);
       case 'object':
-        if (data instanceof Date) {
-          return this.numberHandler?.encrypt(data);
-        }
-
+        if (data instanceof Date) return this.numberHandler?.encrypt(data);
         if(Object.keys(data).includes('encrypted'))
           throw new Error('Invalid crypt object using reserved key: encrypted');
 
@@ -68,37 +65,41 @@ export default class FirebaseEncryptor {
     throw new Error(`Invalid crypt value of type: ${typeof data}`);
   }
 
-  private async decryptData(data: any): Promise<any> {
+  private async decryptData(data: any, customValueDecoder: (value: any) => any): Promise<any> {
     if(null === data) return null;
     if (Array.isArray(data)) {
-      return await Promise.all(data.map(item => this.decryptData(item)));
+      return await Promise.all(data.map(item => this.decryptData(item, customValueDecoder)));
     }
 
+    let result: any = data;
     switch (typeof data) {
-      case 'number': return this.numberHandler?.decrypt(data);
-      case 'boolean': return data;
+      case 'boolean': break;
+      case 'number': result = this.numberHandler?.decrypt(data); break;
       case 'string':
-        if (data.startsWith(FirebaseEncryptor.ENCRYPTED_PREFIX)) {
-          const encryptedValue = data.substring(FirebaseEncryptor.ENCRYPTED_PREFIX.length);
-          return await this.decryptString(encryptedValue);
-        }
-        return data;
+        if (!data.startsWith(Encryptor.ENCRYPTED_PREFIX))
+          result = await this.decryptString(data.substring(Encryptor.ENCRYPTED_PREFIX.length));
+        break;
       case 'object':
-        if (data.encrypted !== true) {
-          return data;
-        }
-        const sourceData = {...data};
-        const decryptedData: any = {};
-        delete sourceData.encrypted;
-        for (const key in sourceData) {
-          decryptedData[key] = await this.decryptData(sourceData[key]);
-          if (decryptedData[key] instanceof Date) {
-            (decryptedData[key] as any).toDate = () => decryptedData[key];
-          }
-        }
-        return decryptedData;      
+        if (data.encrypted !== true) break;
+        result = await this.decryptObject(data, customValueDecoder);
+        break;
+      default:
+        throw new Error(`error decrypting value of type: ${typeof data}`);
     }
-    throw new Error(`error decrypting value of type: ${typeof data}`);
+
+    return customValueDecoder(result);
+  }
+
+  private async decryptObject(data: any, customValueDecoder: (value: any) => any): Promise<any> {
+    const sourceData = {...data};
+    const decryptedData: any = {};
+    delete sourceData.encrypted;
+    for (const key in sourceData) {
+      decryptedData[key] = customValueDecoder(
+        await this.decryptData(sourceData[key], customValueDecoder)
+      );
+    }
+    return decryptedData;
   }
 
   private async encryptString(value: string): Promise<string> {
@@ -145,5 +146,5 @@ async function sha256(data: string): Promise<{buffer: ArrayBuffer; hex: string;}
   }
 }
 
-const EncryptorSingletone = new FirebaseEncryptor();
+const EncryptorSingletone = new Encryptor();
 export { EncryptorSingletone };
