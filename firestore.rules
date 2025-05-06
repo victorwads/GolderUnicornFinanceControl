@@ -26,7 +26,7 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
 
-      match /DebitRegisters/{id} {
+      match /AccountsRegistries/{id} {
         allow read, write: if isOwner(userId);
       }
 
@@ -34,11 +34,11 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
 
-      match /CreditRegisters/{id} {
+      match /CreditCardRegistries/{id} {
         allow read, write: if isOwner(userId);
       }
 
-      match /CreditCards/{cardId}/Invoices/{invoiceId} {
+      match /CreditCardInvoices/{id} {
         allow read, write: if isOwner(userId);
       }
     } 
