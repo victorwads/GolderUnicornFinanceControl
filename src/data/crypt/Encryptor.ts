@@ -1,6 +1,6 @@
 import NumericEncryptor from "./NumericEncryptor";
 
-class FirebaseEncryptor {
+export default class FirebaseEncryptor {
   private static ENCRYPTED_PREFIX = '$O';
 
   private secretKey: CryptoKey | null = null;
@@ -28,9 +28,12 @@ class FirebaseEncryptor {
   }
 
   private async encryptData(data: any, ignoreKeys: string[] = []): Promise<any> {
-    if (data === null || data === undefined) return data;
     if (Array.isArray(data)) {
-      return await Promise.all(data.map(item => this.encryptData(item)));
+      return await Promise.all(
+        data
+        .filter(item => item !== undefined)
+        .map(item => this.encryptData(item))
+      );
     }
 
     switch (typeof data) {
@@ -47,10 +50,14 @@ class FirebaseEncryptor {
         if(Object.keys(data).includes('encrypted') && data.encrypted !== true)
           throw new Error('Invalid crypt object using reserved key: encrypted');
 
+        const sourceData = {...data};
         const encryptedData: any = {};
-        for (const key in data) {
-          if (ignoreKeys.includes(key)) continue;
-          encryptedData[key] = await this.encryptData(data[key]);
+        for (const key in sourceData) {
+          if(sourceData[key] === undefined) continue;
+          if(ignoreKeys.includes(key)) {
+            continue
+          };
+          encryptedData[key] = await this.encryptData(sourceData[key]);
         }
         encryptedData.encrypted = true;
         return encryptedData;  
@@ -65,8 +72,7 @@ class FirebaseEncryptor {
     }
 
     switch (typeof data) {
-      case 'bigint':
-      case 'number': return this.numberHandler?.decrypt(BigInt(data));
+      case 'number': return this.numberHandler?.decrypt(data);
       case 'boolean': return data;
       case 'string':
         if (data.startsWith(FirebaseEncryptor.ENCRYPTED_PREFIX)) {
@@ -78,10 +84,11 @@ class FirebaseEncryptor {
         if (data.encrypted !== true) {
           return data;
         }
+        const sourceData = {...data};
         const decryptedData: any = {};
-        delete data.encrypted;
-        for (const key in data) {
-          decryptedData[key] = await this.decryptData(data[key]);
+        delete sourceData.encrypted;
+        for (const key in sourceData) {
+          decryptedData[key] = await this.decryptData(sourceData[key]);
         }
         return decryptedData;      
     }
@@ -120,10 +127,7 @@ class FirebaseEncryptor {
   private invalidKey = new Error('Secret key is not initialized.');
 }
 
-async function sha256(data: string): Promise<{
-  buffer: ArrayBuffer;
-  hex: string;
-}> {
+async function sha256(data: string): Promise<{buffer: ArrayBuffer; hex: string;}> {
   const encoder = new TextEncoder();
   const keyData = encoder.encode(data);
   const buffer = await crypto.subtle.digest('SHA-256', keyData);
@@ -134,8 +138,6 @@ async function sha256(data: string): Promise<{
       .join(''),
   }
 }
-
-export default FirebaseEncryptor;
 
 const EncryptorSingletone = new FirebaseEncryptor();
 export { EncryptorSingletone };

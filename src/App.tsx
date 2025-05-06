@@ -12,6 +12,7 @@ import CategoriesScreen from './features/categories/CategoriesScreen';
 import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
 import EmptyScreen from './commons/EmptyScreen';
 import { EncryptorSingletone } from './data/crypt/Encryptor';
+import AddAccountScreen from './features/accounts/AddAccountScreen';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -23,7 +24,7 @@ const router = createBrowserRouter([
     ]
   },
   { path: '/accounts', element: <EmptyScreen title='Accounts' /> },
-  { path: '/accounts/create', element: <EmptyScreen title='Accounts' /> },
+  { path: '/accounts/create', element: <AddAccountScreen /> },
   { path: '/accounts/:id/edit', element: <EmptyScreen title='Accounts' /> },
   { path: '/accounts/:id/view', element: <EmptyScreen title='Accounts' /> },
   { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
