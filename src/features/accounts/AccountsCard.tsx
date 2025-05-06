@@ -42,7 +42,7 @@ const AccountsCard: React.FC<{}> = () => {
 
     return <>
         <div>
-            <span onClick={() => setShowArchived(!showArchived)}><input type="checkbox" defaultChecked={showArchived} /> Show archived</span>
+            <label><input onClick={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> Show archived</label>
         </div>
         <Link to={'/accounts'}>Contas</Link>
         <Card>

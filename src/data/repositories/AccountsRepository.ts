@@ -13,6 +13,7 @@ export default class AccountsRepository extends BaseRepository<Account> {
     private registries: AccountsRegistryRepository;
     private invoices: CreditCardInvoicesRepository;
     private cards: CreditcardsRepository;
+    private static balanceCache: { [key: string]: number } = {};
 
     constructor() {
         super(`${Collections.Users}/{userId}/${Collections.Accounts}`, Account.firestoreConverter, true);
@@ -29,13 +30,16 @@ export default class AccountsRepository extends BaseRepository<Account> {
     }
 
     public getAccountBalance(accountId?: string, showArchived: boolean = false): number {
-        return this.getAccountItems(accountId, showArchived).reduce((acc, item) =>
-            item.paid ? acc + item.value : acc,
-            this.getLocalById(accountId)?.initialBalance ?? 0
-        );
+        if (AccountsRepository.balanceCache[accountId || '']) {
+            return AccountsRepository.balanceCache[accountId || ''];
+        }
+        return this.getAccountItems(accountId, showArchived).balance;
     }
 
-    public getAccountItems(accountId?: string, showArchived: boolean = false): AccountsRegistry[] {
+    public getAccountItems(accountId?: string, showArchived: boolean = false): {
+        registries: AccountsRegistry[],
+        balance: number
+    } {
         const registries = this.registries.getCache()
         .filter(registry => (
             accountId
@@ -63,6 +67,12 @@ export default class AccountsRepository extends BaseRepository<Account> {
             .filter((registry) => registry.date.getTime() <= now.getTime())
             .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-        return sortedData;
+        return {
+            registries: sortedData,
+            balance: AccountsRepository.balanceCache[accountId || ''] = sortedData.reduce((acc, item) =>
+                item.paid ? acc + item.value : acc,
+                this.getLocalById(accountId)?.initialBalance ?? 0
+            )
+        };
     }
 }

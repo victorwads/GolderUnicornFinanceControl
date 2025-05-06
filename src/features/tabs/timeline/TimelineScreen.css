@@ -4,6 +4,76 @@
 
 .ScreenHeader {
   margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ScreenHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ScreenTitle {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.SelectedBank {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.SelectedBank .ClearFilter {
+  font-size: 14px;
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.SelectedBank .ClearFilter:hover {
+  color: #0056b3;
+}
+
+.ScreenOptions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.ScreenOptions input{
+  margin-right: 5px;
+}
+
+.RegistryCount {
+  flex: 1;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.ScreenTotal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.TotalValue {
+  font-size: 18px;
+}
+
+.TotalValue.positive {
+  color: #0a7d0a;
+}
+
+.TotalValue.negative {
+  color: #ad1717;
 }
 
 .TimelineList {

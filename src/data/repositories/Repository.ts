@@ -30,6 +30,10 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     cache: { queryReads: 0, docReads: 0, writes: 0 },
   }
 
+  public static getDatabaseUse(): DatabasesUse {
+    return BaseRepository.use;
+  }
+
   private static async updateUse(updater: (use: DatabasesUse) => void) {
     updater(BaseRepository.use);
     if (!updateUse) return;

@@ -1,36 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import Category from '../../data/models/Category';
-import CategoriesRepository from '../../data/repositories/CategoriesRepository';
 import { Link } from 'react-router-dom';
 
-const CategoriesScreen: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [newCategoryName, setNewCategoryName] = useState<string>('');
+import CategoriesRepository, { RootCategory } from '../../data/repositories/CategoriesRepository';
+import './CategoriesScreen.css';
 
-  const categoriesRepository = new CategoriesRepository();
+const CategoriesScreen: React.FC = () => {
+  const [categories, setCategories] = useState<RootCategory[]>([]);
 
   useEffect(() => {
-    // Carregar categorias do banco de dados aqui
+    const categories = new CategoriesRepository();
+    categories.getAllRoots().then((categories) => {
+      setCategories(categories);
+    });
   }, []);
 
-  const handleAddCategory = async () => {
-    if (newCategoryName) {
-      const newCategory = new Category('', newCategoryName);
-      await categoriesRepository.set(newCategory);
-      setCategories([...categories, newCategory]);
-      setNewCategoryName('');
-    }
-  };
-
   return (
-    <div>
-      <h2>Categorias</h2>
-      <ul>
+    <div className="categories-screen">
+      <h2 className="categories-title">Categorias</h2>
+      <ul className="categories-list">
         {categories.map((category) => (
-          <li key={category.id}>{category.name}</li>
+          <li key={category.id} className="category-item">
+            <div className="category-info">
+              <span
+                className="category-color"
+                style={{ backgroundColor: category.color || '#ccc' }}
+              ></span>
+              {category.name}
+            </div>
+            <ul className="subcategories-list">
+              {category.children.map((child) => (
+                <li key={child.id} className="subcategory-item">
+                  <div className="category-info">
+                    <span
+                      className="category-color"
+                      style={{ backgroundColor: child.color || '#ccc' }}
+                    ></span>
+                    {child.name}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </li>
         ))}
       </ul>
-      <Link to="/categories/create">Adicionar</Link>
+      <Link to="/categories/create" className="add-category-button">
+        Adicionar Categoria
+      </Link>
     </div>
   );
 };

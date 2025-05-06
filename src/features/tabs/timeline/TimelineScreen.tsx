@@ -23,7 +23,7 @@ interface WithInfoRegistry extends AccountsRegistry {
 const TimelineScreen = () => {
   const [showArchived, setShowArchived] = useState(false)
   const [registries, setRegistries] = useState<WithInfoRegistry[]>([]);
-  const [selectedBank, setSelectedBank] = useState<Bank|null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<Account|null>(null);
   const [total, setTotal] = useState(0);
   const params = useParams<{ id?: string }>();
 
@@ -31,21 +31,22 @@ const TimelineScreen = () => {
     const registries = new AccountsRepository();
     const categories = new CategoriesRepository();
     const accounts = new AccountsRepository();
-    const banks = new BanksRepository();
+    const showAll = showArchived || !!params.id;
 
     (async () => {
       await registries.waitInit();
       await categories.waitInit();
       await accounts.waitInit();
-      await banks.waitInit();
 
       if(params.id) {
-        setSelectedBank(
-          banks.getLocalById(accounts.getLocalById(params.id)?.bankId ?? "") ?? null
-        );
+        setSelectedAccount(accounts.getLocalById(params.id) ?? null);
+      } else {
+        setSelectedAccount(null);
       }
-      setTotal(registries.getAccountBalance(params.id, showArchived));
-      setRegistries(registries.getAccountItems(params.id, showArchived).map((registry) => {
+
+      const items = registries.getAccountItems(params.id, showAll);
+      setTotal(items.balance);
+      setRegistries(items.registries.map((registry) => {
         return {
           ...registry,
           category: categories.getLocalById(registry.categoryId),
@@ -60,15 +61,33 @@ const TimelineScreen = () => {
   return (
     <div className="Screen">
       <div className="ScreenHeader">
-        <h1>Timeline{selectedBank ? ` - ${selectedBank.name}` : ''}</h1>
-        <div className="ScreenTotal">
-          <span>Total:</span>
-          <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
-            {formatNumber(total)}
-          </span>
+        <div className="ScreenHeaderRow">
+          <h1 className="ScreenTitle">Timeline</h1>
+          <span className="RegistryCount">({registries.length}) Registros</span>
+          {selectedAccount && (
+            <div className="SelectedBank">
+              <span>{selectedAccount.name}</span>
+              <Link to={'/main/timeline'} className="ClearFilter">Mostrar todos</Link>
+            </div>
+          )}
         </div>
-        <div>
-            <span onClick={() => setShowArchived(!showArchived)}><input type="checkbox" defaultChecked={showArchived} /> Show archived</span>
+        <div className="ScreenHeaderRow">
+          <div className="ScreenTotal">
+            <span>Total:</span>
+            <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
+              {formatNumber(total)}
+            </span>
+          </div>
+          {!selectedAccount && <div className="ScreenOptions">
+            <label>
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={() => setShowArchived(!showArchived)}
+              />
+              Show archived
+            </label>
+          </div>}
         </div>
       </div>
       <div className="TimelineList">

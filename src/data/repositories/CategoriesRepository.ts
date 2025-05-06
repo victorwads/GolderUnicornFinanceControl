@@ -10,14 +10,15 @@ export default class CategoriesRepository extends BaseRepository<Category> {
 	}
 
 	public getAllRoots = async (): Promise<RootCategory[]> => {
+		await this.waitInit();
 		let rootCategories: RootCategory[] = [];
 		let categories: Map<string, Category> = new Map();
 
-		(await this.getAll()).forEach((category) => {
+		this.getCache().forEach((category) => {
 			categories.set(category.id, category);
 			if (!category.parentId) {
 				rootCategories.push({
-					category: category,
+					...category,
 					children: [],
 				});
 			}
@@ -25,9 +26,9 @@ export default class CategoriesRepository extends BaseRepository<Category> {
 
 		rootCategories.forEach((root) => {
 			categories.forEach((category) => {
-				if (category.parentId === root.category.id) {
-					category.color = root.category.color;
-					category.icon = root.category.icon;
+				if (category.parentId === root.id) {
+					category.color = root.color;
+					category.icon = root.icon;
 					root.children.push(category);
 				}
 			});
@@ -37,7 +38,6 @@ export default class CategoriesRepository extends BaseRepository<Category> {
 	};
 }
 
-interface RootCategory {
-	category: Category;
+export interface RootCategory extends Category {
 	children: Category[];
 }
