@@ -79,4 +79,13 @@ describe('FirebaseEncryptor', () => {
         expect((encryptedObject as any).encrypted).toBe(true);
     });
 
+    test('decrypt should add toDate() on date types', async () => {
+        const originalObject = { name: 'John Doe', day: new Date(), active: true, info: { now: new Date() } };
+        const encryptedObject = await encryptor.encrypt(originalObject);
+        const decryptedObject = await encryptor.decrypt(encryptedObject);
+
+        expect(decryptedObject.day).toHaveProperty('toDate');
+        expect(decryptedObject.info.now).toHaveProperty('toDate');
+    });
+
 });

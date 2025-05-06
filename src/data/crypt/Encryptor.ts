@@ -92,6 +92,9 @@ export default class FirebaseEncryptor {
         delete sourceData.encrypted;
         for (const key in sourceData) {
           decryptedData[key] = await this.decryptData(sourceData[key]);
+          if (decryptedData[key] instanceof Date) {
+            (decryptedData[key] as any).toDate = () => decryptedData[key];
+          }
         }
         return decryptedData;      
     }
