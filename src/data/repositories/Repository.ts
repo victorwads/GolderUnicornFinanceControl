@@ -139,9 +139,6 @@ export default abstract class BaseRepository<Model extends DocumentData> {
 
   private async handleSnapEncryption(model: Model): Promise<DocumentData> {
     const data = this.converter.toFirestore(model);
-    const encrypted = await EncryptorSingletone.encrypt(data);
-    return Object.fromEntries(
-      Object.entries(encrypted).filter(([_, v]) => v !== undefined) // RESOLVER DE OUTRA FORMA
-    );
+    return await EncryptorSingletone.encrypt(data);
   }
 }

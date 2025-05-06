@@ -1,5 +1,7 @@
 import NumericEncryptor from "./NumericEncryptor";
 
+type Map = { [key: string]: any;};
+
 export default class FirebaseEncryptor {
   private static ENCRYPTED_PREFIX = '$O';
 
@@ -15,7 +17,7 @@ export default class FirebaseEncryptor {
     this.secretKey = await this.generateKey(hash.buffer).then((key) => this.secretKey = key);
   }
 
-  async encrypt<T extends {[key: string]: any}>(data: T, ignoreKeys: string[] = []): Promise<T> {
+  async encrypt<T extends Map>(data: T, ignoreKeys: string[] = []): Promise<T> {
     if (!this.secretKey) throw this.invalidKey;
 
     return this.encryptData(data, ignoreKeys);
@@ -55,6 +57,7 @@ export default class FirebaseEncryptor {
         for (const key in sourceData) {
           if(sourceData[key] === undefined) continue;
           if(ignoreKeys.includes(key)) {
+            encryptedData[key] = sourceData[key];
             continue
           };
           encryptedData[key] = await this.encryptData(sourceData[key]);
