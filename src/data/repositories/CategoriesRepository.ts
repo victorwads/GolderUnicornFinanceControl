@@ -5,8 +5,6 @@ import { Collections } from "../../data/firebase/Collections";
 
 export default class CategoriesRepository extends BaseRepository<Category> {
 
-	protected cacheDuration: number = 1000 * 60 * 60 * 24 * 30; // 30 days
-
 	constructor() {
 		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category.firestoreConverter, true);
 	}

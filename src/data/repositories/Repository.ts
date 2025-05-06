@@ -5,19 +5,39 @@ import {
   Query, QuerySnapshot, CollectionReference,
   DocumentData, DocumentReference,
   // Actions
-  addDoc, getDocsFromCache, getDocsFromServer, setDoc,
+  addDoc, getDocsFromCache, getDocs, setDoc,
   collection, doc,
   runTransaction,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { EncryptorSingletone } from "../crypt/Encryptor";
 
+interface DatabaseUse { queryReads: number, docReads: number,  writes: number}
+interface DatabasesUse { remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse}
+const DB_USE = "dbUse";
+const DEFAULT_CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 day
+const USE_CACHE: DatabasesUse = localStorage.getItem(DB_USE) !== null
+ ? JSON.parse(localStorage.getItem(DB_USE) || '{}')
+ : undefined
+
+let updateUse = true;
 export default abstract class BaseRepository<Model extends DocumentData> {
-  private static localCache: { [key: string]: { [key: string]: DocumentData } } = {};
-  private static localCacheStates: { [key: string]: Promise<any> } = {};
-  private static readonly databaseUseInfo = {
-    reads: 0,
-    writes: 0,
+  private static cache: { [key: string]: { [key: string]: DocumentData } } = {};
+  private static cacheStates: { [key: string]: Promise<any> } = {};
+  private static readonly use: DatabasesUse = USE_CACHE || {
+    remote: { queryReads: 0, docReads: 0,  writes: 0 },
+    local: { queryReads: 0, docReads: 0, writes: 0 },
+    cache: { queryReads: 0, docReads: 0, writes: 0 },
+  }
+
+  private static async updateUse(updater: (use: DatabasesUse) => void) {
+    updater(BaseRepository.use);
+    if (!updateUse) return;
+    updateUse = false;
+    setTimeout(() => {
+      updateUse = true;
+      localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
+    }, 1000);
   }
 
   private encryptQueeue: Model[] = [];
@@ -27,29 +47,27 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   protected db: Firestore;
   protected ref: CollectionReference<any>;
   protected converter: FirestoreDataConverter<Model>;
-
-  protected abstract cacheDuration: number;
+  protected cacheDuration: number = 0;
 
   constructor(
     private collectionName: string,
     firestoreConverter: FirestoreDataConverter<Model>,
-    private useLocalCache: boolean = false,
+    cacheDuration: number|true = 0,
   ) {
     this.collectionName = this.parseCollectionName(collectionName);
     this.lastUpdateKey = `last${collectionName}Update`;
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
     this.converter = firestoreConverter;
-
-    if (!BaseRepository.localCache[this.collectionName] && this.useLocalCache) {
-      BaseRepository.localCache[this.collectionName] = {};
-      BaseRepository.localCacheStates[this.collectionName] = this.getAll();
-    }
+    this.cacheDuration = cacheDuration === true ? DEFAULT_CACHE_DURATION : cacheDuration;
   }
 
   public async waitInit(): Promise<void> {
     this.validateCache();
-    await BaseRepository.localCacheStates[this.collectionName];
+    if (!BaseRepository.cache[this.collectionName]) {
+      BaseRepository.cacheStates[this.collectionName] = this.getAll();
+    }
+    await BaseRepository.cacheStates[this.collectionName];
   }
 
   public async getAll(
@@ -61,27 +79,39 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     if (forceCache || this.shouldUseCache()) {
       result = await getDocsFromCache(queryBuilder(this.ref));
     } else {
-      result = await getDocsFromServer(queryBuilder(this.ref));
+      result = await getDocs(queryBuilder(this.ref));
       this.setLastUpdate();
     }
 
+    if (!BaseRepository.cache[this.collectionName]) {
+      BaseRepository.cache[this.collectionName] = {};
+    }
     const encryptedItems = result.docs.map(snap => ({id: snap.id, data: snap.data()}));
     const items = [];
+
     for(const snap of encryptedItems) {
       let item = await this.handleSnapDecryption(snap.id, snap.data);
-      if (this.useLocalCache) {
-        BaseRepository.localCache[this.collectionName][snap.id] = item;
+      if (this.cacheDuration) {
+        BaseRepository.cache[this.collectionName][snap.id] = item;
       }
       onItemDecoded(item);
       items.push(item);
     };
+    BaseRepository.updateUse((use) => {
+      const useInfo: keyof DatabasesUse = result.metadata.fromCache ? 'local' : 'remote';
+      use[useInfo].queryReads++;
+      use[useInfo].docReads += result.docs.length;
+    });
     this.proccessEncryptionQueue();
     return items;
   }
 
   public getLocalById(id?: string): Model | undefined {
     this.validateCache();
-    return BaseRepository.localCache[this.collectionName][id ?? ""] as Model;
+    BaseRepository.updateUse((use) => {
+      use.cache.docReads++;
+    });
+    return BaseRepository.cache[this.collectionName][id ?? ""] as Model;
   }
 
   public async set(model: Model, id?: string): Promise<DocumentReference<Model>> {
@@ -95,22 +125,30 @@ export default abstract class BaseRepository<Model extends DocumentData> {
       (model as any).id = result.id;
     }
 
-    BaseRepository.databaseUseInfo.writes++;
-    if (this.useLocalCache) {
-      BaseRepository.localCache[this.collectionName][model.id] = model;
-    }
+    BaseRepository.updateUse((use) => {
+      use.remote.writes++;
+      if (this.cacheDuration) {
+        use.cache.writes++;
+        BaseRepository.cache[this.collectionName][model.id] = model;
+      }
+    });
     return result;
   }
 
   public getCache(): Model[] {
     this.validateCache();
-    return Object.values(BaseRepository.localCache[this.collectionName] || {}) as Model[];
+    const result = Object.values(BaseRepository.cache[this.collectionName] || {}) as Model[];
+
+    BaseRepository.updateUse((use) => {
+      use.cache.queryReads++;
+      use.cache.docReads += result.length;
+    });
+    return result;
   }
 
   private shouldUseCache(): boolean {
-    return false;
     const lastUpdate = Number(localStorage.getItem(this.lastUpdateKey));
-    return this.cacheDuration > 0 && Date.now() - (lastUpdate || 0) < this.cacheDuration;
+    return (this.cacheDuration > 0) && ((Date.now() - (lastUpdate || 0)) < this.cacheDuration);
   }
 
   private setLastUpdate(): void {
@@ -118,7 +156,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   }
 
   private validateCache(): void {
-    if (!this.useLocalCache) {
+    if (!this.cacheDuration) {
       throw new Error("Local cache is not enabled for this repository");
     }
   }
@@ -157,6 +195,9 @@ export default abstract class BaseRepository<Model extends DocumentData> {
           const data = this.converter.toFirestore(model);
           const encryptedData = await EncryptorSingletone.encrypt(data);
           transaction.set(doc(this.ref, model.id), encryptedData);
+          BaseRepository.updateUse((use) => {
+            use.remote.writes++;
+          });      
 
           model = this.encryptQueeue.pop();
         }

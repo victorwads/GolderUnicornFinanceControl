@@ -10,7 +10,6 @@ import CreditCardInvoicesRepository from './CreditCardsInvoicesRepository';
 
 export default class AccountsRepository extends BaseRepository<Account> {
 
-    protected cacheDuration = 24 * 60 * 60 * 1000;
     private registries: AccountsRegistryRepository;
     private invoices: CreditCardInvoicesRepository;
     private cards: CreditcardsRepository;
