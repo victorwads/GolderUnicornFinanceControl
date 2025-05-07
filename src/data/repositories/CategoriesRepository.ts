@@ -1,12 +1,12 @@
-import BaseRepository from "./Repository";
+import RepositoryWithCrypt from './RepositoryWithCrypt';
 
 import Category from "../models/Category";
 import { Collections } from "../../data/firebase/Collections";
 
-export default class CategoriesRepository extends BaseRepository<Category> {
+export default class CategoriesRepository extends RepositoryWithCrypt<Category> {
 
 	constructor() {
-		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category.firestoreConverter, true);
+		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category, true);
 	}
 
 	public getAllRoots = async (): Promise<RootCategory[]> => {

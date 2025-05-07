@@ -1,18 +1,6 @@
-import { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore'
+import DocumentModel from "./DocumentModel";
 
-export interface ICard {
-  id?: string;
-  name: string;
-  limit: number;
-  brand: string;
-  accountId: string;
-  closingDay: number; dueDay: number;
-  createdAt: Date; updatedAt: Date;
-  archived?: boolean,
-  importInfo?: string
-}
-
-export default class CreditCard implements ICard {
+export default class CreditCard extends DocumentModel {
   constructor(
     public id: string,
     public name: string,
@@ -25,32 +13,7 @@ export default class CreditCard implements ICard {
     public importInfo?: any,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
-  ) { }
-
-  static firestoreConverter: FirestoreDataConverter<CreditCard> = {
-    toFirestore(card: CreditCard): DocumentData {
-      const data = { ...card } as any;
-      delete data.id;
-      return data;
-    },
-    fromFirestore(
-      snapshot: QueryDocumentSnapshot,
-      options: SnapshotOptions
-    ): CreditCard {
-      const data = snapshot.data(options)!;
-      return new CreditCard(
-        snapshot.id,
-        data.name,
-        data.limit,
-        data.brand,
-        data.accountId,
-        data.closingDay,
-        data.dueDay,
-        data.archived,
-        data.importInfo,
-        data.createdAt?.toDate(),
-        data.updatedAt?.toDate(),
-      );
-    }
-  };
+  ) { 
+    super(id);
+  }
 }

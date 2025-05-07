@@ -1,4 +1,4 @@
-import BaseRepository from './Repository';
+import BaseRepository from './RepositoryBase';
 
 import Bank from '../models/Bank'
 import { Collections } from '../../data/firebase/Collections'
@@ -6,7 +6,7 @@ import { Collections } from '../../data/firebase/Collections'
 class BanksRepository extends BaseRepository<Bank> {
     
     constructor() {
-        super(Collections.Banks, Bank.firestoreConverter, 30 * 24 * 60 * 60 * 1000 /* 30 days */)
+        super(Collections.Banks, Bank, 30 * 24 * 60 * 60 * 1000 /* 30 days */)
     }
 
     public getFiltered = async (search: string) => {
@@ -15,7 +15,6 @@ class BanksRepository extends BaseRepository<Bank> {
             bank.fullName.prepareCompare().includes(search.prepareCompare())
         )
     }
-
 }
 
 export default BanksRepository

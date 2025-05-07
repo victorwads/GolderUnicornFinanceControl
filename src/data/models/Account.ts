@@ -1,4 +1,4 @@
-import  { DocumentData, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from 'firebase/firestore'
+import DocumentModel from './DocumentModel';
 
 export enum AccountType {
     CURRENT = "CURRENT",
@@ -7,20 +7,7 @@ export enum AccountType {
     CASH = "CASH",
 }
 
-export interface IAccount {
-    id?: string;
-    name: string;
-    initialBalance: number;
-    bankId: string;
-    type: AccountType;
-    color?: string;
-    includeInTotal: boolean;
-    archived: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-export default class Account implements IAccount {
+export default class Account extends DocumentModel {
     constructor(
         public id: string,
         public name: string,
@@ -29,34 +16,8 @@ export default class Account implements IAccount {
         public type: AccountType,
         public archived: boolean = false,
         public color?: string,
-        public includeInTotal: boolean = false,
-        public createdAt: Date = new Date(),
-        public updatedAt: Date = new Date()
-    ) {}
-
-    static firestoreConverter: FirestoreDataConverter<Account> = {
-        toFirestore(account: Account): DocumentData {
-            const data = { ...account } as any;
-            delete data.id;
-            return data
-        },
-        fromFirestore(
-            snapshot: QueryDocumentSnapshot,
-            options: SnapshotOptions
-        ): Account {
-            const data = snapshot.data(options);
-            return new Account(
-                snapshot.id,
-                data.name,
-                data.initialBalance,
-                data.bankId,
-                data.type,
-                data.archived,
-                data.color,
-                data.includeInTotal,
-                data.createdAt.toDate(),
-                data.updatedAt.toDate()
-            );
-        }
-    };
+        public includeInTotal: boolean = false
+    ) {
+        super(id);
+    }
 }

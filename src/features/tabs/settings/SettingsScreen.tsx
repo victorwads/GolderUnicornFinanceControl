@@ -2,7 +2,7 @@ import "./SettingsScreen.css"
 
 import { Link } from "react-router-dom"
 import { getAuth, signOut } from "firebase/auth"
-import BaseRepository from "../../../data/repositories/Repository"
+import RepositoryBase from "../../../data/repositories/RepositoryBase"
 
 const SettingsScreen = () => {
 	return <div>
@@ -13,7 +13,7 @@ const SettingsScreen = () => {
 			<li><Link to={'/creditcards'}>Cartões</Link></li>
 		</ul>
 		<h3>Database Usage</h3>
-		<pre>{JSON.stringify(BaseRepository.getDatabaseUse(), null, 2)}</pre>
+		<pre>{JSON.stringify(RepositoryBase.getDatabaseUse(), null, 2)}</pre>
 		<a className="long-button" onClick={() => signOut(getAuth())}>Sair</a>
 	</div>
 }

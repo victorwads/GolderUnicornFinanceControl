@@ -1,17 +1,17 @@
 import {
   getFirestore,
   // Types
-  Firestore, FirestoreDataConverter,
+  Firestore,
   Query, QuerySnapshot, CollectionReference,
   DocumentData, DocumentReference,
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc,
   collection, doc,
-  runTransaction,
-  Timestamp,
+  Timestamp
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { EncryptorSingletone } from "../crypt/Encryptor";
+
+import DocumentModel from "../models/DocumentModel";
 
 interface DatabaseUse { queryReads: number, docReads: number,  writes: number}
 interface DatabasesUse { remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse}
@@ -22,57 +22,30 @@ const USE_CACHE: DatabasesUse = localStorage.getItem(DB_USE) !== null
  : undefined
 
 let updateUse = true;
-export default abstract class BaseRepository<Model extends DocumentData> {
-  private static cache: { [key: string]: { [key: string]: DocumentData } } = {};
-  private static cacheStates: { [key: string]: Promise<any> } = {};
-  private static readonly use: DatabasesUse = USE_CACHE || {
-    remote: { queryReads: 0, docReads: 0,  writes: 0 },
-    local: { queryReads: 0, docReads: 0, writes: 0 },
-    cache: { queryReads: 0, docReads: 0, writes: 0 },
-  }
-
-  public static getDatabaseUse(): DatabasesUse {
-    return BaseRepository.use;
-  }
-
-  private static async updateUse(updater: (use: DatabasesUse) => void) {
-    updater(BaseRepository.use);
-    if (!updateUse) return;
-    updateUse = false;
-    setTimeout(() => {
-      updateUse = true;
-      localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
-    }, 1000);
-  }
-
-  private encryptQueeue: Model[] = [];
+export default abstract class BaseRepository<Model extends DocumentModel> {
   private lastUpdateKey: string;
-  private useUser: boolean = false
 
   protected db: Firestore;
   protected ref: CollectionReference<any>;
-  protected converter: FirestoreDataConverter<Model>;
   protected cacheDuration: number = 0;
 
   constructor(
     private collectionName: string,
-    firestoreConverter: FirestoreDataConverter<Model>,
+    private modelClass: new (...args: any) => Model,
     cacheDuration: number|true = 0,
   ) {
     this.collectionName = this.parseCollectionName(collectionName);
     this.lastUpdateKey = `last${this.collectionName}Update`;
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
-    this.converter = firestoreConverter;
     this.cacheDuration = cacheDuration === true ? DEFAULT_CACHE_DURATION : cacheDuration;
   }
 
   public async waitInit(): Promise<void> {
     this.validateCache();
-    if (!BaseRepository.cache[this.collectionName]) {
-      BaseRepository.cacheStates[this.collectionName] = this.getAll();
+    if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === 0) {
+      await this.getAll();
     }
-    await BaseRepository.cacheStates[this.collectionName];
   }
 
   public async getAll(
@@ -100,14 +73,14 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     const items = [];
 
     for(const snap of encryptedItems) {
-      let item = await this.handleSnapDecryption(snap.id, snap.data);
+      let item = await this.fromFirestore(snap.id, snap.data);
       if (this.cacheDuration) {
         BaseRepository.cache[this.collectionName][snap.id] = item;
       }
       onItemDecoded(item);
       items.push(item);
     };
-    this.proccessEncryptionQueue();
+    this.postQueryProcess(items);
 
     if (this.cacheDuration) setLastUpdate();
     BaseRepository.updateUse((use) => {
@@ -128,7 +101,7 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   }
 
   public async set(model: Model, id?: string): Promise<DocumentReference<Model>> {
-    let data = await this.handleSnapEncryption(model);
+    let data = await this.toFirestore(model);
     let result;
     if(id) {
       result = doc(this.ref, id);
@@ -159,6 +132,37 @@ export default abstract class BaseRepository<Model extends DocumentData> {
     return result;
   }
 
+  protected postQueryProcess(items: Model[]): void {}
+
+  protected async fromFirestore(id: string, data: DocumentData): Promise<Model> {
+    function findAndReplaceTimestamps(obj: any): any {
+      if(Array.isArray(obj)) return obj.map(findAndReplaceTimestamps);
+      if (obj && typeof obj === "object") {
+        if (obj instanceof Timestamp) return obj.toDate();
+        if (obj.constructor === Object) {
+          for (const key in obj) {
+            obj[key] = findAndReplaceTimestamps(obj[key]);
+          }
+        }
+      }
+      return obj;
+    }
+    return Object.assign(
+        new (this.modelClass)(),
+        { id },
+        findAndReplaceTimestamps(data), 
+    );
+  }
+
+  protected async toFirestore(model: Model): Promise<DocumentData> {
+      const data = { 
+          ...model,
+          _updatedAt: new Date(),
+      } as any;
+      delete data.id;
+      return data
+  }
+
   private shouldUseCache(): boolean {
     const lastUpdate = Number(localStorage.getItem(this.lastUpdateKey));
     return (this.cacheDuration > 0) && ((Date.now() - (lastUpdate || 0)) < this.cacheDuration);
@@ -177,54 +181,31 @@ export default abstract class BaseRepository<Model extends DocumentData> {
   private parseCollectionName(collectionName: string): string {
     if (!collectionName.includes("{userId}")) return collectionName;
 
-    this.useUser = true;
     const userId = getAuth().currentUser?.uid;
     if (!userId) throw new Error("Invalid userId");
 
     return collectionName.replace(/\{userId\}/g, userId);
   }
 
-  private dataValueDecryptor(value: any): any {
-    if (value instanceof Date) {
-      return Timestamp.fromDate(value);
-    }
-    return value;
+  private static cache: { [key: string]: { [key: string]: DocumentData } } = {};
+  private static readonly use: DatabasesUse = USE_CACHE || {
+    remote: { queryReads: 0, docReads: 0,  writes: 0 },
+    local: { queryReads: 0, docReads: 0, writes: 0 },
+    cache: { queryReads: 0, docReads: 0, writes: 0 },
   }
 
-  private async handleSnapDecryption(id: string, data: any): Promise<Model> {
-    if (data.encrypted === true) {
-      const newData = await EncryptorSingletone.decrypt(data, this.dataValueDecryptor);
-      return this.converter.fromFirestore({ id, data: () => newData} as any);
-    }
-    const model = this.converter.fromFirestore({ id, data: () => data} as any);
-
-    if(this.useUser) this.encryptQueeue.push(model);
-    return model;
+  public static getDatabaseUse(): DatabasesUse {
+    return BaseRepository.use;
   }
 
-  private async handleSnapEncryption(model: Model): Promise<DocumentData> {
-    const data = this.converter.toFirestore(model);
-    return await EncryptorSingletone.encrypt(data);
+  protected static async updateUse(updater: (use: DatabasesUse) => void) {
+    updater(BaseRepository.use);
+    if (!updateUse) return;
+    updateUse = false;
+    setTimeout(() => {
+      updateUse = true;
+      localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
+    }, 1000);
   }
 
-  private proccessEncryptionQueue() {
-    if (this.encryptQueeue.length > 0) {
-      runTransaction(this.db, async (transaction) => {
-        let model = this.encryptQueeue.pop()
-        while (model) {
-          const data = this.converter.toFirestore(model);
-          const encryptedData = await EncryptorSingletone.encrypt(data);
-          transaction.set(doc(this.ref, model.id), encryptedData);
-          BaseRepository.updateUse((use) => {
-            use.remote.writes++;
-          });      
-
-          model = this.encryptQueeue.pop();
-        }
-      }).catch((error) => {
-        localStorage.removeItem(this.lastUpdateKey);
-        console.error("Transaction failed: ", error);
-      });
-    }
-  }
 }

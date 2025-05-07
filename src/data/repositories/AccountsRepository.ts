@@ -1,4 +1,4 @@
-import BaseRepository from './Repository';
+import RepositoryWithCrypt from './RepositoryWithCrypt';
 
 import Account from '../models/Account'
 import AccountsRegistry, { RegistryType } from '../models/AccountRegistry';
@@ -8,7 +8,7 @@ import CreditcardsRepository from './CreditCardsRepository';
 import AccountsRegistryRepository from './AccountsRegistryRepository';
 import CreditCardInvoicesRepository from './CreditCardsInvoicesRepository';
 
-export default class AccountsRepository extends BaseRepository<Account> {
+export default class AccountsRepository extends RepositoryWithCrypt<Account> {
 
     private registries: AccountsRegistryRepository;
     private invoices: CreditCardInvoicesRepository;
@@ -16,17 +16,17 @@ export default class AccountsRepository extends BaseRepository<Account> {
     private static balanceCache: { [key: string]: number } = {};
 
     constructor() {
-        super(`${Collections.Users}/{userId}/${Collections.Accounts}`, Account.firestoreConverter, true);
+        super(`${Collections.Users}/{userId}/${Collections.Accounts}`, Account, true);
         this.registries = new AccountsRegistryRepository();
         this.invoices = new CreditCardInvoicesRepository();
         this.cards = new CreditcardsRepository();
     }
 
-    public async waitInit(): Promise<void> {
+    public override async waitInit(): Promise<void> {
         await this.registries.waitInit();
         await this.invoices.waitInit();
         await this.cards.waitInit();
-        super.waitInit();
+        await super.waitInit();
     }
 
     public getAccountBalance(accountId?: string, showArchived: boolean = false): number {

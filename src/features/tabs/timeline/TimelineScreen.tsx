@@ -2,10 +2,8 @@ import "./TimelineScreen.css";
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 
-import Bank from "../../../data/models/Bank";
 import Account from "../../../data/models/Account";
 import Category from "../../../data/models/Category";
-import BanksRepository from "../../../data/repositories/BanksRepository";
 import AccountsRegistry from "../../../data/models/AccountRegistry";
 import CategoriesRepository from "../../../data/repositories/CategoriesRepository";
 import AccountsRepository from "../../../data/repositories/AccountsRepository";
