@@ -14,9 +14,7 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
     db: FirebaseFirestore.Firestore,
     userPath: string
   ) {
-    super(db, db
-      .collection(userPath + Collections.CreditCardInvoices)
-      .withConverter<CreditCardInvoice>(CreditCardInvoice.firestoreConverter as any));
+    super(db, db.collection(userPath + Collections.CreditCardInvoices), CreditCardInvoice);
   }
 
   async process(): Promise<void> {
@@ -57,7 +55,7 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
       invoice.id = docRef.id;
 
       this.items[docRef.id] = invoice;
-      batch.set(docRef, invoice);
+      batch.set(docRef, this.toFirestore(invoice));
     }
 
     await batch.commit();

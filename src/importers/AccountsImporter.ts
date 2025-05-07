@@ -19,10 +19,7 @@ export default class AccountsImporter extends Importer<Account, Contas> {
     private banks: BanksImporter,
     db: FirebaseFirestore.Firestore, userPath: string
   ) {
-    super(db, db
-      .collection(userPath + Collections.Accounts)
-      .withConverter<Account>(Account.firestoreConverter as any)
-    );
+    super(db, db.collection(userPath + Collections.Accounts), Account);
   }
 
   async process(): Promise<void> {
@@ -51,7 +48,7 @@ export default class AccountsImporter extends Importer<Account, Contas> {
         jsonAccount.arquivado ? true : false,
       );
 
-      batch.set(docRef, this.items[docRef.id]);
+      batch.set(docRef, this.toFirestore(this.items[docRef.id]));
     });
 
     await batch.commit();

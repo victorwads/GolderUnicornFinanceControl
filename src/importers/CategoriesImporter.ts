@@ -12,10 +12,7 @@ function intToHexColor(color?: number): string | undefined {
 export default class CategoriesImporter extends Importer<Category, Categorias> {
   
   constructor(db: FirebaseFirestore.Firestore, userPath: string) {
-    super(db, db
-      .collection(userPath + Collections.Categories)
-      .withConverter<Category>(Category.firestoreConverter as any)
-    );
+    super(db, db.collection(userPath + Collections.Categories), Category);
   }
 
   async process(): Promise<void> {
@@ -42,10 +39,10 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
     );
   }
 
-  protected async loadExistentes() {
+  protected override async loadExistentes() {
     const snapshot = await this.collection.get();
     snapshot.forEach(doc => {
-      const data = doc.data();
+      const data = this.fromFirestore(doc.id, doc.data());
       const key = `${data.parentId || 'root'}__${data.name}`;
       this.items[key] = data;
     });
@@ -59,7 +56,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
       const ref = this.items[key]?.id ? this.collection.doc(this.items[key]?.id) : this.collection.doc();
       this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor));
 
-      batchRaiz.set(ref, this.items[key]);
+      batchRaiz.set(ref, this.toFirestore(this.items[key]));
       console.log(`Categoria raiz adicionada: ${key}`);
     }
     await batchRaiz.commit();
@@ -80,7 +77,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
       const ref = this.items[key]?.id ? this.collection.doc(this.items[key]?.id) : this.collection.doc();
       this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor), parentCategory.id);
 
-      batchFilhas.set(ref, this.items[key]);
+      batchFilhas.set(ref, this.toFirestore(this.items[key]));
       console.log(`Categoria filha adicionada: ${key}`);
     }
 

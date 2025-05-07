@@ -6,10 +6,7 @@ import { Collections } from "../data/firebase/Collections";
 export default class BanksImporter extends Importer<Bank, Bank> {
 
   constructor(db: FirebaseFirestore.Firestore) {
-    super(db,db
-        .collection(Collections.Banks)
-        .withConverter<Bank>(Bank.firestoreConverter as any)
-    );
+    super(db,db.collection(Collections.Banks), Bank);
   }
 
   public async process(): Promise<void> {
@@ -17,7 +14,7 @@ export default class BanksImporter extends Importer<Bank, Bank> {
 
     for (const [key, data] of Object.entries(this.items)) {
       const docRef = this.collection.doc(key);
-      batch.set(docRef, data);
+      batch.set(docRef, this.toFirestore(data));
     }
 
     await batch.commit();
@@ -27,10 +24,9 @@ export default class BanksImporter extends Importer<Bank, Bank> {
   async loadFrom(db: FirebaseFirestore.Firestore) {
     const snapshot = await db
       .collection(Collections.Banks)
-      .withConverter<Bank>(Bank.firestoreConverter as any)
       .get();
     snapshot.forEach(doc => {
-      this.items[doc.id] = doc.data();
+      this.items[doc.id] = this.fromFirestore(doc.id, doc.data());
     });
     console.log('Bancos existentes carregados:', Object.keys(this.items).length);
   }

@@ -13,9 +13,7 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
     db: FirebaseFirestore.Firestore,
     userPath: string
   ) {
-    super(db, db
-      .collection(userPath + Collections.CreditCards)
-      .withConverter<CreditCard>(CreditCard.firestoreConverter as any));
+    super(db, db.collection(userPath + Collections.CreditCards), CreditCard);
   }
 
   async process(): Promise<void> {
@@ -45,7 +43,7 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
         jsonCard.conta_id?.toString(),
       );
 
-      batch.set(docRef, this.items[docRef.id]);
+      batch.set(docRef, this.toFirestore(this.items[docRef.id]));
     });
 
     await batch.commit();

@@ -15,10 +15,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
     db: FirebaseFirestore.Firestore,
     userPath: string
   ) {
-    super(db, db
-      .collection(userPath + Collections.CreditCardRegistries)
-      .withConverter<CreditCardRegistry>(CreditCardRegistry.firestoreConverter as any)
-    );
+    super(db, db.collection(userPath + Collections.CreditCardRegistries), CreditCardRegistry);
   }
 
   async process(): Promise<void> {
@@ -60,7 +57,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
       }
 
       this.items[docRef.id] = registro;
-      batch.set(docRef, registro);
+      batch.set(docRef, this.toFirestore(registro));
     });
     await batch.commit();
 

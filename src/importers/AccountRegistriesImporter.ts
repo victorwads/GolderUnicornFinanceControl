@@ -18,10 +18,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     db: FirebaseFirestore.Firestore,
     userPath: string
   ) {
-    super(db, db
-      .collection(userPath + Collections.AccountsRegistries)
-      .withConverter<AccountsRegistry>(AccountsRegistry.firestoreConverter as any)
-    );
+    super(db, db.collection(userPath + Collections.AccountsRegistries), AccountsRegistry);
   }
 
   async process(): Promise<void> {
@@ -84,7 +81,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
       const docRef = some?.id ? this.collection.doc(some?.id) : this.collection.doc();
       this.items[docRef.id] = registro;
       registro.id = docRef.id;
-      batch.set(docRef, registro);
+      batch.set(docRef, this.toFirestore(registro));
     });
     await batch.commit();
 
