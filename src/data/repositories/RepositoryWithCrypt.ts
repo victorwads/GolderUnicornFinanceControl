@@ -1,6 +1,7 @@
 import {
   doc, runTransaction,
   Timestamp, DocumentData,
+  writeBatch,
 } from "firebase/firestore";
 
 import { EncryptorSingletone } from "../crypt/Encryptor";
@@ -11,7 +12,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
 
   protected override async fromFirestore(id: string, data: DocumentData): Promise<Model> {
     if (data.encrypted === true) {
-      const newData = await EncryptorSingletone.decrypt(data, this.dataValueDecryptor);
+      const newData = await EncryptorSingletone.decrypt(data);
       return await super.fromFirestore(id, newData);
     }
     const model = await super.fromFirestore(id, data);
@@ -30,35 +31,32 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
     this.proccessEncryptionQueue();
   }
 
-  private dataValueDecryptor(value: any): any {
-    if (value instanceof Date) {
-      return Timestamp.fromDate(value);
-    }
-    return value;
-  }
-
   private encryptQueeue: Model[] = [];
 
-  private proccessEncryptionQueue() {
+  private async proccessEncryptionQueue() {
     if (this.encryptQueeue.length > 0) {
-      let writes = 0;
-      runTransaction(this.db, async (transaction) => {
-        let model = this.encryptQueeue.pop()
-        while (model) {
-          const data = this.toFirestore(model);
-          const encryptedData = await EncryptorSingletone.encrypt(data);
-          transaction.set(doc(this.ref, model.id), encryptedData);
-          writes++;
-          model = this.encryptQueeue.pop();
+      const batch = writeBatch(this.db);
+
+      let writes = 0;      
+      while (true) {
+        let model = this.encryptQueeue.pop();
+        if(!model) break;
+        if(writes > 100) {
+          setTimeout(() => this.proccessEncryptionQueue(), 5000);
+          break;
         }
-      }).then(() => {
-        BaseRepository.updateUse((use) => {
-          use.remote.writes += writes;
-        });      
-    }).catch((error) => {
-        console.error("Transaction failed: ", error);
+
+        const data = this.toFirestore(model);
+        const encryptedData = await EncryptorSingletone.encrypt(data);
+        batch.set(doc(this.ref, model.id), encryptedData);
+        model = this.encryptQueeue.pop();
+        writes++;
+      }
+
+      await batch.commit();
+      BaseRepository.updateUse((use) => {
+        use.remote.writes += writes;
       });
     }
   }
-
 }

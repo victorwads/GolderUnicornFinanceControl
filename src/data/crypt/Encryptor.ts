@@ -81,7 +81,7 @@ export default class Encryptor {
       case 'boolean': break;
       case 'number': result = this.numberHandler?.decrypt(data); break;
       case 'string':
-        if (!data.startsWith(Encryptor.ENCRYPTED_PREFIX))
+        if (data.startsWith(Encryptor.ENCRYPTED_PREFIX))
           result = await this.decryptString(data.substring(Encryptor.ENCRYPTED_PREFIX.length));
         break;
       case 'object':

@@ -10,9 +10,7 @@ export default class CreditCard extends DocumentModel {
     public closingDay: number,
     public dueDay: number,
     public archived: boolean = false,
-    public importInfo?: any,
-    public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date(),
+    public importInfo?: any
   ) { 
     super(id);
   }
