@@ -35,6 +35,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
         use.remote.docReads++;
       });
       model = await this.fromFirestore(user.id, user.data());
+      UserRepository.userTotalCache = model.dbUse;
     }
 
     const currentUse = BaseRepository.getDatabaseUse();
