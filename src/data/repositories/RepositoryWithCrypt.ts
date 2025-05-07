@@ -41,19 +41,21 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
 
   private proccessEncryptionQueue() {
     if (this.encryptQueeue.length > 0) {
+      let writes = 0;
       runTransaction(this.db, async (transaction) => {
         let model = this.encryptQueeue.pop()
         while (model) {
           const data = this.toFirestore(model);
           const encryptedData = await EncryptorSingletone.encrypt(data);
           transaction.set(doc(this.ref, model.id), encryptedData);
-          BaseRepository.updateUse((use) => {
-            use.remote.writes++;
-          });      
-
+          writes++;
           model = this.encryptQueeue.pop();
         }
-      }).catch((error) => {
+      }).then(() => {
+        BaseRepository.updateUse((use) => {
+          use.remote.writes += writes;
+        });      
+    }).catch((error) => {
         console.error("Transaction failed: ", error);
       });
     }

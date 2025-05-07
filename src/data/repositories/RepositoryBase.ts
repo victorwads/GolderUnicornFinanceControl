@@ -53,6 +53,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     BaseRepository.updateUse((use) => {
       use.local.queryReads++;
       use.local.docReads += queryResult.docs.length;
+      use.cache.writes += queryResult.docs.length;
     });
 
     const items = [];    
