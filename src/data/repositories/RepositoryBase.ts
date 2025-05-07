@@ -184,6 +184,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10)) {
       saveUse = false;
       setTimeout(async () => {
+        use.remote.writes++;
         await BaseRepository.updateUserUse({
           remote: {queryReads: increment(use.remote.queryReads), docReads: increment(use.remote.docReads), writes: increment(use.remote.writes)},
           local: {queryReads: increment(use.local.queryReads), docReads: increment(use.local.docReads), writes: increment(use.local.writes)},

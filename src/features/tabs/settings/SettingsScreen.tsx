@@ -3,7 +3,6 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { getAuth, signOut } from "firebase/auth"
-import RepositoryBase from "../../../data/repositories/RepositoryBase"
 import { User } from "../../../data/repositories/UserRepository"
 import UserRepository from '../../../data/repositories/UserRepository';
 
