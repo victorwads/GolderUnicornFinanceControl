@@ -2,127 +2,100 @@ import {
   getFirestore,
   // Types
   Firestore,
-  Query, QuerySnapshot, CollectionReference,
+  CollectionReference, Timestamp,
   DocumentData, DocumentReference,
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc,
-  collection, doc,
-  Timestamp
+  collection, doc, query, orderBy, limit, where, increment,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 import DocumentModel from "../models/DocumentModel";
 
+const queryField: keyof DocumentModel = "_updatedAt";
 interface DatabaseUse { queryReads: number, docReads: number,  writes: number}
-interface DatabasesUse { remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse}
-const DB_USE = "dbUse";
-const DEFAULT_CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 day
-const USE_CACHE: DatabasesUse = localStorage.getItem(DB_USE) !== null
- ? JSON.parse(localStorage.getItem(DB_USE) || '{}')
- : undefined
+export interface DatabasesUse { remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse}
+const createEmptyUse = (): DatabasesUse => ({
+  remote: { queryReads: 0, docReads: 0,  writes: 0 },
+  local: { queryReads: 0, docReads: 0, writes: 0 },
+  cache: { queryReads: 0, docReads: 0, writes: 0 },
+});
+const DB_USE = "dbUse";;
+const SAVED_CACHE = localStorage.getItem(DB_USE);
+let updateUse = true; let saveUse = true; 
 
-let updateUse = true;
 export default abstract class BaseRepository<Model extends DocumentModel> {
-  private lastUpdateKey: string;
-
   protected db: Firestore;
   protected ref: CollectionReference<any>;
-  protected cacheDuration: number = 0;
-
+  
   constructor(
     private collectionName: string,
-    private modelClass: new (...args: any) => Model,
-    cacheDuration: number|true = 0,
+    private modelClass: new (...args: any) => Model
   ) {
     this.collectionName = this.parseCollectionName(collectionName);
-    this.lastUpdateKey = `last${this.collectionName}Update`;
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
-    this.cacheDuration = cacheDuration === true ? DEFAULT_CACHE_DURATION : cacheDuration;
+    if (!BaseRepository.cache[this.collectionName]) {
+      BaseRepository.cache[this.collectionName] = {};
+    }
   }
 
   public async waitInit(): Promise<void> {
-    this.validateCache();
     if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === 0) {
       await this.getAll();
     }
   }
 
-  public async getAll(
-    forceCache: boolean = false,
-    queryBuilder: (ref: CollectionReference<Model>) => Query<Model> = (ref) => ref,
-    onItemDecoded: (model: Model) => void = () => {}
-  ): Promise<Model[]> {
-    let result: QuerySnapshot<Model>;
-    let setLastUpdate = () => {};
-    if (forceCache || this.shouldUseCache()) {
-      result = await getDocsFromCache(queryBuilder(this.ref));
-    } else {
-      result = await getDocs(queryBuilder(this.ref));
-      setLastUpdate = () => this.setLastUpdate();
-    }
-    if (result.metadata.fromCache && result.docs.length === 0 && localStorage.getItem(this.lastUpdateKey)) {
-      localStorage.removeItem(this.lastUpdateKey);
-      return this.getAll(forceCache, queryBuilder, onItemDecoded);
-    }
-    if (!BaseRepository.cache[this.collectionName]) {
-      BaseRepository.cache[this.collectionName] = {};
-    }
+  public async getAll(): Promise<Model[]> {
+    await this.updateLocalCache();
 
-    const encryptedItems = result.docs.map(snap => ({id: snap.id, data: snap.data()}));
-    const items = [];
+    const queryResult = await getDocsFromCache(this.ref);
+    BaseRepository.updateUse((use) => {
+      use.local.queryReads++;
+      use.local.docReads += queryResult.docs.length;
+    });
 
-    for(const snap of encryptedItems) {
-      let item = await this.fromFirestore(snap.id, snap.data);
-      if (this.cacheDuration) {
-        BaseRepository.cache[this.collectionName][snap.id] = item;
-      }
-      onItemDecoded(item);
+    const items = [];    
+    for(const snap of queryResult.docs) {
+      let item = await this.fromFirestore(snap.id, snap.data());
+      BaseRepository.cache[this.collectionName][snap.id] = item;
       items.push(item);
     };
     this.postQueryProcess(items);
-
-    if (this.cacheDuration) setLastUpdate();
-    BaseRepository.updateUse((use) => {
-      const useInfo: keyof DatabasesUse = result.metadata.fromCache ? 'local' : 'remote';
-      use[useInfo].queryReads++;
-      use[useInfo].docReads += result.docs.length;
-    });
 
     return items;
   }
 
   public getLocalById(id?: string): Model | undefined {
-    this.validateCache();
     BaseRepository.updateUse((use) => {
       use.cache.docReads++;
     });
     return BaseRepository.cache[this.collectionName][id ?? ""] as Model;
   }
 
-  public async set(model: Model, id?: string): Promise<DocumentReference<Model>> {
+  public async set(model: Model, id?: string, merge: boolean = false): Promise<DocumentReference<Model>> {
     let data = await this.toFirestore(model);
     let result;
     if(id) {
       result = doc(this.ref, id);
-      await setDoc(result, data);
+      await setDoc(result, data, { merge });
     } else {
       result = await addDoc(this.ref, data);
       (model as any).id = result.id;
     }
 
-    BaseRepository.updateUse((use) => {
-      use.remote.writes++;
-      if (this.cacheDuration) {
+    if(!merge) {
+      BaseRepository.cache[this.collectionName][model.id] = model;
+      BaseRepository.updateUse((use) => {
+        use.remote.writes++;
+        use.local.writes++;
         use.cache.writes++;
-        BaseRepository.cache[this.collectionName][model.id] = model;
-      }
-    });
+      });
+    }
     return result;
   }
 
   public getCache(): Model[] {
-    this.validateCache();
     const result = Object.values(BaseRepository.cache[this.collectionName] || {}) as Model[];
 
     BaseRepository.updateUse((use) => {
@@ -130,6 +103,15 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       use.cache.docReads += result.length;
     });
     return result;
+  }
+
+  protected async getLastUpdatedValue(): Promise<any> {
+    const queryResult = await getDocsFromCache(query(this.ref, orderBy(queryField, "desc"), limit(1)));
+    BaseRepository.updateUse((use) => {
+      use.local.queryReads++;
+      use.local.docReads += queryResult.docs.length;
+    });
+    return queryResult.docs[0]?.data()[queryField];
   }
 
   protected postQueryProcess(items: Model[]): void {}
@@ -163,19 +145,19 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       return data
   }
 
-  private shouldUseCache(): boolean {
-    const lastUpdate = Number(localStorage.getItem(this.lastUpdateKey));
-    return (this.cacheDuration > 0) && ((Date.now() - (lastUpdate || 0)) < this.cacheDuration);
-  }
-
-  private setLastUpdate(): void {
-    localStorage.setItem(this.lastUpdateKey, Date.now().toString());
-  }
-
-  private validateCache(): void {
-    if (!this.cacheDuration) {
-      throw new Error("Local cache is not enabled for this repository");
+  private async updateLocalCache(): Promise<void> {
+    const lastUpdated = await this.getLastUpdatedValue();
+    let queryResult;
+    if(lastUpdated) {
+      queryResult = await getDocs(query(this.ref, where(queryField, ">", lastUpdated)));
+    } else {
+      queryResult = await getDocs(this.ref);
     }
+
+    BaseRepository.updateUse((use) => {
+      use.remote.queryReads++;
+      use.remote.docReads += queryResult.docs.length;
+    });
   }
 
   private parseCollectionName(collectionName: string): string {
@@ -188,24 +170,38 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   private static cache: { [key: string]: { [key: string]: DocumentData } } = {};
-  private static readonly use: DatabasesUse = USE_CACHE || {
-    remote: { queryReads: 0, docReads: 0,  writes: 0 },
-    local: { queryReads: 0, docReads: 0, writes: 0 },
-    cache: { queryReads: 0, docReads: 0, writes: 0 },
-  }
+  private static use: DatabasesUse = SAVED_CACHE ? JSON.parse(SAVED_CACHE) : createEmptyUse();
 
   public static getDatabaseUse(): DatabasesUse {
     return BaseRepository.use;
   }
 
+  public static updateUserUse = async (data: DocumentData) => {};
   protected static async updateUse(updater: (use: DatabasesUse) => void) {
     updater(BaseRepository.use);
-    if (!updateUse) return;
-    updateUse = false;
-    setTimeout(() => {
-      updateUse = true;
-      localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
-    }, 1000);
+
+    const use = BaseRepository.use;
+    if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10)) {
+      saveUse = false;
+      setTimeout(async () => {
+        await BaseRepository.updateUserUse({
+          remote: {queryReads: increment(use.remote.queryReads), docReads: increment(use.remote.docReads), writes: increment(use.remote.writes)},
+          local: {queryReads: increment(use.local.queryReads), docReads: increment(use.local.docReads), writes: increment(use.local.writes)},
+          cache: {queryReads: increment(use.cache.queryReads), docReads: increment(use.cache.docReads), writes: increment(use.cache.writes)}
+        })
+        BaseRepository.use = createEmptyUse();
+        localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
+        saveUse = true;
+      }, 10000);
+    };
+
+    if (updateUse) {
+      updateUse = false;
+      setTimeout(() => {
+        updateUse = true;
+        localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
+      }, 1000);
+    };
   }
 
 }

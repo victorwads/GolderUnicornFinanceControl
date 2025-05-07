@@ -6,7 +6,7 @@ import { Collections } from "../../data/firebase/Collections";
 export default class CategoriesRepository extends RepositoryWithCrypt<Category> {
 
 	constructor() {
-		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category, true);
+		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category);
 	}
 
 	public getAllRoots = async (): Promise<RootCategory[]> => {

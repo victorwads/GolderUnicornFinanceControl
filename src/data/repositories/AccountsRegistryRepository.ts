@@ -5,6 +5,6 @@ import AccountsRegistry from '../models/AccountRegistry';
 
 export default class AccountsRegistryRepository extends RepositoryWithCrypt<AccountsRegistry> {
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.AccountsRegistries}`, AccountsRegistry, true);
+    super(`${Collections.Users}/{userId}/${Collections.AccountsRegistries}`, AccountsRegistry);
   }
 }

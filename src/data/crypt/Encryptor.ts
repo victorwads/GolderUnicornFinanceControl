@@ -46,6 +46,11 @@ export default class Encryptor {
         return Encryptor.ENCRYPTED_PREFIX + await this.encryptString(data);
       case 'object':
         if (data instanceof Date) return this.numberHandler?.encrypt(data);
+        if (data.constructor !== Object) return data;
+        if (data.encrypted === false) {
+          delete data.encrypted;
+          return data
+        };
         if(Object.keys(data).includes('encrypted'))
           throw new Error('Invalid crypt object using reserved key: encrypted');
 

@@ -1,10 +1,23 @@
 import "./SettingsScreen.css"
-
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+
 import { getAuth, signOut } from "firebase/auth"
 import RepositoryBase from "../../../data/repositories/RepositoryBase"
+import { User } from "../../../data/repositories/UserRepository"
+import UserRepository from '../../../data/repositories/UserRepository';
 
 const SettingsScreen = () => {
+
+	const [user, setUser] = useState<User>()
+
+	useEffect(() => {
+		const user = new UserRepository()
+		user.getUserData().then((user) => {
+			setUser(user)
+		});
+	}, []);
+
 	return <div>
 		<h2>Settings Screen</h2>
 		<ul>
@@ -13,7 +26,7 @@ const SettingsScreen = () => {
 			<li><Link to={'/creditcards'}>Cartões</Link></li>
 		</ul>
 		<h3>Database Usage</h3>
-		<pre>{JSON.stringify(RepositoryBase.getDatabaseUse(), null, 2)}</pre>
+		<pre>{JSON.stringify(user?.dbUse || null, null, 2)}</pre>
 		<a className="long-button" onClick={() => signOut(getAuth())}>Sair</a>
 	</div>
 }

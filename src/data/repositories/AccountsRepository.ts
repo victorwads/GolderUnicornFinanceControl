@@ -16,7 +16,7 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
     private static balanceCache: { [key: string]: number } = {};
 
     constructor() {
-        super(`${Collections.Users}/{userId}/${Collections.Accounts}`, Account, true);
+        super(`${Collections.Users}/{userId}/${Collections.Accounts}`, Account);
         this.registries = new AccountsRegistryRepository();
         this.invoices = new CreditCardInvoicesRepository();
         this.cards = new CreditcardsRepository();

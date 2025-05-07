@@ -5,6 +5,6 @@ import { Collections } from '../firebase/Collections'
 
 export default class CreditcardsRepository extends RepositoryWithCrypt<CreditCard> {
     constructor() {
-        super(`${Collections.Users}/{userId}/${Collections.CreditCards}`, CreditCard, true);
+        super(`${Collections.Users}/{userId}/${Collections.CreditCards}`, CreditCard);
     }
 }
