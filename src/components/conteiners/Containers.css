@@ -1,17 +1,21 @@
 .container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    max-height: 100vh;
 }
 
-.container.fixed {
-    flex: 0 0 auto;
-    overflow: hidden;
+.container.wide > div {
+    width: 100vw;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-.container.scroll {
-    flex: 1 1 auto;
+.container-content.fixed {}
+
+.container-content.scroll {
+    flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .container.spaced {

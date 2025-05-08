@@ -28,6 +28,7 @@ const SettingsScreen = () => {
 
 	return <div className="SettingsScreen">
 		<h2>Settings Screen</h2>
+		<h3>Data</h3>
 		<ul>
 			<li><Link to={'/categories'}>Categorias</Link></li>
 			<li><Link to={'/accounts'}>Contas</Link></li>
@@ -50,19 +51,25 @@ const SettingsScreen = () => {
 			<div>Loading database usage...</div>
 		)}
 
-		<h3>Theme</h3>
-		<select value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
-			<option value="theme-light">Light</option>
-			<option value="theme-dark">Dark</option>
-		</select>
+		<div className="ThemeSettings">
+			<div>
+			<h3>Theme</h3>
+			<select value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
+				<option value="theme-light">Light</option>
+				<option value="theme-dark">Dark</option>
+			</select>
+			</div>
 
-		<h3>Density</h3>
-		<select value={density} onChange={(e) => setDensity(e.target.value as Density)}>
-			<option value="density-1">Density 1</option>
-			<option value="density-2">Density 2</option>
-			<option value="density-3">Density 3</option>
-			<option value="density-4">Density 4</option>
-		</select>
+			<div>
+			<h3>Density</h3>
+			<select value={density} onChange={(e) => setDensity(e.target.value as Density)}>
+				<option value="density-1">Density 1</option>
+				<option value="density-2">Density 2</option>
+				<option value="density-3">Density 3</option>
+				<option value="density-4">Density 4</option>
+			</select>
+			</div>
+		</div>
 
 		<h3>Auth</h3>
 		<a onClick={() => signOut(getAuth())}>Encerrar Sessão / Deslogar</a>

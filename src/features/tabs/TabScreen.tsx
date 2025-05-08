@@ -1,18 +1,21 @@
 import './TabScreen.css'
-import { useState } from "react"
-import { Link, Outlet, Route, Routes } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
+
+import { Container, ContainerFixedContent, ContainerScrollContent } from '../../components/conteiners'
 
 const TabScreen = () => {
-    return <div className="TabView">
-        <div className='TabViewBox'>
+    return <Container wide>
+        <ContainerScrollContent>
             <Outlet />
-        </div>
-        <nav className='TabViewNav'>
-            <Link to="dashboard">Dashboard</Link>
-            <Link to="timeline">Timeline</Link>
-            <Link to="settings">Settings</Link>
-        </nav>
-    </div>
+        </ContainerScrollContent>
+        <ContainerFixedContent>
+            <div className='TabViewNav'>
+                <Link to="dashboard">Dashboard</Link>
+                <Link to="timeline">Timeline</Link>
+                <Link to="settings">Settings</Link>
+            </div>
+        </ContainerFixedContent>
+    </Container>
 }
 
 export default TabScreen

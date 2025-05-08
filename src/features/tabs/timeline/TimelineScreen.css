@@ -1,14 +1,3 @@
-.Screen {
-  padding: 16px;
-}
-
-.ScreenHeader {
-  margin-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 .ScreenHeaderRow {
   display: flex;
   justify-content: space-between;

@@ -1,24 +1,9 @@
-.TabView {
-    display: flex;
-    max-width: 900px;
-    margin: 0 auto;
-    flex-direction: column;
-    height: 100vh;
-}
-
-.TabViewBox {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow: auto;
-}
-
 .TabViewNav {
     display: flex;
     flex-direction: row;
     border-top: 1px solid #000;
     border-radius: 15px 15px 0 0;
-    overflow: hidden;
+    margin-top: var(--spacing-md);
 }
 
 .TabViewNav > a {

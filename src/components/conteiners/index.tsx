@@ -31,11 +31,11 @@ interface ContainerContentProps {
 }
 
 export function ContainerFixedContent({ children }: ContainerContentProps) {
-  return <div className="container fixed">{children}</div>;
+  return <div className="container-content fixed">{children}</div>;
 }
 ContainerFixedContent.displayName = 'ContainerFixedContent';
 
 export function ContainerScrollContent({ children }: ContainerContentProps) {
-  return <div className="container scroll">{children}</div>;
+  return <div className="container-content scroll">{children}</div>;
 }
 ContainerScrollContent.displayName = 'ContainerScrollContent';

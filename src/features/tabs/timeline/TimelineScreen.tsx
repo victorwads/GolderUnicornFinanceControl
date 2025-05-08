@@ -7,6 +7,8 @@ import Category from "../../../data/models/Category";
 import AccountsRegistry from "../../../data/models/AccountRegistry";
 import CategoriesRepository from "../../../data/repositories/CategoriesRepository";
 import AccountsRepository from "../../../data/repositories/AccountsRepository";
+import { Container, ContainerFixedContent } from "../../../components/conteiners";
+import { ContainerScrollContent } from '../../../components/conteiners/index';
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -23,7 +25,7 @@ const categoryParamName = 'c';
 const TimelineScreen = () => {
   const [showArchived, setShowArchived] = useState(false)
   const [registries, setRegistries] = useState<WithInfoRegistry[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<Account|null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [total, setTotal] = useState(0);
   const params = useParams<{ id?: string }>();
 
@@ -38,7 +40,7 @@ const TimelineScreen = () => {
       await categories.waitInit();
       await accounts.waitInit();
 
-      if(params.id) {
+      if (params.id) {
         setSelectedAccount(accounts.getLocalById(params.id) ?? null);
       } else {
         setSelectedAccount(null);
@@ -77,38 +79,38 @@ const TimelineScreen = () => {
 
   let perDayTotal = total;
   let currentDay = registries[0]?.date.getDate();
-  return (
-    <div className="Screen">
-      <div className="ScreenHeader">
-        <div className="ScreenHeaderRow">
-          <h1 className="ScreenTitle">Timeline</h1>
-          <span className="RegistryCount">({registries.length}) Registros</span>
-          {(selectedAccount || hasCategoryFilter) && (
-            <div className="SelectedBank">
-              {selectedAccount && <span>{selectedAccount.name}</span>}
-              <Link to={'/main/timeline'} className="ClearFilter">Mostrar todos</Link>
-            </div>
-          )}
-        </div>
-        <div className="ScreenHeaderRow">
-          <div className="ScreenTotal">
-            <span>Balance:</span>
-            <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
-              {formatNumber(total)}
-            </span>
+  return <Container>
+    <ContainerFixedContent>
+      <div className="ScreenHeaderRow">
+        <h1 className="ScreenTitle">Timeline</h1>
+        <span className="RegistryCount">({registries.length}) Registros</span>
+        {(selectedAccount || hasCategoryFilter) && (
+          <div className="SelectedBank">
+            {selectedAccount && <span>{selectedAccount.name}</span>}
+            <Link to={'/main/timeline'} className="ClearFilter">Mostrar todos</Link>
           </div>
-          {!selectedAccount && <div className="ScreenOptions">
-            <label>
-              <input
-                type="checkbox"
-                checked={showArchived}
-                onChange={() => setShowArchived(!showArchived)}
-              />
-              Show archived
-            </label>
-          </div>}
-        </div>
+        )}
       </div>
+      <div className="ScreenHeaderRow">
+        <div className="ScreenTotal">
+          <span>Balance:</span>
+          <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
+            {formatNumber(total)}
+          </span>
+        </div>
+        {!selectedAccount && <div className="ScreenOptions">
+          <label>
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={() => setShowArchived(!showArchived)}
+            />
+            Show archived
+          </label>
+        </div>}
+      </div>
+    </ContainerFixedContent>
+    <ContainerScrollContent>
       <div className="TimelineList">
         {filteredRegistries.map((registry) => {
           const isCurrentDay = registry.date.getDate() === currentDay;
@@ -121,7 +123,7 @@ const TimelineScreen = () => {
               key={registry.id + 'title'}
               className={`TimelineItemTodayLine ${perDayTotal >= 0 ? "positive" : "negative"}`}
             >{formatNumber(perDayTotal)}</div>,
-            <div key={registry.id} className="TimelineItem" style={{opacity: registry.paid ? 1 : 0.7}}>
+            <div key={registry.id} className="TimelineItem" style={{ opacity: registry.paid ? 1 : 0.7 }}>
               {/* Área Esquerda: Círculo com cor da categoria */}
               <div
                 onClick={() => addCategoryFilter(registry.categoryId!)}
@@ -156,8 +158,8 @@ const TimelineScreen = () => {
           {formatNumber(perDayTotal)}
         </div>
       </div>
-    </div>
-  );
+    </ContainerScrollContent>
+  </Container>;
 };
 
 

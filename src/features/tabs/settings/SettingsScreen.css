@@ -1,13 +1,13 @@
 .SettingsScreen h2 {
-  margin-bottom: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
   font-size: var(--font-size-lg);
-  text-align: center;
 }
 
 .SettingsScreen h3 {
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-sm);
-  font-size: var(--font-size-lg);
+font-size: var(--font-size-lg);
 }
 
 .SettingsScreen select {
@@ -21,4 +21,14 @@
 
 .SettingsScreen .db-usage div {
   margin-bottom: var(--spacing-xs);
+}
+
+.ThemeSettings {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-md);
+}
+
+.ThemeSettings > div {
+  flex: 1;
 }
