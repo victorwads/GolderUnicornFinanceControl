@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-import Button from "../components/Button";
-import Field from "../components/fields/Field";
-import PriceField from "../components/fields/PriceField";
-import Row from "../components/visual/Row";
+import Button from "../../components/Button";
+import Field from "../../components/fields/Field";
+import PriceField from "../../components/fields/PriceField";
+import Row from "../../components/visual/Row";
 import BankSelector from "../banks/BankSelector";
 import Bank from "../../data/models/Bank";
 

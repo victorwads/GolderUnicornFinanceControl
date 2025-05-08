@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Row from "../components/visual/Row";
-import Button from "../components/Button";
-import Field from "../components/fields/Field";
+import Row from "../../components/visual/Row";
+import Button from "../../components/Button";
+import Field from "../../components/fields/Field";
 
 const AddCategoriesScreen: React.FC = () => {
   const [name, setName] = useState<string>("");

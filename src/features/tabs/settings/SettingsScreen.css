@@ -1,0 +1,24 @@
+.SettingsScreen h2 {
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-lg);
+  text-align: center;
+}
+
+.SettingsScreen h3 {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-lg);
+}
+
+.SettingsScreen select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--divider-color-default);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-md);
+}
+
+.SettingsScreen .db-usage div {
+  margin-bottom: var(--spacing-xs);
+}

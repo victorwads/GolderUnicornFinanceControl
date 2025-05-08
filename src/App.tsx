@@ -10,9 +10,10 @@ import TimelineScreen from './features/tabs/timeline/TimelineScreen';
 import SettingsScreen from './features/tabs/settings/SettingsScreen';
 import CategoriesScreen from './features/categories/CategoriesScreen';
 import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
-import EmptyScreen from './commons/EmptyScreen';
+import EmptyScreen from './features/commons/EmptyScreen';
 import { EncryptorSingletone } from './data/crypt/Encryptor';
 import AddAccountScreen from './features/accounts/AddAccountScreen';
+import { useCssVars } from './components/Vars';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
 function App() {
 
   const [user, setUser] = useState(getAuth().currentUser)
+  const { theme, density } = useCssVars();
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (currentUser) => {
@@ -53,11 +55,9 @@ function App() {
     })
   }, [])
 
-  return (
-    <div className="App dark">
-      {user ? <RouterProvider router={router} /> : <LoginScreen />}
-    </div>
-  );
+  return <div className={`App ${theme} ${density}`}>
+    {user ? <RouterProvider router={router} /> : <LoginScreen />}
+  </div>;
 }
 
 export default App;

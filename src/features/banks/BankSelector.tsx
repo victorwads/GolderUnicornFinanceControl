@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo } from "react"
 
-import { SearchBarScreen } from "../components/fields/SearchBar"
-import BaseField from "../components/fields/BaseField"
-import Dialog from "../components/visual/Dialog"
-import Row from "../components/visual/Row"
+import { SearchBarScreen } from "../../components/fields/SearchBar"
+import BaseField from "../../components/fields/BaseField"
+import Dialog from "../../components/visual/Dialog"
+import Row from "../../components/visual/Row"
 import BankInfo from "./BankInfo"
 
 import Bank from "../../data/models/Bank"

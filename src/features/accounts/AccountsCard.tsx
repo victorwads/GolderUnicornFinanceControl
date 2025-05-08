@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import Card from "../components/visual/Card"
+import Card from "../../components/visual/Card"
 import BankInfo from "../banks/BankInfo"
 
 import Bank from "../../data/models/Bank"

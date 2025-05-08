@@ -6,8 +6,13 @@ import "./data/firebase/google-services";
 import './global'
 import './data/repositories/UserRepository';
 import App from './App';
+import { VarsProvider } from './components/Vars';
 
 
 ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
-).render(<App />);
+).render(
+  <VarsProvider>
+    <App />
+  </VarsProvider>
+);

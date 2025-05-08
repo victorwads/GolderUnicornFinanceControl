@@ -3,7 +3,7 @@ import './DashboardScreen.css'
 import { useNavigate } from 'react-router-dom'
 import { getAuth } from 'firebase/auth'
 
-import Card from '../../components/visual/Card'
+import Card from '../../../components/visual/Card'
 import AccountsCard from '../../accounts/AccountsCard'
 import CreditCardsCard from '../../accounts/CreaditCardsCard'
 
