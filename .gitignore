@@ -1,9 +1,12 @@
 node_modules/
+build/
+yarn.lock
 .DS_Store
 .vscode
-build/
-src/google-services.js
-
-yarn.lock
-
 .dev/
+*.log
+
+public/resources
+src/google-services.js
+*.jpg
+*.png

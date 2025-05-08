@@ -1,12 +1,11 @@
 import './index.css';
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import "./data/firebase/google-services";
 import './global'
+import "./data/firebase/google-services";
 import './data/repositories/UserRepository';
-import App from './App';
 import { VarsProvider } from './components/Vars';
+import App from './App';
 
 
 ReactDOM.createRoot(
