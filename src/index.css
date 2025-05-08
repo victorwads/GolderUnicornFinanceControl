@@ -31,8 +31,8 @@
 }
 
 html, body, .App {
-  overflow: hidden;
   height: 100vh;
+  max-height: 100vh;
 }
 
 body {

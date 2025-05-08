@@ -1,12 +1,10 @@
 .container {
     display: flex;
     flex-direction: column;
-    max-height: 100%;
-    overflow: hidden;
 }
 
 .container.screen {
-    height: 100vh;
+    height: 100%;
 }
 
 .container.wide > div {
@@ -15,10 +13,13 @@
     margin: 0 auto;
 }
 
-.container-content.fixed {}
+.container-content.fixed {
+    flex: 0 1 auto;
+}
 
 .container-content.scroll {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
 }
