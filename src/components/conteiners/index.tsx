@@ -6,13 +6,14 @@ interface ContainerProps {
   children: ReactNode;
   wide?: boolean;
   spaced?: boolean;
+  screen?: boolean;
 }
 
 const containerContentTypes = [
   'ContainerFixedContent', 'ContainerScrollContent',
 ];
 
-export function Container({ children, wide = false, spaced = false }: ContainerProps) {
+export function Container({ children, wide = false, spaced = false, screen = false }: ContainerProps) {
   Children.forEach(children, child => {
     const name = (child as any)?.type?.displayName;
     if (isValidElement(child) && !containerContentTypes.includes(name)) {
@@ -23,6 +24,7 @@ export function Container({ children, wide = false, spaced = false }: ContainerP
   return <div className={clsx('container', {
     'wide': wide,
     'spaced': spaced,
+    'screen': screen,
   })}>{children}</div>;
 }
 

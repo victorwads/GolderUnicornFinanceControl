@@ -4,7 +4,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { Container, ContainerFixedContent, ContainerScrollContent } from '../../components/conteiners'
 
 const TabScreen = () => {
-    return <Container wide>
+    return <Container screen wide>
         <ContainerScrollContent>
             <Outlet />
         </ContainerScrollContent>

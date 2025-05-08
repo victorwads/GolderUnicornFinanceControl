@@ -14,7 +14,7 @@ interface VarsContextProps {
 const VarsContext = createContext<VarsContextProps | undefined>(undefined);
 
 export function VarsProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => localStorage.getItem('theme') as Theme || 'theme-light');
+  const [theme, setThemeState] = useState<Theme>(() => localStorage.getItem('theme') as Theme || 'theme-dark');
   const [density, setDensityState] = useState<Density>(() => localStorage.getItem('density') as Density || 'density-2');
 
   useEffect(() => {

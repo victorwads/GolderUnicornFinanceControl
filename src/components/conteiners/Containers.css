@@ -4,6 +4,10 @@
     max-height: 100vh;
 }
 
+.container.screen {
+    height: 100vh;
+}
+
 .container.wide > div {
     width: 100vw;
     max-width: 900px;
