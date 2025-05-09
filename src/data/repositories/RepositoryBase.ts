@@ -7,6 +7,8 @@ import {
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc,
   collection, doc, query, orderBy, limit, where, increment,
+  count,
+  getCountFromServer,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -163,6 +165,13 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       queryResult = await getDocs(query(this.ref, where(queryField, ">", lastUpdated)));
     } else {
       queryResult = await getDocs(this.ref);
+      console.log(this.collectionName, 'serverSize', queryResult.docs.length);
+      const ids = queryResult.docs.map((doc) => doc.id);
+      this.getCache().forEach((item) => {
+        if (!ids.includes(item.id)) {
+          delete BaseRepository.cache[this.collectionName][item.id];
+        }
+      });
     }
 
     BaseRepository.updateUse((use) => {
