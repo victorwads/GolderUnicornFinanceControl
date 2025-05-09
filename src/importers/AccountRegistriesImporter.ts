@@ -96,8 +96,8 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
       item.accountId === registro.accountId &&
       item.value === registro.value &&
       item.description === registro.description &&
-      item.categoryId === registro.categoryId &&
-      item.date.getTime() === registro.date.getTime()
+      (item.date?.toDate ? item.date?.toDate() : item.date).getTime()
+      === (registro.date?.toDate ? registro.date?.toDate() : registro.date).getTime()
       )
     );
   }

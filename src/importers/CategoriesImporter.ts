@@ -54,7 +54,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
       const key = `root__${item.nome}`;
 
       const ref = this.items[key]?.id ? this.collection.doc(this.items[key]?.id) : this.collection.doc();
-      this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor));
+      this.items[key] = new Category(ref.id, item.nome, item.icone, intToHexColor(item.cor));
 
       batchRaiz.set(ref, this.toFirestore(this.items[key]));
       console.log(`Categoria raiz adicionada: ${key}`);
