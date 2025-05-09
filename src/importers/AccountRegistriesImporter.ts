@@ -9,6 +9,7 @@ import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
 import {Receitas, ReceitasFile} from '../converter/result/xlsx/receitas';
 import {Transferencias, TransferenciasFile} from '../converter/result/xlsx/transferencias';
 import { RegistryType } from '../../../Web/src/data/models/AccountRegistry';
+import Encryptor from '../data/crypt/Encryptor';
 
 export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas|Receitas|Transferencias> {
 
@@ -16,9 +17,9 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     private accounts: AccountsImporter,
     private categorias: CategoriesImporter,
     db: FirebaseFirestore.Firestore,
-    userPath: string
+    userPath: string, encryptor: Encryptor,
   ) {
-    super(db, db.collection(userPath + Collections.AccountsRegistries), AccountsRegistry);
+    super(db, db.collection(userPath + Collections.AccountsRegistries), AccountsRegistry, encryptor);
   }
 
   async process(): Promise<void> {
@@ -34,14 +35,14 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     const batch = this.db.batch();
 
     let equals = 0;
-    data.forEach((json) => {
+    for (const json of data) {
       const account = this.accounts.findByName(json.conta);
       if (!account?.id) {
         console.error(`Bank account ${json.conta} não encontrado.`);
         return;
       }
 
-      const categoria = 'categoria' in json
+      let categoria = 'categoria' in json
         ? this.categorias.findByName(json.categoria, json.sub_categoria)
         : undefined;
       if ('categoria' in json && !categoria?.id) {
@@ -51,6 +52,11 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
       if('data_transferencia' in json) {
         multiplier = json.descricao === "Transferência de Saída" ? -1 : 1
+        categoria = this.categorias.findById(
+          json.descricao === "Transferência de Saída"
+          ? CategoriesImporter.transferOutId
+          : CategoriesImporter.transferInId
+        );
       }
 
       const registro = new AccountsRegistry(
@@ -81,8 +87,8 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
       const docRef = some?.id ? this.collection.doc(some?.id) : this.collection.doc();
       this.items[docRef.id] = registro;
       registro.id = docRef.id;
-      batch.set(docRef, this.toFirestore(registro));
-    });
+      batch.set(docRef, await this.toFirestore(registro));
+    }
     await batch.commit();
 
     this.sumAndPrint();
@@ -95,9 +101,9 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
       (item.relatedInfo === registro.relatedInfo && item.description === registro.description) || (
       item.accountId === registro.accountId &&
       item.value === registro.value &&
+      item.categoryId === registro.categoryId &&
       item.description === registro.description &&
-      (item.date?.toDate ? item.date?.toDate() : item.date).getTime()
-      === (registro.date?.toDate ? registro.date?.toDate() : registro.date).getTime()
+      item.date.getTime() === registro.date.getTime()
       )
     );
   }

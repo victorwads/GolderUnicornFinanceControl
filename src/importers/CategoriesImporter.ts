@@ -4,15 +4,18 @@ import { Collections } from "../data/firebase/Collections";
 import Category from "../data/models/Category";
 
 import {Categorias, CategoriasFile} from '../converter/result/xlsx/categorias';
+import Encryptor from '../data/crypt/Encryptor';
 
 function intToHexColor(color?: number): string | undefined {
   return color ? `#${color.toString(16).padStart(6, '0')}` : undefined;
 }
 
 export default class CategoriesImporter extends Importer<Category, Categorias> {
+  static transferOutId: string;
+  static transferInId: string;
   
-  constructor(db: FirebaseFirestore.Firestore, userPath: string) {
-    super(db, db.collection(userPath + Collections.Categories), Category);
+  constructor(db: FirebaseFirestore.Firestore, userPath: string, encryptor: Encryptor) {
+    super(db, db.collection(userPath + Collections.Categories), Category, encryptor);
   }
 
   async process(): Promise<void> {
@@ -21,6 +24,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
     const data = this.readJsonFile(CategoriasFile) as Categorias[];
     this.processRoot(data.filter(d => !d.categoria_pai));
     this.processChildren(data.filter(d => d.categoria_pai));
+
     // this.printTree();
     console.log('Processamento concluído.', this.collection.id);
   }
@@ -41,14 +45,23 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
 
   protected override async loadExistentes() {
     const snapshot = await this.collection.get();
-    snapshot.forEach(doc => {
-      const data = this.fromFirestore(doc.id, doc.data());
+    for (const doc of snapshot.docs) {
+      let dencryptedData = await this.encryptor!.decrypt(doc.data());
+      const data = await this.fromFirestore(doc.id, dencryptedData);
+      console.log(`Carregando categoria existente: ${data.name}`);
       const key = `${data.parentId || 'root'}__${data.name}`;
       this.items[key] = data;
-    });
+    }
   }
 
   private async processRoot(raiz: Categorias[]): Promise<void> {
+    raiz.push({
+      nome: "Transferência",
+      icone: "money-bill-transfer",
+      cor: 0, id: 0,
+      tipo: "Despesa"
+    })
+
     const batchRaiz = this.db.batch();
     for (const item of raiz) {
       const key = `root__${item.nome}`;
@@ -56,8 +69,16 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
       const ref = this.items[key]?.id ? this.collection.doc(this.items[key]?.id) : this.collection.doc();
       this.items[key] = new Category(ref.id, item.nome, item.icone, intToHexColor(item.cor));
 
-      batchRaiz.set(ref, this.toFirestore(this.items[key]));
-      console.log(`Categoria raiz adicionada: ${key}`);
+      if(item.nome.includes("Transferência Recebida")) {
+        CategoriesImporter.transferInId = ref.id;
+      }
+      if(item.nome.includes("Transferência Enviada")) {
+        CategoriesImporter.transferOutId = ref.id;
+      }
+
+
+      batchRaiz.set(ref, await this.toFirestore(this.items[key]));
+      console.log(`Categoria raiz adicionada: ${key} - ${item.icone}`);
     }
     await batchRaiz.commit();
   }
@@ -75,10 +96,10 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
       const key = `${parentCategory.id}__${item.nome}`;
 
       const ref = this.items[key]?.id ? this.collection.doc(this.items[key]?.id) : this.collection.doc();
-      this.items[key] = new Category(ref.id, item.nome, undefined, intToHexColor(item.cor), parentCategory.id);
+      this.items[key] = new Category(ref.id, item.nome, parentCategory.icon, intToHexColor(item.cor), parentCategory.id);
 
-      batchFilhas.set(ref, this.toFirestore(this.items[key]));
-      console.log(`Categoria filha adicionada: ${key}`);
+      batchFilhas.set(ref, await this.toFirestore(this.items[key]));
+      console.log(`Categoria filha adicionada: ${key} - ${parentCategory.icon}`);
     }
 
     await batchFilhas.commit();
@@ -94,5 +115,9 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
       category.name.toLowerCase() === childName.toLowerCase()
       && category.parentId === parent.id
     );
+  }
+
+  public findById(id: string): Category | undefined {
+    return Object.values(this.items).find(category => category.id === id);
   }
 }

@@ -4,7 +4,8 @@ import BanksImporter from "./BanksImporter";
 import { Collections } from "../data/firebase/Collections";
 import Account, { AccountType } from "../data/models/Account";
 
-import {Contas, ContasFile} from '../converter/result/xlsx/contas';
+import { Contas, ContasFile } from '../converter/result/xlsx/contas';
+import Encryptor from "../data/crypt/Encryptor";
 
 const TiposToTypes = {
   "Conta Corrente": AccountType.CURRENT,
@@ -17,9 +18,10 @@ export default class AccountsImporter extends Importer<Account, Contas> {
 
   constructor(
     private banks: BanksImporter,
-    db: FirebaseFirestore.Firestore, userPath: string
+    db: FirebaseFirestore.Firestore, userPath: string,
+    encryptor: Encryptor,
   ) {
-    super(db, db.collection(userPath + Collections.Accounts), Account);
+    super(db, db.collection(userPath + Collections.Accounts), Account, encryptor);
   }
 
   async process(): Promise<void> {
@@ -28,7 +30,7 @@ export default class AccountsImporter extends Importer<Account, Contas> {
 
     const batch = this.db.batch();
 
-    data.forEach(jsonAccount => {
+    for (const jsonAccount of data) {
       const existing = this.findByName(jsonAccount.nome);
       if (existing) {
         return;
@@ -48,8 +50,8 @@ export default class AccountsImporter extends Importer<Account, Contas> {
         jsonAccount.arquivado ? true : false,
       );
 
-      batch.set(docRef, this.toFirestore(this.items[docRef.id]));
-    });
+      batch.set(docRef, await this.toFirestore(this.items[docRef.id]));
+    }
 
     await batch.commit();
 

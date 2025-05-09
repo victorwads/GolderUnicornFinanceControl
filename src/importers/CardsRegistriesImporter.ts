@@ -6,6 +6,7 @@ import { Collections } from '../data/firebase/Collections';
 import CreditCardRegistry from '../data/models/CreditCardRegistry';
 
 import {DespesasDeCartao, DespesasDeCartaoFile} from '../converter/result/xlsx/despesas_de_cartao';
+import Encryptor from '../data/crypt/Encryptor';
 
 export default class CardsRegistriesImporter extends Importer<CreditCardRegistry, DespesasDeCartao> {
 
@@ -13,9 +14,9 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
     private cards: CardsImporter,
     private categorias: CategoriesImporter,
     db: FirebaseFirestore.Firestore,
-    userPath: string
+    userPath: string, encryptor: Encryptor,
   ) {
-    super(db, db.collection(userPath + Collections.CreditCardRegistries), CreditCardRegistry);
+    super(db, db.collection(userPath + Collections.CreditCardRegistries), CreditCardRegistry, encryptor);
   }
 
   async process(): Promise<void> {
@@ -25,7 +26,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
     const batch = this.db.batch();
 
     let equals = 0;
-    data.forEach((json, idx) => {
+    for (const json of data) {
       const docRef = this.collection.doc();
 
       const card = this.cards.findByName(json.cartao);
@@ -57,8 +58,8 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
       }
 
       this.items[docRef.id] = registro;
-      batch.set(docRef, this.toFirestore(registro));
-    });
+      batch.set(docRef, await this.toFirestore(registro));
+    }
     await batch.commit();
 
     this.sumAndPrint();

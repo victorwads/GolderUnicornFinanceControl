@@ -5,15 +5,16 @@ import CreditCard from "../data/models/CreditCard";
 import { Collections } from "../data/firebase/Collections";
 
 import {Cartoes, CartoesFile} from '../converter/result/xlsx/cartoes';
+import Encryptor from "../data/crypt/Encryptor";
 
 export default class CardsImporter extends Importer<CreditCard, Cartoes> {
 
   constructor(
     private accounts: AccountsImporter,
     db: FirebaseFirestore.Firestore,
-    userPath: string
+    userPath: string, encryptor: Encryptor,
   ) {
-    super(db, db.collection(userPath + Collections.CreditCards), CreditCard);
+    super(db, db.collection(userPath + Collections.CreditCards), CreditCard), encryptor;
   }
 
   async process(): Promise<void> {
@@ -22,7 +23,7 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
 
     const batch = this.db.batch();
 
-    data.forEach(jsonCard => {
+    for (const jsonCard of data) {
       const existing = this.findByName(jsonCard.nome);
       if (existing) return;
 
@@ -43,8 +44,8 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
         jsonCard.conta_id?.toString(),
       );
 
-      batch.set(docRef, this.toFirestore(this.items[docRef.id]));
-    });
+      batch.set(docRef, await this.toFirestore(this.items[docRef.id]));
+    }
 
     await batch.commit();
 

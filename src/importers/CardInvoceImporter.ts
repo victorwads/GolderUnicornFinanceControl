@@ -6,15 +6,16 @@ import CreditCardInvoice from '../data/models/CreditCardInvoice';
 import { Collections } from '../data/firebase/Collections';
 
 import {Faturas, FaturasFile} from '../converter/result/xlsx/faturas';
+import Encryptor from '../data/crypt/Encryptor';
 
 export default class CardInvoceImporter extends Importer<CreditCardInvoice, Faturas> {
   constructor(
     private cards: CardsImporter,
     private accounts: AccountsImporter,
     db: FirebaseFirestore.Firestore,
-    userPath: string
+    userPath: string, encryptor: Encryptor,
   ) {
-    super(db, db.collection(userPath + Collections.CreditCardInvoices), CreditCardInvoice);
+    super(db, db.collection(userPath + Collections.CreditCardInvoices), CreditCardInvoice, encryptor);
   }
 
   async process(): Promise<void> {
@@ -55,7 +56,7 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
       invoice.id = docRef.id;
 
       this.items[docRef.id] = invoice;
-      batch.set(docRef, this.toFirestore(invoice));
+      batch.set(docRef, await this.toFirestore(invoice));
     }
 
     await batch.commit();
