@@ -26,5 +26,5 @@
 }
 
 .container.spaced {
-    margin: var(--spacing-md);
+    padding: var(--spacing-md);
 }

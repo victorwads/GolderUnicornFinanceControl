@@ -17,7 +17,8 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
     }
     const model = await super.fromFirestore(id, data);
 
-    this.encryptQueeue.push(model);
+    if (window.location.hostname !== "localhost")
+      this.encryptQueeue.push(model);
     return model;
   }
 

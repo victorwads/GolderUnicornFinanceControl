@@ -1,17 +1,36 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import { ModalScreen } from "../../components/conteiners/ModalScreen";
+import PriceField from "../../components/fields/PriceField";
+import BankSelector from "../banks/BankSelector";
 import Button from "../../components/Button";
 import Field from "../../components/fields/Field";
-import PriceField from "../../components/fields/PriceField";
 import Row from "../../components/visual/Row";
-import BankSelector from "../banks/BankSelector";
+
 import Bank from "../../data/models/Bank";
-import { ModalScreen } from "../../components/conteiners/ModalScreen";
+import Account, { AccountType } from "../../data/models/Account";
+import AccountsRepository from "../../data/repositories/AccountsRepository";
 
 const AddAccountScreen = () => {
   const [name, setName] = useState("");
   const [bank, setBank] = useState<Bank | undefined>();
   const [saldoInicial, setSaldoInicial] = useState(0);
+  const navigate = useNavigate();
+
+  const createAccount = async () => {
+    if (name.trim() === "" || bank === undefined) {
+      alert("Preencha todos os campos");
+      return;
+    }
+    const account = new Account(
+        "", name, saldoInicial, bank.id, AccountType.CURRENT
+    );
+    
+    await new AccountsRepository().set(account);
+    alert("Conta criada com sucesso");
+    navigate(-1);
+  };
 
   return <ModalScreen title="Add Account">
     <Field label={"Nome da Conta"} value={name} onChange={setName} />
@@ -24,10 +43,11 @@ const AddAccountScreen = () => {
     <div>- Cor da Conta</div>
 
     <Row>
-      <Button text="Cancelar" />
+      <Button text="Cancelar" onClick={() => navigate(-1)} />
       <Button
         text="Salvar"
         disabled={name.trim() == "" || bank == null}
+        onClick={createAccount}
       />
     </Row>
   </ModalScreen>

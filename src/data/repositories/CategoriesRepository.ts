@@ -36,6 +36,18 @@ export default class CategoriesRepository extends RepositoryWithCrypt<Category> 
 
 		return rootCategories;
 	};
+
+	public override getLocalById(id?: string): Category | undefined {
+		const category = super.getLocalById(id);
+		if (!category) return undefined;
+		if (!category?.icon && category?.parentId) {
+			const root = this.getLocalById(category.parentId);
+			if (!root) return category;
+			category.color = root.color ?? "#000000";
+			category.icon = root.icon ?? "folder";
+		}
+		return category;
+	}
 }
 
 export interface RootCategory extends Category {

@@ -27,10 +27,11 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  background-color: var(--bg-color-highlight);
 }
 
 .modal-back-button:hover {
-  background-color: var(--color-background-shadow);
+  background-color: var(--bg-color-shadow);
 }
 
 .modal-back-button svg {

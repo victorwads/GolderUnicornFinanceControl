@@ -9,6 +9,8 @@ import CategoriesRepository from "../../../data/repositories/CategoriesRepositor
 import AccountsRepository from "../../../data/repositories/AccountsRepository";
 import { Container, ContainerFixedContent } from "../../../components/conteiners";
 import { ContainerScrollContent } from '../../../components/conteiners/index';
+import { Loading } from "../../../components/Loading";
+import Icon, { getIconByCaseInsensitiveName } from "../../../components/Icons";
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -38,7 +40,7 @@ const TimelineScreen = () => {
     (async () => {
       await registries.waitInit();
       await categories.waitInit();
-      await accounts.waitInit();
+      await accounts.waitItems();
 
       if (params.id) {
         setSelectedAccount(accounts.getLocalById(params.id) ?? null);
@@ -83,7 +85,9 @@ const TimelineScreen = () => {
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
         <h1 className="ScreenTitle">Timeline</h1>
-        <span className="RegistryCount">({registries.length}) Registros</span>
+        <Loading show={registries.length === 0} type="wave" />
+        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) Registros</span>}
+        <div className="spacer"></div>
         {(selectedAccount || hasCategoryFilter) && (
           <div className="SelectedBank">
             {selectedAccount && <span>{selectedAccount.name}</span>}
@@ -94,9 +98,10 @@ const TimelineScreen = () => {
       <div className="ScreenHeaderRow">
         <div className="ScreenTotal">
           <span>Balance:</span>
-          <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
+          <Loading show={registries.length === 0} type="wave" />
+          {registries.length !== 0 && <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
             {formatNumber(total)}
-          </span>
+          </span>}
         </div>
         {!selectedAccount && <div className="ScreenOptions">
           <label>
@@ -128,8 +133,10 @@ const TimelineScreen = () => {
               <div
                 onClick={() => addCategoryFilter(registry.categoryId!)}
                 className="TimelineCategory"
-                style={{ backgroundColor: registry.category?.color ?? "#ccc" }}
-              ></div>
+                style={{ backgroundColor: registry.category?.color ?? "#ccc", display: "flex", justifyContent: "center", alignItems: "center" }}
+              >
+                <Icon icon={getIconByCaseInsensitiveName(registry.category?.icon ?? "question")} size="1x" color="#fff" />
+              </div>
 
               {/* Área Central: Informações principais */}
               <div className="TimelineContent">
@@ -140,7 +147,7 @@ const TimelineScreen = () => {
                     {registry.category?.name}
                   </div>}
                   <Link to={'/main/timeline/' + registry.accountId}>
-                    <span className="TimelineBankName">{registry.account.name}</span>
+                    <span className="TimelineBankName">{registry.account?.name}</span>
                   </Link>
                 </div>
               </div>

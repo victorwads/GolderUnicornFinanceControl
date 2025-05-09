@@ -22,7 +22,7 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
         this.cards = new CreditcardsRepository();
     }
 
-    public override async waitInit(): Promise<void> {
+    public async waitItems(): Promise<void> {
         await this.registries.waitInit();
         await this.invoices.waitInit();
         await this.cards.waitInit();

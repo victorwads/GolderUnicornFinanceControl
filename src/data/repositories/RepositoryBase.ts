@@ -77,7 +77,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   public async set(model: Model, id?: string, merge: boolean = false): Promise<DocumentReference<Model>> {
     let data = await this.toFirestore(model);
     let result;
-    if(id) {
+    if(id && id !== "") {
       result = doc(this.ref, id);
       await setDoc(result, data, { merge });
     } else {
