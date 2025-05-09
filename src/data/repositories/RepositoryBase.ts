@@ -27,6 +27,7 @@ let updateUse = true; let saveUse = true;
 export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
   protected ref: CollectionReference<any>;
+  private minimumCacheSize = 0;
   
   constructor(
     private collectionName: string,
@@ -41,7 +42,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   public async waitInit(): Promise<void> {
-    if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === 0) {
+    if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === this.minimumCacheSize) {
       await this.getAll();
     }
   }
@@ -65,6 +66,14 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.postQueryProcess(items);
 
     return items;
+  }
+
+  protected addToCache(model: Model): void {
+    this.minimumCacheSize++;
+    BaseRepository.cache[this.collectionName][model.id] = model;
+    BaseRepository.updateUse((use) => {
+      use.cache.writes++;
+    });
   }
 
   public getLocalById(id?: string): Model | undefined {

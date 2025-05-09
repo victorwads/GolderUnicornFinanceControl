@@ -7,6 +7,7 @@ export default class CategoriesRepository extends RepositoryWithCrypt<Category> 
 
 	constructor() {
 		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category);
+		this.addToCache(new Category("fatura", "Fatura Cartão de Crédito", "creditcard", "#000000"));
 	}
 
 	public getAllRoots = async (): Promise<RootCategory[]> => {

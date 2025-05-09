@@ -57,7 +57,7 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
                 invoice.paidValue * -1,
                 `Pagamento de fatura - ${this.cards.getLocalById(invoice.cardId)?.name}`,
                 new Date(invoice.paymentDate),
-                true
+                true, [], "fatura"
             );
             registries.push(invoiceRegistry);
         });

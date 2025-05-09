@@ -1,6 +1,5 @@
 import {
-  doc, runTransaction,
-  Timestamp, DocumentData,
+  doc, DocumentData,
   writeBatch,
 } from "firebase/firestore";
 
