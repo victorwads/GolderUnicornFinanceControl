@@ -1,5 +1,5 @@
 import { initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { Firestore, getFirestore } from "firebase-admin/firestore";
 
 import serviceAccountKey from "./serviceAccountKey";
 
@@ -10,19 +10,23 @@ import CardsImporter from "./importers/CardsImporter";
 import CardsRegistriesImporter from "./importers/CardsRegistriesImporter";
 import AccountRegistriesImporter from "./importers/AccountRegistriesImporter";
 import CardInvoceImporter from "./importers/CardInvoceImporter";
-import Encryptor from "./data/crypt/Encryptor";
+import Encryptor, { EncryptorSingletone } from "./data/crypt/Encryptor";
 
-const prodApp = initializeApp({credential: cert(serviceAccountKey as any)}, 'prod');
+const prodApp = initializeApp({ credential: cert(serviceAccountKey as any) }, 'prod');
 const dbProd = getFirestore(prodApp);
 
-const local = initializeApp({credential: cert(serviceAccountKey as any)}, 'local');
-const db = getFirestore(local);
-db.settings({
-  ignoreUndefinedProperties: true,
-  host: "localhost:8008",
-  ssl: false,
-});
-
+let db: Firestore;
+if (true) {
+  const local = initializeApp({ credential: cert(serviceAccountKey as any) }, 'local');
+  db = getFirestore(local);
+  db.settings({
+    ignoreUndefinedProperties: true,
+    host: "localhost:8008",
+    ssl: false,
+  });
+} else {
+  db = dbProd;
+}
 
 async function main() {
 
@@ -32,7 +36,7 @@ async function main() {
   const banks = new BanksImporter(db);
   await banks.loadFrom(dbProd);
   await banks.process();
-  
+
   const userPath = 'Users/fUztrRAGqQZ3lzT5AmvIki5x0443/';
   const categorias = new CategoriesImporter(db, userPath, encryptor);  
   await categorias.process();
@@ -52,7 +56,5 @@ async function main() {
   const accountRegistries = new AccountRegistriesImporter(accounts, categorias, db, userPath, encryptor);
   await accountRegistries.process();
 
-
 }
 main();
-

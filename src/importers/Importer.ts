@@ -16,7 +16,8 @@ export default abstract class Importer<T extends DocumentModel, JT> {
     protected db: FirebaseFirestore.Firestore,
     protected collection: CollectionReference,
     protected modelClass: new (...args: any) => T,
-    protected encryptor?: Encryptor,
+    protected encryptor: Encryptor,
+    protected encrypt: boolean = true,
   ) { }
 
   abstract process(): Promise<void>;
@@ -42,9 +43,7 @@ export default abstract class Importer<T extends DocumentModel, JT> {
   }
 
   protected async fromFirestore(id: string, data: object): Promise<T> {
-    if (this.encryptor) {
-      data = await this.encryptor.decrypt(data);
-    }
+    data = await this.encryptor.decrypt(data);
     function findAndReplaceTimestamps(obj: any): any {
       if (Array.isArray(obj)) return obj.map(findAndReplaceTimestamps);
       if (obj && typeof obj === "object") {
@@ -71,9 +70,8 @@ export default abstract class Importer<T extends DocumentModel, JT> {
       _updatedAt: new Date(),
     } as any;
     delete data.id;
-    if (this.encryptor) {
-      data = await this.encryptor.encrypt(data);
-    }
+    if(this.encrypt === false) return data;
+    data = await this.encryptor.encrypt(data);
     return data
   }
 }

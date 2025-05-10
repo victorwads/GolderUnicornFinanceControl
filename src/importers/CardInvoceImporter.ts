@@ -29,13 +29,13 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
       const card = this.cards.findByName(json.cartao);
       if(!card) {
         console.error(`Cartão ${json.cartao} não encontrado.`);
-        return;
+        continue;
       }
 
       const account = this.accounts.findByName(json.conta);
       if (!account) {
         console.error(`Conta ${json.conta} não encontrada.`);
-        return;
+        continue;
       }
 
       const invoice = new CreditCardInvoice(

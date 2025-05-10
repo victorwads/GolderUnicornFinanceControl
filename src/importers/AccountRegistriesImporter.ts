@@ -24,30 +24,32 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    this.processFile(DespesasFile, -1, RegistryType.ACCOUNT);
-    this.processFile(ReceitasFile, 1, RegistryType.ACCOUNT);
-    this.processFile(TransferenciasFile, 0, RegistryType.TRANSFER);
+    await this.processFile(DespesasFile, -1, RegistryType.ACCOUNT);
+    await this.processFile(ReceitasFile, 1, RegistryType.ACCOUNT);
+    await this.processFile(TransferenciasFile, 0, RegistryType.TRANSFER);
   }
 
   async processFile(file: FileInfo, multiplier: number, type: RegistryType): Promise<void> {
-    const data = await this.readJsonFile(file);
+    const data = await this.readJsonFile(file)!;
+    console.log(`Importando ${file.name} de conta...`, data.length);
 
     const batch = this.db.batch();
+    const tempItems: any = {};
 
     let equals = 0;
     for (const json of data) {
       const account = this.accounts.findByName(json.conta);
       if (!account?.id) {
         console.error(`Bank account ${json.conta} não encontrado.`);
-        return;
+        continue;
       }
 
       let categoria = 'categoria' in json
         ? this.categorias.findByName(json.categoria, json.sub_categoria)
         : undefined;
       if ('categoria' in json && !categoria?.id) {
-        console.error(`Categoria ${json.categoria} > ${json.sub_categoria} não encontrada.`);
-        return;
+        console.error(`Categoria '${json.categoria}' -> '${json.sub_categoria}' não encontrada.`);
+        continue;
       }
 
       if('data_transferencia' in json) {
@@ -86,14 +88,15 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
       const docRef = some?.id ? this.collection.doc(some?.id) : this.collection.doc();
       this.items[docRef.id] = registro;
+      tempItems[docRef.id] = registro;
       registro.id = docRef.id;
       batch.set(docRef, await this.toFirestore(registro));
     }
     await batch.commit();
 
-    this.sumAndPrint();
+    this.sumAndPrint(tempItems);
     console.log(`Registros iguais encontrados: ${equals} de ${data.length}`);
-    console.log(`Importação de ${file.name} de conta finalizada.`, Object.keys(this.items).length);
+    console.log(`Importação de ${file.name} de conta finalizada.`);
   }
   
   protected alreadyExists(registro: AccountsRegistry): AccountsRegistry | undefined {
@@ -108,10 +111,10 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     );
   }
   
-  private sumAndPrint() {
-    const total = Object.values(this.items).reduce((acc, item) => acc + item.value, 0);
+  private sumAndPrint(tempItems: any) {
+    const total = Object.values(tempItems).reduce((acc, item) => acc + item.value, 0);
     console.log('Total de despesas em contas:', total);
-    const totalPorConta = Object.values(this.items).reduce((acc, item) => {
+    const totalPorConta = Object.values(tempItems).reduce((acc, item) => {
       const card = this.accounts.findNameById(item.accountId);
       if(!acc[card]) {
         acc[card] = 0;

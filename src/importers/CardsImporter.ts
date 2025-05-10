@@ -14,7 +14,7 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
     db: FirebaseFirestore.Firestore,
     userPath: string, encryptor: Encryptor,
   ) {
-    super(db, db.collection(userPath + Collections.CreditCards), CreditCard), encryptor;
+    super(db, db.collection(userPath + Collections.CreditCards), CreditCard, encryptor);
   }
 
   async process(): Promise<void> {
@@ -25,7 +25,7 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
 
     for (const jsonCard of data) {
       const existing = this.findByName(jsonCard.nome);
-      if (existing) return;
+      if (existing) continue;
 
       const docRef = this.collection.doc();
       const account = this.accounts.findByName(jsonCard.conta);

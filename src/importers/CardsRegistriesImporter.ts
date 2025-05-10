@@ -32,12 +32,12 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
       const card = this.cards.findByName(json.cartao);
       if (!card?.id) {
         console.error(`Cartão ${json.cartao} não encontrado.`);
-        return;
+        continue;
       }
       const categoria = this.categorias.findByName(json.categoria, json.sub_categoria);
       if (!categoria?.id) {
         console.error(`Categoria ${json.categoria} > ${json.sub_categoria} não encontrada.`);
-        return;
+        continue;
       }
 
       const registro = new CreditCardRegistry(
@@ -54,7 +54,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
 
       if (this.alreadyExists(registro) > 0) {
         equals++;
-        return;
+        continue;
       }
 
       this.items[docRef.id] = registro;

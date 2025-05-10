@@ -5,6 +5,7 @@ import Importer, { FileInfo } from "./Importer";
 
 import Bank from "../data/models/Bank";
 import { Collections } from "../data/firebase/Collections";
+import Encryptor from '../data/crypt/Encryptor';
 
 export const BancosFile = {type: "json", name: "bancos.json"};
 
@@ -12,8 +13,8 @@ export default class BanksImporter extends Importer<Bank, Bank> {
 
   private static readonly fileName = 'bancos.json';
 
-  constructor(db: FirebaseFirestore.Firestore) {
-    super(db,db.collection(Collections.Banks), Bank);
+  constructor(db: FirebaseFirestore.Firestore, encryptor: Encryptor) {
+    super(db,db.collection(Collections.Banks), Bank, encryptor, false);
   }
 
   public async process(): Promise<void> {

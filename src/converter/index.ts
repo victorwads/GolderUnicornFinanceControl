@@ -7,6 +7,7 @@ const dir = __dirname
 const resultDir = path.join(dir, 'result')
 if (fs.existsSync(resultDir)) {
   fs.rmSync(resultDir, { recursive: true, force: true })
+  fs.mkdirSync(path.join(resultDir, 'json'), { recursive: true })
 }
 
 convertCsvToJson()

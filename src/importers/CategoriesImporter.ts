@@ -22,8 +22,8 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
     await this.loadExistentes();
 
     const data = this.readJsonFile(CategoriasFile) as Categorias[];
-    this.processRoot(data.filter(d => !d.categoria_pai));
-    this.processChildren(data.filter(d => d.categoria_pai));
+    await this.processRoot(data.filter(d => !d.categoria_pai));
+    await this.processChildren(data.filter(d => d.categoria_pai));
 
     // this.printTree();
     console.log('Processamento concluído.', this.collection.id);
@@ -46,8 +46,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
   protected override async loadExistentes() {
     const snapshot = await this.collection.get();
     for (const doc of snapshot.docs) {
-      let dencryptedData = await this.encryptor!.decrypt(doc.data());
-      const data = await this.fromFirestore(doc.id, dencryptedData);
+      const data = await this.fromFirestore(doc.id, doc.data());
       console.log(`Carregando categoria existente: ${data.name}`);
       const key = `${data.parentId || 'root'}__${data.name}`;
       this.items[key] = data;
@@ -55,13 +54,6 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
   }
 
   private async processRoot(raiz: Categorias[]): Promise<void> {
-    raiz.push({
-      nome: "Transferência",
-      icone: "money-bill-transfer",
-      cor: 0, id: 0,
-      tipo: "Despesa"
-    })
-
     const batchRaiz = this.db.batch();
     for (const item of raiz) {
       const key = `root__${item.nome}`;

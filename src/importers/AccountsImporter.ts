@@ -33,7 +33,7 @@ export default class AccountsImporter extends Importer<Account, Contas> {
     for (const jsonAccount of data) {
       const existing = this.findByName(jsonAccount.nome);
       if (existing) {
-        return;
+        continue;
       }
 
       const docRef = this.collection.doc();
