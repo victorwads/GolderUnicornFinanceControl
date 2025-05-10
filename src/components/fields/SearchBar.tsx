@@ -1,8 +1,10 @@
+import Icon from '../Icons'
 import './SearchBar.css'
 
 interface SearchBarParams {
     value: string
     onSearchEach?: (search: string) => void
+    onClose?: () => void
 }
 
 const SearchBar = (params: SearchBarParams) => {
@@ -10,20 +12,9 @@ const SearchBar = (params: SearchBarParams) => {
         <input onChange={it => {
             if(params.onSearchEach) params.onSearchEach(it.target.value)
         } } placeholder='Pesquisar' value={params.value} />
-        <span></span>
-    </div>
-}
-
-interface SearchBarScreenParams extends SearchBarParams {
-    children: React.ReactNode
-}
-
-export const SearchBarScreen = (params: SearchBarScreenParams) => {
-    return <div className='SearchBarScreen'>
-        <SearchBar {...params}  />
-        <div className='content'>
-            {params.children}
-        </div>
+        <button className="modal-back-button" onClick={params.onClose}>
+          <Icon icon={Icon.all.faClose} />
+        </button>
     </div>
 }
 

@@ -2,11 +2,11 @@ import DocumentModel from "./DocumentModel";
 
 export enum RegistryType {
   ACCOUNT,
+  ACCOUNT_RECURRENT,
   CREDIT,
+  CREDIT_RECURRENT,
   TRANSFER,
   INVOICE,
-  CARD_RECURRENT,
-  ACCOUNT_RECURRENT,
 }
 
 export default class AccountsRegistry extends DocumentModel {

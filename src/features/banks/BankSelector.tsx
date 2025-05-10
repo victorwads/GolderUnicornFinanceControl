@@ -1,12 +1,13 @@
 import { useEffect, useState, useMemo } from "react"
 
-import { SearchBarScreen } from "../../components/fields/SearchBar"
+import { Container, ContainerFixedContent, ContainerScrollContent } from "../../components/conteiners";
+import SearchBar from "../../components/fields/SearchBar"
 import BaseField from "../../components/fields/BaseField"
 import Dialog from "../../components/visual/Dialog"
 import Row from "../../components/visual/Row"
 import BankInfo from "./BankInfo"
 
-import Bank from "../../data/models/Bank"
+import Bank, { selectBank } from "../../data/models/Bank"
 import BanksRepository from "../../data/repositories/BanksRepository"
 
 interface BankSelectorParams {
@@ -40,18 +41,22 @@ const BankSelector: React.FC<BankSelectorParams> = ({ label, bank, onChange }) =
 
 	return <BaseField label={label ?? "Banco"}>
 		<Row>
-			{bank ? <BankInfo bank={bank} /> : <div></div>}
-			<a onClick={() => setIsOpen(true)}>Selecionar</a>
+			<BankInfo onClick={() => setIsOpen(true)} bank={bank || selectBank} />
 		</Row>
 		<Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
-			<SearchBarScreen value={searchValue} onSearchEach={search}>
-				{banks?.map(bank => (
-					<BankInfo bank={bank} key={bank.id} onClick={() => {
-						onChange(bank)
-						reset()
-					}} />
-				))}
-			</SearchBarScreen>
+			<Container spaced>
+				<ContainerFixedContent>
+					<SearchBar value={searchValue} onSearchEach={search} onClose={() => setIsOpen(false)} />
+				</ContainerFixedContent>
+				<ContainerScrollContent>
+					{banks?.map(bank => (
+						<BankInfo bank={bank} key={bank.id} onClick={() => {
+							onChange(bank)
+							reset()
+						}} />
+					))}
+				</ContainerScrollContent>
+			</Container>
 		</Dialog>
 	</BaseField>
 }

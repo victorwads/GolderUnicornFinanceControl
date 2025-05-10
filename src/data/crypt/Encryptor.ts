@@ -30,6 +30,7 @@ export default class Encryptor {
   }
 
   private async encryptData(data: any, ignoreKeys: string[] = []): Promise<any> {
+    if (null === data) return null;
     if (Array.isArray(data)) {
       return await Promise.all(
         data

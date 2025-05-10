@@ -4,6 +4,10 @@
   color: var(--font-color-default);
 }
 
+input {
+  color: inherit;
+}
+
 .Screen {
   display: block;
   overflow: auto;

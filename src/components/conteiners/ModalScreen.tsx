@@ -19,7 +19,7 @@ export function ModalScreen({ title, children }: ModalScreenProps) {
         {title && <h1 className="modal-screen-title">{title}</h1>}
         <div className="spacer" />
         <button onClick={() => navigate(-1)} className="modal-back-button">
-        <Icon icon={Icon.all.faClose} />
+          <Icon icon={Icon.all.faClose} />
         </button>
     </div>
     </ContainerFixedContent>

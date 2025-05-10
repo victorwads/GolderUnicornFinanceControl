@@ -11,14 +11,11 @@ const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children }) => {
     return null;
   }
 
-  return (
-    <div className="Dialog">
-      <div>
-        <button className="close-button" onClick={onClose} >Fechar</button>
-        <div>{children}</div>
-      </div>
+  return <div className="Dialog" onClick={onClose}>
+    <div onClick={(e) => e.stopPropagation()}>
+      {children}
     </div>
-  );
+  </div>;
 };
 
 export default Dialog;
