@@ -1,17 +1,18 @@
-import DocumentModel from "./DocumentModel";
+import Registry, { RegistryType } from "./Registry";
 
-export default class CreditCardRegistry extends DocumentModel {
+export default class CreditCardRegistry extends Registry {
   constructor(
-    public id: string,
+    id: string,
     public cardId: string,
-    public value: number,
-    public description: string,
-    public month: number, public year: number, public date: Date,
-    public tags: string[] = [],
-    public categoryId?: string,
-    public observation?: string,
-    public importInfo?: any
+    public month: number, public year: number,
+    value: number,
+    description: string,
+    date: Date,
+    tags: string[] = [],
+    categoryId?: string,
+    observation?: string,
+    importInfo?: any
   ) { 
-    super(id);
+    super(id, RegistryType.CREDIT, false, value, description, date, tags, categoryId, observation, importInfo);
   }
 }

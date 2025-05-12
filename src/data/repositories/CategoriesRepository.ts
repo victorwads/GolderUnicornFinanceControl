@@ -1,13 +1,14 @@
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 
 import Category from "../models/Category";
+import InvoiceRegistry from '../models/InvoiceRegistry';
 import { Collections } from "../../data/firebase/Collections";
 
 export default class CategoriesRepository extends RepositoryWithCrypt<Category> {
 
 	constructor() {
 		super(`${Collections.Users}/{userId}/${Collections.Categories}`, Category);
-		this.addToCache(new Category("fatura", "Fatura Cartão de Crédito", "creditcard", "#000000"));
+		this.addToCache(new Category(InvoiceRegistry.categoryId, "Fatura Cartão de Crédito", "creditcard", "#000000"));
 	}
 
 	public getAllRoots = async (): Promise<RootCategory[]> => {

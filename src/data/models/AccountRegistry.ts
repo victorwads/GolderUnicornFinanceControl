@@ -1,29 +1,20 @@
-import DocumentModel from "./DocumentModel";
+import Registry, { RegistryType } from "./Registry";
 
-export enum RegistryType {
-  ACCOUNT,
-  ACCOUNT_RECURRENT,
-  CREDIT,
-  CREDIT_RECURRENT,
-  TRANSFER,
-  INVOICE,
-}
-
-export default class AccountsRegistry extends DocumentModel {
+export default class AccountsRegistry extends Registry {
 
   constructor(
-    public id: string,
-    public type: RegistryType,
+    id: string,
+    public type: RegistryType = RegistryType.ACCOUNT,
     public accountId: string,
-    public value: number,
-    public description: string,
-    public date: Date,
-    public paid: boolean = false,
-    public tags: string[] = [],
-    public categoryId?: string,
-    public observation?: string,
-    public relatedInfo?: string
+    value: number,
+    description: string,
+    date: Date,
+    paid: boolean = false,
+    tags: string[] = [],
+    categoryId?: string,
+    observation?: string,
+    relatedInfo?: string
   ) {
-    super(id);
+    super(id, RegistryType.ACCOUNT, paid, value, description, date, tags, categoryId, observation, relatedInfo);
   }
 }

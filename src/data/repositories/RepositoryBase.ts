@@ -7,8 +7,6 @@ import {
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc,
   collection, doc, query, orderBy, limit, where, increment,
-  count,
-  getCountFromServer,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -88,7 +86,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   public async set(model: Model, id?: string, merge: boolean = false): Promise<DocumentReference<Model>> {
     let data = await this.toFirestore(model);
     let result;
-    this.updateLocalCache();
+    await this.updateLocalCache();
     if(id && id !== "") {
       result = doc(this.ref, id);
       await setDoc(result, data, { merge });
@@ -165,7 +163,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       queryResult = await getDocs(query(this.ref, where(queryField, ">", lastUpdated)));
     } else {
       queryResult = await getDocs(this.ref);
-      console.log(this.collectionName, 'serverSize', queryResult.docs.length);
       const ids = queryResult.docs.map((doc) => doc.id);
       this.getCache().forEach((item) => {
         if (!ids.includes(item.id)) {

@@ -10,7 +10,7 @@ import BaseRepository from "./RepositoryBase";
 export default abstract class RepositoryWithCrypt<Model extends DocumentModel> extends BaseRepository<Model> {
 
   protected override async fromFirestore(id: string, data: DocumentData): Promise<Model> {
-    if (data.encrypted === true) {
+    if (data && data.encrypted === true) {
       const newData = await EncryptorSingletone.decrypt(data);
       return await super.fromFirestore(id, newData);
     }
