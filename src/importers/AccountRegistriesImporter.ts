@@ -5,10 +5,10 @@ import CategoriesImporter from './CategoriesImporter';
 import { Collections } from '../data/firebase/Collections';
 import AccountsRegistry from '../data/models/AccountRegistry';
 
+import {Transferencias, TransferenciasFile} from '../converter/result/xlsx/transferencias';
 import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
 import {Receitas, ReceitasFile} from '../converter/result/xlsx/receitas';
-import {Transferencias, TransferenciasFile} from '../converter/result/xlsx/transferencias';
-import { RegistryType } from '../../../Web/src/data/models/AccountRegistry';
+import { RegistryType } from '../data/models/Registry';
 import Encryptor from '../data/crypt/Encryptor';
 
 export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas|Receitas|Transferencias> {
@@ -63,7 +63,6 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
       const registro = new AccountsRegistry(
         "",
-        type,
         account.id,
         json.valor * multiplier,
         json.descricao,
@@ -72,6 +71,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
           (json as Receitas).data_receita ??
           (json as Transferencias).data_transferencia
         ),
+        type,
         'situacao' in json
           ? json.situacao === 'PAGO' || json.situacao === "RECEBIDO"
           : true,
