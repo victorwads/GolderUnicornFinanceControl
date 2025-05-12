@@ -44,7 +44,8 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   public async waitInit(): Promise<void> {
     if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === this.minimumCacheSize) {
       await this.getAll();
-      console.log(`Cache for ${this.collectionName} initialized with ${BaseRepository.cache[this.collectionName].length} items`);
+      const length = Object.keys(BaseRepository.cache[this.collectionName]).length;
+      console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
     }
   }
 
@@ -216,6 +217,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   public static updateUserUse = async (data: DocumentData) => {};
+
   protected static async updateUse(updater: (use: DatabasesUse) => void) {
     updater(BaseRepository.use);
 

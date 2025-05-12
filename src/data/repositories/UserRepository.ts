@@ -14,9 +14,20 @@ export class User extends DocumentModel {
 export default class UserRepository extends RepositoryWithCrypt<User> {
   constructor() {
     super(Collections.Users, User);
+
+    BaseRepository.updateUserUse = async (dbUse: any) => {
+      this.updateUserData({ dbUse: { ...dbUse, encrypted: false } });
+      UserRepository.userTotalCache = undefined;
+    };
   }
 
-  public override async waitInit(): Promise<void> {}
+  public override async waitInit(): Promise<void> { }
+
+  public override async getAll(): Promise<User[]> {
+    return [
+      await this.getUserData(),
+    ];
+  }
 
   public async updateUserData(data: DocumentData) {
     const userId = getAuth().currentUser?.uid;
@@ -28,7 +39,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
     if (!userId) throw new Error('User not authenticated');
 
     let model;
-    if(UserRepository.userTotalCache ) {
+    if (UserRepository.userTotalCache) {
       model = new User(userId);
       model.dbUse = UserRepository.userTotalCache;
     } else {
@@ -41,7 +52,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
     }
 
     const currentUse = BaseRepository.getDatabaseUse();
-    if(model.dbUse) {
+    if (model.dbUse) {
       model.dbUse.cache.docReads += currentUse.cache.docReads;
       model.dbUse.cache.queryReads += currentUse.cache.queryReads;
       model.dbUse.cache.writes += currentUse.cache.writes;
@@ -50,7 +61,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
       model.dbUse.local.writes += currentUse.local.writes;
       model.dbUse.remote.docReads += currentUse.remote.docReads;
       model.dbUse.remote.queryReads += currentUse.remote.queryReads;
-      model.dbUse.remote.writes += currentUse.remote.writes;  
+      model.dbUse.remote.writes += currentUse.remote.writes;
     } else {
       model.dbUse = currentUse;
     }
@@ -60,8 +71,3 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
 
   public static userTotalCache?: DatabasesUse;
 }
-
-BaseRepository.updateUserUse = async (dbUse: any) => {
-  new UserRepository().updateUserData({ dbUse: {...dbUse, encrypted: false}});
-  UserRepository.userTotalCache = undefined;
-};
