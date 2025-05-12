@@ -17,10 +17,10 @@ export default class Encryptor {
     this.secretKey = await this.generateKey(hash.buffer).then((key) => this.secretKey = key);
   }
 
-  async encrypt<T extends Map>(data: T, ignoreKeys: string[] = []): Promise<T> {
+  async encrypt<T extends Map>(data: T, ignoreKeys: string[] = [], maxDepth?: number): Promise<T> {
     if (!this.secretKey) throw this.invalidKey;
 
-    return this.encryptData(data, ignoreKeys);
+    return this.encryptData(data, ignoreKeys, maxDepth);
   }
 
   async decrypt<T extends {[key: string]: any}>(data: T, customValueDecoder: (value: any) => any = (v) => v): Promise<T> {
@@ -29,13 +29,16 @@ export default class Encryptor {
     return await this.decryptData(data, customValueDecoder);
   }
 
-  private async encryptData(data: any, ignoreKeys: string[] = []): Promise<any> {
+  private async encryptData(data: any, ignoreKeys: string[] = [], maxDepth?: number): Promise<any> {
+    const hasMaxDepth = typeof maxDepth === 'number';
+    const nextDepth = hasMaxDepth ? maxDepth - 1 : undefined;
+    if (hasMaxDepth && maxDepth < 0) return data;
     if (null === data) return null;
     if (Array.isArray(data)) {
       return await Promise.all(
         data
         .filter(item => item !== undefined)
-        .map(item => this.encryptData(item))
+        .map(item => this.encryptData(item, ignoreKeys, nextDepth))
       );
     }
 
@@ -63,7 +66,7 @@ export default class Encryptor {
             encryptedData[key] = sourceData[key];
             continue
           };
-          encryptedData[key] = await this.encryptData(sourceData[key]);
+          encryptedData[key] = await this.encryptData(sourceData[key], ignoreKeys, nextDepth);
         }
         encryptedData.encrypted = true;
         return encryptedData;  

@@ -28,7 +28,7 @@ const CreditCardsCard: React.FC<{}> = () => {
     return <>
         <Link to={'/creditcards'}>Cartões</Link>
         <Card>
-            {creditCards.map(creditCard => <Link key={creditCard.id} to={'/creditcards/:id'}>
+            {creditCards.map(creditCard => <Link key={creditCard.id} to={`/creditcards/${creditCard.id}/invoices`}>
                 <BankInfo bank={creditCard.bank} />
             </Link>)}
             <div style={{ textAlign: 'right' }}>

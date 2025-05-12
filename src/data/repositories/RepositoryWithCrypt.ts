@@ -1,5 +1,6 @@
 import {
   doc, DocumentData,
+  Query,
   writeBatch,
 } from "firebase/firestore";
 
@@ -13,6 +14,14 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
 
   public init(encryptor: Encryptor) {
     this.encryptor = encryptor;
+  }
+
+  protected override async createQuery(fields: Partial<Model>): Promise<Query<Model, DocumentData>> {
+    if(!this.encryptor) throw new Error('Encryptor not initialized');
+    const encryptedFields = await this.encryptor.encrypt(fields, [], 1);
+    delete (encryptedFields as any).encrypted;
+
+    return super.createQuery(encryptedFields);
   }
 
   protected override async fromFirestore(id: string, data: DocumentData): Promise<Model> {

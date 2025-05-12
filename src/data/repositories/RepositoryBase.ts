@@ -7,8 +7,9 @@ import {
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc,
   collection, doc, query, orderBy, limit, where, increment,
+  and,
+  Query,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 
 import DocumentModel from "../models/DocumentModel";
 
@@ -28,6 +29,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
   protected ref: CollectionReference<any>;
   protected collectionName: string;
+  protected userId?: string;
   private minimumCacheSize = 0;
   
   constructor(
@@ -46,25 +48,43 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     }
   }
 
-  public async reset() {
+  public async reset(userId?: string) {
+    this.userId = userId;
     this.collectionName = this.parseCollectionName();
+    this.ref = collection(this.db, this.collectionName);
     if (!BaseRepository.cache[this.collectionName]) {
       BaseRepository.cache[this.collectionName] = {};
     }
     await this.waitInit();
   }
 
-  public async getAll(): Promise<Model[]> {
+  protected async createQuery(field: Partial<Model>): Promise<Query<Model, DocumentData>> {
+    const queries = Object.entries(field).map(([key, value]) =>
+      Array.isArray(value) ? where(key, "in", value) : where(key, "==", value)
+    );
+    if (queries.length === 0) {
+      return this.ref;
+    }
+
+    console.log("Queries", field);
+    return query(this.ref, ...queries);
+  }
+
+  public async getAll(fieldsFilter?: Partial<Model>): Promise<Model[]> {
     await this.updateLocalCache();
 
-    const queryResult = await getDocsFromCache(this.ref);
+    const queryResult = await getDocsFromCache(
+      fieldsFilter ? await this.createQuery(fieldsFilter) : this.ref
+    );
     BaseRepository.updateUse((use) => {
       use.local.queryReads++;
       use.local.docReads += queryResult.docs.length;
       use.cache.writes += queryResult.docs.length;
     });
 
-    const items = [];    
+    const items = [];
+    if(this.collectionName.includes("Registries"))
+      console.log("Query result", queryResult.docs.map((doc) => doc.data()));   
     for(const snap of queryResult.docs) {
       let item = await this.fromFirestore(snap.id, snap.data());
       BaseRepository.cache[this.collectionName][snap.id] = item;
@@ -188,10 +208,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     const { collectionNamePattern } = this;
     if (!collectionNamePattern.includes("{userId}")) return collectionNamePattern;
 
-    const userId = getAuth().currentUser?.uid;
-    if (!userId) throw new Error("Invalid userId");
-
-    return collectionNamePattern.replace(/\{userId\}/g, userId);
+    return collectionNamePattern.replace(/\{userId\}/g, this.userId || "nouser");
   }
 
   private static cache: { [key: string]: { [key: string]: DocumentData } } = {};

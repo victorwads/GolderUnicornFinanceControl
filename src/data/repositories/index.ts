@@ -47,7 +47,7 @@ export async function resetRepositories(): Promise<void> {
   for (const key in repositorieInstances) {
     const repo = repositorieInstances[key as keyof Repositories];
     if (repo instanceof RepositoryWithCrypt) repo.init(encryptorInstance);
-    await repo.reset();
+    await repo.reset(uid);
   }
 }
 

@@ -7,7 +7,7 @@ import AccountsRegistry from "../../../data/models/AccountRegistry";
 
 interface RegistryItemProps {
   item: RegistryWithDetails;
-  onCategoryClick: (categoryId: string) => void;
+  onCategoryClick?: (categoryId: string) => void;
 }
 
 const RegistryItem = ({ item: {registry, category, sourceName}, onCategoryClick }: RegistryItemProps) => {
@@ -23,7 +23,7 @@ const RegistryItem = ({ item: {registry, category, sourceName}, onCategoryClick 
   return <div key={registry.id} className="TimelineItem" style={{ opacity: registry.paid ? 1 : 0.7 }}>
     {/* Área Esquerda: Círculo com cor da categoria */}
     <div
-      onClick={() => category?.id && onCategoryClick(category?.id)}
+      onClick={() => category?.id && onCategoryClick?.(category?.id)}
       className="TimelineCategory"
       style={{ backgroundColor: category?.color ?? "#ccc", display: "flex", justifyContent: "center", alignItems: "center" }}
     >
@@ -35,7 +35,9 @@ const RegistryItem = ({ item: {registry, category, sourceName}, onCategoryClick 
       <div className="TimelineDescription">{registry.description}</div>
       <div className="TimelineDetails">
         <span className="TimelineDate">{registry.date.toLocaleDateString()}</span>
-        {registry.categoryId && <div className="TimelineCategoryName" onClick={() => category?.id && onCategoryClick(category?.id)}>
+        {registry.categoryId && <div className="TimelineCategoryName" 
+          onClick={() => category?.id && onCategoryClick?.(category?.id)}
+        >
           {category?.name}
         </div>}
         <span onClick={toSource} className="TimelineBankName">{sourceName}</span>

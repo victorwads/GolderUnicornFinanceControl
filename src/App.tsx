@@ -3,18 +3,20 @@ import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
-import TabScreen from './features/tabs/TabScreen';
-import LoginScreen from './features/login/LoginScreen';
-import DashboardScreen from './features/tabs/dashboard/DashboardScreen';
-import TimelineScreen from './features/tabs/timeline/TimelineScreen';
-import SettingsScreen from './features/tabs/settings/SettingsScreen';
-import CategoriesScreen from './features/categories/CategoriesScreen';
-import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
-import EmptyScreen from './features/commons/EmptyScreen';
-import AddAccountScreen from './features/accounts/AddAccountScreen';
 import { useCssVars } from './components/Vars';
 import { Loading } from './components/Loading';
 import { clearRepositories, resetRepositories } from './data/repositories';
+
+import TabScreen from './features/tabs/TabScreen';
+import EmptyScreen from './features/commons/EmptyScreen';
+import LoginScreen from './features/login/LoginScreen';
+import TimelineScreen from './features/tabs/timeline/TimelineScreen';
+import SettingsScreen from './features/tabs/settings/SettingsScreen';
+import DashboardScreen from './features/tabs/dashboard/DashboardScreen';
+import CategoriesScreen from './features/categories/CategoriesScreen';
+import AddAccountScreen from './features/accounts/AddAccountScreen';
+import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
+import CreditCardsInvoices from './features/creaditcards/CreditCardsInvoces';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -33,8 +35,7 @@ const router = createBrowserRouter([
   { path: '/creditcards', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id/edit', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/creditcards/:id/invoces', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/creditcards/:id/invoces', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards/:id/invoices', element: <CreditCardsInvoices /> },
   { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
   { path: '/categories', element: <CategoriesScreen /> },
