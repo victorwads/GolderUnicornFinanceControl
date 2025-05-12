@@ -66,7 +66,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       return this.ref;
     }
 
-    console.log("Queries", field);
     return query(this.ref, ...queries);
   }
 
@@ -83,8 +82,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     });
 
     const items = [];
-    if(this.collectionName.includes("Registries"))
-      console.log("Query result", queryResult.docs.map((doc) => doc.data()));   
     for(const snap of queryResult.docs) {
       let item = await this.fromFirestore(snap.id, snap.data());
       BaseRepository.cache[this.collectionName][snap.id] = item;

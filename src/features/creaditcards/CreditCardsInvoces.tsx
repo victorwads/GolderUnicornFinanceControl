@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from "../../components/conteiners";
@@ -15,17 +15,37 @@ const CreditCardsInvoices: React.FC = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<CreditCardInvoice | null>(null);
   const [invoiceRegistries, setInvoiceRegistries] = useState<RegistryWithDetails[]>([]);
 
+  const invoiceRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const index = invoices.indexOf(selectedInvoice as any);
+    if (invoiceRefs.current[index]) {
+      console.log("Focusing on current month invoice", index);
+      invoiceRefs.current[index]?.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+    console.log("Focusing on current month invoice", index);
+  }, [selectedInvoice]);
+
   useEffect(() => {
     const { creditCardsInvoices } = getRepositories();
     const invoices = creditCardsInvoices
       .getCache()
       .filter((invoice) => invoice.cardId === id)
-      // order by year and month descending
-      .sort((a, b) => b.year - a.year || b.month - a.month);
+      .sort((a, b) => a.year - b.year || a.month - b.month);
     setInvoices(invoices);
 
     if (invoices.length === 0 || selectedInvoice) return
-    setSelectedInvoice(invoices[0]);
+    const currentMonthIndex = invoices.findIndex((inv) =>
+      inv.month === new Date().getMonth() + 1 &&
+      inv.year === new Date().getFullYear() - 1
+    );
+
+
+    setSelectedInvoice(invoices[currentMonthIndex]);
   }, [id]);
 
 
@@ -34,11 +54,10 @@ const CreditCardsInvoices: React.FC = () => {
 
     const { creditCardsRegistries, categories } = getRepositories();
     creditCardsRegistries.getRegistriesByInvoice(selectedInvoice).then((registries) => {
-      console.log("Registries", registries);
       setInvoiceRegistries(registries.map((registry) => ({
         registry,
         category: categories.getLocalById(registry.categoryId),
-        sourceName: registry.cardId,
+        sourceName: '',
       })));
     });
   }, [selectedInvoice]);
@@ -46,6 +65,32 @@ const CreditCardsInvoices: React.FC = () => {
   return <Container>
     <ContainerFixedContent>
       <h2>Faturas do Cartão - ({invoices.length})</h2>
+      <div
+        style={{
+          display: "flex",
+          overflowX: "auto",
+          gap: 0,
+          paddingBottom: 8,
+          marginBottom: 16,
+        }}
+      >
+        {invoices.map((invoice, idx) => <div
+          ref={el => { invoiceRefs.current[idx] = el; }}
+          onClick={() => setSelectedInvoice(invoice)}
+          style={{
+            padding: "8px 16px",
+            borderBottom: selectedInvoice?.id === invoice.id ? "2px solid #007bff" : "1px solid #ccc",
+            background: selectedInvoice?.id === invoice.id ? "var(--bg-color-shadow)" : "transparent",
+            cursor: "pointer",
+            minWidth: '30%',
+            textAlign: "center",
+            transition: "border 0.2s, background 0.2s",
+            fontWeight: selectedInvoice?.id === invoice.id ? "bold" : "normal",
+          }}
+        >
+          {invoice.month}/{invoice.year}
+        </div>)}
+      </div>
       {selectedInvoice && (
         <div>
           <h3>Fatura Selecionada</h3>
@@ -56,15 +101,6 @@ const CreditCardsInvoices: React.FC = () => {
       )}
     </ContainerFixedContent>
     <ContainerScrollContent>
-      {/* <ul>
-        {invoices.map((invoice) => (
-          <li key={invoice.id}>
-            <pre>
-              {JSON.stringify(invoice, null, 2)}
-            </pre>
-          </li>
-        ))}
-      </ul> */}
       <ul>
         {invoiceRegistries.map((item) => (
           <RegistryItem item={item} key={item.registry.id} />
