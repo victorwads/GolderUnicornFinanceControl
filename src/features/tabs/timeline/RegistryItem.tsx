@@ -1,15 +1,25 @@
+import { useNavigate } from "react-router-dom";
 import "./RegistryItem.css";
 
-import { RegistryWithDetails } from '../../../data/models/Registry';
 import Icon, { getIconByCaseInsensitiveName } from "../../../components/Icons";
+import { RegistryWithDetails } from '../../../data/models/Registry';
+import AccountsRegistry from "../../../data/models/AccountRegistry";
 
 interface RegistryItemProps {
   item: RegistryWithDetails;
   onCategoryClick: (categoryId: string) => void;
 }
 
-const RegistryItem = ({ 
-  item: {registry, category, sourceName}, onCategoryClick }: RegistryItemProps) => {
+const RegistryItem = ({ item: {registry, category, sourceName}, onCategoryClick }: RegistryItemProps) => {
+
+  const navigate = useNavigate();
+
+  const toSource = () => {
+    if (registry instanceof AccountsRegistry) {      
+      navigate('/main/timeline/' + registry.accountId);
+    }
+  };
+
   return <div key={registry.id} className="TimelineItem" style={{ opacity: registry.paid ? 1 : 0.7 }}>
     {/* Área Esquerda: Círculo com cor da categoria */}
     <div
@@ -28,7 +38,7 @@ const RegistryItem = ({
         {registry.categoryId && <div className="TimelineCategoryName" onClick={() => category?.id && onCategoryClick(category?.id)}>
           {category?.name}
         </div>}
-        <span className="TimelineBankName">{sourceName}</span>
+        <span onClick={toSource} className="TimelineBankName">{sourceName}</span>
       </div>
     </div>
 
