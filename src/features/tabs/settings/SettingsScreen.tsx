@@ -1,11 +1,10 @@
 import "./SettingsScreen.css"
-import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { getAuth, signOut } from "firebase/auth"
 
-import { User } from "../../../data/repositories/UserRepository"
-import UserRepository from '../../../data/repositories/UserRepository';
-
+import getRepositories from "../../../data/repositories";
+import { User } from "../../../data/repositories/UserRepository";
 import { useCssVars, Theme, Density } from '../../../components/Vars';
 
 
@@ -15,8 +14,7 @@ const SettingsScreen = () => {
 	const { theme, setTheme, density, setDensity } = useCssVars();
 
 	useEffect(() => {
-		const user = new UserRepository()
-		user.getUserData().then((user) => {
+		getRepositories().user.getUserData().then((user) => {
 			setUser(user)
 		});
 	}, []);

@@ -3,6 +3,7 @@
   width: 8px;
   aspect-ratio: 1;
   border-radius: 50%;
+  margin: 20px;
   background: var(--bg-color-shadow);
   box-shadow: 0 0 0 0 var(--bg-color-shadow);
   animation: l2 1.5s infinite linear;

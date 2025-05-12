@@ -9,7 +9,7 @@ class BanksRepository extends BaseRepository<Bank> {
         super(Collections.Banks, Bank)
     }
 
-    public getFiltered = async (search: string) => {
+    public getFiltered(search: string) {
         return this.getCache().filter(bank =>
             bank.name.prepareCompare().includes(search.prepareCompare()) ||
             bank.fullName.prepareCompare().includes(search.prepareCompare())

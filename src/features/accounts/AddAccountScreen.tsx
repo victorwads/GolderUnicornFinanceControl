@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 import { ModalScreen } from "../../components/conteiners/ModalScreen";
 import PriceField from "../../components/fields/PriceField";
-import BankSelector from "../banks/BankSelector";
 import Button from "../../components/Button";
 import Field from "../../components/fields/Field";
 import Row from "../../components/visual/Row";
+import BankSelector from "../banks/BankSelector";
 
 import Bank from "../../data/models/Bank";
+import getRepositories from "../../data/repositories";
 import Account, { AccountType } from "../../data/models/Account";
-import AccountsRepository from "../../data/repositories/AccountsRepository";
 
 const AddAccountScreen = () => {
   const [name, setName] = useState("");
@@ -27,7 +27,7 @@ const AddAccountScreen = () => {
         "", name, saldoInicial, bank.id, AccountType.CURRENT
     );
     
-    await new AccountsRepository().set(account);
+    getRepositories().accounts.set(account);
     alert("Conta criada com sucesso");
     navigate(-1);
   };

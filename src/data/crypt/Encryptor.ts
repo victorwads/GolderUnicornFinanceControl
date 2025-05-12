@@ -151,6 +151,3 @@ async function sha256(data: string): Promise<{buffer: ArrayBuffer; hex: string;}
       .join(''),
   }
 }
-
-const EncryptorSingletone = new Encryptor();
-export { EncryptorSingletone };

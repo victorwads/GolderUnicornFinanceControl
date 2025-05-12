@@ -16,6 +16,8 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
     super(Collections.Users, User);
   }
 
+  public override async waitInit(): Promise<void> {}
+
   public async updateUserData(data: DocumentData) {
     const userId = getAuth().currentUser?.uid;
     await this.set(data as any, userId, true);

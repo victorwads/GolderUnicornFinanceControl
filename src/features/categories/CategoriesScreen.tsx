@@ -4,16 +4,16 @@ import { Link } from 'react-router-dom';
 import './CategoriesScreen.css';
 import { ModalScreen } from '../../components/conteiners/ModalScreen';
 import Icon, { getIconByCaseInsensitiveName } from '../../components/Icons';
-import CategoriesRepository, { RootCategory } from '../../data/repositories/CategoriesRepository';
+
+import getRepositories from '../../data/repositories';
+import { RootCategory } from '../../data/repositories/CategoriesRepository';
 
 const CategoriesScreen: React.FC = () => {
   const [categories, setCategories] = useState<RootCategory[]>([]);
 
   useEffect(() => {
-    const categories = new CategoriesRepository();
-    categories.getAllRoots().then((categories) => {
-      setCategories(categories);
-    });
+    const { categories } = getRepositories();
+    setCategories(categories.getAllRoots());
   }, []);
 
   return <ModalScreen title='Categorias'>

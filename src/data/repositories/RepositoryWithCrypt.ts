@@ -3,15 +3,23 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
-import { EncryptorSingletone } from "../crypt/Encryptor";
+import Encryptor from "../crypt/Encryptor";
 import DocumentModel from "../models/DocumentModel";
 import BaseRepository from "./RepositoryBase";
 
 export default abstract class RepositoryWithCrypt<Model extends DocumentModel> extends BaseRepository<Model> {
 
+  private encryptor?: Encryptor = undefined;
+
+  public init(encryptor: Encryptor) {
+    this.encryptor = encryptor;
+  }
+
   protected override async fromFirestore(id: string, data: DocumentData): Promise<Model> {
+    if(!this.encryptor) throw new Error('Encryptor not initialized');
+
     if (data && data.encrypted === true) {
-      const newData = await EncryptorSingletone.decrypt(data);
+      const newData = await this.encryptor.decrypt(data);
       return await super.fromFirestore(id, newData);
     }
     const model = await super.fromFirestore(id, data);
@@ -22,8 +30,10 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
   }
 
   protected override async toFirestore(model: Model): Promise<DocumentData> {
+    if(!this.encryptor) throw new Error('Encryptor not initialized');
+
     const data = await super.toFirestore(model);
-    return await EncryptorSingletone.encrypt(data);
+    return await this.encryptor.encrypt(data);
   }
 
   protected override postQueryProcess(items: Model[]): void {
@@ -34,6 +44,8 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
   private encryptQueeue: Model[] = [];
 
   private async proccessEncryptionQueue() {
+    if (!this.encryptor) throw new Error('Encryptor not initialized');
+
     if (this.encryptQueeue.length > 0) {
       const batch = writeBatch(this.db);
 
@@ -47,7 +59,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
         }
 
         const data = this.toFirestore(model);
-        const encryptedData = await EncryptorSingletone.encrypt(data);
+        const encryptedData = await this.encryptor.encrypt(data);
         batch.set(doc(this.ref, model.id), encryptedData);
         model = this.encryptQueeue.pop();
         writes++;

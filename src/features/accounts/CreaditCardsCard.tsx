@@ -6,7 +6,7 @@ import BankInfo from "../banks/BankInfo"
 
 import Bank from "../../data/models/Bank"
 import CreditCard from "../../data/models/CreditCard"
-import CreditcardsRepository from "../../data/repositories/CreditCardsRepository"
+import getRepositories from "../../data/repositories"
 
 interface CreditCardWithInfos extends CreditCard {
     bank: Bank
@@ -17,16 +17,12 @@ const CreditCardsCard: React.FC<{}> = () => {
     let [creditCards, setCreditCards] = useState<CreditCardWithInfos[]>([])
 
     useEffect(() => {
-        const creditCardsRepository = new CreditcardsRepository();
-        (async () => {
-            await creditCardsRepository.waitInit();
-
-            const cards = creditCardsRepository.getCache().map(creditCard => ({
-                ...creditCard,
-                bank: new Bank('', creditCard.name, '', creditCard.brand.toLowerCase() + '.png')
-            }));
-            setCreditCards(cards)
-        })()
+        const { creditCards } = getRepositories();
+        const cards = creditCards.getCache().map(creditCard => ({
+            ...creditCard,
+            bank: new Bank('', creditCard.name, '', creditCard.brand.toLowerCase() + '.png')
+        }));
+        setCreditCards(cards)
     },[])
 
     return <>

@@ -27,24 +27,31 @@ let updateUse = true; let saveUse = true;
 export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
   protected ref: CollectionReference<any>;
+  protected collectionName: string;
   private minimumCacheSize = 0;
   
   constructor(
-    private collectionName: string,
+    private collectionNamePattern: string,
     private modelClass: new (...args: any) => Model
   ) {
-    this.collectionName = this.parseCollectionName(collectionName);
+    this.collectionName = this.parseCollectionName();
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
-    if (!BaseRepository.cache[this.collectionName]) {
-      BaseRepository.cache[this.collectionName] = {};
-    }
   }
 
   public async waitInit(): Promise<void> {
     if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === this.minimumCacheSize) {
       await this.getAll();
+      console.log(`Cache for ${this.collectionName} initialized with ${BaseRepository.cache[this.collectionName].length} items`);
     }
+  }
+
+  public async reset() {
+    this.collectionName = this.parseCollectionName();
+    if (!BaseRepository.cache[this.collectionName]) {
+      BaseRepository.cache[this.collectionName] = {};
+    }
+    await this.waitInit();
   }
 
   public async getAll(): Promise<Model[]> {
@@ -177,13 +184,14 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     });
   }
 
-  private parseCollectionName(collectionName: string): string {
-    if (!collectionName.includes("{userId}")) return collectionName;
+  private parseCollectionName(): string {
+    const { collectionNamePattern } = this;
+    if (!collectionNamePattern.includes("{userId}")) return collectionNamePattern;
 
     const userId = getAuth().currentUser?.uid;
     if (!userId) throw new Error("Invalid userId");
 
-    return collectionName.replace(/\{userId\}/g, userId);
+    return collectionNamePattern.replace(/\{userId\}/g, userId);
   }
 
   private static cache: { [key: string]: { [key: string]: DocumentData } } = {};

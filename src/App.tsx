@@ -1,6 +1,6 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import TabScreen from './features/tabs/TabScreen';
@@ -11,9 +11,10 @@ import SettingsScreen from './features/tabs/settings/SettingsScreen';
 import CategoriesScreen from './features/categories/CategoriesScreen';
 import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
 import EmptyScreen from './features/commons/EmptyScreen';
-import { EncryptorSingletone } from './data/crypt/Encryptor';
 import AddAccountScreen from './features/accounts/AddAccountScreen';
 import { useCssVars } from './components/Vars';
+import { Loading } from './components/Loading';
+import { clearRepositories, resetRepositories } from './data/repositories';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -44,19 +45,34 @@ const router = createBrowserRouter([
 function App() {
 
   const [user, setUser] = useState(getAuth().currentUser)
+  const [loading, setLoading] = useState(true)
   const { theme, density } = useCssVars();
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (currentUser) => {
+      setLoading(true)
+      console.log('User changed', currentUser)
       if(currentUser) {
-        await EncryptorSingletone.init(currentUser.uid)
+        await resetRepositories();
+      } else {
+        clearRepositories();
       }
+
       setUser(currentUser)
+      setLoading(false)
     })
   }, [])
 
   return <div className={`App ${theme} ${density}`}>
-    {user ? <RouterProvider router={router} /> : <LoginScreen />}
+    {loading
+      ? <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Loading show={loading} />
+        Loading...
+      </div>
+      : user
+        ? <RouterProvider router={router} />
+        : <LoginScreen />
+    }
   </div>;
 }
 

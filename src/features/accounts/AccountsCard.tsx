@@ -5,9 +5,8 @@ import Card from "../../components/visual/Card"
 import BankInfo from "../banks/BankInfo"
 
 import Bank from "../../data/models/Bank"
-import BanksRepository from "../../data/repositories/BanksRepository"
 import Account from "../../data/models/Account"
-import AccountsRepository from "../../data/repositories/AccountsRepository"
+import getRepositories from "../../data/repositories"
 
 interface WithInfoAccount extends Account {
   bank: Bank
@@ -18,24 +17,19 @@ const AccountsCard: React.FC<{}> = () => {
   const [showArchived, setShowArchived] = useState(false)
 
   useEffect(() => {
-    const banksRepository = new BanksRepository();
-    const accountRepository = new AccountsRepository();
+    const { accounts, banks } = getRepositories();
 
-    (async () => {
-      await banksRepository.waitInit()
-      await accountRepository.waitInit()
-      setAccounts(
-        accountRepository.getCache().map(account => {
-          return {
-            ...account,
-            bank: new Bank(
-              account.bankId, account.name, '',
-              banksRepository.getLocalById(account.bankId)?.logoUrl
-            )
-          }
-        })
-      )
-    })()
+    setAccounts(
+      accounts.getCache().map(account => {
+        return {
+          ...account,
+          bank: new Bank(
+            account.bankId, account.name, '',
+            banks.getLocalById(account.bankId)?.logoUrl
+          )
+        }
+      })
+    )
   }, [showArchived])
 
   return <>
@@ -60,13 +54,9 @@ const AccountItem = ({ account }: AccountItemParams) => {
   const [balance, setBalance] = useState<number|true>(true)
 
   useEffect(() => {
-    (async () => {
-      const accountRepository = new AccountsRepository();
-      await accountRepository.waitItems()
-
-      setBalance(accountRepository.getAccountBalance(account.id))
-    })()
-  });
+      const { accounts } = getRepositories();
+      setBalance(accounts.getAccountBalance(account.id))
+  }, [account.id]);
 
   return <Link to={'/main/timeline/' + account.id} key={account.id}>
     <BankInfo bank={account.bank} balance={balance} />

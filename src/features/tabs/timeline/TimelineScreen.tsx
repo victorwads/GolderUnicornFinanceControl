@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import "./TimelineScreen.css";
 
 import Account from "../../../data/models/Account";
-import RegistryItem from "./RegistryItem";
-import AccountsRepository from "../../../data/repositories/AccountsRepository";
+import getRepositories from '../../../data/repositories';
+import { RegistryWithDetails } from "../../../data/models/Registry";
+
 import { Container, ContainerFixedContent } from "../../../components/conteiners";
 import { ContainerScrollContent } from '../../../components/conteiners/index';
-import { RegistryWithDetails } from "../../../data/models/Registry";
 import { Loading } from "../../../components/Loading";
+import RegistryItem from "./RegistryItem";
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -25,20 +26,18 @@ const TimelineScreen = () => {
   const params = useParams<{ id?: string }>();
 
   useEffect(() => {
-    const accounts = new AccountsRepository();
+    const { accounts } = getRepositories();
     const showAll = showArchived || !!params.id;
 
-    accounts.waitItems().then(() => {
-      if (params.id) {
-        setSelectedAccount(accounts.getLocalById(params.id) ?? null);
-      } else {
-        setSelectedAccount(null);
-      }
+    if (params.id) {
+      setSelectedAccount(accounts.getLocalById(params.id) ?? null);
+    } else {
+      setSelectedAccount(null);
+    }
 
-      let items = accounts.getAccountItems(params.id, showAll);
-      setTotal(items.balance);
-      setRegistries(items.registries);
-    });
+    let items = accounts.getAccountItems(params.id, showAll);
+    setTotal(items.balance);
+    setRegistries(items.registries);
   }, [params.id, showArchived]);
 
   const [searchParams, setSearchParams] = useSearchParams();
