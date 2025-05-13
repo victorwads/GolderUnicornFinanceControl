@@ -12,6 +12,9 @@ export default class InvoiceRegistry extends Registry {
     invoice: CreditCardInvoice,
     card: CreditCard
 ) {
+    if (!invoice.paymentDate || !invoice.paymentAccountId) {
+      throw new Error("InvoiceRegistry must have a payment date");
+    }
     super(
       'invoice' + invoice.id, RegistryType.INVOICE, true, invoice.value * -1,
       `Pagamento de fatura - ${card.name}`,

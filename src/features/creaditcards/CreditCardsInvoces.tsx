@@ -31,11 +31,10 @@ const CreditCardsInvoices: React.FC = () => {
   }, [selectedInvoice]);
 
   useEffect(() => {
+    if (!id) return;
+
     const { creditCardsInvoices } = getRepositories();
-    const invoices = creditCardsInvoices
-      .getCache()
-      .filter((invoice) => invoice.cardId === id)
-      .sort((a, b) => a.year - b.year || a.month - b.month);
+    const invoices = creditCardsInvoices.getInvoices(id)
     setInvoices(invoices);
 
     if (invoices.length === 0 || selectedInvoice) return
@@ -53,13 +52,12 @@ const CreditCardsInvoices: React.FC = () => {
     if (!selectedInvoice) return;
 
     const { creditCardsRegistries, categories } = getRepositories();
-    creditCardsRegistries.getRegistriesByInvoice(selectedInvoice).then((registries) => {
-      setInvoiceRegistries(registries.map((registry) => ({
-        registry,
-        category: categories.getLocalById(registry.categoryId),
-        sourceName: '',
-      })));
-    });
+    const registries = creditCardsRegistries.getRegistriesByInvoice(selectedInvoice)
+    setInvoiceRegistries(registries.map((registry) => ({
+      registry,
+      category: categories.getLocalById(registry.categoryId),
+      sourceName: '',
+    })));
   }, [selectedInvoice]);
 
   return <Container>

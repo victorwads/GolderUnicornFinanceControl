@@ -145,7 +145,7 @@ function toCSV(data: DocumentModel[]): string {
   data.forEach((item) => {
     const values = headers.map((header) => {
       const value = item[header as keyof DocumentModel];
-      return value?.toString().replace(",", ";");
+      return JSON.stringify(value)?.replace(",", ";");
     });
     csvRows.push(values.join(','));
   });

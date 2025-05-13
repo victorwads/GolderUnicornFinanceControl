@@ -1,7 +1,7 @@
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 
 import { Collections } from '../firebase/Collections'
-import CreditCardRegistry from '../models/CreditCardRegistry';
+import CreditCardRegistry, { WithInvoiceTime } from '../models/CreditCardRegistry';
 import CreditCardInvoice from '../models/CreditCardInvoice';
 
 export default class CreditCardsRegistryRepository extends RepositoryWithCrypt<CreditCardRegistry> {
@@ -9,11 +9,15 @@ export default class CreditCardsRegistryRepository extends RepositoryWithCrypt<C
         super(`${Collections.Users}/{userId}/${Collections.CreditCardRegistries}`, CreditCardRegistry);
     }
 
-    public async getRegistriesByInvoice(invoice: CreditCardInvoice): Promise<CreditCardRegistry[]> {
-        return this.getCache().filter((registry) => {
-            return registry.cardId === invoice.cardId &&
-                registry.year === invoice.year &&
-                registry.month === invoice.month;
-        });
+    public getRegistriesByCard(cardId: string): CreditCardRegistry[] {
+        return this
+            .getCache()
+            .filter((registry) => registry.cardId === cardId);
+    }
+
+    public getRegistriesByInvoice(invoice: CreditCardInvoice): CreditCardRegistry[] {
+        return this
+            .getRegistriesByCard(invoice.cardId)
+            .filter((registry) => registry.year === invoice.year && registry.month === invoice.month);
     }
 }

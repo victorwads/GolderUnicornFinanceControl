@@ -8,9 +8,9 @@ export default class CreditCardInvoice extends DocumentModel {
     public year: number,
     public month: number,
     public value: number,
-    public paymentDate: Date,
-    public paymentAccountId: string,
-    public paidValue: number,
+    public paymentDate?: Date,
+    public paymentAccountId?: string,
+    public paidValue?: number,
     public importInfo?: string
   ) {
     super(id);
