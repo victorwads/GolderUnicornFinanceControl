@@ -18,8 +18,8 @@
     "react-scripts": "^5.0.1"
   },
   "scripts": {
-    "proxy": "bash runProxy.sh",
-    "proxy-server": "node runProxy.js",
+    "proxy": "bash proxy/run.sh",
+    "proxy-server": "node proxy/run.js",
     "proxy-react": "WDS_SOCKET_PORT=443 BROWSER=none yarn start",
     "start": "react-scripts start",
     "build": "react-scripts build",

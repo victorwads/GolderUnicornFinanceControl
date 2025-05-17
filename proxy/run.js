@@ -88,7 +88,7 @@ class ProxyManager {
 
 // Auto-run if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const CERT_DIR = path.resolve('./certs');
+  const CERT_DIR = path.join(__dirname, './certs');
   const CERT = path.join(CERT_DIR, 'localhost.pem');
   const KEY = path.join(CERT_DIR, 'localhost-key.pem');
 
