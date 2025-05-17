@@ -2,6 +2,7 @@
   "name": "goldenunicorn",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
@@ -17,6 +18,9 @@
     "react-scripts": "^5.0.1"
   },
   "scripts": {
+    "proxy": "bash runProxy.sh",
+    "proxy-server": "node runProxy.js",
+    "proxy-react": "WDS_SOCKET_PORT=443 BROWSER=none yarn start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -51,6 +55,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
     "@types/react-router-dom": "^5.3.3",
+    "http-proxy": "^1.18.1",
     "typescript": "^5.8.3"
   }
 }

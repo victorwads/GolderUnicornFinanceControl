@@ -6,6 +6,7 @@ yarn.lock
 .dev/
 *.log
 
+certs/
 public/resources
 src/google-services.js
 *.jpg
