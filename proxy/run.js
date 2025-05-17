@@ -4,6 +4,8 @@ import httpProxy from 'http-proxy';
 
 import { getRouterFromFirebaseConfig, getCerts } from './commons.js';
 
+let lastDomain = '';
+
 class ProxyManager {
   constructor(cert, key, routeTable) {
     this.cert = cert;
@@ -35,6 +37,13 @@ class ProxyManager {
 
       proxy.on('proxyReq', function (proxyReq, req) {
         proxyReq.setHeader('Connection', 'keep-alive');
+        const host = req.headers.host?.split(':')[0] || 'localhost';
+        const sourceDomain = req.headers['x-forwarded-host'] || host;
+        if (lastDomain !== sourceDomain) {
+          lastDomain = sourceDomain;
+          console.log(`\n🔗 Source domain: ${sourceDomain}`);
+        }
+
         console.log(`➡️ Proxying ${targetName} ${req.method} to ${target}${req.url}`);
       });
 
@@ -114,6 +123,10 @@ function logProccessHelp() {
     --certPath <path>             Path to the certificate file (default: ./certs/localhost.pem)
     --certKeyPath <path>          Path to the key file (default: ./certs/localhost-key.pem)
     --domains <domains>           Comma-separated list of extra domains
+  
+  Configs:
+    - firebase.json: Firebase config, searches in current directory and parent directories.
+    - certs/.domains: (Comma|Line)-separated list of extra domains
   `);
 
   process.exit(0);

@@ -1,6 +1,9 @@
 {
   "short_name": "Finance Unicorn",
   "name": "Golden Unicorn - Finance Control",
+  "description": "Gerencie suas finanças de forma simples e eficiente com o Golden Unicorn.",
+  "categories": ["finance", "productivity", "tools"],
+  "lang": "pt-BR",
   "icons": [
     {
       "src": "logo.png",
@@ -16,5 +19,5 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#0c2c5b"
 }

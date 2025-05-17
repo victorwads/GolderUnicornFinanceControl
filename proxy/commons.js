@@ -26,6 +26,24 @@ function getLocalIPs() {
 const CERT_DEFAULT_DIR = path.join(__dirname, 'certs');
 const CERT_DEFAULT_NAME = 'localhost.pem';
 const CERT_DEFAULT_KEY_NAME = 'localhost-key.pem';
+const CERT_CUSTOM_DOMAINS_NAME = path.join(CERT_DEFAULT_DIR, '.domains');
+
+function getDomainsConfigFile() {
+  if(fs.existsSync(CERT_CUSTOM_DOMAINS_NAME)) {
+    const domains = fs
+      .readFileSync(CERT_CUSTOM_DOMAINS_NAME, 'utf-8')
+      .replaceAll("\n", ',')
+      .replaceAll(/[\s]]/g, '')
+      .split(',')
+      .map(d => d.trim())
+      .filter(d => d !== '');
+
+    console.log(`🔍 Custom domains loaded from ${CERT_CUSTOM_DOMAINS_NAME}:`);
+    return domains;
+  }
+
+  return [];
+}
 
 async function ensureCert(domains, certDir) {
   let certPath = path.join(certDir, CERT_DEFAULT_NAME);
@@ -106,7 +124,18 @@ function getFirebaseConfig(fileName) {
 
 export async function getCerts(domains, certDir, certPath, keyPath) {
   const localIPs = getLocalIPs();
-  domains = ['localhost', '127.0.0.1', ...localIPs, ...domains].filter(domain => domain.trim() !== '');
+  domains = [
+    'localhost', '127.0.0.1',
+    ...localIPs,
+    ...domains,
+    ...getDomainsConfigFile()
+  ]
+  .reduce((acc, domain) => {
+    if (!acc.includes(domain) && domain.trim() !== '') {
+      acc.push(domain);
+    }
+    return acc;
+  }, []);
 
   if (certPath || keyPath) {
     let error = '';

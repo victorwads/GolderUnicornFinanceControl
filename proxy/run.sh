@@ -3,7 +3,6 @@
 yarn proxy-react &
 P2=$!
 
-echo "Initializing proxy"
 yarn proxy-server &
 P1=$!
 open https://localhost
