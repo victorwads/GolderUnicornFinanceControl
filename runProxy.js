@@ -11,41 +11,55 @@ class ProxyManager {
     this.proxies = [];
   }
 
-  addProxy({ httpsPort, target }) {
-    const proxy = httpProxy.createProxyServer({
-      target,
-      ws: true,
-      changeOrigin: true,
-      secure: false,
-    });
-
-    proxy.on('proxyReq', function(proxyReq, req, res) {
-      proxyReq.setHeader('Connection', 'keep-alive');
-    });
-
-    proxy.on('error', function (err, req, res) {
-      res.writeHead(502, { 'Content-Type': 'text/plain' });
-      res.end('Proxy error.');
-    });
-
+  addMultiplexedProxy(httpsPort, routeTable) {
     const server = https.createServer({ key: this.key, cert: this.cert }, (req, res) => {
-      proxy.web(req, res, {
-        buffer: req,
-        selfHandleResponse: false,
-      }, (e) => {
-        console.error(`❌ Proxy error on ${httpsPort} → ${target}:`, e.message);
+      const pathname = req.url || '';
+      console.log(`🔄 Proxying request for ${pathname}`);
+      const matched = Object.entries(routeTable).find(([key]) => pathname.includes(key));
+      const target = matched?.[1] || routeTable['default'];
+
+      const proxy = httpProxy.createProxyServer({
+        target,
+        ws: true,
+        changeOrigin: true,
+        secure: false,
       });
+
+      proxy.on('proxyReq', function(proxyReq, req, res) {
+        proxyReq.setHeader('Connection', 'keep-alive');
+        console.log(`Proxying request to: ${target}${req.url}`);
+      });
+
+      proxy.on('error', function (err, req, res) {
+        console.error(`Proxy error: ${err.message}`);
+        res.writeHead(502, { 'Content-Type': 'text/plain' });
+        res.end('Proxy error.');
+      });
+
+      proxy.web(req, res);
     });
 
     server.on('upgrade', (req, socket, head) => {
+      const pathname = req.url || '';
+      console.log(`🔄 Proxying WebSocket request for ${pathname}`);
+      const matched = Object.entries(routeTable).find(([key]) => pathname.includes(key));
+      const target = matched?.[1] || routeTable['default'];
+
+      const proxy = httpProxy.createProxyServer({
+        target,
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+      });
+
       proxy.ws(req, socket, head);
     });
 
     server.listen(httpsPort, () => {
-      console.log(`✅ Proxy on https://localhost:${httpsPort} → ${target}`);
+      console.log(`🌐 Multiplexed proxy on https://localhost:${httpsPort}`);
     });
 
-    this.proxies.push({ server, proxy, httpsPort });
+    this.proxies.push({ server, httpsPort });
   }
 
   addRedirect(httpPort = 80) {
@@ -82,10 +96,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   manager.addRedirect();
 
-  manager.addProxy({ httpsPort: 443, target: 'http://localhost:3000' });   // React Dev
-  manager.addProxy({ httpsPort: 4431, target: 'http://localhost:8006' });  // Auth
-  manager.addProxy({ httpsPort: 4432, target: 'http://localhost:8008' });  // Firestore
-  manager.addProxy({ httpsPort: 4433, target: 'http://localhost:8010' });  // Hosting
+  manager.addMultiplexedProxy(443, {
+    'firestore': 'http://localhost:8008',
+    'default': 'http://localhost:3000',
+  });
 
   const shutdownHandler = () => {
     console.log('\n🔻 Gracefully shutting down...');

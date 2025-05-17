@@ -20,7 +20,7 @@ const host = window.location.hostname;
 let firestoreAddConfig = {};
 if (host === 'localhost' || host.includes('.local') || host.startsWith('192.168') || host.startsWith('10.0')) {
   const ssl = window.location.protocol.includes('https');
-  const port: number = ssl ? 4432 : 8008;
+  const port: number = ssl ? 443 : 8008;
   firestoreAddConfig = {
     host: `${host}:${port}`,
     ssl,

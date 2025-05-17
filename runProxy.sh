@@ -29,7 +29,7 @@ yarn proxy-react &
 P2=$!
 
 sleep 1
-yarn proxy &
+yarn proxy-server &
 P1=$!
 open https://localhost
 
