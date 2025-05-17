@@ -1,6 +1,16 @@
 import './Vars.css'
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
+declare global {
+  interface Window {
+    ThemeSettings?: {
+      theme: Theme;
+      density: Density;
+      setDark: (dark: boolean) => void;
+    };
+  }
+}
+
 export type Theme = 'theme-light' | 'theme-dark';
 export type Density = 'density-1' | 'density-2' | 'density-3' | 'density-4';
 
@@ -22,8 +32,10 @@ export function VarsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('density', density);
   }, [theme, density]);
 
-  const setTheme = (newTheme: Theme) => setThemeState(newTheme);
+  const setTheme = (theme: Theme) => setThemeState(theme);
   const setDensity = (newDensity: Density) => setDensityState(newDensity);
+
+  window.ThemeSettings = { theme, density, setDark: (dark: boolean) => setTheme(dark ? 'theme-dark' : 'theme-light')};
 
   return (
     <VarsContext.Provider value={{ theme, density, setTheme, setDensity }}>
