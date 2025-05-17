@@ -7,22 +7,24 @@ import Icon from '../Icons';
 
 interface ModalScreenProps {
   title?: string;
+  header?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export function ModalScreen({ title, children }: ModalScreenProps) {
+export function ModalScreen({ title, header, children }: ModalScreenProps) {
   const navigate = useNavigate();
 
-    return <Container wide screen spaced>
+  return <Container wide screen spaced>
     <ContainerFixedContent>
-    <div className="modal-screen-header">
+      <div className="modal-screen-header">
         {title && <h1 className="modal-screen-title">{title}</h1>}
         <div className="spacer" />
         <button onClick={() => navigate(-1)} className="modal-back-button">
           <Icon icon={Icon.all.faClose} />
         </button>
-    </div>
+      </div>
+      {header}
     </ContainerFixedContent>
     <ContainerScrollContent>{children}</ContainerScrollContent>
-</Container>
+  </Container>
 }

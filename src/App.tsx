@@ -45,7 +45,7 @@ const router = createBrowserRouter([
 
 function App() {
 
-  const [user, setUser] = useState(getAuth().currentUser)
+  const [user, setUser] = useState(() => getAuth().currentUser)
   const [loading, setLoading] = useState(true)
   const { theme, density } = useCssVars();
 
