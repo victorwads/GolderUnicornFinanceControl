@@ -10,6 +10,9 @@ import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
 import {Receitas, ReceitasFile} from '../converter/result/xlsx/receitas';
 import { RegistryType } from '../data/models/Registry';
 import Encryptor from '../data/crypt/Encryptor';
+import { AccountType } from '../data/models/Account';
+
+type Items = { [key: string]: AccountsRegistry };
 
 export default class AccountRegistriesImporter extends Importer<AccountsRegistry, Despesas|Receitas|Transferencias> {
 
@@ -24,17 +27,17 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
   async process(): Promise<void> {
     await this.loadExistentes();
-    await this.processFile(DespesasFile, -1, RegistryType.ACCOUNT);
-    await this.processFile(ReceitasFile, 1, RegistryType.ACCOUNT);
+    await this.processFile(DespesasFile, -1);
+    await this.processFile(ReceitasFile, 1);
     await this.processFile(TransferenciasFile, 0, RegistryType.TRANSFER);
   }
 
-  async processFile(file: FileInfo, multiplier: number, type: RegistryType): Promise<void> {
+  async processFile(file: FileInfo, multiplier: number, type?: RegistryType): Promise<void> {
     const data = await this.readJsonFile(file)!;
     console.log(`Importando ${file.name} de conta...`, data.length);
 
     const batch = this.db.batch();
-    const tempItems: any = {};
+    const tempItems: Items = {};
 
     let equals = 0;
     for (const json of data) {
@@ -63,6 +66,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
 
       const registro = new AccountsRegistry(
         "",
+        type || RegistryType.ACCOUNT,
         account.id,
         json.valor * multiplier,
         json.descricao,
@@ -71,7 +75,6 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
           (json as Receitas).data_receita ??
           (json as Transferencias).data_transferencia
         ),
-        type,
         'situacao' in json
           ? json.situacao === 'PAGO' || json.situacao === "RECEBIDO"
           : true,
@@ -111,7 +114,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
     );
   }
   
-  private sumAndPrint(tempItems: any) {
+  private sumAndPrint(tempItems: Items) {
     const total = Object.values(tempItems).reduce((acc, item) => acc + item.value, 0);
     console.log('Total de despesas em contas:', total);
     const totalPorConta = Object.values(tempItems).reduce((acc, item) => {
