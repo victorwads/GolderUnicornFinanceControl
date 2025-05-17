@@ -4,8 +4,6 @@ import httpProxy from 'http-proxy';
 
 import { getRouterFromFirebaseConfig, getCerts } from './commons.js';
 
-let lastDomain = '';
-
 class ProxyManager {
   constructor(cert, key, routeTable) {
     this.cert = cert;
@@ -13,6 +11,7 @@ class ProxyManager {
     this.proxies = [];
     this.routeProxies = {};
     this.routeTable = routeTable || {};
+    this.lastDomain = '';
   }
 
   getTargetName(pathname) {
@@ -22,6 +21,15 @@ class ProxyManager {
       }
     }
     return 'default';
+  }
+
+  logDomainChange(req) {
+    const host = req.headers.host?.split(':')[0] || 'localhost';
+    const sourceDomain = req.headers['x-forwarded-host'] || host;
+    if (this.lastDomain !== sourceDomain) {
+      this.lastDomain = sourceDomain;
+      console.log(`\n🔗 Source domain: ${sourceDomain}`);
+    }
   }
 
   getOrCreateProxy(path) {
@@ -35,20 +43,16 @@ class ProxyManager {
         secure: false,
       });
 
-      proxy.on('proxyReq', function (proxyReq, req) {
+      proxy.on('proxyReq',  (proxyReq, req) => {
         proxyReq.setHeader('Connection', 'keep-alive');
-        const host = req.headers.host?.split(':')[0] || 'localhost';
-        const sourceDomain = req.headers['x-forwarded-host'] || host;
-        if (lastDomain !== sourceDomain) {
-          lastDomain = sourceDomain;
-          console.log(`\n🔗 Source domain: ${sourceDomain}`);
-        }
 
-        console.log(`➡️ Proxying ${targetName} ${req.method} to ${target}${req.url}`);
+        this.logDomainChange(req);
+        console.log(`➡️ Proxying ${req.method} ${targetName} -> ${target}${req.url}`);
       });
 
-      proxy.on('error', function (err, req, res) {
-        console.error(`Proxy error: ${err.message}`);
+      proxy.on('error',  (err, req, res) => {
+        this.logDomainChange(req);
+        console.error(`❌ Proxy error: ${err.message}`);
         if (!res.headersSent) {
           res.writeHead(502, { 'Content-Type': 'text/plain' });
         }
@@ -72,14 +76,20 @@ class ProxyManager {
     });
 
     server.on('upgrade', (req, socket, head) => {
+      this.logDomainChange(req);
+      
       const { proxy, name } = this.getOrCreateProxy(req.url || '');
       proxy.ws(req, socket, head);
-
-      console.log(`🛜 Proxying ${name} WebSocket for ${req.url}`);
+      console.log(`🛜 Proxying WebSocket ${name} -> ${req.url}`);
+      
+      socket.on('close', () => {
+        this.logDomainChange(req);
+        console.log(`❌ WebSocket disconnected from ${name}: ${req.url}`);
+      });
     });
 
     server.listen(port, () => {
-      console.log(`🌐 HTTPS Proxy running on https://localhost:${port}`);
+      console.log(`🌐 HTTPS Proxy running on https://0.0.0.0:${port}`);
     });
 
     this.proxies.push({ server, port });
@@ -155,13 +165,6 @@ function parseArgs() {
 const args = parseArgs();
 
 async function start() {
-  const extraDomains = (args.domains || '').split(',');
-  const cert = await getCerts(
-    extraDomains,
-    args.certsDir,
-    args.certPath,
-    args.certKeyPath
-  );
   console.log("\n");
 
   let routeTable = {
@@ -173,7 +176,15 @@ async function start() {
   }
   console.log("\n");
 
+  const extraDomains = (args.domains || '').split(',');
+  const cert = await getCerts(
+    extraDomains,
+    args.certsDir,
+    args.certPath,
+    args.certKeyPath
+  );
 
+  console.log("\n");
   const manager = new ProxyManager(cert.cert, cert.key, routeTable);
   manager.addRedirect();
   manager.addMultiplexedProxy(443);

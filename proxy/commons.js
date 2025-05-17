@@ -60,7 +60,7 @@ async function ensureCert(domains, certDir) {
   if (fs.existsSync(caKeyPath) && fs.existsSync(caCertPath)) {
     ca.key = fs.readFileSync(caKeyPath, 'utf-8');
     ca.cert = fs.readFileSync(caCertPath, 'utf-8');
-    console.log('🔐 CA existente carregada.');
+    console.log('🔐 Loaded existing CA');
   } else {
     ca = await createCA({
       organization: 'Local Proxy Dev CA',
@@ -71,7 +71,7 @@ async function ensureCert(domains, certDir) {
     });
     fs.writeFileSync(caKeyPath, ca.key);
     fs.writeFileSync(caCertPath, ca.cert);
-    console.log('🔐🆕 Nova CA criada.');
+    console.log('🔐🆕 New CA created.');
   }
 
   let regenerate = true;
@@ -81,7 +81,7 @@ async function ensureCert(domains, certDir) {
       const missing = domains.filter(d => !output.includes(d));
       regenerate = missing.length > 0;
     } catch (e) {
-      console.warn('⚠️ Falha ao verificar certificado existente, irá regenerar.');
+      console.warn('⚠️ Verification failed for existing certificate, will regenerate.');
     }
   }
 
@@ -93,11 +93,11 @@ async function ensureCert(domains, certDir) {
     });
     fs.writeFileSync(certPath, cert.cert);
     fs.writeFileSync(keyPath, cert.key);
-    console.log('📄 Novo certificado gerado para domínios:');
-    domains.forEach(d => console.log(` - ${d}`));
+    console.log('  📄🆕 New certificate generated for domains:');
   } else {
-    console.log('✅ Certificado já cobre todos os domínios.');
+    console.log('  📄 Current certificate already covers all domains:');
   }
+    domains.forEach(d => console.log(`    🔧 ${d}`));
 
   return { certPath, keyPath };
 }
@@ -111,7 +111,7 @@ function getFirebaseConfig(fileName) {
 
   while (tryes > 0) {
     if (fs.existsSync(fileName)) {
-      console.log(`✅ firebase.json found in ${fileName}`);
+      console.log(`🔍 firebase.json found in ${fileName}`);
       return JSON.parse(fs.readFileSync(fileName, 'utf8'));
     }
     fileName = path.join(folder, FIREBASE_FILENAME);
@@ -123,6 +123,8 @@ function getFirebaseConfig(fileName) {
 }
 
 export async function getCerts(domains, certDir, certPath, keyPath) {
+  console.log('🔍 Checking certificates...');
+
   const localIPs = getLocalIPs();
   domains = [
     'localhost', '127.0.0.1',
