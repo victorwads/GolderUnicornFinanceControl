@@ -1,6 +1,6 @@
 .App {
   background-color: var(--bg-color-default);
-  min-height: 100vh;
+  height: 100%;
   color: var(--font-color-default);
 }
 

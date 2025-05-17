@@ -32,7 +32,10 @@
 
 html, body, .App, #root {
   height: 100%;
-  max-height: 100dvh;
+}
+
+html {
+  overflow: hidden;
 }
 
 body {
