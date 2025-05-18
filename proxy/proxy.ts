@@ -14,6 +14,7 @@ class ProxyManager {
   private proxies: ProxyInstance[] = [];
   private routeProxies: Record<string, ProxyServer> = {};
   private lastDomain: Domain = '';
+  private manifestCached: string[] = [];
   private knownDomains: Domain[];
 
   constructor(private routeTable: RouteTable, private certInfo: CertResult) {
@@ -52,9 +53,13 @@ class ProxyManager {
     return 'default';
   }
 
-  logDomainChange(req: IncomingMessage): void {
+  getHostName(req: IncomingMessage): string {
     const host = req.headers.host?.split(':')[0] || 'localhost';
-    const sourceDomain = req.headers['x-forwarded-host'] as string || host;
+    return req.headers['x-forwarded-host'] as string || host;
+  }
+
+  logDomainChange(req: IncomingMessage): void {
+    const sourceDomain = this.getHostName(req);
     if (this.lastDomain !== sourceDomain) {
       this.lastDomain = sourceDomain;
       console.log(`\n🔗 Source domain: ${sourceDomain}`);
@@ -75,11 +80,24 @@ class ProxyManager {
         secure: false,
       });
 
-      proxy.on('proxyReq', (proxyReq, req) => {
-        proxyReq.setHeader('Connection', 'keep-alive');
-
+      proxy.on('proxyReq', (proxyReq, req, res) => {
         this.logDomainChange(req);
-        console.log(`➡️ Proxying ${req.method} ${targetName} -> ${target}${req.url}`);
+
+        if (this.isManifest(req)) {
+          if (this.needIntercept(req, res)) {
+            proxyReq.removeHeader('If-Modified-Since');
+            proxyReq.removeHeader('If-None-Match');
+          } else {
+            proxyReq.destroy();
+          }
+        } else {
+          console.log(`➡️ Proxying ${req.method} ${targetName} -> ${target}${req.url}`);
+        }
+      });
+
+      proxy.on('proxyRes', (proxyRes, req, res) => {
+        if (this.isManifest(req))
+          this.handleManifestModification(proxyRes, req, res);
       });
 
       proxy.on('error', (err, req, res) => {
@@ -152,6 +170,72 @@ class ProxyManager {
     }
     this.proxies = [];
     this.routeProxies = {};
+  }
+
+  private isManifest(req: IncomingMessage): boolean {
+    return req.url?.endsWith('manifest.json') || false;
+  }
+
+  private needIntercept(req: IncomingMessage, res: http.ServerResponse): boolean {
+    const eTag = req.headers['if-none-match'];
+    if (!eTag) return false;
+
+    const hasSended = this.manifestCached.includes(eTag);
+    if (hasSended) {
+      res.writeHead(304, { 'Content-Type': 'application/json' });
+      res.end();
+      return false;
+    }
+
+    return true;
+  }
+
+  private handleManifestModification(proxyRes: http.IncomingMessage, req: IncomingMessage, res: http.ServerResponse): void {
+    proxyRes.pipe = (() => { }) as any;
+
+    const sourceDomain = this.getHostName(req);
+    let body = '';
+
+    proxyRes.on('data', (chunk) => {
+      body += chunk.toString();
+      console.log('📦 Received chunk of manifest.json');
+    });
+
+    proxyRes.on('end', () => {
+      try {
+        const manifest = JSON.parse(body);
+        manifest.name += ' - ' + sourceDomain;
+        manifest.short_name = `${manifest.short_name.split(' ')[0]} - ${sourceDomain.split('.')[0]}`;
+
+        const modifiedBody = JSON.stringify(manifest, null, 2);
+        const eTag = `W/"${Buffer.byteLength(modifiedBody)}-${Date.now()}"`;
+        this.manifestCached.push(eTag);
+
+        res.writeHead(200, {
+          ...proxyRes.headers,
+          'ETag': eTag,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(modifiedBody),
+        });
+        res.end(modifiedBody);
+
+        console.log('📝 Manifest.json modificado e enviado:', eTage, modifiedBody);
+      } catch (err) {
+        console.error('❌ Erro ao modificar o manifest.json:', body, err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Erro ao processar manifest.json');
+      }
+    });
+
+    proxyRes.on('error', (err) => {
+      console.error('❌ Erro no proxyRes:', err);
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Erro interno ao processar a resposta.');
+      }
+    });
+
+    console.log('📝 Interceptando manifest.json from ' + sourceDomain);
   }
 }
 

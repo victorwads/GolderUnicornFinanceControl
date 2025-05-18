@@ -15,14 +15,6 @@ const developmentHosts = [
 ];
 window.isDevelopment = developmentHosts.some(host => window.location.hostname.includes(host));
 if(window.isDevelopment) {
-  const manifestLink = document.querySelector('link[rel="manifest"]');
-  if (manifestLink) {
-    manifestLink.href = window.isDevelopment 
-      ? '/manifest.dev.json' 
-      : '/manifest.json';
-    console.log(`[Manifest] Carregando manifesto: ${manifestLink.href}`);
-  }
-
   window.isSsl = window.location.protocol.includes('https');
   window.port = window.location.port || (window.isSsl ? 443 : 80);
   const NativeWebSocket = window.WebSocket;
