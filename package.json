@@ -18,7 +18,7 @@
     "react-scripts": "^5.0.1"
   },
   "scripts": {
-    "proxy": "nodemon proxy/proxy.js",
+    "proxy": "nodemon --watch proxy --ext ts --exec tsx proxy/proxy.ts",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
