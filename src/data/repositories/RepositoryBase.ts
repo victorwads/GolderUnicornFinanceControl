@@ -107,10 +107,10 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return BaseRepository.cache[this.collectionName][id ?? ""] as Model;
   }
 
-  public async set(model: Model, id?: string, merge: boolean = false): Promise<DocumentReference<Model>> {
+  public async set(model: Model, id?: string, merge: boolean = false, update: boolean = true): Promise<DocumentReference<Model>> {
     let data = await this.toFirestore(model);
     let result;
-    await this.updateLocalCache();
+    if (update) await this.updateLocalCache();
     if (id && id !== "") {
       result = doc(this.ref, id);
       await setDoc(result, data, { merge })
@@ -257,7 +257,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     };
   }
 
-  private getErrorHanlder(name: 'adding' | 'listing' | 'setting', ...args: any[]) {
+  protected getErrorHanlder(name: 'adding' | 'listing' | 'setting', ...args: any[]) {
     return (e: Error) => {
       console.error(`Error ${name} document: `, e, ...args, this);
       throw e;
