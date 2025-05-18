@@ -29,6 +29,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected collectionName: string;
   protected userId?: string;
   private minimumCacheSize = 0;
+  private inited: boolean = false;
 
   constructor(
     private collectionNamePattern: string,
@@ -207,6 +208,10 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       })
       .catch(this.getErrorHanlder("listing"));
 
+    if (!this.inited) {
+      await queryResult
+      this.inited = true;
+    }
   }
 
   private parseCollectionName(): string {
