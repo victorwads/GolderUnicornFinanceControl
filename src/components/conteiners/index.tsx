@@ -7,13 +7,14 @@ interface ContainerProps {
   wide?: boolean;
   spaced?: boolean;
   screen?: boolean;
+  className?: string;
 }
 
 const containerContentTypes = [
   'ContainerFixedContent', 'ContainerScrollContent',
 ];
 
-export function Container({ children, wide = false, spaced = false, screen = false }: ContainerProps) {
+export function Container({ children, wide = false, spaced = false, screen = false, className }: ContainerProps) {
   Children.forEach(children, child => {
     const name = (child as any)?.type?.displayName;
     if (isValidElement(child) && !containerContentTypes.includes(name)) {
@@ -21,7 +22,7 @@ export function Container({ children, wide = false, spaced = false, screen = fal
     }
   });
 
-  return <div className={clsx('container', {
+  return <div className={clsx('container', className, {
     'wide': wide,
     'spaced': spaced,
     'screen': screen,
@@ -30,14 +31,19 @@ export function Container({ children, wide = false, spaced = false, screen = fal
 
 interface ContainerContentProps {
   children: ReactNode;
+  spaced?: boolean;
 }
 
-export function ContainerFixedContent({ children }: ContainerContentProps) {
-  return <div className="container-content fixed">{children}</div>;
+export function ContainerFixedContent({ children, spaced }: ContainerContentProps) {
+  return <div className={clsx("container-content fixed", { spaced })}>
+    {children}
+  </div>;
 }
 ContainerFixedContent.displayName = 'ContainerFixedContent';
 
-export function ContainerScrollContent({ children }: ContainerContentProps) {
-  return <div className="container-content scroll">{children}</div>;
+export function ContainerScrollContent({ children, spaced }: ContainerContentProps) {
+  return <div className={clsx("container-content scroll", { spaced })}>
+    {children}
+  </div>;
 }
 ContainerScrollContent.displayName = 'ContainerScrollContent';

@@ -61,7 +61,7 @@ const TimelineScreen = () => {
 
   let perDayTotal = total;
   let currentDay = registries[0]?.registry.date.getDate();
-  return <Container>
+  return <Container spaced>
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
         <h1 className="ScreenTitle">Timeline</h1>

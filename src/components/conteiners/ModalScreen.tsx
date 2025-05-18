@@ -14,7 +14,7 @@ interface ModalScreenProps {
 export function ModalScreen({ title, header, children }: ModalScreenProps) {
   const navigate = useNavigate();
 
-  return <Container wide screen spaced>
+  return <Container wide screen spaced className="modal-screen">
     <ContainerFixedContent>
       <div className="modal-screen-header">
         {title && <h1 className="modal-screen-title">{title}</h1>}
@@ -25,6 +25,6 @@ export function ModalScreen({ title, header, children }: ModalScreenProps) {
       </div>
       {header}
     </ContainerFixedContent>
-    <ContainerScrollContent>{children}</ContainerScrollContent>
+    <ContainerScrollContent spaced>{children}</ContainerScrollContent>
   </Container>
 }

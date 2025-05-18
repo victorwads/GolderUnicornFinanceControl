@@ -12,6 +12,7 @@
 
     --divider-color-default: rgba(0, 0, 0, 0.2);
     --divider-color-soft: rgba(0, 0, 0, 0.1);
+    --invert: 0.1;
 }
 
 .theme-dark {
@@ -19,7 +20,7 @@
     --primary-color-hover: #1c86ee;
     --bg-color-default: #282c34;
     --bg-color-input: #555;
-    --bg-color-highlight: rgba(0, 0, 0, 0.05);
+    --bg-color-highlight: rgba(0, 0, 0, 0.1);
     --bg-color-shadow: rgba(255, 255, 255, 0.25);
 
     --font-color-default: #f5f5f5;
@@ -28,37 +29,46 @@
 
     --divider-color-default: rgba(0, 0, 0, 0.2);
     --divider-color-soft: rgba(0, 0, 0, 0.1);
+    --invert: 0.75;
 }
 
 .density-1 {
+    --spacing-xxs: 1px;
     --spacing-xs: 2px;
     --spacing-sm: 4px;
     --spacing-md: 8px;
     --spacing-lg: 12px;
     --spacing-xl: 16px;
+    --font-size: 10px;
 }
 
 .density-2 {
+    --spacing-xxs: 2px;
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 12px;
     --spacing-lg: 16px;
     --spacing-xl: 24px;
+    --font-size: 12px;
 }
 
 .density-3 {
+    --spacing-xxs: 4px;
     --spacing-xs: 6px;
     --spacing-sm: 12px;
     --spacing-md: 16px;
     --spacing-lg: 20px;
     --spacing-xl: 28px;
+    --font-size: 14px;
 }
 
 .density-4 {
+    --spacing-xxs: 6px;
     --spacing-xs: 8px;
     --spacing-sm: 16px;
     --spacing-md: 20px;
     --spacing-lg: 24px;
     --spacing-xl: 32px;
+    --font-size: 16px;
 }
   

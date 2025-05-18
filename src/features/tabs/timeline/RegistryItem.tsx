@@ -7,10 +7,13 @@ import AccountsRegistry from "../../../data/models/AccountRegistry";
 
 interface RegistryItemProps {
   item: RegistryWithDetails;
+  onlyOutcome?: boolean;
   onCategoryClick?: (categoryId: string) => void;
 }
 
-const RegistryItem = ({ item: {registry, category, sourceName}, onCategoryClick }: RegistryItemProps) => {
+const RegistryItem = (
+  { item: {registry, category, sourceName}, onCategoryClick, onlyOutcome = false
+}: RegistryItemProps) => {
 
   const navigate = useNavigate();
 
@@ -20,7 +23,7 @@ const RegistryItem = ({ item: {registry, category, sourceName}, onCategoryClick 
     }
   };
 
-  return <div key={registry.id} className="TimelineItem" style={{ opacity: registry.paid ? 1 : 0.7 }}>
+  return <div key={registry.id} className={"TimelineItem" + (registry.paid ? '' : ' not-paid')}>
     {/* Área Esquerda: Círculo com cor da categoria */}
     <div
       onClick={() => category?.id && onCategoryClick?.(category?.id)}
@@ -45,7 +48,7 @@ const RegistryItem = ({ item: {registry, category, sourceName}, onCategoryClick 
     </div>
 
     {/* Área Direita: Valor formatado */}
-    <div className={`TimelineValue ${registry.value >= 0 ? "positive" : "negative"}`}>
+    <div className={`TimelineValue ${!onlyOutcome && registry.value >= 0 ? "positive" : "negative"}`}>
       {registry.formatedPrice}
     </div>
   </div>;

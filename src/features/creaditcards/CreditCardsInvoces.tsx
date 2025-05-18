@@ -89,12 +89,11 @@ const CreditCardsInvoices: React.FC = () => {
         </pre>
       </div>
     )}
-
-    <ul>
+    <div className="TimelineList">
       {invoiceRegistries.map((item) => (
-        <RegistryItem item={item} key={item.registry.id} />
+        <RegistryItem onlyOutcome item={item} key={item.registry.id} />
       ))}
-    </ul>
+    </div>
   </ModalScreen>;
 };
 

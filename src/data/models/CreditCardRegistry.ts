@@ -9,15 +9,14 @@ export default class CreditCardRegistry extends Registry implements WithInvoiceT
   constructor(
     id: string,
     public cardId: string,
-    public month: number, public year: number,
-    value: number,
+    public month: number, public year: number, date: Date,
     description: string,
-    date: Date,
+    value: number,
     tags: string[] = [],
     categoryId?: string,
     observation?: string,
     importInfo?: any
   ) { 
-    super(id, RegistryType.CREDIT, false, value, description, date, tags, categoryId, observation, importInfo);
+    super(id, RegistryType.CREDIT, true, value, description, date, tags, categoryId, observation, importInfo);
   }
 }

@@ -1,12 +1,17 @@
 .Field {
   display: flex;
   flex-direction: column;
-  margin: 12px 18px;
+  margin: 16px 0;
 }
 
 .Field > label {
-  margin-bottom: 2px;
+  margin: 0 0 6px 1px;
   font-size: 0.8em;
+}
+
+.Field > label::after {
+  content: ':';
+  margin: 0 1px;
 }
 
 .Field > input {

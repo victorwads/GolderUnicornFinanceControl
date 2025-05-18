@@ -1,18 +1,22 @@
 .TimelineItem {
   display: flex;
   align-items: center;
-  padding: 12px;
-  border-radius: 8px;
+  padding: var(--spacing-md);
+  border-radius: var(--spacing-sm);
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  column-gap: var(--spacing-md);
+  font-size: var(--font-size);
+}
+
+.TimelineItem.not-paid {
+filter: invert(var(--invert));
 }
 
 .TimelineCategory {
-  width: 40px;
-  height: 40px;
+  width: 3em;
+  height: 3em;
   border-radius: 50%;
-  margin-right: 16px;
-  flex-shrink: 0;
 }
 
 .TimelineContent {
@@ -23,16 +27,19 @@
 }
 
 .TimelineDescription {
-  font-size: 16px;
+  font-size: 1.1em;
   font-weight: bold;
   color: #333;
 }
 
 .TimelineDetails {
-  font-size: 14px;
+  font-size: 0.9em;
   color: #777;
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  column-gap: 0.5em;
+  row-gap: 0.3em;
+  padding: 0.3em 0;
 }
 
 .TimelineDate {
@@ -44,7 +51,7 @@
 }
 
 .TimelineValue {
-  font-size: 16px;
+  font-size: 1.1em;
   font-weight: bold;
   text-align: right;
 }
@@ -58,10 +65,12 @@
 }
 
 .TimelineItemTodayLine {
-  border-top: 3px solid #000;
   text-align: right;
-  padding: 5px;
-  margin-bottom: 12px;
+  padding: var(--spacing-sm) 0;
+  border-top: 0.15em solid #000;
+  margin-bottom: var(--spacing-md);
+  font-size: 0.9em;
+  font-weight: bold;
 }
 
 .TimelineItemTodayLine.positive {
