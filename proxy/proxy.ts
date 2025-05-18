@@ -16,6 +16,9 @@ class ProxyManager {
   private lastDomain: Domain = '';
   private manifestCached: string[] = [];
   private knownDomains: Domain[];
+  public static readonly requestPerDomain: Record<
+    string, Record<string, number>
+  > = {};
 
   constructor(private routeTable: RouteTable, private certInfo: CertResult) {
     this.knownDomains = certInfo.domains;
@@ -58,8 +61,9 @@ class ProxyManager {
     return req.headers['x-forwarded-host'] as string || host;
   }
 
-  logDomainChange(req: IncomingMessage): void {
+  logDomainChange(req: IncomingMessage): string {
     const sourceDomain = this.getHostName(req);
+
     if (this.lastDomain !== sourceDomain) {
       this.lastDomain = sourceDomain;
       console.log(`\n🔗 Source domain: ${sourceDomain}`);
@@ -67,6 +71,7 @@ class ProxyManager {
       // Verifica se o domínio é conhecido
       this.handleUnknownDomain(sourceDomain);
     }
+    return sourceDomain;
   }
 
   getOrCreateProxy(path: string): { name: string; target: string; proxy: ProxyServer } {
@@ -81,7 +86,11 @@ class ProxyManager {
       });
 
       proxy.on('proxyReq', (proxyReq, req, res) => {
-        this.logDomainChange(req);
+        const domain = this.logDomainChange(req);
+
+        if (!ProxyManager.requestPerDomain[domain]) ProxyManager.requestPerDomain[domain] = {};
+        ProxyManager.requestPerDomain[domain][targetName] = 
+          (ProxyManager.requestPerDomain[domain][targetName] || 0) + 1;
 
         if (this.isManifest(req)) {
           if (this.needIntercept(req, res)) {
@@ -205,7 +214,7 @@ class ProxyManager {
       try {
         const manifest = JSON.parse(body);
         manifest.name += ' - ' + sourceDomain;
-        manifest.short_name = `${manifest.short_name.split(' ')[0]} - ${sourceDomain.split('.')[0]}`;
+        manifest.short_name = sourceDomain;
 
         const modifiedBody = JSON.stringify(manifest, null, 2);
         const eTag = `W/"${Buffer.byteLength(modifiedBody)}-${Date.now()}"`;
@@ -219,7 +228,7 @@ class ProxyManager {
         });
         res.end(modifiedBody);
 
-        console.log('📝 Manifest.json modificado e enviado:', eTage, modifiedBody);
+        console.log('📝 Manifest.json modificado e enviado:', eTag, modifiedBody);
       } catch (err) {
         console.error('❌ Erro ao modificar o manifest.json:', body, err);
         res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -306,6 +315,7 @@ async function start(): Promise<void> {
   manager.addMultiplexedProxy();
 
   const shutdownHandler = (): void => {
+    console.log('\n Request per domain:', ProxyManager.requestPerDomain);
     console.log('\n🔻 Gracefully shutting down...');
     manager.shutdown();
     process.exit(0);

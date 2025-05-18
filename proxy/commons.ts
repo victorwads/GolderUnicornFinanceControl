@@ -36,6 +36,7 @@ export type CertResult = {
 
 function getDomainsConfigFile(existingDomains: Domain[] = []): Domain[] {
   const domains: Domain[] = existingDomains;
+  domains.push('localhost');
   if (fs.existsSync(CERT_CUSTOM_DOMAINS_NAME)) {
     fs
       .readFileSync(CERT_CUSTOM_DOMAINS_NAME, 'utf-8')
@@ -145,10 +146,6 @@ export async function getCerts(
 ): Promise<CertResult> {
   console.log('🔍 Checking certificates...');
   domains = getDomainsConfigFile(domains);
-  if (domains.length === 0) {
-    console.log('⚠️ No domains provided. Using default localhost.');
-    domains = ['localhost'];
-  }
 
   let generated = false;
   if ((certPath || keyPath) && (!certPath || !keyPath)) {
