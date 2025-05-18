@@ -198,10 +198,10 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
           });
           return snap;
         });
-      if (!this.inited) {
-        await queryResult
-        this.inited = true;
-      }
+    }
+    if (!this.inited) {
+      await queryResult
+      this.inited = true;
     }
     queryResult
       .then((snap) => {
