@@ -2,28 +2,26 @@ import {
   getFirestore,
   // Types
   Firestore,
-  CollectionReference, Timestamp,
+  CollectionReference, Query, Timestamp,
   DocumentData, DocumentReference,
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc,
   collection, doc, query, orderBy, limit, where, increment,
-  and,
-  Query,
 } from "firebase/firestore";
 
 import DocumentModel from "../models/DocumentModel";
 
 const queryField: keyof DocumentModel = "_updatedAt";
-interface DatabaseUse { queryReads: number, docReads: number,  writes: number}
-export interface DatabasesUse { remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse}
+interface DatabaseUse { queryReads: number, docReads: number, writes: number }
+export interface DatabasesUse { remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse }
 const createEmptyUse = (): DatabasesUse => ({
-  remote: { queryReads: 0, docReads: 0,  writes: 0 },
+  remote: { queryReads: 0, docReads: 0, writes: 0 },
   local: { queryReads: 0, docReads: 0, writes: 0 },
   cache: { queryReads: 0, docReads: 0, writes: 0 },
 });
 const DB_USE = "dbUse";;
 const SAVED_CACHE = localStorage.getItem(DB_USE);
-let updateUse = true; let saveUse = true; 
+let updateUse = true; let saveUse = true;
 
 export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
@@ -31,7 +29,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected collectionName: string;
   protected userId?: string;
   private minimumCacheSize = 0;
-  
+
   constructor(
     private collectionNamePattern: string,
     private modelClass: new (...args: any) => Model
@@ -83,7 +81,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     });
 
     const items = [];
-    for(const snap of queryResult.docs) {
+    for (const snap of queryResult.docs) {
       let item = await this.fromFirestore(snap.id, snap.data());
       BaseRepository.cache[this.collectionName][snap.id] = item;
       items.push(item);
@@ -112,15 +110,17 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     let data = await this.toFirestore(model);
     let result;
     await this.updateLocalCache();
-    if(id && id !== "") {
+    if (id && id !== "") {
       result = doc(this.ref, id);
-      await setDoc(result, data, { merge });
+      await setDoc(result, data, { merge })
+        .catch(this.getErrorHanlder("setting", model, data));
     } else {
-      result = await addDoc(this.ref, data);
+      result = await addDoc(this.ref, data)
+        .catch(this.getErrorHanlder("adding", model, data));
       (model as any).id = result.id;
     }
 
-    if(!merge) {
+    if (!merge) {
       BaseRepository.cache[this.collectionName][model.id] = model;
       BaseRepository.updateUse((use) => {
         use.remote.writes++;
@@ -150,11 +150,11 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return queryResult.docs[0]?.data()[queryField];
   }
 
-  protected postQueryProcess(items: Model[]): void {}
+  protected postQueryProcess(items: Model[]): void { }
 
   protected async fromFirestore(id: string, data: DocumentData): Promise<Model> {
     function findAndReplaceTimestamps(obj: any): any {
-      if(Array.isArray(obj)) return obj.map(findAndReplaceTimestamps);
+      if (Array.isArray(obj)) return obj.map(findAndReplaceTimestamps);
       if (obj && typeof obj === "object") {
         if (obj instanceof Timestamp) return obj.toDate();
         if (obj.constructor === Object) {
@@ -166,40 +166,47 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       return obj;
     }
     return Object.assign(
-        new (this.modelClass)(),
-        { id },
-        findAndReplaceTimestamps(data), 
+      new (this.modelClass)(),
+      { id },
+      findAndReplaceTimestamps(data),
     );
   }
 
   protected async toFirestore(model: Model): Promise<DocumentData> {
-      const data = { 
-          ...model,
-          _updatedAt: new Date(),
-      } as any;
-      delete data.id;
-      return data
+    const data = {
+      ...model,
+      _updatedAt: new Date(),
+    } as any;
+    delete data.id;
+    return data
   }
 
   private async updateLocalCache(): Promise<void> {
     const lastUpdated = await this.getLastUpdatedValue();
     let queryResult;
-    if(lastUpdated) {
-      queryResult = await getDocs(query(this.ref, where(queryField, ">", lastUpdated)));
+    if (lastUpdated) {
+      queryResult = getDocs(query(this.ref, where(queryField, ">", lastUpdated)));
     } else {
-      queryResult = await getDocs(this.ref);
-      const ids = queryResult.docs.map((doc) => doc.id);
-      this.getCache().forEach((item) => {
-        if (!ids.includes(item.id)) {
-          delete BaseRepository.cache[this.collectionName][item.id];
-        }
-      });
+      queryResult = getDocs(this.ref)
+        .then((snap) => {
+          const ids = snap.docs.map((doc) => doc.id);
+          this.getCache().forEach((item) => {
+            if (!ids.includes(item.id)) {
+              delete BaseRepository.cache[this.collectionName][item.id];
+            }
+          });
+          return snap;
+        });
     }
+    queryResult
+      .then((snap) => {
+        BaseRepository.updateUse((use) => {
+          use.remote.queryReads++;
+          use.remote.docReads += snap.docs.length;
+        });
+      })
+      .catch(this.getErrorHanlder("listing"));
 
-    BaseRepository.updateUse((use) => {
-      use.remote.queryReads++;
-      use.remote.docReads += queryResult.docs.length;
-    });
   }
 
   private parseCollectionName(): string {
@@ -216,7 +223,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return BaseRepository.use;
   }
 
-  public static updateUserUse = async (data: DocumentData) => {};
+  public static updateUserUse = async (data: DocumentData) => { };
 
   protected static async updateUse(updater: (use: DatabasesUse) => void) {
     updater(BaseRepository.use);
@@ -227,9 +234,9 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       setTimeout(async () => {
         use.remote.writes++;
         await BaseRepository.updateUserUse({
-          remote: {queryReads: increment(use.remote.queryReads), docReads: increment(use.remote.docReads), writes: increment(use.remote.writes)},
-          local: {queryReads: increment(use.local.queryReads), docReads: increment(use.local.docReads), writes: increment(use.local.writes)},
-          cache: {queryReads: increment(use.cache.queryReads), docReads: increment(use.cache.docReads), writes: increment(use.cache.writes)}
+          remote: { queryReads: increment(use.remote.queryReads), docReads: increment(use.remote.docReads), writes: increment(use.remote.writes) },
+          local: { queryReads: increment(use.local.queryReads), docReads: increment(use.local.docReads), writes: increment(use.local.writes) },
+          cache: { queryReads: increment(use.cache.queryReads), docReads: increment(use.cache.docReads), writes: increment(use.cache.writes) }
         })
         BaseRepository.use = createEmptyUse();
         localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
@@ -246,4 +253,10 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     };
   }
 
+  private getErrorHanlder(name: 'adding' | 'listing' | 'setting', ...args: any[]) {
+    return (e: Error) => {
+      console.error(`Error ${name} document: `, e, ...args, this);
+      throw e;
+    };
+  }
 }
