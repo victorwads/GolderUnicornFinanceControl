@@ -27,7 +27,7 @@ const RegistryItem = (
     {/* Área Esquerda: Círculo com cor da categoria */}
     <div
       onClick={() => category?.id && onCategoryClick?.(category?.id)}
-      className="TimelineCategory"
+      className="IconBall"
       style={{ backgroundColor: category?.color ?? "#ccc", display: "flex", justifyContent: "center", alignItems: "center" }}
     >
       <Icon icon={getIconByCaseInsensitiveName(category?.icon ?? "question")} size="1x" color="#fff" />

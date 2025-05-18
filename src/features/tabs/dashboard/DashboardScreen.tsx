@@ -20,7 +20,7 @@ const DashboardScreen = () => {
     <ContainerScrollContent>
       <AccountsCard />
       <CreditCardsCard />
-      <a href="#">Outras coisas</a>
+      <a href="#">Other things!</a>
       <Card>
         <div className="centerInfo">Ideas are welcome!</div>
       </Card>

@@ -13,10 +13,14 @@
 filter: invert(var(--invert));
 }
 
-.TimelineCategory {
-  width: 3em;
-  height: 3em;
+.IconBall {
+  font-size: var(--font-size);
+  width: 2.5em;
+  height: 2.5em;
   border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .TimelineContent {

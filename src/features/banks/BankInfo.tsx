@@ -16,7 +16,7 @@ interface BankInfoParams {
 
 const BankInfo = ({ bank, balance, divider, onClick }: BankInfoParams) => {
   return <div className={`BankInfo ${divider === false ? 'NoDivider' : ''}`} onClick={onClick}>
-    <img src={banksResourceUrl + (bank.logoUrl || 'carteira.jpg')} alt={bank.name + ' Logo'} />
+    <img className="IconBall" src={banksResourceUrl + (bank.logoUrl || 'carteira.jpg')} alt={bank.name + ' Logo'} />
     {bank.name}
     <div style={{flex: 1}} />
     <Loading show={balance === true} />

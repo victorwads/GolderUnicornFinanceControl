@@ -22,7 +22,7 @@ const CategoriesScreen: React.FC = () => {
           <li key={category.id} className="category-item">
             <div className="category-info">
               <span
-                className="category-color"
+                className="category-color IconBall"
                 style={{ backgroundColor: category.color || '#ccc' }}
               >
                 <Icon icon={getIconByCaseInsensitiveName(category.icon || "")} size="1x" />
@@ -34,7 +34,7 @@ const CategoriesScreen: React.FC = () => {
                 <li key={child.id} className="subcategory-item">
                   <div className="category-info">
                     <span
-                      className="category-color"
+                      className="category-color IconBall"
                       style={{ backgroundColor: child.color || '#ccc' }}
                     >
                       <Icon icon={getIconByCaseInsensitiveName(child.icon || "")} size="1x" />

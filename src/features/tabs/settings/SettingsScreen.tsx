@@ -4,10 +4,12 @@ import { getAuth, signOut } from "firebase/auth"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import getRepositories, { Repositories } from "../../../data/repositories";
-import { User } from "../../../data/repositories/UserRepository";
-import { useCssVars, Theme, Density } from '../../../components/Vars';
 import DocumentModel from "../../../data/models/DocumentModel";
+import getRepositories, { Repositories } from "../../../data/repositories";
+import { useCssVars, Theme, Density } from '../../../components/Vars';
+import { clearFirestore } from "../../../data/firebase/google-services";
+import { User } from "../../../data/repositories/UserRepository";
+
 import { Container, ContainerScrollContent } from "../../../components/conteiners";
 
 interface ExportProgress {
@@ -124,7 +126,13 @@ const SettingsScreen = () => {
     </div>
 
     <h3>Auth</h3>
-    <a onClick={() => signOut(getAuth())}>Encerrar Sessão / Deslogar</a>
+    <div>
+      <a onClick={() => signOut(getAuth())}>Encerrar Sessão / Deslogar</a>
+    </div>
+    <div></div>
+    {window.isDevelopment && <>
+      <a onClick={clearFirestore}>Limpar caches locais</a>
+    </>}
   </ContainerScrollContent></Container>
 }
 

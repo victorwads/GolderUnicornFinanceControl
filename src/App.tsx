@@ -1,6 +1,6 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import { useCssVars } from './components/Vars';
@@ -64,7 +64,7 @@ function App() {
     })
   }, [])
 
-  return <div className={`App ${theme} ${density}`}>
+  return <div className={`App theme ${theme} ${density}`}>
     {loading
       ? <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Loading show={loading} />

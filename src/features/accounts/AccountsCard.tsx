@@ -17,10 +17,10 @@ const AccountsCard: React.FC<{}> = () => {
   const [showArchived, setShowArchived] = useState(false)
 
   useEffect(() => {
-    const { accounts, banks } = getRepositories();
+    const { accounts: accountsRepo, banks } = getRepositories();
 
     setAccounts(
-      accounts.getCache().map(account => {
+      accountsRepo.getCache().map(account => {
         return {
           ...account,
           bank: new Bank(
@@ -34,7 +34,7 @@ const AccountsCard: React.FC<{}> = () => {
 
   return <>
     <div>
-      <label><input onClick={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> Show archived</label>
+      <label><input onChange={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> Show archived</label>
     </div>
     <Link to={'/accounts'}>Contas</Link>
     <Card>

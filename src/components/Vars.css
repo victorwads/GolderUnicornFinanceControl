@@ -32,43 +32,28 @@
     --invert: 0.75;
 }
 
+.theme {
+    --spacing-xxs: 0.14em;
+    --spacing-xs: 0.28em;
+    --spacing-sm: 0.57em;
+    --spacing-md: 0.85em;
+    --spacing-lg: 1.15em;
+    --spacing-xl: 1.7em;
+}
+
 .density-1 {
-    --spacing-xxs: 1px;
-    --spacing-xs: 2px;
-    --spacing-sm: 4px;
-    --spacing-md: 8px;
-    --spacing-lg: 12px;
-    --spacing-xl: 16px;
     --font-size: 12px;
 }
 
 .density-2 {
-    --spacing-xxs: 2px;
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 12px;
-    --spacing-lg: 16px;
-    --spacing-xl: 24px;
     --font-size: 14px;
 }
 
 .density-3 {
-    --spacing-xxs: 4px;
-    --spacing-xs: 6px;
-    --spacing-sm: 12px;
-    --spacing-md: 16px;
-    --spacing-lg: 20px;
-    --spacing-xl: 28px;
     --font-size: 16px;
 }
 
 .density-4 {
-    --spacing-xxs: 6px;
-    --spacing-xs: 8px;
-    --spacing-sm: 16px;
-    --spacing-md: 20px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
     --font-size: 18px;
 }
   

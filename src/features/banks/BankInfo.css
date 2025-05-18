@@ -10,13 +10,10 @@
 }
 
 .BankInfo > img {
-    border-radius: 100%;
-    height: 32px;
-    width: 32px;
-    margin: 8px;
-    margin-right: 12px;
+    margin: var(--spacing-sm);
+    margin-right: 1em;
 }
 
 .BankInfo .loader {
-    margin-right: 25px;
+    margin-right: 1.5em;
 }

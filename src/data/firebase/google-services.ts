@@ -1,9 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { clearIndexedDbPersistence, getFirestore, terminate } from "firebase/firestore";
 import { CACHE_SIZE_UNLIMITED, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 
 declare global {
-  interface Window { isDevelopment: boolean; isSsl: boolean; port: number; }
+  interface Window { isDevelopment: boolean; isSsl: boolean; port: number }
 }
 
 const firebaseConfig = {
@@ -28,8 +29,14 @@ if (window.isDevelopment) {
   console.log('Connected to Firestore Emulator at', firestoreAddConfig);
 }
 
-export const firestore = initializeFirestore(app, {
+initializeFirestore(app, {
   localCache: persistentLocalCache({ cacheSizeBytes: CACHE_SIZE_UNLIMITED, tabManager: persistentMultipleTabManager() }),
   ...firestoreAddConfig,
 });
 
+export async function clearFirestore() {
+  const db = getFirestore(app);
+  await terminate(db)
+  await clearIndexedDbPersistence(db);
+  window.location.reload();
+}
