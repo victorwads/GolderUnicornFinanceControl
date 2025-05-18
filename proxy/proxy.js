@@ -53,7 +53,7 @@ class ProxyManager {
       proxy.on('error',  (err, req, res) => {
         this.logDomainChange(req);
         console.error(`❌ Proxy error: ${err.message}`);
-        if (!res.headersSent) {
+        if (!res.headersSent && res.writeHead) {
           res.writeHead(502, { 'Content-Type': 'text/plain' });
         }
         res.end(`Proxy error: ${err.message}`);

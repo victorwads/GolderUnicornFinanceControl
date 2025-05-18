@@ -8,6 +8,43 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo.png" />
     <link rel="icon" href="%PUBLIC_URL%/logo.png" />
+    <script type="text/javascript">
+const developmentHosts = [
+  'localhost', '192.168', '10.0', '127.0',
+  '.local', 'local.', 'home.', 'ddns.net',
+];
+window.isDevelopment = developmentHosts.some(host => window.location.hostname.includes(host));
+if(window.isDevelopment) {
+  const manifestLink = document.querySelector('link[rel="manifest"]');
+  if (manifestLink) {
+    manifestLink.href = window.isDevelopment 
+      ? '/manifest.dev.json' 
+      : '/manifest.json';
+    console.log(`[Manifest] Carregando manifesto: ${manifestLink.href}`);
+  }
+
+  window.isSsl = window.location.protocol.includes('https');
+  window.port = window.location.port || (window.isSsl ? 443 : 80);
+  const NativeWebSocket = window.WebSocket;
+  class DevelopmentWebSocketWrapper extends NativeWebSocket {
+    constructor(url, protocols) {
+      const newUrl = new URL(url);
+      const check = window.isDevelopment && newUrl.hostname === window.location.hostname;
+
+      if (check) {
+        const currentUrl = newUrl.toString();
+        newUrl.protocol = isSsl ? 'wss:' : 'ws:';
+        newUrl.port = window.location.port;
+
+        console.log(`[HMR] Redirecionando WebSocket de: ${currentUrl} para: ${newUrl}`);
+      }
+
+      super(newUrl.toString(), protocols);
+    }
+  }
+  window.WebSocket = DevelopmentWebSocketWrapper;
+}
+    </script>
     <title>Golden Unicorn - Finance Control</title>
   </head>
   <body>
