@@ -198,6 +198,10 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
           });
           return snap;
         });
+      if (!this.inited) {
+        await queryResult
+        this.inited = true;
+      }
     }
     queryResult
       .then((snap) => {
@@ -207,11 +211,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
         });
       })
       .catch(this.getErrorHanlder("listing"));
-
-    if (!this.inited) {
-      await queryResult
-      this.inited = true;
-    }
   }
 
   private parseCollectionName(): string {

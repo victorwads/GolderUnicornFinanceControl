@@ -40,15 +40,26 @@ export async function resetRepositories(): Promise<void> {
     creditCardsInvoices: new CreditCardInvoicesRepository(),
     cardsInvoices: new CreditCardInvoicesRepository(),
   }
-
+  
+  debugTimestamp('Modules Initialization', initTime);
+  const initEncryption = Date.now();
   const encryptorInstance = new Encryptor();
   await encryptorInstance.init(uid);
+  debugTimestamp('Encryptor initialized', initEncryption);
 
-  for (const key in repositorieInstances) {
-    const repo = repositorieInstances[key as keyof Repositories];
+  const initRepos = Date.now();
+  let totalRepoTime = 0;
+  const toWait = Object.entries(repositorieInstances).map(([key, repo]) => {
     if (repo instanceof RepositoryWithCrypt) repo.init(encryptorInstance);
-    await repo.reset(uid);
-  }
+    const init = Date.now();
+    return repo.reset(uid).then(() => {
+      totalRepoTime += debugTimestamp(`Repository ${key} initialized`, init);
+    });
+  });
+  await Promise.all(toWait);
+  debugTimestamp('Real Time repositories initialization', initRepos);
+  console.log(`Total Parallel sum repositories initialization: ${totalRepoTime/1000}s`);
+  debugTimestamp('Total initialization', initTime);
 }
 
 export function clearRepositories(): void {
@@ -58,4 +69,11 @@ export function clearRepositories(): void {
 export default function getRepositories(): Repositories {
   if (!repositorieInstances) throw new Error('Repositories not initialized. Call resetRepositories() first.');
   return repositorieInstances;
+}
+
+const initTime = Date.now();
+function debugTimestamp(message: string, init: number): number {
+  const time = Date.now() - init;
+  console.log(`[${time/1000}s] ${message}`);
+  return time;
 }
