@@ -25,9 +25,9 @@ const CategoriesScreen: React.FC = () => {
                 className="category-color"
                 style={{ backgroundColor: category.color || '#ccc' }}
               >
-                <Icon icon={getIconByCaseInsensitiveName(category.icon || "")} size="xs" />
+                <Icon icon={getIconByCaseInsensitiveName(category.icon || "")} size="1x" />
               </span>
-              {category.name} - {category.id}
+              {category.name}
             </div>
             <ul className="subcategories-list">
               {category.children.map((child) => (
@@ -37,9 +37,9 @@ const CategoriesScreen: React.FC = () => {
                       className="category-color"
                       style={{ backgroundColor: child.color || '#ccc' }}
                     >
-                      <Icon icon={getIconByCaseInsensitiveName(child.icon || "")} size="xs" />
+                      <Icon icon={getIconByCaseInsensitiveName(child.icon || "")} size="1x" />
                     </span>
-                    {child.name} - {child.id} - {child.parentId}
+                    {child.name}
                   </div>
                 </li>
               ))}

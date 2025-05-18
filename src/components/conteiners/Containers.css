@@ -6,10 +6,12 @@
 
 .container.spaced {
     padding: var(--spacing-md);
+    padding-bottom: 0;
 }
 
 .container.screen {
     height: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
 }
 
 .container.wide {

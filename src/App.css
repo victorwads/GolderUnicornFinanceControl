@@ -1,11 +1,12 @@
 .App {
-  background-color: var(--bg-color-default);
-  height: 100%;
-  color: var(--font-color-default);
-  border: 0.01px solid transparent;
-  box-sizing: border-box;
   display: flex;
+  box-sizing: border-box;
   justify-content: center;
+  border: 0.01px solid transparent;
+  height: 100%;
+  background-color: var(--bg-color-default);
+  color: var(--font-color-default);
+  font-size: var(--font-size);
 }
 
 .App, .App * {
@@ -44,4 +45,10 @@ input {
 .PopUp.active {
   display: block;
   opacity: 1;
+}
+
+.centerInfo {
+  color: #888;
+  text-align: center;
+  padding: var(--spacing-xl);
 }

@@ -39,8 +39,9 @@ const AccountsCard: React.FC<{}> = () => {
     <Link to={'/accounts'}>Contas</Link>
     <Card>
       {accounts.filter(account => showArchived || !account.archived).map(account => <AccountItem key={account.id} account={account} />)}
+      {accounts.length === 0 && <div className="centerInfo">There is no account registered yet.</div>}
       <div style={{ textAlign: 'right' }}>
-        <Link to={'/accounts/create'}>Adicionar Conta</Link>
+        <Link to={'/accounts/create'}>Add Account</Link>
       </div>
     </Card>
   </>

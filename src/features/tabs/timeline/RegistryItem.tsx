@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import "./RegistryItem.css";
 
 import Icon, { getIconByCaseInsensitiveName } from "../../../components/Icons";
-import { RegistryWithDetails } from '../../../data/models/Registry';
+import { RegistryType, RegistryWithDetails } from '../../../data/models/Registry';
 import AccountsRegistry from "../../../data/models/AccountRegistry";
 
 interface RegistryItemProps {
@@ -35,15 +35,14 @@ const RegistryItem = (
 
     {/* Área Central: Informações principais */}
     <div className="TimelineContent">
-      <div className="TimelineDescription">{registry.description}</div>
+      {registry.type !== RegistryType.TRANSFER && <div className="TimelineDescription">{registry.description}</div>}
       <div className="TimelineDetails">
         <span className="TimelineDate">{registry.date.toLocaleDateString()}</span>
-        {registry.categoryId && <div className="TimelineCategoryName" 
-          onClick={() => category?.id && onCategoryClick?.(category?.id)}
-        >
+        <span onClick={toSource} className="TimelineBankName">{sourceName}</span>
+        {registry.categoryId &&
+        <div className="TimelineCategoryName" onClick={() => category?.id && onCategoryClick?.(category?.id)}>
           {category?.name}
         </div>}
-        <span onClick={toSource} className="TimelineBankName">{sourceName}</span>
       </div>
     </div>
 

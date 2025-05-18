@@ -4,16 +4,21 @@
   align-items: center;
 }
 
+.ScreenHeaderRow:last-child {
+  margin-bottom: var(--spacing-md);
+}
+
 .ScreenTitle {
-  font-size: 24px;
+  font-size: 1.8em;
   font-weight: bold;
 }
 
 .SelectedBank {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  font-size: 16px;
+  justify-content: end;
+  column-gap: var(--spacing-sm);
 }
 
 .SelectedBank .ClearFilter {
@@ -39,8 +44,7 @@
 }
 
 .RegistryCount {
-  flex: 1;
-  padding: 10px;
+  padding: var(--spacing-md) 0;
   font-weight: bold;
   font-size: 0.8em;
 }
@@ -48,13 +52,14 @@
 .ScreenTotal {
   display: flex;
   align-items: center;
+  flex: 1;
   gap: 8px;
-  font-size: 16px;
+  font-size: 1em;
   font-weight: bold;
 }
 
 .TotalValue {
-  font-size: 18px;
+  font-size: 1.125em;
 }
 
 .TotalValue.positive {

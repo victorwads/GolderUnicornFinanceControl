@@ -17,7 +17,7 @@ export default class InvoiceRegistry extends Registry {
     }
     super(
       'invoice' + invoice.id, RegistryType.INVOICE, true, invoice.value * -1,
-      `Pagamento de fatura - ${card.name}`,
+      `Fatura cartão -  ${card.name}`,
       invoice.paymentDate, [], InvoiceRegistry.categoryId
     );
     this.cardId = card.id;

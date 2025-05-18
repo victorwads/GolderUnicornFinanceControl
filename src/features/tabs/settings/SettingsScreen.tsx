@@ -8,6 +8,7 @@ import getRepositories, { Repositories } from "../../../data/repositories";
 import { User } from "../../../data/repositories/UserRepository";
 import { useCssVars, Theme, Density } from '../../../components/Vars';
 import DocumentModel from "../../../data/models/DocumentModel";
+import { Container, ContainerScrollContent } from "../../../components/conteiners";
 
 interface ExportProgress {
   filename: string;
@@ -69,7 +70,7 @@ const SettingsScreen = () => {
     setExportProgress(null);
   };
 
-  return <div className="SettingsScreen">
+  return <Container spaced className="SettingsScreen"><ContainerScrollContent>
     <h2>Settings Screen</h2>
     <h3>Data</h3>
     <ul>
@@ -124,7 +125,7 @@ const SettingsScreen = () => {
 
     <h3>Auth</h3>
     <a onClick={() => signOut(getAuth())}>Encerrar Sessão / Deslogar</a>
-  </div>
+  </ContainerScrollContent></Container>
 }
 
 export default SettingsScreen

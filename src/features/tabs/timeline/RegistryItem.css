@@ -27,7 +27,7 @@ filter: invert(var(--invert));
 }
 
 .TimelineDescription {
-  font-size: 1.1em;
+  font-size: 1em;
   font-weight: bold;
   color: #333;
 }
@@ -46,12 +46,12 @@ filter: invert(var(--invert));
   font-style: italic;
 }
 
-.TimelineCategoryName {
+.TimelineBankName {
   font-weight: bold;
 }
 
 .TimelineValue {
-  font-size: 1.1em;
+  font-size: 0.9em;
   font-weight: bold;
   text-align: right;
 }

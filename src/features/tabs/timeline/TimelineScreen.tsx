@@ -46,7 +46,7 @@ const TimelineScreen = () => {
   const hasCategoryFilter = categoriaIds.length > 0;
   let filteredRegistries = registries;
   if (hasCategoryFilter) {
-    filteredRegistries = registries.filter(({registry: {categoryId}}) => categoryId && categoriaIds.includes(categoryId));
+    filteredRegistries = registries.filter(({ registry: { categoryId } }) => categoryId && categoriaIds.includes(categoryId));
   }
 
   function addCategoryFilter(categoryId: string) {
@@ -66,7 +66,6 @@ const TimelineScreen = () => {
       <div className="ScreenHeaderRow">
         <h1 className="ScreenTitle">Timeline</h1>
         <Loading show={registries.length === 0} type="wave" />
-        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) Registros</span>}
         <div className="spacer"></div>
         {(selectedAccount || hasCategoryFilter) && (
           <div className="SelectedBank">
@@ -74,15 +73,6 @@ const TimelineScreen = () => {
             <Link to={'/main/timeline'} className="ClearFilter">Mostrar todos</Link>
           </div>
         )}
-      </div>
-      <div className="ScreenHeaderRow">
-        <div className="ScreenTotal">
-          <span>Balance:</span>
-          <Loading show={registries.length === 0} type="wave" />
-          {registries.length !== 0 && <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
-            {formatNumber(total)}
-          </span>}
-        </div>
         {!selectedAccount && <div className="ScreenOptions">
           <label>
             <input
@@ -93,6 +83,16 @@ const TimelineScreen = () => {
             Show archived
           </label>
         </div>}
+      </div>
+      <div className="ScreenHeaderRow">
+        <div className="ScreenTotal">
+          <span>Balance:</span>
+          <Loading show={registries.length === 0} type="wave" />
+          {registries.length !== 0 && <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
+            {formatNumber(total)}
+          </span>}
+        </div>
+        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) Registros</span>}
       </div>
     </ContainerFixedContent>
     <ContainerScrollContent>
