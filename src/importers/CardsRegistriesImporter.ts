@@ -22,6 +22,10 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
   async process(): Promise<void> {
     await this.loadExistentes();
     const data = this.readJsonFile(DespesasDeCartaoFile);
+    if (!data) {
+      console.error('Arquivo de despesas de cartão não encontrado.');
+      return;
+    }
 
     const batch = this.db.batch();
 
@@ -43,9 +47,9 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
       const registro = new CreditCardRegistry(
         docRef.id,
         card.id,
-        json.valor,
-        json.descricao,
         json.mes, json.ano, new Date(json.data_despesa),
+        json.descricao,
+        json.valor,
         json.tags?.split(',').map(tag => tag.trim()) ?? [],
         categoria.id,
         json.observacao?.toString(),
@@ -76,7 +80,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
       item.year === registro.year &&
       item.categoryId === registro.categoryId &&
       item.date.getTime() === registro.date.getTime() &&
-      item.importInfo === registro.importInfo
+      item.relatedInfo === registro.relatedInfo
     ).length;
   }
 
