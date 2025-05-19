@@ -54,7 +54,7 @@ const AccountScreenForm = () => {
     navigate(-1);
   };
 
-  return <ModalScreen title={id ? "Edit Account" : "Add Account"}>
+  return <ModalScreen title={id ? "Edit Account - " + name : "Add Account"}>
     <Field label={"Nome da Conta"} value={name} onChange={setName} />
     <BankSelector bank={bank} onChange={bank => setBank(bank)} />
     <PriceField label={"Saldo Inicial"} price={saldoInicial} onChange={setSaldoInicial} />

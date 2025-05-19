@@ -17,6 +17,7 @@ import CategoriesScreen from './features/categories/CategoriesScreen';
 import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
 import CreditCardsInvoices from './features/creaditcards/CreditCardsInvoces';
 import AccountScreenForm from './features/accounts/AccountScreenForm';
+import AccountsScreen from './features/accounts/AccountsScreen';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -27,7 +28,7 @@ const router = createBrowserRouter([
       { path: 'settings', element: <SettingsScreen /> },
     ]
   },
-  { path: '/accounts', element: <EmptyScreen title='Accounts' /> },
+  { path: '/accounts', element: <AccountsScreen /> },
   { path: '/accounts/create', element: <AccountScreenForm /> },
   { path: '/accounts/:id/edit', element: <AccountScreenForm /> },
   { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
