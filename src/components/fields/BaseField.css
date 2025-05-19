@@ -14,7 +14,8 @@
   margin: 0 1px;
 }
 
-.Field > input {
+.Field > input,
+.Field > select {
   color: var(--font-color-input);
   background-color: var(--bg-color-input);
   border: none;

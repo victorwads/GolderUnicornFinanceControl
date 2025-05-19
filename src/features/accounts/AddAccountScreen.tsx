@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 import Field from "../../components/fields/Field";
 import Row from "../../components/visual/Row";
 import BankSelector from "../banks/BankSelector";
+import SelectField from "../../components/fields/SelectField";
 
 import Bank from "../../data/models/Bank";
 import getRepositories from "../../data/repositories";
@@ -16,6 +17,8 @@ const AddAccountScreen = () => {
   const [name, setName] = useState("");
   const [bank, setBank] = useState<Bank | undefined>();
   const [saldoInicial, setSaldoInicial] = useState(0);
+  const [accountType, setAccountType] = useState<AccountType>(AccountType.CURRENT);
+  const [accountColor, setAccountColor] = useState<string>("");
   const navigate = useNavigate();
 
   const createAccount = async () => {
@@ -24,7 +27,7 @@ const AddAccountScreen = () => {
       return;
     }
     const account = new Account(
-        "", name, saldoInicial, bank.id, AccountType.CURRENT
+        "", name, saldoInicial, bank.id, accountType, false, accountColor
     );
     
     getRepositories().accounts.set(account);
@@ -36,11 +39,18 @@ const AddAccountScreen = () => {
     <Field label={"Nome da Conta"} value={name} onChange={setName} />
     <BankSelector bank={bank} onChange={bank => setBank(bank)} />
     <PriceField label={"Saldo Inicial"} price={saldoInicial} onChange={setSaldoInicial} />
-
-    <div style={{ height: 20 }}></div>
-    <h3> To Do:</h3>
-    <div>- Tipo da Conta</div>
-    <div>- Cor da Conta</div>
+    <SelectField
+      label="Tipo da Conta"
+      value={accountType}
+      onChange={setAccountType}
+      options={[
+        { value: AccountType.CURRENT, label: "Corrente" },
+        { value: AccountType.SAVINGS, label: "Poupança" },
+        { value: AccountType.INVESTMENT, label: "Investimento" },
+        { value: AccountType.CASH, label: "Dinheiro" },
+      ]}
+    />
+    <Field label={"Cor da Conta"} value={accountColor} onChange={setAccountColor} />
 
     <Row>
       <Button text="Cancelar" onClick={() => navigate(-1)} />
