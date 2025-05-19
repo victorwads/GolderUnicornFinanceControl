@@ -8,6 +8,7 @@ import Field from "../../components/fields/Field";
 import Row from "../../components/visual/Row";
 import BankSelector from "../banks/BankSelector";
 import SelectField from "../../components/fields/SelectField";
+import CheckboxField from "../../components/fields/CheckboxField";
 
 import Bank from "../../data/models/Bank";
 import getRepositories from "../../data/repositories";
@@ -19,6 +20,7 @@ const AddAccountScreen = () => {
   const [saldoInicial, setSaldoInicial] = useState(0);
   const [accountType, setAccountType] = useState<AccountType>(AccountType.CURRENT);
   const [accountColor, setAccountColor] = useState<string>("");
+  const [includeInTotal, setIncludeInTotal] = useState(false);
   const navigate = useNavigate();
 
   const createAccount = async () => {
@@ -27,7 +29,7 @@ const AddAccountScreen = () => {
       return;
     }
     const account = new Account(
-        "", name, saldoInicial, bank.id, accountType, false, accountColor
+        "", name, saldoInicial, bank.id, accountType, false, accountColor, includeInTotal
     );
     
     getRepositories().accounts.set(account);
@@ -51,6 +53,11 @@ const AddAccountScreen = () => {
       ]}
     />
     <Field label={"Cor da Conta"} value={accountColor} onChange={setAccountColor} />
+    <CheckboxField
+      label="Incluir no Total"
+      checked={includeInTotal}
+      onChange={setIncludeInTotal}
+    />
 
     <Row>
       <Button text="Cancelar" onClick={() => navigate(-1)} />

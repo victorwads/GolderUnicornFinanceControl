@@ -22,3 +22,11 @@
   border-radius: 8px;
   padding: 8px 12px;
 }
+
+.Field > input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  accent-color: var(--primary-color);
+  border-radius: 4px;
+}
