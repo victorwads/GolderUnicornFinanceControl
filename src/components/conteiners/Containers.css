@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     max-height: 100%;
+    position: relative;
 }
 
 .container.spaced {

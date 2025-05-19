@@ -52,3 +52,19 @@ input {
   text-align: center;
   padding: var(--spacing-xl);
 }
+
+.FloatButton {
+  position: absolute;
+  bottom: 3em;
+  right: 2em;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  width: 4em;
+  height: 4em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow-elevation-medium);
+}
