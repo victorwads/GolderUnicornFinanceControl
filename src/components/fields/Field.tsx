@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BaseField from "./BaseField";
 
 interface FieldParams {
@@ -20,6 +20,10 @@ const Field = ({ label, value, onChange }: FieldParams) => {
       input.selectionStart = input.selectionEnd = input.value.length;
     }
   };
+
+  useEffect(() => {
+    setValue(value);
+  }, [value]);
 
   return (
     <BaseField label={label}>

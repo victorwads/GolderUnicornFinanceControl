@@ -8,7 +8,7 @@ import Bank from "../../data/models/Bank"
 import Account from "../../data/models/Account"
 import getRepositories from "../../data/repositories"
 
-interface WithInfoAccount extends Account {
+export interface WithInfoAccount extends Account {
   bank: Bank
 }
 
@@ -38,7 +38,9 @@ const AccountsCard: React.FC<{}> = () => {
     </div>
     <Link to={'/accounts'}>Contas</Link>
     <Card>
-      {accounts.filter(account => showArchived || !account.archived).map(account => <AccountItem key={account.id} account={account} />)}
+      {accounts
+        .filter(account => showArchived || !account.archived)
+        .map(account => <AccountItem key={account.id} account={account} />)}
       {accounts.length === 0 && <div className="centerInfo">There is no account registered yet.</div>}
       <div style={{ textAlign: 'right' }}>
         <Link to={'/accounts/create'}>Add Account</Link>
