@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { ModalScreen } from "../../components/conteiners/ModalScreen";
 import PriceField from "../../components/fields/PriceField";
@@ -14,7 +14,8 @@ import Bank from "../../data/models/Bank";
 import getRepositories from "../../data/repositories";
 import Account, { AccountType } from "../../data/models/Account";
 
-const AddAccountScreen = () => {
+const AccountScreenForm = () => {
+  const { id } = useParams();
   const [name, setName] = useState("");
   const [bank, setBank] = useState<Bank | undefined>();
   const [saldoInicial, setSaldoInicial] = useState(0);
@@ -23,21 +24,36 @@ const AddAccountScreen = () => {
   const [includeInTotal, setIncludeInTotal] = useState(false);
   const navigate = useNavigate();
 
-  const createAccount = async () => {
+  useEffect(() => {
+    if (id) {
+      const account = getRepositories().accounts.getLocalById(id);
+      if (account) {
+        setName(account.name);
+        setBank(getRepositories().banks.getLocalById(account.bankId));
+        setSaldoInicial(account.initialBalance);
+        setAccountType(account.type);
+        setAccountColor(account.color || "");
+        setIncludeInTotal(account.includeInTotal);
+      }
+    }
+  }, [id]);
+
+  const saveAccount = async () => {
     if (name.trim() === "" || bank === undefined) {
       alert("Preencha todos os campos");
       return;
     }
+
     const account = new Account(
-        "", name, saldoInicial, bank.id, accountType, false, accountColor, includeInTotal
+      id || "", name, saldoInicial, bank.id, accountType, false, accountColor, includeInTotal
     );
-    
+
     getRepositories().accounts.set(account);
-    alert("Conta criada com sucesso");
+    alert(id ? "Conta atualizada com sucesso" : "Conta criada com sucesso");
     navigate(-1);
   };
 
-  return <ModalScreen title="Add Account">
+  return <ModalScreen title={id ? "Edit Account" : "Add Account"}>
     <Field label={"Nome da Conta"} value={name} onChange={setName} />
     <BankSelector bank={bank} onChange={bank => setBank(bank)} />
     <PriceField label={"Saldo Inicial"} price={saldoInicial} onChange={setSaldoInicial} />
@@ -64,10 +80,10 @@ const AddAccountScreen = () => {
       <Button
         text="Salvar"
         disabled={name.trim() == "" || bank == null}
-        onClick={createAccount}
+        onClick={saveAccount}
       />
     </Row>
   </ModalScreen>
 };
 
-export default AddAccountScreen;
+export default AccountScreenForm;

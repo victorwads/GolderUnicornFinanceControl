@@ -14,9 +14,9 @@ import TimelineScreen from './features/tabs/timeline/TimelineScreen';
 import SettingsScreen from './features/tabs/settings/SettingsScreen';
 import DashboardScreen from './features/tabs/dashboard/DashboardScreen';
 import CategoriesScreen from './features/categories/CategoriesScreen';
-import AddAccountScreen from './features/accounts/AddAccountScreen';
 import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
 import CreditCardsInvoices from './features/creaditcards/CreditCardsInvoces';
+import AccountScreenForm from './features/accounts/AccountScreenForm';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -28,9 +28,8 @@ const router = createBrowserRouter([
     ]
   },
   { path: '/accounts', element: <EmptyScreen title='Accounts' /> },
-  { path: '/accounts/create', element: <AddAccountScreen /> },
-  { path: '/accounts/:id/edit', element: <EmptyScreen title='Accounts' /> },
-  { path: '/accounts/:id/view', element: <EmptyScreen title='Accounts' /> },
+  { path: '/accounts/create', element: <AccountScreenForm /> },
+  { path: '/accounts/:id/edit', element: <AccountScreenForm /> },
   { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
   { path: '/creditcards', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id', element: <EmptyScreen title='Credit Cards' /> },

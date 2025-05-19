@@ -59,7 +59,7 @@ const AccountItem = ({ account }: AccountItemParams) => {
       setBalance(accounts.getAccountBalance(account.id))
   }, [account.id]);
 
-  return <Link to={'/main/timeline/' + account.id} key={account.id}>
+  return <Link to={'/accounts/' + account.id + '/edit'} key={account.id}>
     <BankInfo bank={account.bank} balance={balance} />
   </Link>
 }
