@@ -29,6 +29,7 @@ const AccountScreenForm = () => {
       const account = getRepositories().accounts.getLocalById(id);
       if (account) {
         setName(account.name);
+        console.log(account);
         setBank(getRepositories().banks.getLocalById(account.bankId));
         setSaldoInicial(account.initialBalance);
         setAccountType(account.type);

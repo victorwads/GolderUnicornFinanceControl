@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BaseField from "./BaseField";
 
 interface PriceFieldParams {
@@ -31,6 +31,10 @@ const PriceField = ({
       input.selectionStart = input.selectionEnd = input.value.length;
     }
   };
+
+  useEffect(() => {
+    setPrice(initialPrice);
+  }, [initialPrice]);
 
   return (
     <BaseField label={label}>
