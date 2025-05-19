@@ -19,7 +19,7 @@
   },
   "scripts": {
     "proxy": "nodemon --watch proxy --ext ts --exec tsx proxy/proxy.ts",
-    "start": "react-scripts start",
+    "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
