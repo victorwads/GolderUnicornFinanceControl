@@ -44,6 +44,11 @@ const AccountsScreen = () => {
         <Icon icon={Icon.all.faPlus} size="2x" />
         </Link>
       </div>
+      <div className="FloatButton">
+        <Link to={'/accounts/add-registry'}>
+        <Icon icon={Icon.all.faPlus} size="2x" />
+        </Link>
+      </div>
     </Card>
   </ModalScreen>
 }
