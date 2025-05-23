@@ -83,7 +83,7 @@ const CreditCardsInvoices: React.FC = () => {
   }>
     {selectedInvoice && (
       <div>
-        <h3>Fatura Selecionada</h3>
+        <h3>{Lang.creditcards.selectedInvoice}</h3>
         <pre>
           {JSON.stringify(selectedInvoice, null, 2)}
         </pre>

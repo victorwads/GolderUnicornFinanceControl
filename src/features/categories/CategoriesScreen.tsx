@@ -16,7 +16,7 @@ const CategoriesScreen: React.FC = () => {
     setCategories(categories.getAllRoots());
   }, []);
 
-  return <ModalScreen title='Categorias'>
+  return <ModalScreen title={Lang.categories.title}>
       <ul className="categories-list">
         {categories.map((category) => (
           <li key={category.id} className="category-item">
@@ -48,7 +48,7 @@ const CategoriesScreen: React.FC = () => {
         ))}
       </ul>
       <Link to="/categories/create" className="add-category-button">
-        Adicionar Categoria
+        {Lang.categories.addCategory}
       </Link>
   </ModalScreen>;
 };

@@ -10,8 +10,8 @@ const EmptyScreen: React.FC<EmptyScreenProps> = ({ title }) => {
   const location = useLocation();
 
   return <ModalScreen title={title + " - Placeholder Screen"}>
-      <p><strong>Current Path:</strong> {location.pathname}</p>
-      <p><strong>Params:</strong> {JSON.stringify(params, null, 2)}</p>
+      <p><strong>{Lang.commons.currentPath}:</strong> {location.pathname}</p>
+      <p><strong>{Lang.commons.params}:</strong> {JSON.stringify(params, null, 2)}</p>
   </ModalScreen>;
 };
 

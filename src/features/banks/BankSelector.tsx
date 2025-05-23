@@ -39,7 +39,7 @@ const BankSelector: React.FC<BankSelectorParams> = ({ label, bank, onChange }) =
     search()
   }
 
-  return <BaseField label={label ?? "Banco"}>
+  return <BaseField label={label ?? Lang.accounts.bank}>
     <Row>
       <BankInfo onClick={() => setIsOpen(true)} bank={bank || selectBank} />
     </Row>
