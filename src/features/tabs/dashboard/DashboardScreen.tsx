@@ -1,6 +1,5 @@
 import './DashboardScreen.css'
 
-import { useNavigate } from 'react-router-dom'
 import { getAuth } from 'firebase/auth'
 
 import Card from '../../../components/visual/Card'
@@ -14,15 +13,15 @@ const DashboardScreen = () => {
 
   return <Container screen spaced>
     <ContainerFixedContent>
-      <p>Olá, {user?.displayName} - {user?.email}</p>
+      <p>{Lang.dashboard.messages.hello}, {user?.displayName} - {user?.email}</p>
       <p><br /></p>
     </ContainerFixedContent>
     <ContainerScrollContent>
       <AccountsCard />
       <CreditCardsCard />
-      <a href="#">Other things!</a>
+      <a href="#">{Lang.dashboard.messages.otherThings}</a>
       <Card>
-        <div className="centerInfo">Ideas are welcome!</div>
+        <div className="centerInfo">{Lang.dashboard.messages.ideasWelcome}</div>
       </Card>
     </ContainerScrollContent>
   </Container>

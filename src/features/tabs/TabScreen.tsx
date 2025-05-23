@@ -10,9 +10,9 @@ const TabScreen = () => {
         </ContainerScrollContent>
         <ContainerFixedContent>
             <div className='TabViewNav'>
-                <Link to="dashboard">Dashboard</Link>
-                <Link to="timeline">Timeline</Link>
-                <Link to="settings">Settings</Link>
+                <Link to="dashboard">{Lang.dashboard.title}</Link>
+                <Link to="timeline">{Lang.timeline.title}</Link>
+                <Link to="settings">{Lang.settings.title}</Link>
             </div>
         </ContainerFixedContent>
     </Container>

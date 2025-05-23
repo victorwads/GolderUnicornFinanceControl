@@ -34,16 +34,16 @@ const AccountsCard: React.FC<{}> = () => {
 
   return <>
     <div>
-      <label><input onChange={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> Show archived</label>
+      <label><input onChange={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> {Lang.accounts.showArchived}</label>
     </div>
-    <Link to={'/accounts'}>Contas</Link>
+    <Link to={'/accounts'}>{Lang.accounts.title}</Link>
     <Card>
       {accounts
         .filter(account => showArchived || !account.archived)
         .map(account => <AccountItem key={account.id} account={account} />)}
-      {accounts.length === 0 && <div className="centerInfo">There is no account registered yet.</div>}
+      {accounts.length === 0 && <div className="centerInfo">{Lang.accounts.noAccounts}</div>}
       <div style={{ textAlign: 'right' }}>
-        <Link to={'/accounts/create'}>Add Account</Link>
+        <Link to={'/accounts/create'}>{Lang.accounts.addAccount}</Link>
       </div>
     </Card>
   </>

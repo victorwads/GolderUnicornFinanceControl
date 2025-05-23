@@ -1,3 +1,5 @@
+import './i18n'
+
 /* eslint-disable no-extend-native */
 declare global {
   interface Number {

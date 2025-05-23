@@ -26,15 +26,15 @@ const CreditCardsCard: React.FC<{}> = () => {
   }, [])
 
   return <>
-    <Link to={'/creditcards'}>Cartões</Link>
+    <Link to={'/creditcards'}>{Lang.creditcards.title}</Link>
     <Card>
       {creditCards.map(creditCard => <Link key={creditCard.id} to={`/creditcards/${creditCard.id}/invoices`}>
         <BankInfo bank={creditCard.bank} />
       </Link>)}
       {creditCards.length === 0 &&
-        <div className="centerInfo">There is no credit card registered yet.</div>}
+        <div className="centerInfo">{Lang.creditcards.noCreditCards}</div>}
       <div style={{ textAlign: 'right' }}>
-        <Link to={'/creditcards/create'}>Add Credit Card</Link>
+        <Link to={'/creditcards/create'}>{Lang.creditcards.addCreditCard}</Link>
       </div>
     </Card>
   </>

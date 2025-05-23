@@ -30,15 +30,15 @@ const AccountsScreen = () => {
     setAccounts(allAccounts)
   }, [showArchived])
 
-  return <ModalScreen title="Accounts">
+  return <ModalScreen title={Lang.accounts.title}>
     <div>
-      <label><input onChange={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> Show archived</label>
+      <label><input onChange={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> {Lang.accounts.showArchived}</label>
     </div>
     <Card>
       {accounts
         .filter(account => showArchived || !account.archived)
         .map(account => <AccountItem key={account.id} account={account} />)}
-      {accounts.length === 0 && <div className="centerInfo">There is no account registered yet.</div>}
+      {accounts.length === 0 && <div className="centerInfo">{Lang.accounts.noAccounts}</div>}
       <div className="FloatButton">
         <Link to={'/accounts/create'}>
         <Icon icon={Icon.all.faPlus} size="2x" />

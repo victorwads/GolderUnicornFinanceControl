@@ -64,13 +64,13 @@ const TimelineScreen = () => {
   return <Container spaced>
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
-        <h1 className="ScreenTitle">Timeline</h1>
+        <h1 className="ScreenTitle">{Lang.timeline.title}</h1>
         <Loading show={registries.length === 0} type="wave" />
         <div className="spacer"></div>
         {(selectedAccount || hasCategoryFilter) && (
           <div className="SelectedBank">
             {selectedAccount && <span>{selectedAccount.name}</span>}
-            <Link to={'/main/timeline'} className="ClearFilter">Mostrar todos</Link>
+            <Link to={'/main/timeline'} className="ClearFilter">{Lang.timeline.clearFilter}</Link>
           </div>
         )}
         {!selectedAccount && <div className="ScreenOptions">
@@ -80,19 +80,19 @@ const TimelineScreen = () => {
               checked={showArchived}
               onChange={() => setShowArchived(!showArchived)}
             />
-            Show archived
+            {Lang.accounts.showArchived}
           </label>
         </div>}
       </div>
       <div className="ScreenHeaderRow">
         <div className="ScreenTotal">
-          <span>Balance:</span>
+          <span>{Lang.timeline.balance}:</span>
           <Loading show={registries.length === 0} type="wave" />
           {registries.length !== 0 && <span className={`TotalValue ${total >= 0 ? "positive" : "negative"}`}>
             {formatNumber(total)}
           </span>}
         </div>
-        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) Registros</span>}
+        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
       </div>
     </ContainerFixedContent>
     <ContainerScrollContent>

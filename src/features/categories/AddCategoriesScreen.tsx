@@ -13,13 +13,13 @@ const AddCategoriesScreen: React.FC = () => {
 
   const handleAddCategory = async () => {
     if (name.trim() === "") {
-      alert("Preencha todos os campos");
+      alert(Lang.commons.fillAllFields);
       return;
     }
 
     const newCategory = new Category("", name, undefined, undefined, parentCategory);
     await getRepositories().categories.set(newCategory);
-    alert("Categoria criada com sucesso");
+    alert(Lang.categories.categoryCreated);
   };
 
   const rootCategories = getRepositories().categories.getAllRoots().map(category => ({
@@ -27,21 +27,21 @@ const AddCategoriesScreen: React.FC = () => {
     label: category.name,
   }));
 
-  return <ModalScreen title="Adicionar Categoria">
+  return <ModalScreen title={Lang.categories.addCategory}>
     <Field
-      label="Nome da Categoria"
+      label={Lang.categories.categoryName}
       value={name}
       onChange={(value) => setName(value)}
     />
     <SelectField
-      label="Categoria Pai"
+      label={Lang.categories.parentCategory}
       value={parentCategory}
       onChange={setParentCategory}
       options={rootCategories}
     />
     <Row>
-      <Button text="Cancelar" />
-      <Button text="Salvar" disabled={name.trim() == ""} onClick={handleAddCategory} />
+      <Button text={Lang.commons.cancel} />
+      <Button text={Lang.commons.save} disabled={name.trim() == ""} onClick={handleAddCategory} />
     </Row>
   </ModalScreen>;
 };

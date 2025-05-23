@@ -11,7 +11,7 @@ const SearchBar = (params: SearchBarParams) => {
     return <div className='SearchBar'>
         <input onChange={it => {
             if(params.onSearchEach) params.onSearchEach(it.target.value)
-        } } placeholder='Pesquisar' value={params.value} />
+        } } placeholder={Lang.commons.search} value={params.value} />
         <button className="modal-back-button" onClick={params.onClose}>
           <Icon icon={Icon.all.faClose} />
         </button>

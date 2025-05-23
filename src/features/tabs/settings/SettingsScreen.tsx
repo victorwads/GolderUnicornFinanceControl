@@ -11,6 +11,7 @@ import { clearFirestore } from "../../../data/firebase/google-services";
 import { User } from "../../../data/repositories/UserRepository";
 
 import { Container, ContainerScrollContent } from "../../../components/conteiners";
+import { Langs, setLanguage } from "../../../i18n";
 
 interface ExportProgress {
   filename: string;
@@ -20,9 +21,10 @@ interface ExportProgress {
 
 const SettingsScreen = () => {
 
-  const [user, setUser] = useState<User>()
   const { theme, setTheme, density, setDensity } = useCssVars();
+  const [user, setUser] = useState<User>()
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
+  const [language, setCurrentLanguage] = useState<string>(CurrentLang);
 
   useEffect(() => {
     getRepositories().user.getUserData().then((user) => {
@@ -36,7 +38,7 @@ const SettingsScreen = () => {
   }, [theme, density]);
 
   const exportData = async () => {
-    if (!window.confirm('Você tem certeza que deseja exportar seus dados? Varios arquivos serão baixados.'))
+    if (!window.confirm(Lang.settings.exportData))
       return;
 
     const allRepos = getRepositories();
@@ -73,22 +75,22 @@ const SettingsScreen = () => {
   };
 
   return <Container spaced className="SettingsScreen"><ContainerScrollContent>
-    <h2>Settings Screen</h2>
-    <h3>Data</h3>
+    <h2>{Lang.settings.title}</h2>
+    <h3>{Lang.settings.data}</h3>
     <ul>
-      <li><Link to={'/categories'}>Categorias</Link></li>
-      <li><Link to={'/accounts'}>Contas</Link></li>
-      <li><Link to={'/creditcards'}>Cartões</Link></li>
+      <li><Link to={'/categories'}>{Lang.categories.title}</Link></li>
+      <li><Link to={'/accounts'}>{Lang.accounts.title}</Link></li>
+      <li><Link to={'/creditcards'}>{Lang.creditcards.title}</Link></li>
     </ul>
-    <h3>Privacy</h3>
+    <h3>{Lang.settings.privacy}</h3>
     <ul>
-      <li onClick={() => exportData()}>Exportar Meus Dados</li>
+      <li onClick={() => exportData()}>{Lang.settings.exportData}</li>
       {exportProgress && <div>
-        <div>Exportando {exportProgress.filename} ({exportProgress.current}/{exportProgress.max})%</div>
+        <div>{Lang.settings.exportingData(exportProgress.filename, exportProgress.current.toString(), exportProgress.max.toString())}</div>
         <progress value={exportProgress.current} max={exportProgress.max} />
       </div>}
     </ul>
-    <h3>Database Usage</h3>
+    <h3>{Lang.settings.databaseUsage}</h3>
     {user?.dbUse ? (
       <div className="db-usage">
         <div>
@@ -102,37 +104,49 @@ const SettingsScreen = () => {
         </div>
       </div>
     ) : (
-      <div>Loading database usage...</div>
+      <div>{Lang.settings.loadingDatabaseUsage}</div>
     )}
 
     <div className="ThemeSettings">
       <div>
-        <h3>Theme</h3>
+        <h3>{Lang.settings.theme}</h3>
         <select value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
-          <option value="theme-light">Light</option>
-          <option value="theme-dark">Dark</option>
+          <option value="theme-light">{Lang.settings.theme} Light</option>
+          <option value="theme-dark">{Lang.settings.theme} Dark</option>
         </select>
       </div>
 
       <div>
-        <h3>Density</h3>
+        <h3>{Lang.settings.density}</h3>
         <select value={density} onChange={(e) => setDensity(e.target.value as Density)}>
-          <option value="density-1">Density 1</option>
-          <option value="density-2">Density 2</option>
-          <option value="density-3">Density 3</option>
-          <option value="density-4">Density 4</option>
+          <option value="density-1">{Lang.settings.density} 1</option>
+          <option value="density-2">{Lang.settings.density} 2</option>
+          <option value="density-3">{Lang.settings.density} 3</option>
+          <option value="density-4">{Lang.settings.density} 4</option>
         </select>
       </div>
     </div>
 
-    <h3>Auth</h3>
+    <h3>{Lang.settings.auth}</h3>
     <div>
-      <a onClick={() => signOut(getAuth())}>Encerrar Sessão / Deslogar</a>
+      <a onClick={() => signOut(getAuth())}>{Lang.settings.logout}</a>
     </div>
     <div></div>
     {window.isDevelopment && <>
-      <a onClick={clearFirestore}>Limpar caches locais</a>
+      <a onClick={clearFirestore}>{Lang.settings.clearLocalCaches}</a>
     </>}
+    <h3>{Lang.settings.language}</h3>
+    <div>
+      <select value={language} onChange={(e) => {
+        setLanguage(e.target.value as any);
+        setCurrentLanguage(CurrentLang);
+      }}>
+        {Object.keys(Langs).map((key) => {
+          return <option key={key} value={key}>{Langs[key as keyof typeof Langs]}</option>
+        })}
+      </select>
+    </div>
+
   </ContainerScrollContent></Container>
 }
 
@@ -160,5 +174,3 @@ function toCSV(data: DocumentModel[]): string {
   });
   return csvRows.join('\n');
 }
-
-

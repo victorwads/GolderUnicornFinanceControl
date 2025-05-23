@@ -4,7 +4,7 @@ import { useState } from "react"
 const CreditCardsScreen = () => {
 
     return <div className="Screen">
-        CreditCardsScreen
+        {Lang.creditcards.title}
     </div>
 }
 

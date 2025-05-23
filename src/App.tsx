@@ -68,7 +68,7 @@ function App() {
     {loading
       ? <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Loading show={loading} />
-        Loading...
+        {Lang.commons.loading}
       </div>
       : user
         ? <RouterProvider router={router} />

@@ -41,7 +41,7 @@ const AccountScreenForm = () => {
 
   const saveAccount = async () => {
     if (name.trim() === "" || bank === undefined) {
-      alert("Preencha todos os campos");
+      alert(Lang.commons.fillAllFields);
       return;
     }
 
@@ -50,36 +50,36 @@ const AccountScreenForm = () => {
     );
 
     getRepositories().accounts.set(account);
-    alert(id ? "Conta atualizada com sucesso" : "Conta criada com sucesso");
+    alert(id ? Lang.accounts.accountUpdated : Lang.accounts.accountCreated);
     navigate(-1);
   };
 
-  return <ModalScreen title={id ? "Edit Account - " + name : "Add Account"}>
-    <Field label={"Nome da Conta"} value={name} onChange={setName} />
+  return <ModalScreen title={id ? Lang.accounts.editAccount + " - " + name : Lang.accounts.addAccount}>
+    <Field label={Lang.accounts.accountName} value={name} onChange={setName} />
     <BankSelector bank={bank} onChange={bank => setBank(bank)} />
-    <PriceField label={"Saldo Inicial"} price={saldoInicial} onChange={setSaldoInicial} />
+    <PriceField label={Lang.accounts.initialBalance} price={saldoInicial} onChange={setSaldoInicial} />
     <SelectField
-      label="Tipo da Conta"
+      label={Lang.accounts.types.label}
       value={accountType}
       onChange={setAccountType}
       options={[
-        { value: AccountType.CURRENT, label: "Corrente" },
-        { value: AccountType.SAVINGS, label: "Poupança" },
-        { value: AccountType.INVESTMENT, label: "Investimento" },
-        { value: AccountType.CASH, label: "Dinheiro" },
+        { value: AccountType.CURRENT, label: Lang.accounts.types.current },
+        { value: AccountType.SAVINGS, label: Lang.accounts.types.savings },
+        { value: AccountType.INVESTMENT, label: Lang.accounts.types.investment },
+        { value: AccountType.CASH, label: Lang.accounts.types.cash },
       ]}
     />
-    <Field label={"Cor da Conta"} value={accountColor} onChange={setAccountColor} />
+    <Field label={Lang.accounts.accountColor} value={accountColor} onChange={setAccountColor} />
     <CheckboxField
-      label="Incluir no Total"
+      label={Lang.accounts.includeInTotal}
       checked={includeInTotal}
       onChange={setIncludeInTotal}
     />
 
     <Row>
-      <Button text="Cancelar" onClick={() => navigate(-1)} />
+      <Button text={Lang.commons.cancel} onClick={() => navigate(-1)} />
       <Button
-        text="Salvar"
+        text={Lang.commons.save}
         disabled={name.trim() == "" || bank == null}
         onClick={saveAccount}
       />
