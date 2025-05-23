@@ -1,10 +1,16 @@
 import Translation from './base';
 import ptBR from './ptBR';
 import en from './en';
+import es from './es';
+import fr from './fr';
+import zh from './zh';
 
 export const Langs = {
   ptBR: "Português (Brasil)",
   en: "English",
+  es: "Español",
+  fr: "Français",
+  zh: "中文",
 };
 
 export function setLanguage(language: typeof CurrentLang = '') {
@@ -15,6 +21,15 @@ export function setLanguage(language: typeof CurrentLang = '') {
       break;
     case 'en':
       window.Lang = en;
+      break;
+    case 'es':
+      window.Lang = es;
+      break;
+    case 'fr':
+      window.Lang = fr;
+      break;
+    case 'zh':
+      window.Lang = zh;
       break;
     default:
       window.Lang = en;
