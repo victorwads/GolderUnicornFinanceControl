@@ -1,0 +1,83 @@
+import Translation from './base';
+
+const zh: Translation = {
+  commons: {
+    search: '搜索',
+    loading: '加载中...',
+    fillAllFields: '填写所有字段',
+    cancel: '取消',
+    save: '保存',
+    currentPath: '当前路径',
+    params: '参数',
+  },
+  timeline: {
+    title: '时间线',
+    balance: '余额',
+    clearFilter: '显示全部',
+    registryCount: '记录',
+  },
+  accounts: {
+    title: '账户',
+    showArchived: '显示已归档',
+    noAccounts: '尚未注册任何账户。',
+    addAccount: '添加账户',
+    editAccount: '编辑账户',
+    accountName: '账户名称',
+    bank: '银行',
+    initialBalance: '初始余额',
+    accountColor: '账户颜色',
+    includeInTotal: '包括在总计中',
+    accountUpdated: '账户更新成功',
+    accountCreated: '账户创建成功',
+    types: {
+      label: '类型',
+      current: '活期',
+      savings: '储蓄',
+      investment: '投资',
+      cash: '现金',
+    },
+  },
+  creditcards: {
+    title: '信用卡',
+    noCreditCards: '尚未注册任何信用卡。',
+    addCreditCard: '添加信用卡',
+    selectedInvoice: '选定的发票',
+  },
+  categories: {
+    title: '类别',
+    addCategory: '添加类别',
+    categoryName: '类别名称',
+    parentCategory: '父类别',
+    categoryCreated: '类别创建成功',
+  },
+  login: {
+    loginWithGoogle: '使用 Google 登录',
+    loginWithApple: '使用 Apple ID 登录',
+  },
+  settings: {
+    title: '设置',
+    data: '数据',
+    privacy: '隐私',
+    exportData: '导出我的数据',
+    exportingData: (filename: string, current: string, max: string) =>
+      `正在导出 ${filename} (${current}/${max})%`,
+    databaseUsage: '数据库使用情况',
+    auth: '认证',
+    logout: '登出',
+    clearLocalCaches: '清除本地缓存',
+    theme: '主题',
+    density: '密度',
+    loadingDatabaseUsage: '正在加载数据库使用情况...',
+    language: '语言',
+  },
+  dashboard: {
+    title: '仪表板',
+    messages: {
+      hello: '你好',
+      otherThings: '其他事情',
+      ideasWelcome: '欢迎提出想法',
+    },
+  }
+};
+
+export default zh;
