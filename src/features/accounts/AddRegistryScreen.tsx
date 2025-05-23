@@ -8,6 +8,7 @@ import CheckboxField from "../../components/fields/CheckboxField";
 import Button from "../../components/Button";
 import AccountsRegistry from "../../data/models/AccountRegistry";
 import getRepositories from "../../data/repositories";
+import { RegistryType } from "../../data/models/Registry";
 
 const AddRegistryScreen = () => {
   const [description, setDescription] = useState("");
@@ -25,6 +26,7 @@ const AddRegistryScreen = () => {
 
     const registry = new AccountsRegistry(
       "",
+      RegistryType.ACCOUNT,
       accountId,
       value,
       description,
@@ -32,18 +34,18 @@ const AddRegistryScreen = () => {
       paid
     );
 
-    await getRepositories().accountsRegistry.addRegistry(registry);
-    alert(Lang.accounts.registryAdded);
+    await getRepositories().accountRegistries.addRegistry(registry);
+    alert(Lang.registry.messages.saved);
     navigate(-1);
   };
 
   return (
-    <ModalScreen title={Lang.accounts.addRegistry}>
-      <Field label={Lang.accounts.description} value={description} onChange={setDescription} />
-      <PriceField label={Lang.accounts.value} price={value} onChange={setValue} />
-      <Field label={Lang.accounts.date} value={date} onChange={setDate} />
+    <ModalScreen title={Lang.registry.title}>
+      <Field label={Lang.registry.description} value={description} onChange={setDescription} />
+      <PriceField label={Lang.registry.value} price={value} onChange={setValue} />
+      <Field label={Lang.registry.date} value={date} onChange={setDate} />
       <SelectField
-        label={Lang.accounts.account}
+        label={Lang.registry.account}
         value={accountId}
         onChange={setAccountId}
         options={getRepositories().accounts.getCache().map(account => ({
@@ -51,7 +53,7 @@ const AddRegistryScreen = () => {
           label: account.name
         }))}
       />
-      <CheckboxField label={Lang.accounts.paid} checked={paid} onChange={setPaid} />
+      <CheckboxField label={Lang.registry.paid} checked={paid} onChange={setPaid} />
       <div>
         <Button text={Lang.commons.cancel} onClick={() => navigate(-1)} />
         <Button text={Lang.commons.save} onClick={saveRegistry} />

@@ -10,6 +10,7 @@ import { Container, ContainerFixedContent } from "../../../components/conteiners
 import { ContainerScrollContent } from '../../../components/conteiners/index';
 import { Loading } from "../../../components/Loading";
 import RegistryItem from "./RegistryItem";
+import Icon from '../../../components/Icons';
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -61,7 +62,7 @@ const TimelineScreen = () => {
 
   let perDayTotal = total;
   let currentDay = registries[0]?.registry.date.getDate();
-  return <Container spaced>
+  return <Container spaced full>
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
         <h1 className="ScreenTitle">{Lang.timeline.title}</h1>
@@ -93,6 +94,11 @@ const TimelineScreen = () => {
           </span>}
         </div>
         {registries.length !== 0 && <span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
+      </div>
+      <div className="FloatButton">
+        <Link to={'/accounts/registry/add'}>
+          <Icon icon={Icon.all.faPlus} size="2x" />
+        </Link>
       </div>
     </ContainerFixedContent>
     <ContainerScrollContent>

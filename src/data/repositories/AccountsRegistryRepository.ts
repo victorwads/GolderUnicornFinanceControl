@@ -9,10 +9,11 @@ export default class AccountsRegistryRepository extends RepositoryWithCrypt<Acco
   }
 
   public async addRegistry(registry: AccountsRegistry): Promise<void> {
+    registry.id = "";
     await this.set(registry);
   }
 
   public async editRegistry(registry: AccountsRegistry): Promise<void> {
-    await this.update(registry);
+    await this.set(registry, true);
   }
 }

@@ -16,6 +16,17 @@ const ptBR: Translation = {
     clearFilter: 'Mostrar todos',
     registryCount: 'Registros',
   },
+  registry: {
+    title: 'Registro',
+    description: 'Descrição',
+    value: 'Valor',
+    date: 'Data',
+    account: 'Conta',
+    paid: 'Pago',
+    messages: {
+      saved: 'Registro salvo com sucesso',
+    },
+  },
   accounts: {
     title: 'Contas',
     showArchived: 'Mostrar Arquivados',

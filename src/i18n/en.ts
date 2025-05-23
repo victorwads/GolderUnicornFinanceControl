@@ -16,6 +16,17 @@ const en: Translation = {
     clearFilter: 'Show all',
     registryCount: 'Records',
   },
+  registry: {
+    title: 'Registry',
+    description: 'Description',
+    value: 'Value',
+    date: 'Date',
+    account: 'Account',
+    paid: 'Paid',
+    messages: {
+      saved: 'Saved successfully',
+    }
+  },
   accounts: {
     title: 'Accounts',
     showArchived: 'Show Archived',

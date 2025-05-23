@@ -14,6 +14,17 @@ export default interface Translation {
     clearFilter: string;
     registryCount: string;
   };
+  registry: {
+    title: string;
+    description: string;
+    value: string;
+    date: string;
+    account: string;
+    paid: string;
+    messages: {
+      saved: string;
+    };
+  }
   accounts: {
     title: string;
     showArchived: string;
