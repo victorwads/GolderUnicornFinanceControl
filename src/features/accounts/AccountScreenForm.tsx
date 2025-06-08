@@ -6,9 +6,10 @@ import PriceField from "../../components/fields/PriceField";
 import Button from "../../components/Button";
 import Field from "../../components/fields/Field";
 import Row from "../../components/visual/Row";
-import BankSelector from "../banks/BankSelector";
+import Selector from "../../components/Selector";
 import SelectField from "../../components/fields/SelectField";
 import CheckboxField from "../../components/fields/CheckboxField";
+import BankInfo from "../banks/BankInfo";
 
 import Bank from "../../data/models/Bank";
 import getRepositories from "../../data/repositories";
@@ -56,7 +57,19 @@ const AccountScreenForm = () => {
 
   return <ModalScreen title={id ? Lang.accounts.editAccount + " - " + name : Lang.accounts.addAccount}>
     <Field label={Lang.accounts.accountName} value={name} onChange={setName} />
-    <BankSelector bank={bank} onChange={bank => setBank(bank)} />
+    <Selector
+      label={Lang.accounts.bank}
+      value={bank?.id}
+      onChange={id => setBank(getRepositories().banks.getCache().find(b => b.id === id))}
+      options={getRepositories().banks.getCache().map(bankOption => ({
+        value: bankOption.id,
+        label: bankOption.name
+      }))}
+      renderOption={(option) => {
+        const bankObj = getRepositories().banks.getCache().find(b => b.id === option.value);
+        return bankObj ? <BankInfo bank={bankObj} /> : <span>{option.label}</span>;
+      }}
+    />
     <PriceField label={Lang.accounts.initialBalance} price={saldoInicial} onChange={setSaldoInicial} />
     <SelectField
       label={Lang.accounts.types.label}
@@ -80,7 +93,7 @@ const AccountScreenForm = () => {
       <Button text={Lang.commons.cancel} onClick={() => navigate(-1)} />
       <Button
         text={Lang.commons.save}
-        disabled={name.trim() == "" || bank == null}
+        disabled={name.trim() === "" || bank == null}
         onClick={saveAccount}
       />
     </Row>

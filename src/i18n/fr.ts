@@ -9,6 +9,7 @@ const fr: Translation = {
     save: 'Enregistrer',
     currentPath: 'Chemin Actuel',
     params: 'Paramètres',
+    selectOption: (label: string) => `Sélectionnez l'option pour ${label}`,
   },
   timeline: {
     title: 'Chronologie',

@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { ModalScreen } from "../../components/conteiners/ModalScreen";
 import Field from "../../components/fields/Field";
 import PriceField from "../../components/fields/PriceField";
-import SelectField from "../../components/fields/SelectField";
+import Selector from "../../components/Selector";
 import CheckboxField from "../../components/fields/CheckboxField";
 import Button from "../../components/Button";
 import AccountsRegistry from "../../data/models/AccountRegistry";
 import getRepositories from "../../data/repositories";
 import { RegistryType } from "../../data/models/Registry";
+import BankInfo from "../banks/BankInfo";
 
 const AddRegistryScreen = () => {
   const accounts = getRepositories().accounts.getCache();
@@ -45,7 +46,7 @@ const AddRegistryScreen = () => {
       <Field label={Lang.registry.description} value={description} onChange={setDescription} />
       <PriceField label={Lang.registry.value} price={value} onChange={setValue} />
       <Field label={Lang.registry.date} value={date} onChange={setDate} />
-      <SelectField
+      <Selector
         label={Lang.registry.account}
         value={accountId}
         onChange={setAccountId}
@@ -53,6 +54,11 @@ const AddRegistryScreen = () => {
           value: account.id,
           label: account.name
         }))}
+        renderOption={(option) => {
+          const account = accounts.find(a => a.id === option.value);
+          const bank = getRepositories().banks.getCache().find(b => b.id === account?.bankId);
+          return bank ? <BankInfo bank={bank} /> : <span>{option.label}</span>;
+        }}
       />
       <CheckboxField label={Lang.registry.paid} checked={paid} onChange={setPaid} />
       <div>

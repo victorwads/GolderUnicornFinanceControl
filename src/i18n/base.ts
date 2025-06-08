@@ -7,6 +7,7 @@ export default interface Translation {
     fillAllFields: string;
     currentPath: string;
     params: string;
+    selectOption: (label: string) => string;
   };
   timeline: {
     title: string;

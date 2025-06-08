@@ -9,6 +9,7 @@ const zh: Translation = {
     save: '保存',
     currentPath: '当前路径',
     params: '参数',
+    selectOption: (label: string) => `请选择${label}的选项`,
   },
   timeline: {
     title: '时间线',

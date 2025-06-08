@@ -9,6 +9,7 @@ const ptBR: Translation = {
     save: 'Salvar',
     currentPath: 'Caminho Atual',
     params: 'Parâmetros',
+    selectOption: (label: string) => `Selecione a opção para ${label}`,
   },
   timeline: {
     title: 'Linha do Tempo',

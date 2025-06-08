@@ -9,6 +9,7 @@ const en: Translation = {
     save: 'Save',
     currentPath: 'Current Path',
     params: 'Parameters',
+    selectOption: (label: string) => `Select the option for ${label}`,
   },
   timeline: {
     title: 'Timeline',
