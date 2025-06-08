@@ -77,7 +77,18 @@ const es: Translation = {
       otherThings: 'Otras cosas',
       ideasWelcome: 'Las ideas son bienvenidas',
     },
-  }
+  },
+  registry: {
+    title: 'Registro',
+    description: 'Descripción',
+    value: 'Valor',
+    date: 'Fecha',
+    account: 'Cuenta',
+    paid: 'Pagado',
+    messages: {
+      saved: 'Registro guardado con éxito',
+    },
+  },
 };
 
 export default es;

@@ -77,7 +77,18 @@ const fr: Translation = {
       otherThings: 'Autres choses',
       ideasWelcome: 'Les idées sont les bienvenues',
     },
-  }
+  },
+  registry: {
+    title: 'Enregistrement',
+    description: 'Description',
+    value: 'Valeur',
+    date: 'Date',
+    account: 'Compte',
+    paid: 'Payé',
+    messages: {
+      saved: 'Enregistrement sauvegardé avec succès',
+    },
+  },
 };
 
 export default fr;

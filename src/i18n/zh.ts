@@ -77,7 +77,18 @@ const zh: Translation = {
       otherThings: '其他事情',
       ideasWelcome: '欢迎提出想法',
     },
-  }
+  },
+  registry: {
+    title: '记录',
+    description: '描述',
+    value: '金额',
+    date: '日期',
+    account: '账户',
+    paid: '已支付',
+    messages: {
+      saved: '记录保存成功',
+    },
+  },
 };
 
 export default zh;
