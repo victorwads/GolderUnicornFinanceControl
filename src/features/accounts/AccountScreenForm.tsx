@@ -49,7 +49,7 @@ const AccountScreenForm = () => {
       id || "", name, saldoInicial, bank.id, accountType, false, accountColor, includeInTotal
     );
 
-    getRepositories().accounts.set(account);
+    await getRepositories().accounts.set(account);
     alert(id ? Lang.accounts.accountUpdated : Lang.accounts.accountCreated);
     navigate(-1);
   };

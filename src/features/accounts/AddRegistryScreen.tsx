@@ -11,11 +11,12 @@ import getRepositories from "../../data/repositories";
 import { RegistryType } from "../../data/models/Registry";
 
 const AddRegistryScreen = () => {
+  const accounts = getRepositories().accounts.getCache();
   const [description, setDescription] = useState("");
   const [value, setValue] = useState(0);
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [paid, setPaid] = useState(false);
-  const [accountId, setAccountId] = useState("");
+  const [accountId, setAccountId] = useState(accounts[0]?.id || "");
   const navigate = useNavigate();
 
   const saveRegistry = async () => {
@@ -48,7 +49,7 @@ const AddRegistryScreen = () => {
         label={Lang.registry.account}
         value={accountId}
         onChange={setAccountId}
-        options={getRepositories().accounts.getCache().map(account => ({
+        options={accounts.map(account => ({
           value: account.id,
           label: account.name
         }))}
