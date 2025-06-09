@@ -48,16 +48,12 @@ const AddRegistryScreen = () => {
       <Field label={Lang.registry.date} value={date} onChange={setDate} />
       <Selector
         label={Lang.registry.account}
-        value={accountId}
-        onChange={setAccountId}
-        options={accounts.map(account => ({
-          value: account.id,
-          label: account.name
-        }))}
+        options={accounts} value={accountId}
+        getInfo={option => ({ label: option.name, value: option.id })}
+        onChange={option => setAccountId(option.id)}
         renderOption={(option) => {
-          const account = accounts.find(a => a.id === option.value);
-          const bank = getRepositories().banks.getCache().find(b => b.id === account?.bankId);
-          return bank ? <BankInfo bank={bank} /> : <span>{option.label}</span>;
+          let bank: any = getRepositories().banks.getLocalById(option.bankId);
+          return <BankInfo bank={{...bank, name: option.name}} />;
         }}
       />
       <CheckboxField label={Lang.registry.paid} checked={paid} onChange={setPaid} />
