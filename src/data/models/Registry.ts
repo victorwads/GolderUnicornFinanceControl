@@ -8,7 +8,6 @@ export enum RegistryType {
   CREDIT_RECURRENT,
   TRANSFER,
   INVOICE,
-  ACCOUNT_REGISTRY,
 }
 
 export interface RegistryWithDetails {

@@ -4,6 +4,8 @@ import "./RegistryItem.css";
 import Icon, { getIconByCaseInsensitiveName } from "../../../components/Icons";
 import { RegistryType, RegistryWithDetails } from '../../../data/models/Registry';
 import AccountsRegistry from "../../../data/models/AccountRegistry";
+import routes from "../../navigate";
+import InvoiceRegistry from "../../../data/models/InvoiceRegistry";
 
 interface RegistryItemProps {
   item: RegistryWithDetails;
@@ -19,13 +21,19 @@ const RegistryItem = (
 
   const toSource = () => {
     if (registry instanceof AccountsRegistry) {      
-      navigate('/main/timeline/' + registry.accountId);
+      navigate(routes.timeline(registry.accountId));
     }
   };
 
   return <div 
       key={registry.id} className={"TimelineItem" + (registry.paid ? '' : ' not-paid')}
-      onClick={() => navigate(`/accounts/registry/${registry.id}/edit`)}
+      onClick={() => {
+        if(registry instanceof InvoiceRegistry) {
+          navigate(routes.invoice(registry.cardId, registry.name));
+          return
+        };
+        navigate(routes.registry(registry.id))
+      }}
     >
     {/* Área Esquerda: Círculo com cor da categoria */}
     <div

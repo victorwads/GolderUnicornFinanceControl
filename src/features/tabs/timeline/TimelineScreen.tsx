@@ -11,6 +11,7 @@ import { ContainerScrollContent } from '../../../components/conteiners/index';
 import { Loading } from "../../../components/Loading";
 import RegistryItem from "./RegistryItem";
 import Icon from '../../../components/Icons';
+import routes from '../../navigate';
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -71,7 +72,7 @@ const TimelineScreen = () => {
         {(selectedAccount || hasCategoryFilter) && (
           <div className="SelectedBank">
             {selectedAccount && <span>{selectedAccount.name}</span>}
-            <Link to={'/main/timeline'} className="ClearFilter">{Lang.timeline.clearFilter}</Link>
+            <Link to={routes.timeline()} className="ClearFilter">{Lang.timeline.clearFilter}</Link>
           </div>
         )}
         {!selectedAccount && <div className="ScreenOptions">
@@ -96,7 +97,10 @@ const TimelineScreen = () => {
         {registries.length !== 0 && <span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
       </div>
       <div className="FloatButton">
-        <Link to={'/accounts/registry/add'}>
+        <Link to={'/accounts/registry/add?'
+          + (selectedAccount ? `&account=${selectedAccount.id}` : '')
+          + (categoriaIds.length === 1 ? `&category=${categoriaIds[0]}` : '')
+        }>
           <Icon icon={Icon.all.faPlus} size="2x" />
         </Link>
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Button from "../../components/Button";
 import { ModalScreen } from "../../components/conteiners/ModalScreen";
@@ -34,9 +34,20 @@ const RegistryScreenForm = () => {
   const [value, setValue] = useState(0);
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [paid, setPaid] = useState(false);
-  const [accountId, setAccountId] = useState(accounts[0]?.id || "");
-  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
+  const [accountId, setAccountId] = useState<string | undefined>();
+  const [categoryId, setCategoryId] = useState<string | undefined>();
   const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (id) return;
+
+    const categoryIdParam = searchParams.get('category');
+    if (categoryIdParam) setCategoryId(categoryIdParam);
+
+    const accountIdParam = searchParams.get('account');
+    if (accountIdParam) setAccountId(accountIdParam);
+  }, [id, searchParams]);
 
   useEffect(() => {
     if (id) {
@@ -53,7 +64,7 @@ const RegistryScreenForm = () => {
   }, [id]);
 
   const saveRegistry = async () => {
-    if (description.trim() === "" || value === 0 || accountId === "") {
+    if (description.trim() === "" || value === 0 || !accountId || accountId === "") {
       alert(Lang.commons.fillAllFields);
       return;
     }

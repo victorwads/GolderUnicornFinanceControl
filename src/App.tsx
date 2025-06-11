@@ -38,7 +38,7 @@ const router = createBrowserRouter([
   { path: '/creditcards', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id/edit', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/creditcards/:id/invoices', element: <CreditCardsInvoices /> },
+  { path: '/creditcards/:id/invoices/:selected?', element: <CreditCardsInvoices /> },
   { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
   { path: '/categories', element: <CategoriesScreen /> },
