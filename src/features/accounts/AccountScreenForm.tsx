@@ -58,11 +58,13 @@ const AccountScreenForm = () => {
   return <ModalScreen title={id ? Lang.accounts.editAccount + " - " + name : Lang.accounts.addAccount}>
     <Field label={Lang.accounts.accountName} value={name} onChange={setName} />
     <Selector
-      label={Lang.accounts.bank}      
-      options={getRepositories().banks.getCache()} value={bank?.id}
+      label={Lang.accounts.bank}
+      value={bank?.id}
+      sections={[{ options: getRepositories().banks.getCache() }]}
       getInfo={option => ({ label: option.name, value: option.id })}
       onChange={option => setBank(option)}
       renderOption={option => <BankInfo bank={option} />}
+      renderSection={undefined}
     />
     <PriceField label={Lang.accounts.initialBalance} price={saldoInicial} onChange={setSaldoInicial} />
     <SelectField
