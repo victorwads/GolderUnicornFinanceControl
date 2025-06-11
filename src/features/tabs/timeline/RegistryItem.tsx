@@ -23,7 +23,10 @@ const RegistryItem = (
     }
   };
 
-  return <div key={registry.id} className={"TimelineItem" + (registry.paid ? '' : ' not-paid')}>
+  return <div 
+      key={registry.id} className={"TimelineItem" + (registry.paid ? '' : ' not-paid')}
+      onClick={() => navigate(`/accounts/registry/${registry.id}/edit`)}
+    >
     {/* Área Esquerda: Círculo com cor da categoria */}
     <div
       onClick={() => category?.id && onCategoryClick?.(category?.id)}

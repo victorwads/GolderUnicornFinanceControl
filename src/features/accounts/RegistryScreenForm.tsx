@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Button from "../../components/Button";
 import { ModalScreen } from "../../components/conteiners/ModalScreen";
@@ -16,14 +16,19 @@ import getRepositories from "../../data/repositories";
 import BankInfo from "../banks/BankInfo";
 import CategoryListItem from "../categories/CategoryListItem";
 
-const AddRegistryScreen = () => {
+const RegistryScreenForm = () => {
+  const { id } = useParams();
   const accounts = getRepositories().accounts.getCache();
   const categorySections = getRepositories().categories
-  .getAllRoots().map((root): SelectorSection<Category> => ({
-    section: root,
-    options: root.children,
-    selectable: true
-  }));
+    .getAllRoots().map((root): SelectorSection<Category> => ({
+      section: root,
+      options: root.children,
+      selectable: true
+    }));
+  const registry = useMemo(() => {
+    if (!id) return undefined;
+    return getRepositories().accountRegistries.getLocalById(id);
+  }, [id]);
 
   const [description, setDescription] = useState("");
   const [value, setValue] = useState(0);
@@ -33,30 +38,55 @@ const AddRegistryScreen = () => {
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (id) {
+      const registry = getRepositories().accountRegistries.getCache().find((r: AccountsRegistry) => r.id === id);
+      if (registry) {
+        setDescription(registry.description);
+        setValue(registry.value);
+        setDate(registry.date.toISOString().substring(0, 10));
+        setPaid(registry.paid);
+        setAccountId(registry.accountId);
+        setCategoryId(registry.categoryId);
+      }
+    }
+  }, [id]);
+
   const saveRegistry = async () => {
     if (description.trim() === "" || value === 0 || accountId === "") {
       alert(Lang.commons.fillAllFields);
       return;
     }
 
-    const registry = new AccountsRegistry(
-      "",
-      RegistryType.ACCOUNT,
+    const newRegistry = new AccountsRegistry(
+      id || "",
+      registry?.type ?? RegistryType.ACCOUNT,
       accountId,
       value,
       description,
-      new Date(date),
-      paid
+      registry?.date ?? new Date(date),
+      paid || registry?.type === RegistryType.TRANSFER,
+      registry?.tags ?? [],
+      categoryId
     );
 
-    await getRepositories().accountRegistries.addRegistry(registry);
-    alert(Lang.registry.messages.saved);
+    if (id) {
+      await getRepositories().accountRegistries.editRegistry(newRegistry);
+      alert(Lang.registry.messages.saved);
+    } else {
+      await getRepositories().accountRegistries.addRegistry(newRegistry);
+      alert(Lang.registry.messages.saved);
+    }
     navigate(-1);
   };
 
+  const isTransfer = registry?.type === RegistryType.TRANSFER;
+
   return (
     <ModalScreen title={Lang.registry.title}>
-      <Field label={Lang.registry.description} value={description} onChange={setDescription} />
+      <Field
+        disabled={isTransfer} label={Lang.registry.description} value={description}
+        onChange={setDescription} />
       <PriceField label={Lang.registry.value} price={value} onChange={setValue} />
       <Field label={Lang.registry.date} value={date} onChange={setDate} />
       <Selector
@@ -71,15 +101,13 @@ const AddRegistryScreen = () => {
         }}
         renderSection={undefined}
       />
+      {!isTransfer && <>
       <Selector
         label={Lang.categories.title}
         value={categoryId}
         sections={categorySections}
         getInfo={option => ({ label: option.name, value: option.id })}
-        onChange={option => {
-          console.log("Selected category:", option);
-          setCategoryId(option.id)
-        }}
+        onChange={option => setCategoryId(option.id)}
         renderOption={(option, selected) => 
           <CategoryListItem category={option} selected={selected} />
         }
@@ -88,6 +116,7 @@ const AddRegistryScreen = () => {
         }
       />
       <CheckboxField label={Lang.registry.paid} checked={paid} onChange={setPaid} />
+      </>}
       <div>
         <Button text={Lang.commons.cancel} onClick={() => navigate(-1)} />
         <Button text={Lang.commons.save} onClick={saveRegistry} />
@@ -96,4 +125,4 @@ const AddRegistryScreen = () => {
   );
 };
 
-export default AddRegistryScreen;
+export default RegistryScreenForm;

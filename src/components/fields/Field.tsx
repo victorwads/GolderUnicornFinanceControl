@@ -4,10 +4,11 @@ import BaseField from "./BaseField";
 interface FieldParams {
   label: string;
   value: string;
+  disabled?: boolean;
   onChange(value: string): void;
 }
 
-const Field = ({ label, value, onChange }: FieldParams) => {
+const Field = ({ label, value, onChange, disabled = false }: FieldParams) => {
   const [stateValue, setValue] = useState(value);
 
   const handleInputChange = (inputValue: string) => {
@@ -30,6 +31,7 @@ const Field = ({ label, value, onChange }: FieldParams) => {
       <input
         type="text"
         value={stateValue}
+        disabled={disabled}
         onChange={(event) => handleInputChange(event.target.value)}
         onFocus={(event) => moveCursorToEnd(event.target)}
       />

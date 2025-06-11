@@ -59,4 +59,8 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
       )
     };
   }
+
+  public getCache(showArchived: boolean = false): Account[] {
+    return super.getCache().filter(account => showArchived || !account.archived);
+  }
 }
