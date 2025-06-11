@@ -24,7 +24,7 @@ const SettingsScreen = () => {
   const { theme, setTheme, density, setDensity } = useCssVars();
   const [user, setUser] = useState<User>()
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
-  const [language, setCurrentLanguage] = useState<string>(CurrentLang);
+  const [language, setCurrentLanguage] = useState<string>(SavedLang || "");
 
   useEffect(() => {
     getRepositories().user.getUserData().then((user) => {
@@ -139,10 +139,11 @@ const SettingsScreen = () => {
     <div>
       <select value={language} onChange={(e) => {
         setLanguage(e.target.value as any);
-        setCurrentLanguage(CurrentLang);
+        setCurrentLanguage(SavedLang || "");
       }}>
+        <option key="" value="">{Lang.commons.default} ({navigator.language})</option>
         {Object.keys(Langs).map((key) => {
-          return <option key={key} value={key}>{Langs[key as keyof typeof Langs]}</option>
+          return <option key={key} value={key}>{Langs[key as keyof typeof Langs].name}</option>
         })}
       </select>
     </div>

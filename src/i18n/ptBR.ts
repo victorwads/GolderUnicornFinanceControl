@@ -9,12 +9,25 @@ const ptBR: Translation = {
     save: 'Salvar',
     currentPath: 'Caminho Atual',
     params: 'Parâmetros',
+    selectOption: (label: string) => `Selecione a opção para ${label}`,
+    default: 'Padrão',
   },
   timeline: {
     title: 'Linha do Tempo',
     balance: 'Saldo',
     clearFilter: 'Mostrar todos',
     registryCount: 'Registros',
+  },
+  registry: {
+    title: 'Registro',
+    description: 'Descrição',
+    value: 'Valor',
+    date: 'Data',
+    account: 'Conta',
+    paid: 'Pago',
+    messages: {
+      saved: 'Registro salvo com sucesso',
+    },
   },
   accounts: {
     title: 'Contas',
@@ -49,6 +62,9 @@ const ptBR: Translation = {
     categoryName: 'Nome da Categoria',
     parentCategory: 'Categoria Pai',
     categoryCreated: 'Categoria criada com sucesso',
+  },
+  groceries: {
+    title: 'Mercado',
   },
   login: {
     loginWithGoogle: 'Entrar com Google',

@@ -7,6 +7,8 @@ export default interface Translation {
     fillAllFields: string;
     currentPath: string;
     params: string;
+    selectOption: (label: string) => string;
+    default: string;
   };
   timeline: {
     title: string;
@@ -14,6 +16,17 @@ export default interface Translation {
     clearFilter: string;
     registryCount: string;
   };
+  registry: {
+    title: string;
+    description: string;
+    value: string;
+    date: string;
+    account: string;
+    paid: string;
+    messages: {
+      saved: string;
+    };
+  }
   accounts: {
     title: string;
     showArchived: string;
@@ -51,6 +64,9 @@ export default interface Translation {
   login: {
     loginWithGoogle: string;
     loginWithApple: string;
+  };
+  groceries: {
+    title: string;
   };
   settings: {
     title: string;

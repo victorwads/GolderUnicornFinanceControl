@@ -18,6 +18,7 @@ import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
 import CreditCardsInvoices from './features/creaditcards/CreditCardsInvoces';
 import AccountScreenForm from './features/accounts/AccountScreenForm';
 import AccountsScreen from './features/accounts/AccountsScreen';
+import RegistryScreenForm from './features/accounts/RegistryScreenForm';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -25,21 +26,21 @@ const router = createBrowserRouter([
     path: '/main', element: <TabScreen />, children: [
       { path: 'dashboard', element: <DashboardScreen /> },
       { path: 'timeline/:id?', element: <TimelineScreen /> },
+      { path: 'groceries', element: <EmptyScreen title={Lang.groceries.title} /> },
       { path: 'settings', element: <SettingsScreen /> },
     ]
   },
   { path: '/accounts', element: <AccountsScreen /> },
   { path: '/accounts/create', element: <AccountScreenForm /> },
   { path: '/accounts/:id/edit', element: <AccountScreenForm /> },
-  { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
+  { path: '/accounts/registry/add', element: <RegistryScreenForm /> },
+  { path: '/accounts/registry/:id/edit', element: <RegistryScreenForm /> },
   { path: '/creditcards', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id/edit', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/creditcards/:id/invoices', element: <CreditCardsInvoices /> },
+  { path: '/creditcards/:id/invoices/:selected?', element: <CreditCardsInvoices /> },
   { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
   { path: '/categories', element: <CategoriesScreen /> },
-  { path: '/categories/:id', element: <EmptyScreen title='Category' /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
 ])
 

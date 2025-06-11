@@ -9,6 +9,8 @@ const zh: Translation = {
     save: '保存',
     currentPath: '当前路径',
     params: '参数',
+    selectOption: (label: string) => `请选择${label}的选项`,
+    default: '默认',
   },
   timeline: {
     title: '时间线',
@@ -50,6 +52,9 @@ const zh: Translation = {
     parentCategory: '父类别',
     categoryCreated: '类别创建成功',
   },
+  groceries: {
+    title: '杂货',
+  },
   login: {
     loginWithGoogle: '使用 Google 登录',
     loginWithApple: '使用 Apple ID 登录',
@@ -77,7 +82,18 @@ const zh: Translation = {
       otherThings: '其他事情',
       ideasWelcome: '欢迎提出想法',
     },
-  }
+  },
+  registry: {
+    title: '记录',
+    description: '描述',
+    value: '金额',
+    date: '日期',
+    account: '账户',
+    paid: '已支付',
+    messages: {
+      saved: '记录保存成功',
+    },
+  },
 };
 
 export default zh;

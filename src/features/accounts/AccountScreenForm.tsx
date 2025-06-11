@@ -6,9 +6,10 @@ import PriceField from "../../components/fields/PriceField";
 import Button from "../../components/Button";
 import Field from "../../components/fields/Field";
 import Row from "../../components/visual/Row";
-import BankSelector from "../banks/BankSelector";
+import Selector from "../../components/Selector";
 import SelectField from "../../components/fields/SelectField";
 import CheckboxField from "../../components/fields/CheckboxField";
+import BankInfo from "../banks/BankInfo";
 
 import Bank from "../../data/models/Bank";
 import getRepositories from "../../data/repositories";
@@ -49,14 +50,22 @@ const AccountScreenForm = () => {
       id || "", name, saldoInicial, bank.id, accountType, false, accountColor, includeInTotal
     );
 
-    getRepositories().accounts.set(account);
+    await getRepositories().accounts.set(account);
     alert(id ? Lang.accounts.accountUpdated : Lang.accounts.accountCreated);
     navigate(-1);
   };
 
   return <ModalScreen title={id ? Lang.accounts.editAccount + " - " + name : Lang.accounts.addAccount}>
     <Field label={Lang.accounts.accountName} value={name} onChange={setName} />
-    <BankSelector bank={bank} onChange={bank => setBank(bank)} />
+    <Selector
+      label={Lang.accounts.bank}
+      value={bank?.id}
+      sections={[{ options: getRepositories().banks.getCache() }]}
+      getInfo={option => ({ label: option.name, value: option.id })}
+      onChange={option => setBank(option)}
+      renderOption={option => <BankInfo bank={option} />}
+      renderSection={undefined}
+    />
     <PriceField label={Lang.accounts.initialBalance} price={saldoInicial} onChange={setSaldoInicial} />
     <SelectField
       label={Lang.accounts.types.label}
@@ -80,7 +89,7 @@ const AccountScreenForm = () => {
       <Button text={Lang.commons.cancel} onClick={() => navigate(-1)} />
       <Button
         text={Lang.commons.save}
-        disabled={name.trim() == "" || bank == null}
+        disabled={name.trim() === "" || bank == null}
         onClick={saveAccount}
       />
     </Row>

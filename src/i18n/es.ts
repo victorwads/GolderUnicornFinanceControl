@@ -9,6 +9,8 @@ const es: Translation = {
     save: 'Guardar',
     currentPath: 'Ruta Actual',
     params: 'Parámetros',
+    selectOption: (label: string) => `Seleccione la opción para ${label}`,
+    default: 'Predeterminado',
   },
   timeline: {
     title: 'Cronología',
@@ -50,6 +52,9 @@ const es: Translation = {
     parentCategory: 'Categoría Principal',
     categoryCreated: 'Categoría creada con éxito',
   },
+  groceries: {
+    title: 'Supermercado',
+  },
   login: {
     loginWithGoogle: 'Iniciar sesión con Google',
     loginWithApple: 'Iniciar sesión con Apple ID',
@@ -77,7 +82,18 @@ const es: Translation = {
       otherThings: 'Otras cosas',
       ideasWelcome: 'Las ideas son bienvenidas',
     },
-  }
+  },
+  registry: {
+    title: 'Registro',
+    description: 'Descripción',
+    value: 'Valor',
+    date: 'Fecha',
+    account: 'Cuenta',
+    paid: 'Pagado',
+    messages: {
+      saved: 'Registro guardado con éxito',
+    },
+  },
 };
 
 export default es;

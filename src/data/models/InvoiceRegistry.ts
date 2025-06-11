@@ -7,6 +7,7 @@ export default class InvoiceRegistry extends Registry {
   static categoryId = "fatura";
   public cardId: string;
   public accountId: string;
+  public name: string;
 
   constructor(
     invoice: CreditCardInvoice,
@@ -22,5 +23,6 @@ export default class InvoiceRegistry extends Registry {
     );
     this.cardId = card.id;
     this.accountId = invoice.paymentAccountId;
+    this.name = invoice.name;
   }
 }

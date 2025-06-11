@@ -15,4 +15,17 @@ export default class CreditCardInvoice extends DocumentModel {
   ) {
     super(id);
   }
+
+  public get name(): string {
+    return CreditCardInvoice.makeName(this.year, this.month);
+  }
+
+  public static nowName(): string {
+    const now = new Date();
+    return CreditCardInvoice.makeName(now.getFullYear(), now.getMonth() + 1);
+  }
+
+  private static makeName(year: number, month: number): string {
+    return year + String(month).padStart(2, '0');
+  }
 }

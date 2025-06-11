@@ -7,6 +7,7 @@ interface ContainerProps {
   wide?: boolean;
   spaced?: boolean;
   screen?: boolean;
+  full?: boolean;
   className?: string;
 }
 
@@ -14,7 +15,7 @@ const containerContentTypes = [
   'ContainerFixedContent', 'ContainerScrollContent',
 ];
 
-export function Container({ children, wide = false, spaced = false, screen = false, className }: ContainerProps) {
+export function Container({ children, wide = false, spaced = false, screen = false, full = false, className }: ContainerProps) {
   Children.forEach(children, child => {
     const name = (child as any)?.type?.displayName;
     if (isValidElement(child) && !containerContentTypes.includes(name)) {
@@ -26,6 +27,7 @@ export function Container({ children, wide = false, spaced = false, screen = fal
     'wide': wide,
     'spaced': spaced,
     'screen': screen,
+    'full': full,
   })}>{children}</div>;
 }
 

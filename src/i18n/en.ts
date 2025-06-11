@@ -9,12 +9,25 @@ const en: Translation = {
     save: 'Save',
     currentPath: 'Current Path',
     params: 'Parameters',
+    selectOption: (label: string) => `Select the option for ${label}`,
+    default: 'Default',
   },
   timeline: {
     title: 'Timeline',
     balance: 'Balance',
     clearFilter: 'Show all',
     registryCount: 'Records',
+  },
+  registry: {
+    title: 'Registry',
+    description: 'Description',
+    value: 'Value',
+    date: 'Date',
+    account: 'Account',
+    paid: 'Paid',
+    messages: {
+      saved: 'Saved successfully',
+    }
   },
   accounts: {
     title: 'Accounts',
@@ -49,6 +62,9 @@ const en: Translation = {
     categoryName: 'Category Name',
     parentCategory: 'Parent Category',
     categoryCreated: 'Category created successfully',
+  },
+  groceries: {
+    title: 'Groceries',
   },
   login: {
     loginWithGoogle: 'Login with Google',

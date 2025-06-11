@@ -20,7 +20,7 @@ const AccountsCard: React.FC<{}> = () => {
     const { accounts: accountsRepo, banks } = getRepositories();
 
     setAccounts(
-      accountsRepo.getCache().map(account => {
+      accountsRepo.getCache(showArchived).map(account => {
         return {
           ...account,
           bank: new Bank(
@@ -38,9 +38,9 @@ const AccountsCard: React.FC<{}> = () => {
     </div>
     <Link to={'/accounts'}>{Lang.accounts.title}</Link>
     <Card>
-      {accounts
-        .filter(account => showArchived || !account.archived)
-        .map(account => <AccountItem key={account.id} account={account} />)}
+      {accounts.map(account => 
+        <AccountItem key={account.id} account={account} />
+      )}
       {accounts.length === 0 && <div className="centerInfo">{Lang.accounts.noAccounts}</div>}
       <div style={{ textAlign: 'right' }}>
         <Link to={'/accounts/create'}>{Lang.accounts.addAccount}</Link>

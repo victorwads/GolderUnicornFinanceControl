@@ -9,6 +9,8 @@ const fr: Translation = {
     save: 'Enregistrer',
     currentPath: 'Chemin Actuel',
     params: 'Paramètres',
+    selectOption: (label: string) => `Sélectionnez l'option pour ${label}`,
+    default: 'Défaut',
   },
   timeline: {
     title: 'Chronologie',
@@ -50,6 +52,9 @@ const fr: Translation = {
     parentCategory: 'Catégorie Parente',
     categoryCreated: 'Catégorie créée avec succès',
   },
+  groceries: {
+    title: 'Courses',
+  },
   login: {
     loginWithGoogle: 'Se connecter avec Google',
     loginWithApple: 'Se connecter avec Apple ID',
@@ -77,7 +82,18 @@ const fr: Translation = {
       otherThings: 'Autres choses',
       ideasWelcome: 'Les idées sont les bienvenues',
     },
-  }
+  },
+  registry: {
+    title: 'Enregistrement',
+    description: 'Description',
+    value: 'Valeur',
+    date: 'Date',
+    account: 'Compte',
+    paid: 'Payé',
+    messages: {
+      saved: 'Enregistrement sauvegardé avec succès',
+    },
+  },
 };
 
 export default fr;

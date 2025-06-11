@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useRef, use, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import './CreditCardsInvoices.css';
 
 import RegistryItem from '../tabs/timeline/RegistryItem';
@@ -9,6 +9,7 @@ import getRepositories from "../../data/repositories";
 import CreditCardInvoice from "../../data/models/CreditCardInvoice";
 import { RegistryWithDetails } from "../../data/models/Registry";
 import CreditCard from "../../data/models/CreditCard";
+import routes from "../navigate";
 
 function fetchData(id?: string): { creditCard?: CreditCard, invoices: CreditCardInvoice[] } {
   if (!id) return { invoices: [] };
@@ -22,13 +23,18 @@ function fetchData(id?: string): { creditCard?: CreditCard, invoices: CreditCard
 }
 
 const CreditCardsInvoices: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { id, selected } = useParams<{ id: string, selected: string }>();
 
   const [data, setData] = useState(() => fetchData(id));
-  const [selectedInvoice, setSelectedInvoice] = useState<CreditCardInvoice | null>(null);
+  const [selectedInvoice, setSelectedInvoiceModel] = useState<CreditCardInvoice | null>();
   const [invoiceRegistries, setInvoiceRegistries] = useState<RegistryWithDetails[]>([]);
 
   const invoiceRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const setSelectedInvoice = useCallback((invoice?: CreditCardInvoice) => {
+    if (!invoice || !id) return setSelectedInvoiceModel(null);
+    navigate(routes.invoice(id, invoice.name), { replace: true });
+  }, [navigate, id]);
 
   useEffect(() => {
     const index = data.invoices.indexOf(selectedInvoice as any);
@@ -42,21 +48,29 @@ const CreditCardsInvoices: React.FC = () => {
   }, [data, selectedInvoice]);
 
   useEffect(() => {
+    const found = data.invoices.find((inv) =>
+      inv.name === selected
+    );
+    console.log("Selected invoice found:", found);
+    setSelectedInvoiceModel(found);
+  }, [selected, data.invoices]);
+
+  useEffect(() => {
     const data = fetchData(id);
     const { invoices } = data;
     setData(data);
-    
-    if (invoices.length === 0 || selectedInvoice) return
-    let currentMonthIndex = invoices.findIndex((inv) =>
-      inv.month === new Date().getMonth() + 1 &&
-      inv.year === new Date().getFullYear()
+
+    if (invoices.length === 0 || selectedInvoice?.cardId === id) return;
+
+    let current = invoices.find((inv) =>
+      inv.name === CreditCardInvoice.nowName()
     );
-    if (currentMonthIndex === -1) {
-      currentMonthIndex = invoices.length - 1;
+    if (!current) {
+      current = invoices[invoices.length - 1];
     }
 
-    setSelectedInvoice(invoices[currentMonthIndex]);
-  }, [id, selectedInvoice]);
+    setSelectedInvoice(current);
+  }, [id, selectedInvoice, setSelectedInvoice]);
 
 
   useEffect(() => {
@@ -74,6 +88,7 @@ const CreditCardsInvoices: React.FC = () => {
   return <ModalScreen title={data.creditCard?.name} header={
     <div className="scrollableInvoices">
       {data.invoices.map((invoice, idx) => <div
+        key={invoice.name}
         ref={el => { invoiceRefs.current[idx] = el; }}
         onClick={() => setSelectedInvoice(invoice)}
         className={selectedInvoice?.id === invoice.id ? "selected" : ""}>

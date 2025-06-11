@@ -5,6 +5,10 @@
     position: relative;
 }
 
+.container.full {
+    height: 100%;
+}
+
 .container.spaced {
     padding: var(--spacing-md);
     padding-bottom: 0;

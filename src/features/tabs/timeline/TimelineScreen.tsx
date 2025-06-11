@@ -10,6 +10,8 @@ import { Container, ContainerFixedContent } from "../../../components/conteiners
 import { ContainerScrollContent } from '../../../components/conteiners/index';
 import { Loading } from "../../../components/Loading";
 import RegistryItem from "./RegistryItem";
+import Icon from '../../../components/Icons';
+import routes from '../../navigate';
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -61,7 +63,7 @@ const TimelineScreen = () => {
 
   let perDayTotal = total;
   let currentDay = registries[0]?.registry.date.getDate();
-  return <Container spaced>
+  return <Container spaced full>
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
         <h1 className="ScreenTitle">{Lang.timeline.title}</h1>
@@ -70,7 +72,7 @@ const TimelineScreen = () => {
         {(selectedAccount || hasCategoryFilter) && (
           <div className="SelectedBank">
             {selectedAccount && <span>{selectedAccount.name}</span>}
-            <Link to={'/main/timeline'} className="ClearFilter">{Lang.timeline.clearFilter}</Link>
+            <Link to={routes.timeline()} className="ClearFilter">{Lang.timeline.clearFilter}</Link>
           </div>
         )}
         {!selectedAccount && <div className="ScreenOptions">
@@ -93,6 +95,14 @@ const TimelineScreen = () => {
           </span>}
         </div>
         {registries.length !== 0 && <span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
+      </div>
+      <div className="FloatButton">
+        <Link to={'/accounts/registry/add?'
+          + (selectedAccount ? `&account=${selectedAccount.id}` : '')
+          + (categoriaIds.length === 1 ? `&category=${categoriaIds[0]}` : '')
+        }>
+          <Icon icon={Icon.all.faPlus} size="2x" />
+        </Link>
       </div>
     </ContainerFixedContent>
     <ContainerScrollContent>
