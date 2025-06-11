@@ -10,6 +10,7 @@ const en: Translation = {
     currentPath: 'Current Path',
     params: 'Parameters',
     selectOption: (label: string) => `Select the option for ${label}`,
+    default: 'Default',
   },
   timeline: {
     title: 'Timeline',
@@ -61,6 +62,9 @@ const en: Translation = {
     categoryName: 'Category Name',
     parentCategory: 'Parent Category',
     categoryCreated: 'Category created successfully',
+  },
+  groceries: {
+    title: 'Groceries',
   },
   login: {
     loginWithGoogle: 'Login with Google',

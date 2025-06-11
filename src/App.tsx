@@ -26,6 +26,7 @@ const router = createBrowserRouter([
     path: '/main', element: <TabScreen />, children: [
       { path: 'dashboard', element: <DashboardScreen /> },
       { path: 'timeline/:id?', element: <TimelineScreen /> },
+      { path: 'groceries', element: <EmptyScreen title={Lang.groceries.title} /> },
       { path: 'settings', element: <SettingsScreen /> },
     ]
   },
@@ -34,15 +35,12 @@ const router = createBrowserRouter([
   { path: '/accounts/:id/edit', element: <AccountScreenForm /> },
   { path: '/accounts/registry/add', element: <RegistryScreenForm /> },
   { path: '/accounts/registry/:id/edit', element: <RegistryScreenForm /> },
-  { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
   { path: '/creditcards', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id/edit', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id/invoices/:selected?', element: <CreditCardsInvoices /> },
   { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/registry/:id', element: <EmptyScreen title='Registry' /> },
   { path: '/categories', element: <CategoriesScreen /> },
-  { path: '/categories/:id', element: <EmptyScreen title='Category' /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
 ])
 

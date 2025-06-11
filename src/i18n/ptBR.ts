@@ -10,6 +10,7 @@ const ptBR: Translation = {
     currentPath: 'Caminho Atual',
     params: 'Parâmetros',
     selectOption: (label: string) => `Selecione a opção para ${label}`,
+    default: 'Padrão',
   },
   timeline: {
     title: 'Linha do Tempo',
@@ -61,6 +62,9 @@ const ptBR: Translation = {
     categoryName: 'Nome da Categoria',
     parentCategory: 'Categoria Pai',
     categoryCreated: 'Categoria criada com sucesso',
+  },
+  groceries: {
+    title: 'Mercado',
   },
   login: {
     loginWithGoogle: 'Entrar com Google',

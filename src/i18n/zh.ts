@@ -10,6 +10,7 @@ const zh: Translation = {
     currentPath: '当前路径',
     params: '参数',
     selectOption: (label: string) => `请选择${label}的选项`,
+    default: '默认',
   },
   timeline: {
     title: '时间线',
@@ -50,6 +51,9 @@ const zh: Translation = {
     categoryName: '类别名称',
     parentCategory: '父类别',
     categoryCreated: '类别创建成功',
+  },
+  groceries: {
+    title: '杂货',
   },
   login: {
     loginWithGoogle: '使用 Google 登录',

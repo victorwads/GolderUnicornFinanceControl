@@ -8,6 +8,7 @@ export default interface Translation {
     currentPath: string;
     params: string;
     selectOption: (label: string) => string;
+    default: string;
   };
   timeline: {
     title: string;
@@ -63,6 +64,9 @@ export default interface Translation {
   login: {
     loginWithGoogle: string;
     loginWithApple: string;
+  };
+  groceries: {
+    title: string;
   };
   settings: {
     title: string;

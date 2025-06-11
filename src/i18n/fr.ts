@@ -10,6 +10,7 @@ const fr: Translation = {
     currentPath: 'Chemin Actuel',
     params: 'Paramètres',
     selectOption: (label: string) => `Sélectionnez l'option pour ${label}`,
+    default: 'Défaut',
   },
   timeline: {
     title: 'Chronologie',
@@ -50,6 +51,9 @@ const fr: Translation = {
     categoryName: 'Nom de la Catégorie',
     parentCategory: 'Catégorie Parente',
     categoryCreated: 'Catégorie créée avec succès',
+  },
+  groceries: {
+    title: 'Courses',
   },
   login: {
     loginWithGoogle: 'Se connecter avec Google',
