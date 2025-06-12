@@ -1,6 +1,6 @@
-import Registry, { RegistryType } from "./Registry";
+import {Registry, RegistryType } from "./Registry";
 
-export default class AccountsRegistry extends Registry {
+export class AccountsRegistry extends Registry {
 
   constructor(
     id: string,

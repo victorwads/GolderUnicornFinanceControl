@@ -1,6 +1,6 @@
-import DocumentModel from "./DocumentModel";
+import { DocumentModel } from "./DocumentModel";
 
-export default class CreditCard extends DocumentModel {
+export class CreditCard extends DocumentModel {
   constructor(
     public id: string,
     public name: string,

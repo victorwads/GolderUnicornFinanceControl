@@ -1,5 +1,5 @@
 import { useParams, useLocation } from 'react-router-dom';
-import { ModalScreen } from '../../components/conteiners/ModalScreen';
+import { ModalScreen } from '@components/conteiners/ModalScreen';
 
 interface EmptyScreenProps {
   title: string;

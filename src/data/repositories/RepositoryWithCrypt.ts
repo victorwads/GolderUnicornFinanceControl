@@ -4,8 +4,9 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
+import { DocumentModel } from "@models";
+
 import Encryptor from "../crypt/Encryptor";
-import DocumentModel from "../models/DocumentModel";
 import BaseRepository from "./RepositoryBase";
 
 export default abstract class RepositoryWithCrypt<Model extends DocumentModel> extends BaseRepository<Model> {
@@ -17,7 +18,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
   }
 
   protected override async createQuery(fields: Partial<Model>): Promise<Query<Model, DocumentData>> {
-    if(!this.encryptor) throw new Error('Encryptor not initialized');
+    if (!this.encryptor) throw new Error('Encryptor not initialized');
     const encryptedFields = await this.encryptor.encrypt(fields, [], 1);
     delete (encryptedFields as any).encrypted;
 
@@ -25,7 +26,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
   }
 
   protected override async fromFirestore(id: string, data: DocumentData): Promise<Model> {
-    if(!this.encryptor) throw new Error('Encryptor not initialized');
+    if (!this.encryptor) throw new Error('Encryptor not initialized');
 
     if (data && data.encrypted === true) {
       const newData = await this.encryptor.decrypt(data);
@@ -39,7 +40,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
   }
 
   protected override async toFirestore(model: Model): Promise<DocumentData> {
-    if(!this.encryptor) throw new Error('Encryptor not initialized');
+    if (!this.encryptor) throw new Error('Encryptor not initialized');
 
     const data = await super.toFirestore(model);
     return await this.encryptor.encrypt(data);
@@ -58,11 +59,11 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
     if (this.encryptQueeue.length > 0) {
       const batch = writeBatch(this.db);
 
-      let writes = 0;      
+      let writes = 0;
       while (true) {
         let model = this.encryptQueeue.pop();
-        if(!model) break;
-        if(writes > 100) {
+        if (!model) break;
+        if (writes > 100) {
           setTimeout(() => this.proccessEncryptionQueue(), 5000);
           break;
         }

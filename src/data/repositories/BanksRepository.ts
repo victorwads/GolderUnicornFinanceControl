@@ -1,10 +1,10 @@
 import BaseRepository from './RepositoryBase';
 
-import Bank from '../models/Bank'
+import { Bank } from '@models';
 import { Collections } from '../../data/firebase/Collections'
 
 class BanksRepository extends BaseRepository<Bank> {
-    
+
     constructor() {
         super(Collections.Banks, Bank)
     }

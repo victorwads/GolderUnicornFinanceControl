@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import './CategoriesScreen.css';
-import { ModalScreen } from '../../components/conteiners/ModalScreen';
-import Icon, { getIconByCaseInsensitiveName } from '../../components/Icons';
+import { ModalScreen } from '@components/conteiners/ModalScreen';
+import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
+import getRepositories from '@repositories';
+import { RootCategory } from '@repositories/CategoriesRepository';
 import CategoryListItem from './CategoryListItem';
-
-import getRepositories from '../../data/repositories';
-import { RootCategory } from '../../data/repositories/CategoriesRepository';
 
 const CategoriesScreen: React.FC = () => {
   const [categories, setCategories] = useState<RootCategory[]>([]);

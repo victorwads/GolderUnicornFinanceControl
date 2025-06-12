@@ -1,8 +1,7 @@
-import RepositoryWithCrypt from './RepositoryWithCrypt';
+import { CreditCardInvoice, CreditCardRegistry } from '@models';
 
+import RepositoryWithCrypt from './RepositoryWithCrypt';
 import { Collections } from '../firebase/Collections'
-import CreditCardRegistry, { WithInvoiceTime } from '../models/CreditCardRegistry';
-import CreditCardInvoice from '../models/CreditCardInvoice';
 
 export default class CreditCardsRegistryRepository extends RepositoryWithCrypt<CreditCardRegistry> {
     constructor() {

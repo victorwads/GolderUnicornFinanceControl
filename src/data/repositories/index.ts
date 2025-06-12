@@ -12,6 +12,8 @@ import Encryptor from '../crypt/Encryptor';
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import CreditcardsRepository from "./CreditCardsRepository";
 
+export  { User } from "./UserRepository";
+
 export type Repositories = {
   user: UserRepository;
   banks: BanksRepository;

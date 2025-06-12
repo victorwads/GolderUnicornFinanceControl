@@ -1,4 +1,4 @@
-import DocumentModel from './DocumentModel';
+import { DocumentModel } from './DocumentModel';
 
 export enum AccountType {
     CURRENT = "CURRENT",
@@ -7,7 +7,7 @@ export enum AccountType {
     CASH = "CASH",
 }
 
-export default class Account extends DocumentModel {
+export class Account extends DocumentModel {
     constructor(
         public id: string,
         public name: string,

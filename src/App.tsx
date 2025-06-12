@@ -3,22 +3,23 @@ import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
-import { useCssVars } from './components/Vars';
-import { Loading } from './components/Loading';
-import { clearRepositories, resetRepositories } from './data/repositories';
+import { useCssVars } from '@components/Vars';
+import { Loading } from '@components/Loading';
 
-import TabScreen from './features/tabs/TabScreen';
-import EmptyScreen from './features/commons/EmptyScreen';
-import LoginScreen from './features/login/LoginScreen';
-import TimelineScreen from './features/tabs/timeline/TimelineScreen';
-import SettingsScreen from './features/tabs/settings/SettingsScreen';
-import DashboardScreen from './features/tabs/dashboard/DashboardScreen';
-import CategoriesScreen from './features/categories/CategoriesScreen';
-import AddCategoriesScreen from './features/categories/AddCategoriesScreen';
-import CreditCardsInvoices from './features/creaditcards/CreditCardsInvoces';
-import AccountScreenForm from './features/accounts/AccountScreenForm';
-import AccountsScreen from './features/accounts/AccountsScreen';
-import RegistryScreenForm from './features/accounts/RegistryScreenForm';
+import TabScreen from '@features/tabs/TabScreen';
+import EmptyScreen from '@features/commons/EmptyScreen';
+import LoginScreen from '@features/login/LoginScreen';
+import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
+import SettingsScreen from '@features/tabs/settings/SettingsScreen';
+import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
+import CategoriesScreen from '@features/categories/CategoriesScreen';
+import AddCategoriesScreen from '@features/categories/AddCategoriesScreen';
+import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
+import AccountScreenForm from '@features/accounts/AccountScreenForm';
+import AccountsScreen from '@features/accounts/AccountsScreen';
+import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
+
+import { clearRepositories, resetRepositories } from '@repositories';
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },

@@ -1,6 +1,6 @@
 import "./BankInfo.css"
-import { Loading } from "../../components/Loading"
-import Bank from "../../data/models/Bank"
+import { Loading } from "@components/Loading"
+import { Bank } from "@models"
 
 let banksResourceUrl = 'https://goldenunicornfc.firebaseapp.com/resources/banks/'
 if (window.location.hostname === 'localhost') {

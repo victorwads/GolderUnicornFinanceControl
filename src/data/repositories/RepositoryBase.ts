@@ -9,7 +9,7 @@ import {
   collection, doc, query, orderBy, limit, where, increment,
 } from "firebase/firestore";
 
-import DocumentModel from "../models/DocumentModel";
+import { DocumentModel } from "@models";
 
 const queryField: keyof DocumentModel = "_updatedAt";
 interface DatabaseUse { queryReads: number, docReads: number, writes: number }

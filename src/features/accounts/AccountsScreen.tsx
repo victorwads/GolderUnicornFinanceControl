@@ -2,14 +2,14 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import './AccountsScreen.css'
 
-import Bank from "../../data/models/Bank"
-import getRepositories from "../../data/repositories"
-import { WithInfoAccount } from './AccountsCard'
+import { Bank } from "@models"
+import getRepositories from "@repositories"
 
-import { ModalScreen } from "../../components/conteiners/ModalScreen"
-import Card from "../../components/visual/Card"
+import Card from "@components/visual/Card"
+import Icon from "@components/Icons"
+import { ModalScreen } from "@components/conteiners/ModalScreen"
+import { WithInfoAccount } from './AccountsCard'
 import BankInfo from "../banks/BankInfo"
-import Icon from "../../components/Icons"
 
 const AccountsScreen = () => {
   const [accounts, setAccounts] = useState<WithInfoAccount[]>([])

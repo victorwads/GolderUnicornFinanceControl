@@ -1,11 +1,10 @@
-import { useNavigate } from "react-router-dom";
 import "./RegistryItem.css";
 
-import Icon, { getIconByCaseInsensitiveName } from "../../../components/Icons";
-import { RegistryType, RegistryWithDetails } from '../../../data/models/Registry';
-import AccountsRegistry from "../../../data/models/AccountRegistry";
+import { useNavigate } from "react-router-dom";
 import routes from "../../navigate";
-import InvoiceRegistry from "../../../data/models/InvoiceRegistry";
+
+import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
+import { InvoiceRegistry, AccountsRegistry, RegistryType, RegistryWithDetails} from '@models';
 
 interface RegistryItemProps {
   item: RegistryWithDetails;

@@ -1,7 +1,6 @@
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 
-import Category from "../models/Category";
-import InvoiceRegistry from '../models/InvoiceRegistry';
+import { InvoiceRegistry, Category } from '@models';
 import { Collections } from "../../data/firebase/Collections";
 
 export default class CategoriesRepository extends RepositoryWithCrypt<Category> {

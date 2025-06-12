@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import Row from "../../components/visual/Row";
-import Button from "../../components/Button";
-import Field from "../../components/fields/Field";
-import SelectField from "../../components/fields/SelectField";
-import { ModalScreen } from "../../components/conteiners/ModalScreen";
-import getRepositories from "../../data/repositories";
-import Category from "../../data/models/Category";
+
+import Row from "@components/visual/Row";
+import Button from "@components/Button";
+import Field from "@components/fields/Field";
+import SelectField from "@components/fields/SelectField";
+import { ModalScreen } from "@components/conteiners/ModalScreen";
+
+import { Category } from "@models";
+import getRepositories from "@repositories";
 
 const AddCategoriesScreen: React.FC = () => {
   const [name, setName] = useState<string>("");

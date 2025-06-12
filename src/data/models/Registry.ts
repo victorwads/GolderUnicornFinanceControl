@@ -1,5 +1,5 @@
-import Category from "./Category";
-import DocumentModel from "./DocumentModel";
+import { Category } from "./Category";
+import { DocumentModel } from "./DocumentModel";
 
 export enum RegistryType {
   ACCOUNT,
@@ -16,7 +16,7 @@ export interface RegistryWithDetails {
   category?: Category;
 }
 
-export default abstract class Registry extends DocumentModel {
+export abstract class Registry extends DocumentModel {
 
   constructor(
     public id: string,
