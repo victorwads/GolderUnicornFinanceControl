@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     viteStaticCopy({
       targets: [
-        { src: resolve(rootDir, '../Site/resources'), dest: 'resources' },
+        { src: resolve(rootDir, '../Site/resources'), dest: './' },
         { src: resolve(rootDir, './assets'), dest: './' },
       ],
     }),
