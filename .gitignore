@@ -1,13 +1,19 @@
-node_modules/
-build/
-yarn.lock
+
+# System
 .DS_Store
 .vscode
 .dev/
-*.log
 
+# Yarn
+node_modules/
+.pnp.*
+.yarn*
+yarn.lock
+
+# Project files
+dist/
 certs/
-public/resources
 src/google-services.js
 *.jpg
 *.png
+*.log

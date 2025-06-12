@@ -47,11 +47,13 @@ class ProxyManager {
     this.addMultiplexedProxy();
   }
 
+  private static readonly serviceRules: Record<string, (pathname: string) => boolean> = {
+    firestore: (pathname) => pathname.includes('google.firestore.v1.Firestore/'),
+  };
+
   getTargetName(pathname: string): string {
-    for (const key of Object.keys(this.routeTable)) {
-      if (pathname.toLowerCase().includes(key)) {
-        return key;
-      }
+    for (const [key, rule] of Object.entries(ProxyManager.serviceRules)) {
+      if (rule(pathname)) return key;
     }
     return 'default';
   }
