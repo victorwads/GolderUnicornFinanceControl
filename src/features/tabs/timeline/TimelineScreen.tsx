@@ -2,16 +2,15 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import "./TimelineScreen.css";
 
-import Account from "../../../data/models/Account";
-import getRepositories from '../../../data/repositories';
-import { RegistryWithDetails } from "../../../data/models/Registry";
+import { Account, RegistryWithDetails } from "@models";
+import getRepositories from '@repositories';
 
-import { Container, ContainerFixedContent } from "../../../components/conteiners";
-import { ContainerScrollContent } from '../../../components/conteiners/index';
-import { Loading } from "../../../components/Loading";
+import { Container, ContainerFixedContent } from "@components/conteiners";
+import { ContainerScrollContent } from '@components/conteiners';
+import { Loading } from "@components/Loading";
 import RegistryItem from "./RegistryItem";
-import Icon from '../../../components/Icons';
-import routes from '../../navigate';
+import Icon from '@components/Icons';
+import routes from '@features/navigate';
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",

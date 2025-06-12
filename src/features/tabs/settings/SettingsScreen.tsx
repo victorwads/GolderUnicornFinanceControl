@@ -4,14 +4,14 @@ import { getAuth, signOut } from "firebase/auth"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import DocumentModel from "../../../data/models/DocumentModel";
-import getRepositories, { Repositories } from "../../../data/repositories";
-import { useCssVars, Theme, Density } from '../../../components/Vars';
-import { clearFirestore } from "../../../data/firebase/google-services";
-import { User } from "../../../data/repositories/UserRepository";
-
-import { Container, ContainerScrollContent } from "../../../components/conteiners";
 import { Langs, setLanguage } from "../../../i18n";
+import { clearFirestore } from "../../../data/firebase/google-services";
+
+import { DocumentModel } from "@models";
+import getRepositories, { Repositories, User } from "@repositories";
+
+import { useCssVars, Theme, Density } from '@components/Vars';
+import { Container, ContainerScrollContent } from "@components/conteiners";
 
 interface ExportProgress {
   filename: string;

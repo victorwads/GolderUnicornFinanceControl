@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import Button from "../../components/Button";
-import { ModalScreen } from "../../components/conteiners/ModalScreen";
-import CheckboxField from "../../components/fields/CheckboxField";
-import Field from "../../components/fields/Field";
-import PriceField from "../../components/fields/PriceField";
-import Selector, { SelectorSection } from "../../components/Selector";
+import Button from "@components/Button";
+import { ModalScreen } from "@components/conteiners/ModalScreen";
+import CheckboxField from "@components/fields/CheckboxField";
+import Field from "@components/fields/Field";
+import PriceField from "@components/fields/PriceField";
+import Selector, { SelectorSection } from "@components/Selector";
 
-import AccountsRegistry from "../../data/models/AccountRegistry";
-import Category from "../../data/models/Category";
-import { RegistryType } from "../../data/models/Registry";
-import getRepositories from "../../data/repositories";
+import { AccountsRegistry, RegistryType, Category} from "@models";
+import getRepositories from "@repositories";
 
 import BankInfo from "../banks/BankInfo";
 import CategoryListItem from "../categories/CategoryListItem";

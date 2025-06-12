@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ModalScreen } from "../../components/conteiners/ModalScreen";
-import PriceField from "../../components/fields/PriceField";
-import Button from "../../components/Button";
-import Field from "../../components/fields/Field";
-import Row from "../../components/visual/Row";
-import Selector from "../../components/Selector";
-import SelectField from "../../components/fields/SelectField";
-import CheckboxField from "../../components/fields/CheckboxField";
-import BankInfo from "../banks/BankInfo";
+import { ModalScreen } from "@components/conteiners/ModalScreen";
+import PriceField from "@components/fields/PriceField";
+import Button from "@components/Button";
+import Field from "@components/fields/Field";
+import Row from "@components/visual/Row";
+import Selector from "@components/Selector";
+import SelectField from "@components/fields/SelectField";
+import CheckboxField from "@components/fields/CheckboxField";
+import BankInfo from "@features/banks/BankInfo";
 
-import Bank from "../../data/models/Bank";
-import getRepositories from "../../data/repositories";
-import Account, { AccountType } from "../../data/models/Account";
+import { Bank, Account, AccountType } from "@models";
+import getRepositories from "@repositories";
 
 const AccountScreenForm = () => {
   const { id } = useParams();

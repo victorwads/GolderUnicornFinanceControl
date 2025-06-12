@@ -1,6 +1,6 @@
-import DocumentModel from './DocumentModel';
+import { DocumentModel } from './DocumentModel';
 
-export default class Category extends DocumentModel {
+export class Category extends DocumentModel {
   constructor(
     public id: string,
     public name: string,

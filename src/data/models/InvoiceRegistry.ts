@@ -1,8 +1,6 @@
-import CreditCard from "../models/CreditCard";
-import CreditCardInvoice from "../models/CreditCardInvoice";
-import Registry, { RegistryType } from "../models/Registry";
+import { CreditCard, CreditCardInvoice, Registry, RegistryType} from "@models";
 
-export default class InvoiceRegistry extends Registry {
+export class InvoiceRegistry extends Registry {
 
   static categoryId = "fatura";
   public cardId: string;

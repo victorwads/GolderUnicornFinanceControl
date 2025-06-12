@@ -1,11 +1,11 @@
-import Registry, { RegistryType } from "./Registry";
+import { Registry, RegistryType } from "./Registry";
 
 export interface WithInvoiceTime {
   month: number;
   year: number;
 }
 
-export default class CreditCardRegistry extends Registry implements WithInvoiceTime {
+export class CreditCardRegistry extends Registry implements WithInvoiceTime {
   constructor(
     id: string,
     public cardId: string,

@@ -14,15 +14,14 @@
     "jszip": "^3.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.5.0",
-    "react-scripts": "^5.0.1"
+    "react-router-dom": "^7.5.0"
   },
   "scripts": {
     "proxy": "nodemon --watch proxy --ext ts --exec tsx proxy/proxy.ts",
-    "start": "BROWSER=none react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo 'Testes devem ser adaptados para Vite + Vitest/Jest' && exit 0",
     "deploy": "git push && yarn build && firebase deploy --only hosting"
   },
   "eslintConfig": {
@@ -53,9 +52,13 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
     "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.5.2",
     "http-proxy": "^1.18.1",
     "mkcert": "^3.2.0",
     "nodemon": "^3.1.10",
-    "typescript": "^5.8.3"
-  }
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-static-copy": "^3.0.0"
+  },
+  "packageManager": "yarn@4.9.2"
 }

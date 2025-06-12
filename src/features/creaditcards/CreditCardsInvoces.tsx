@@ -2,14 +2,12 @@ import React, { useEffect, useState, useRef, use, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import './CreditCardsInvoices.css';
 
-import RegistryItem from '../tabs/timeline/RegistryItem';
-import { ModalScreen } from "../../components/conteiners/ModalScreen";
-
-import getRepositories from "../../data/repositories";
-import CreditCardInvoice from "../../data/models/CreditCardInvoice";
-import { RegistryWithDetails } from "../../data/models/Registry";
-import CreditCard from "../../data/models/CreditCard";
 import routes from "../navigate";
+import RegistryItem from '../tabs/timeline/RegistryItem';
+import { ModalScreen } from "@components/conteiners/ModalScreen";
+
+import getRepositories from "@repositories";
+import { CreditCard, CreditCardInvoice, RegistryWithDetails } from "@models";
 
 function fetchData(id?: string): { creditCard?: CreditCard, invoices: CreditCardInvoice[] } {
   if (!id) return { invoices: [] };

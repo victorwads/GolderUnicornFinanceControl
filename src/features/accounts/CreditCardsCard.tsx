@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import Card from "../../components/visual/Card"
+import Card from "@components/visual/Card"
 import BankInfo from "../banks/BankInfo"
 
-import Bank from "../../data/models/Bank"
-import CreditCard from "../../data/models/CreditCard"
-import getRepositories from "../../data/repositories"
+import { Bank, CreditCard } from "@models"
+import getRepositories from "@repositories"
 
 interface CreditCardWithInfos extends CreditCard {
   bank: Bank

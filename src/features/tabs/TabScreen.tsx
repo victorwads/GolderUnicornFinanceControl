@@ -1,8 +1,8 @@
 import './TabScreen.css'
 import { Link, Outlet } from 'react-router-dom'
 
-import { Container, ContainerFixedContent, ContainerScrollContent } from '../../components/conteiners'
-import Icon from '../../components/Icons'
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners'
+import Icon from '@components/Icons'
 
 const TabScreen = () => {
     return <Container wide>

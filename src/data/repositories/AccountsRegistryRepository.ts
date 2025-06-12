@@ -1,7 +1,7 @@
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 
 import { Collections } from "../firebase/Collections";
-import AccountsRegistry from '../models/AccountRegistry';
+import { AccountsRegistry } from '@models';
 
 export default class AccountsRegistryRepository extends RepositoryWithCrypt<AccountsRegistry> {
   constructor() {

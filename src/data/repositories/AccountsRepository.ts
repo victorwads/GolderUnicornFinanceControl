@@ -2,9 +2,7 @@ import getRepositories from '.';
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 import { Collections } from '../../data/firebase/Collections'
 
-import { RegistryWithDetails } from '../models/Registry';
-import InvoiceRegistry from '../models/InvoiceRegistry';
-import Account from '../models/Account'
+import { Account, InvoiceRegistry, RegistryWithDetails } from '@models';
 
 export default class AccountsRepository extends RepositoryWithCrypt<Account> {
 

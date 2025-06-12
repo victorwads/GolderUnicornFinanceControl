@@ -1,11 +1,11 @@
 import { doc, DocumentData, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
-import RepositoryWithCrypt from './RepositoryWithCrypt';
+import { DocumentModel } from '@models';
 
 import { Collections } from "../firebase/Collections";
+import RepositoryWithCrypt from './RepositoryWithCrypt';
 import BaseRepository, { DatabasesUse } from './RepositoryBase';
-import DocumentModel from '../models/DocumentModel';
 
 export class User extends DocumentModel {
   public dbUse?: DatabasesUse;
