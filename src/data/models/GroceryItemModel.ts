@@ -1,7 +1,7 @@
 import { DocumentModel } from './DocumentModel';
 
 export enum QuantityUnit {
-  UNIT = 'unit',
+  UN = 'un',
   KG = 'kg',
   G = 'g',
   L = 'l',

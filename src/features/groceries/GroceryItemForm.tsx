@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import getRepositories from '@repositories';
+import { GroceryItemModel, QuantityUnit, ProductModel, ProductPrice } from '@models';
+
 import Button from '@components/Button';
 import Field from '@components/fields/Field';
 import PriceField from '@components/fields/PriceField';
 import SelectField from '@components/fields/SelectField';
 import { ModalScreen } from '@components/conteiners/ModalScreen';
 import BarcodeScanner from './BarcodeScanner';
-import { GroceryItemModel, QuantityUnit, ProductModel, ProductPrice } from '@models';
-import getRepositories from '@repositories';
 
 const units = [
-  { value: QuantityUnit.UNIT, label: 'un' },
+  { value: QuantityUnit.UN, label: 'un' },
   { value: QuantityUnit.KG, label: 'kg' },
   { value: QuantityUnit.G, label: 'g' },
   { value: QuantityUnit.L, label: 'l' },
@@ -30,7 +32,7 @@ const GroceryItemForm = () => {
   const [barcode, setBarcode] = useState<string | undefined>(item?.barcode);
   const [expiration, setExpiration] = useState<string>(item?.expirationDate ? item.expirationDate.toISOString().substring(0,10) : '');
   const [quantity, setQuantity] = useState(item?.quantity || 1);
-  const [unit, setUnit] = useState<QuantityUnit>(item?.unit || QuantityUnit.UNIT);
+  const [unit, setUnit] = useState<QuantityUnit>(item?.unit || QuantityUnit.UN);
   const [paidPrice, setPaidPrice] = useState(item?.paidPrice || 0);
   const [purchase, setPurchase] = useState<string>(item?.purchaseDate ? item.purchaseDate.toISOString().substring(0,10) : new Date().toISOString().substring(0,10));
   const [location, setLocation] = useState(item?.location || '');
@@ -51,28 +53,36 @@ const GroceryItemForm = () => {
   }, [barcode]);
 
   const saveItem = async () => {
+    const purchaseDate = new Date(purchase);
+    const expirationDate = expiration ? new Date(expiration) : undefined;
     const itemModel = new GroceryItemModel(
       id || '',
       name,
       quantity,
       unit,
       barcode,
-      expiration ? new Date(expiration) : undefined,
+      expirationDate,
       paidPrice || undefined,
-      new Date(purchase),
+      purchaseDate,
       location || undefined,
     );
     await groceries.set(itemModel);
 
     let product = products.getByBarcode(barcode);
     if (!product && barcode) {
-      product = new ProductModel('', name, barcode, paidPrice, [], 0);
+      let shelfLife = 0;
+      if (purchaseDate && expirationDate) {
+        shelfLife = Math.ceil(
+          (expirationDate.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+      }
+
+      product = new ProductModel('', name, barcode, paidPrice, [], shelfLife);
     }
     if (product) {
-      if (paidPrice) {
-        const price: ProductPrice = { value: paidPrice, date: new Date(purchase) };
+      if (paidPrice && product.lastPrice !== paidPrice) {
         product.lastPrice = paidPrice;
-        product.prices.push(price);
+        product.prices.push({ value: paidPrice, date: purchaseDate });
       }
       await products.set(product, true);
     }
