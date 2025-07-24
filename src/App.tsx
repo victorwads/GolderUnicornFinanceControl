@@ -18,6 +18,8 @@ import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
 import AccountScreenForm from '@features/accounts/AccountScreenForm';
 import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
+import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
+import GroceryItemForm from '@features/groceries/GroceryItemForm';
 
 import { clearRepositories, resetRepositories } from '@repositories';
 
@@ -27,7 +29,7 @@ const router = createBrowserRouter([
     path: '/main', element: <TabScreen />, children: [
       { path: 'dashboard', element: <DashboardScreen /> },
       { path: 'timeline/:id?', element: <TimelineScreen /> },
-      { path: 'groceries', element: <EmptyScreen title={Lang.groceries.title} /> },
+      { path: 'groceries', element: <GroceriesMainScreen /> },
       { path: 'settings', element: <SettingsScreen /> },
     ]
   },
@@ -43,6 +45,8 @@ const router = createBrowserRouter([
   { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/categories', element: <CategoriesScreen /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
+  { path: '/groceries/create', element: <GroceryItemForm /> },
+  { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
 ])
 
 function App() {

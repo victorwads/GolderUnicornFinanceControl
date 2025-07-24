@@ -8,5 +8,7 @@ export const Collections = {
     CreditCards: "CreditCards",
     CreditCardRegistries: "CreditCardRegistries",
     CreditCardInvoices: "CreditCardInvoices",
-    Registers: "Registers"
-}
+    Registers: "Registers",
+    Products: "products",
+    Groceries: "groceries",
+};

@@ -67,6 +67,19 @@ export default interface Translation {
   };
   groceries: {
     title: string;
+    addItem: string;
+    editItem: string;
+    name: string;
+    barcode: string;
+    expirationDate: string;
+    quantity: string;
+    unit: string;
+    paidPrice: string;
+    purchaseDate: string;
+    storageLocation: string;
+    scanBarcode: string;
+    itemCreated: string;
+    productCreated: string;
   };
   settings: {
     title: string;

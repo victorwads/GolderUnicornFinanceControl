@@ -8,3 +8,5 @@ export * from './CreditCardRegistry';
 export * from './DocumentModel';
 export * from './InvoiceRegistry';
 export * from './Registry';
+export * from './ProductModel';
+export * from './GroceryItemModel';
