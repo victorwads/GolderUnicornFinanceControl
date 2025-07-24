@@ -6,6 +6,7 @@ import { GroceryItemModel, QuantityUnit, ProductModel, ProductPrice } from '@mod
 
 import Button from '@components/Button';
 import Field from '@components/fields/Field';
+import { DatePicker } from '@components/inputs';
 import PriceField from '@components/fields/PriceField';
 import SelectField from '@components/fields/SelectField';
 import { ModalScreen } from '@components/conteiners/ModalScreen';
@@ -28,11 +29,11 @@ const GroceryItemForm = () => {
 
   const [name, setName] = useState(item?.name || '');
   const [barcode, setBarcode] = useState<string | undefined>(item?.barcode);
-  const [expiration, setExpiration] = useState<string>(item?.expirationDate ? item.expirationDate.toISOString().substring(0,10) : '');
+  const [expiration, setExpiration] = useState<Date | null>(item?.expirationDate ?? null);
   const [quantity, setQuantity] = useState(item?.quantity || 1);
   const [unit, setUnit] = useState<QuantityUnit>(item?.unit || QuantityUnit.UN);
   const [paidPrice, setPaidPrice] = useState(item?.paidPrice || 0);
-  const [purchase, setPurchase] = useState<string>(item?.purchaseDate ? item.purchaseDate.toISOString().substring(0,10) : new Date().toISOString().substring(0,10));
+  const [purchase, setPurchase] = useState<Date | null>(item?.purchaseDate ?? new Date());
   const [location, setLocation] = useState(item?.location || '');
 
   useEffect(() => {
@@ -44,15 +45,15 @@ const GroceryItemForm = () => {
         if (!expiration && product.shelfLife > 0) {
           const dt = new Date();
           dt.setDate(dt.getDate() + product.shelfLife);
-          setExpiration(dt.toISOString().substring(0,10));
+          setExpiration(dt);
         }
       }
     }
   }, [barcode]);
 
   const saveItem = async () => {
-    const purchaseDate = new Date(purchase);
-    const expirationDate = expiration ? new Date(expiration) : undefined;
+    const purchaseDate = purchase ?? new Date();
+    const expirationDate = expiration || undefined;
     const itemModel = new GroceryItemModel(
       id || '',
       name,
@@ -93,8 +94,8 @@ const GroceryItemForm = () => {
     <Field label={Lang.groceries.name} value={name} onChange={setName} />
     <Field label={Lang.groceries.barcode} value={barcode || ''} onChange={setBarcode} />
     <BarcodeScanner onScan={(code) => { setBarcode(code); }} />
-    <Field label={Lang.groceries.expirationDate} value={expiration} onChange={setExpiration} />
-    <Field label={Lang.groceries.purchaseDate} value={purchase} onChange={setPurchase} />
+    <DatePicker label={Lang.groceries.expirationDate} value={expiration} onChange={setExpiration} />
+    <DatePicker label={Lang.groceries.purchaseDate} value={purchase} onChange={setPurchase} />
     <Field label={Lang.groceries.quantity} value={String(quantity)} onChange={(v) => setQuantity(Number(v))} />
     <SelectField label={Lang.groceries.unit} value={unit} onChange={setUnit} options={units} />
     <PriceField label={Lang.groceries.paidPrice} price={paidPrice} onChange={setPaidPrice} />

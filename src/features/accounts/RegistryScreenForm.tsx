@@ -5,6 +5,7 @@ import Button from "@components/Button";
 import { ModalScreen } from "@components/conteiners/ModalScreen";
 import CheckboxField from "@components/fields/CheckboxField";
 import Field from "@components/fields/Field";
+import { DatePicker } from "@components/inputs";
 import PriceField from "@components/fields/PriceField";
 import Selector, { SelectorSection } from "@components/Selector";
 
@@ -30,7 +31,7 @@ const RegistryScreenForm = () => {
 
   const [description, setDescription] = useState("");
   const [value, setValue] = useState(0);
-  const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
+  const [date, setDate] = useState<Date | null>(new Date());
   const [paid, setPaid] = useState(false);
   const [accountId, setAccountId] = useState<string | undefined>();
   const [categoryId, setCategoryId] = useState<string | undefined>();
@@ -53,7 +54,7 @@ const RegistryScreenForm = () => {
       if (registry) {
         setDescription(registry.description);
         setValue(registry.value);
-        setDate(registry.date.toISOString().substring(0, 10));
+        setDate(registry.date);
         setPaid(registry.paid);
         setAccountId(registry.accountId);
         setCategoryId(registry.categoryId);
@@ -73,7 +74,7 @@ const RegistryScreenForm = () => {
       accountId,
       value,
       description,
-      registry?.date ?? new Date(date),
+      registry?.date ?? (date ?? new Date()),
       paid || registry?.type === RegistryType.TRANSFER,
       registry?.tags ?? [],
       categoryId
@@ -97,7 +98,7 @@ const RegistryScreenForm = () => {
         disabled={isTransfer} label={Lang.registry.description} value={description}
         onChange={setDescription} />
       <PriceField label={Lang.registry.value} price={value} onChange={setValue} />
-      <Field label={Lang.registry.date} value={date} onChange={setDate} />
+      <DatePicker label={Lang.registry.date} value={date} onChange={setDate} />
       <Selector
         label={Lang.registry.account}
         value={accountId}

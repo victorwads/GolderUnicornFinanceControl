@@ -1,25 +1,32 @@
 .input-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  margin: 16px 0;
 }
 
 .input-label {
-    margin-bottom: 0.25rem;
-    font-weight: bold;
-    font-size: 0.9rem;
+  margin: 0 0 6px 1px;
+  font-size: 0.8em;
+}
+
+.input-label::after {
+  content: ':';
+  margin: 0 1px;
 }
 
 .input-field {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
+  display: block;
+  width: 100%;
+  color: var(--font-color-input);
+  background-color: var(--bg-color-input);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
 }
 
 .input-field:focus {
-    border-color: #007bff;
-    outline: none;
+  border-color: var(--primary-color);
+  outline: none;
 }
 
 .input-actions {
