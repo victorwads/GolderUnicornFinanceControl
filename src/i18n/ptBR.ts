@@ -78,6 +78,11 @@ const ptBR: Translation = {
     scanBarcode: 'Ler Código de Barras',
     itemCreated: 'Item salvo',
     productCreated: 'Produto salvo',
+    expired: 'Vencido',
+    expiringSoon: 'Vencendo em breve',
+    thisWeek: 'Esta semana',
+    thisMonth: 'Este mês',
+    valid: 'Válido',
   },
   login: {
     loginWithGoogle: 'Entrar com Google',

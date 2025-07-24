@@ -78,6 +78,11 @@ const en: Translation = {
     scanBarcode: 'Scan Barcode',
     itemCreated: 'Item saved',
     productCreated: 'Product saved',
+    expired: 'Expired',
+    expiringSoon: 'Expiring Soon',
+    thisWeek: 'This Week',
+    thisMonth: 'This Month',
+    valid: 'Valid',
   },
   login: {
     loginWithGoogle: 'Login with Google',

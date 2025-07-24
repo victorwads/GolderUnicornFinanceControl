@@ -80,6 +80,11 @@ export default interface Translation {
     scanBarcode: string;
     itemCreated: string;
     productCreated: string;
+    expired: string;
+    expiringSoon: string;
+    thisWeek: string;
+    thisMonth: string;
+    valid: string;
   };
   settings: {
     title: string;

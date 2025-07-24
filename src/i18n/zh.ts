@@ -67,6 +67,11 @@ const zh: Translation = {
     scanBarcode: '扫描条码',
     itemCreated: '项目已保存',
     productCreated: '产品已保存',
+    expired: '已过期',
+    expiringSoon: '即将过期',
+    thisWeek: '本周',
+    thisMonth: '本月',
+    valid: '有效',
   },
   login: {
     loginWithGoogle: '使用 Google 登录',
