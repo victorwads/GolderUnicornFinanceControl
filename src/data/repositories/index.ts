@@ -7,10 +7,12 @@ import CategoriesRepository from "./CategoriesRepository";
 import AccountsRegistryRepository from "./AccountsRegistryRepository";
 import CreditCardInvoicesRepository from "./CreditCardsInvoicesRepository";
 import CreditCardsRegistryRepository from "./CreditCardsRegistryRepository";
+import GroceriesProductsRepository from './GroceriesProductsRepository';
+import GroceriesRepository from './GroceriesRepository';
 
 import Encryptor from '../crypt/Encryptor';
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
-import CreditcardsRepository from "./CreditCardsRepository";
+import CreditcardsRepository from "./CreditcardsRepository";
 
 export  { User } from "./UserRepository";
 
@@ -24,6 +26,8 @@ export type Repositories = {
   creditCardsRegistries: CreditCardsRegistryRepository;
   creditCardsInvoices: CreditCardInvoicesRepository;
   cardsInvoices: CreditCardInvoicesRepository;
+  products: GroceriesProductsRepository;
+  groceries: GroceriesRepository;
 }
 let repositorieInstances: Repositories | null = null;
 
@@ -41,6 +45,8 @@ export async function resetRepositories(): Promise<void> {
     creditCardsRegistries: new CreditCardsRegistryRepository(),
     creditCardsInvoices: new CreditCardInvoicesRepository(),
     cardsInvoices: new CreditCardInvoicesRepository(),
+    products: new GroceriesProductsRepository(),
+    groceries: new GroceriesRepository(),
   }
   
   debugTimestamp('Modules Initialization', initTime);

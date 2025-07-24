@@ -121,14 +121,12 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       (model as any).id = result.id;
     }
 
-    if (!merge) {
-      BaseRepository.cache[this.collectionName][model.id] = model;
-      BaseRepository.updateUse((use) => {
-        use.remote.writes++;
-        use.local.writes++;
-        use.cache.writes++;
-      });
-    }
+    BaseRepository.cache[this.collectionName][model.id] = model;
+    BaseRepository.updateUse((use) => {
+      use.remote.writes++;
+      use.local.writes++;
+      use.cache.writes++;
+    });
     return result;
   }
 
