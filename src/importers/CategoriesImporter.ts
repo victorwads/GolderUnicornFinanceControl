@@ -1,7 +1,7 @@
 import Importer from "./Importer";
 
 import { Collections } from "../data/firebase/Collections";
-import Category from "../data/models/Category";
+import { Category } from "../data/models/Category";
 
 import {Categorias, CategoriasFile} from '../converter/result/xlsx/categorias';
 import Encryptor from '../data/crypt/Encryptor';

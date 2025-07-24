@@ -2,7 +2,7 @@ import Importer from "./Importer";
 import BanksImporter from "./BanksImporter";
 
 import { Collections } from "../data/firebase/Collections";
-import Account, { AccountType } from "../data/models/Account";
+import { Account, AccountType } from "../data/models/Account";
 
 import { Contas, ContasFile } from '../converter/result/xlsx/contas';
 import Encryptor from "../data/crypt/Encryptor";

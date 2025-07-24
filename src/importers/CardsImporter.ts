@@ -1,7 +1,7 @@
 import Importer from "./Importer";
 import AccountsImporter from "./AccountsImporter";
 
-import CreditCard from "../data/models/CreditCard";
+import { CreditCard } from "../data/models/CreditCard";
 import { Collections } from "../data/firebase/Collections";
 
 import {Cartoes, CartoesFile} from '../converter/result/xlsx/cartoes';

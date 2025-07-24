@@ -2,7 +2,7 @@ import Importer from './Importer';
 import CardsImporter from './CardsImporter';
 import AccountsImporter from './AccountsImporter';
 
-import CreditCardInvoice from '../data/models/CreditCardInvoice';
+import { CreditCardInvoice } from '../data/models/CreditCardInvoice';
 import { Collections } from '../data/firebase/Collections';
 
 import {Faturas, FaturasFile} from '../converter/result/xlsx/faturas';

@@ -10,7 +10,7 @@ import CardsImporter from "./importers/CardsImporter";
 import CardsRegistriesImporter from "./importers/CardsRegistriesImporter";
 import AccountRegistriesImporter from "./importers/AccountRegistriesImporter";
 import CardInvoceImporter from "./importers/CardInvoceImporter";
-import Encryptor, { EncryptorSingletone } from "./data/crypt/Encryptor";
+import Encryptor from "./data/crypt/Encryptor";
 
 const prodApp = initializeApp({ credential: cert(serviceAccountKey as any) }, 'prod');
 const dbProd = getFirestore(prodApp);

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { CollectionReference, Timestamp } from 'firebase-admin/firestore';
-import DocumentModel from '../data/models/DocumentModel';
+import { DocumentModel } from '../data/models/DocumentModel';
 import Encryptor from '../data/crypt/Encryptor';
 
 export interface FileInfo {

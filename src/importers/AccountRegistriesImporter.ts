@@ -3,14 +3,13 @@ import AccountsImporter from './AccountsImporter';
 import CategoriesImporter from './CategoriesImporter';
 
 import { Collections } from '../data/firebase/Collections';
-import AccountsRegistry from '../data/models/AccountRegistry';
+import { AccountsRegistry } from '../data/models/AccountRegistry';
 
 import {Transferencias, TransferenciasFile} from '../converter/result/xlsx/transferencias';
 import {Despesas, DespesasFile} from '../converter/result/xlsx/despesas';
 import {Receitas, ReceitasFile} from '../converter/result/xlsx/receitas';
 import { RegistryType } from '../data/models/Registry';
 import Encryptor from '../data/crypt/Encryptor';
-import { AccountType } from '../data/models/Account';
 
 type Items = { [key: string]: AccountsRegistry };
 
