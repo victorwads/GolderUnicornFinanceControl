@@ -1,7 +1,6 @@
 
 # System
 .DS_Store
-.vscode
 .dev/
 
 # Yarn

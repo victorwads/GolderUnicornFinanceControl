@@ -296,7 +296,7 @@ async function start(): Promise<void> {
 
   const routeTable: RouteTable = {
     ...getRouterFromFirebaseConfig(args.firebaseConfigPath),
-    default: args.reactServer || 'http://localhost:3000',
+    default: args.reactServer || 'http://web:3000',
   };
   for (const [key, value] of Object.entries(routeTable)) {
     console.log(`  🔧 URLs with '${key}' will be proxied to ${value}`);

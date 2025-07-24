@@ -183,7 +183,7 @@ export function getRouterFromFirebaseConfig(fileName: string): RouteTable {
 
   for (const [key, value] of Object.entries(emulators)) {
     if (value.port) {
-      routeTable[key] = `http://localhost:${value.port}`;
+      routeTable[key] = `http://firebase:${value.port}`;
     }
   }
 
