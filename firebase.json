@@ -22,13 +22,12 @@
       "port": 8006
     },
     "firestore": {
-      "port": 8008
-    },
-    "hosting": {
-      "port": 8010
+      "port": 8008,
+      "host": "0.0.0.0"
     },
     "ui": {
-      "enabled": true
+      "enabled": true,
+      "host": "0.0.0.0"
     },
     "singleProjectMode": true
   },
