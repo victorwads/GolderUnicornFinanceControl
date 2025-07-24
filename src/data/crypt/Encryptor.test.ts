@@ -1,8 +1,11 @@
 import { TextEncoder, TextDecoder } from 'util';
-import crypto from "crypto";
+import crypto from 'crypto';
 
 import Encryptor from './Encryptor';
-Object.assign(global, { TextDecoder, TextEncoder, crypto: crypto.webcrypto});
+Object.assign(globalThis, { TextDecoder, TextEncoder });
+if (!globalThis.crypto) {
+  Object.defineProperty(globalThis, 'crypto', { value: crypto.webcrypto });
+}
 
 describe('FirebaseEncryptor', () => {
     const secretKey = 'my-secret-key';
@@ -84,8 +87,8 @@ describe('FirebaseEncryptor', () => {
         const encryptedObject = await encryptor.encrypt(originalObject);
         const decryptedObject = await encryptor.decrypt(encryptedObject);
 
-        expect(decryptedObject.day).toHaveProperty('toDate');
-        expect(decryptedObject.info.now).toHaveProperty('toDate');
+        expect(decryptedObject.day).toBeInstanceOf(Date);
+        expect(decryptedObject.info.now).toBeInstanceOf(Date);
     });
 
 });

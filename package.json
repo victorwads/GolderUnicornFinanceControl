@@ -22,7 +22,7 @@
     "start": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "echo 'Testes devem ser adaptados para Vite + Vitest/Jest' && exit 0",
+    "test": "vitest run",
     "deploy": "git push && yarn build && firebase deploy"
   },
   "eslintConfig": {
@@ -60,7 +60,8 @@
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
-    "vite-plugin-static-copy": "^3.1.1"
+    "vite-plugin-static-copy": "^3.1.1",
+    "vitest": "^3.2.4"
   },
   "packageManager": "yarn@4.9.2"
 }
