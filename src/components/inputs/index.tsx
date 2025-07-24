@@ -1,4 +1,5 @@
 import { ReactNode, InputHTMLAttributes } from 'react';
+import './Inputs.css';
 
 interface InputGroupProps {
   label: string;
