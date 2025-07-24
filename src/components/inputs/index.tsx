@@ -27,3 +27,6 @@ interface InputActionsProps {
 export function InputActions({ children }: InputActionsProps) {
   return <div className="input-actions">{children}</div>;
 }
+
+export { default as DatePicker } from './DatePicker';
+export { default as DateTimePicker } from './DateTimePicker';
