@@ -17,6 +17,10 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
     this.encryptor = encryptor;
   }
 
+  private encryptionDisabled(): boolean {
+    return window.isDevelopment && localStorage.getItem('disableEncryption') === 'true';
+  }
+
   protected override async createQuery(fields: Partial<Model>): Promise<Query<Model, DocumentData>> {
     if (!this.encryptor) throw new Error('Encryptor not initialized');
     const encryptedFields = await this.encryptor.encrypt(fields, [], 1);
@@ -34,8 +38,9 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
     }
     const model = await super.fromFirestore(id, data);
 
-    if (window.location.hostname !== "localhost")
+    if (!this.encryptionDisabled()) {
       this.encryptQueeue.push(model);
+    }
     return model;
   }
 
@@ -43,6 +48,11 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
     if (!this.encryptor) throw new Error('Encryptor not initialized');
 
     const data = await super.toFirestore(model);
+    if (this.encryptionDisabled()) {
+      const result = { ...data };
+      delete result.encrypted;
+      return result;
+    }
     return await this.encryptor.encrypt(data);
   }
 
@@ -68,9 +78,8 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
           break;
         }
 
-        const data = this.toFirestore(model);
-        const encryptedData = await this.encryptor.encrypt(data);
-        batch.set(doc(this.ref, model.id), encryptedData);
+        const data = await this.toFirestore(model);
+        batch.set(doc(this.ref, model.id), data);
         model = this.encryptQueeue.pop();
         writes++;
       }

@@ -103,6 +103,8 @@ const ptBR: Translation = {
     density: 'Densidade',
     loadingDatabaseUsage: 'Carregando uso do banco de dados...',
     language: 'Idioma',
+    toggleEncryption: (disabled: boolean) => disabled ? 'Ativar Criptografia (DEV only)' : 'Desativar Criptografia (DEV only)',
+    resavingWithEncryption: (filename: string, current: string, max: string) => `Salvando novamente ${filename} (${current}/${max})...`,
   },
   dashboard: {
     title: 'Visão Geral',

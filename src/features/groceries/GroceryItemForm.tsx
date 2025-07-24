@@ -24,8 +24,6 @@ const GroceryItemForm = () => {
   const navigate = useNavigate();
   const { groceries, products } = getRepositories();
 
-  const [showScanner, setShowScanner] = useState(false);
-
   const item = id ? groceries.getLocalById(id) : undefined;
 
   const [name, setName] = useState(item?.name || '');
@@ -94,8 +92,7 @@ const GroceryItemForm = () => {
   return <ModalScreen title={id ? Lang.groceries.editItem : Lang.groceries.addItem}>
     <Field label={Lang.groceries.name} value={name} onChange={setName} />
     <Field label={Lang.groceries.barcode} value={barcode || ''} onChange={setBarcode} />
-    <button type="button" onClick={() => setShowScanner(true)}>{Lang.groceries.scanBarcode}</button>
-    {showScanner && <BarcodeScanner onScan={(code) => { setBarcode(code); setShowScanner(false); }} onClose={() => setShowScanner(false)} />}
+    <BarcodeScanner onScan={(code) => { setBarcode(code); }} />
     <Field label={Lang.groceries.expirationDate} value={expiration} onChange={setExpiration} />
     <Field label={Lang.groceries.purchaseDate} value={purchase} onChange={setPurchase} />
     <Field label={Lang.groceries.quantity} value={String(quantity)} onChange={(v) => setQuantity(Number(v))} />

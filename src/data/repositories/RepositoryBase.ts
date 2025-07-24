@@ -5,7 +5,7 @@ import {
   CollectionReference, Query, Timestamp,
   DocumentData, DocumentReference,
   // Actions
-  addDoc, getDocsFromCache, getDocs, setDoc,
+  addDoc, getDocsFromCache, getDocs, setDoc, writeBatch,
   collection, doc, query, orderBy, limit, where, increment,
 } from "firebase/firestore";
 
@@ -130,6 +130,24 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return result;
   }
 
+  public async saveAll(models: Model[]): Promise<void> {
+    if (models.length === 0) return;
+
+    const batch = writeBatch(this.db);
+    for (const model of models) {
+      const data = await this.toFirestore(model);
+      batch.set(doc(this.ref, model.id), data);
+      BaseRepository.cache[this.collectionName][model.id] = model;
+    }
+
+    await batch.commit();
+    BaseRepository.updateUse((use) => {
+      use.remote.writes += models.length;
+      use.local.writes += models.length;
+      use.cache.writes += models.length;
+    });
+  }
+
   public getCache(): Model[] {
     const result = Object.values(BaseRepository.cache[this.collectionName] || {}) as Model[];
 
@@ -177,7 +195,26 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       _updatedAt: new Date(),
     } as any;
     delete data.id;
-    return data
+    return this.removeUndefined(data);
+  }
+
+  protected removeUndefined<T>(obj: T): T {
+    if (Array.isArray(obj)) {
+      return obj
+        .map(item => this.removeUndefined(item))
+        .filter(item => item !== undefined) as T;
+    }
+    if (obj !== null && typeof obj === 'object') {
+      if (obj.constructor !== Object) return obj;
+      return Object.entries(obj).reduce((acc, [key, value]) => {
+        const cleaned = this.removeUndefined(value);
+        if (cleaned !== undefined) {
+          (acc as any)[key] = cleaned;
+        }
+        return acc;
+      }, {}) as T;
+    }
+    return obj;
   }
 
   private async updateLocalCache(): Promise<void> {

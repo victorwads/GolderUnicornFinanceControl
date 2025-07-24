@@ -23,7 +23,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "echo 'Testes devem ser adaptados para Vite + Vitest/Jest' && exit 0",
-    "deploy": "git push && yarn build && firebase deploy --only hosting"
+    "deploy": "git push && yarn build && firebase deploy"
   },
   "eslintConfig": {
     "extends": [

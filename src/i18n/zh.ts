@@ -92,6 +92,8 @@ const zh: Translation = {
     density: '密度',
     loadingDatabaseUsage: '正在加载数据库使用情况...',
     language: '语言',
+    toggleEncryption: (disabled: boolean) => disabled ? '启用加密 (DEV only)' : '禁用加密 (DEV only)',
+    resavingWithEncryption: (filename: string, current: string, max: string) => `重新保存 ${filename} (${current}/${max})...`,
   },
   dashboard: {
     title: '仪表板',

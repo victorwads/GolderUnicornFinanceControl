@@ -92,6 +92,8 @@ const fr: Translation = {
     density: 'Densité',
     loadingDatabaseUsage: 'Chargement de l\'utilisation de la base de données...',
     language: 'Langue',
+    toggleEncryption: (disabled: boolean) => disabled ? 'Activer le Chiffrement (DEV only)' : 'Désactiver le Chiffrement (DEV only)',
+    resavingWithEncryption: (filename: string, current: string, max: string) => `Réenregistrement de ${filename} (${current}/${max})...`,
   },
   dashboard: {
     title: 'Tableau de Bord',
