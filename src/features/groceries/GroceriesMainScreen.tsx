@@ -4,6 +4,8 @@ import { GroceryItemModel } from '@models';
 import getRepositories from '@repositories';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import Icon from '@components/Icons';
+import { getExpirationLabel } from './expirationUtils';
+import './GroceriesMainScreen.css';
 
 const GroceriesMainScreen = () => {
   const [items, setItems] = useState<GroceryItemModel[]>([]);
@@ -22,14 +24,28 @@ const GroceriesMainScreen = () => {
       </div>
     </ContainerFixedContent>
     <ContainerScrollContent>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {items.map(item => (
-          <li key={item.id}>
-            <Link to={`/groceries/${item.id}/edit`}>
-              {item.name} - {item.quantity} {item.unit} {item.expirationDate ? ' - '+item.expirationDate.toLocaleDateString() : ''}
-            </Link>
-          </li>
-        ))}
+      <ul className="GroceryList">
+        {items.map(item => {
+          const badge = getExpirationLabel(item);
+          return (
+            <li key={item.id}>
+              <Link to={`/groceries/${item.id}/edit`} className="GroceryItemLink">
+                <div className="GroceryItemRow">
+                  <span>{item.name}</span>
+                  {badge && (
+                    <span className="Badge" style={{ backgroundColor: badge.color }}>
+                      {badge.label}
+                    </span>
+                  )}
+                </div>
+                <div className="GroceryItemDetails">
+                  {item.quantity} {item.unit}
+                  {item.expirationDate && ' - ' + item.expirationDate.toLocaleDateString()}
+                </div>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </ContainerScrollContent>
   </Container>;

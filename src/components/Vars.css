@@ -39,6 +39,12 @@
     --spacing-md: 0.85em;
     --spacing-lg: 1.15em;
     --spacing-xl: 1.7em;
+
+    --color-danger: #dc3545;
+    --color-warning: #fd7e14;
+    --color-info: #ffc107;
+    --color-success: #28a745;
+    --color-expired: purple;
 }
 
 .density-1 {

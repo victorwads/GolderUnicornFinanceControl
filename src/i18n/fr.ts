@@ -67,6 +67,11 @@ const fr: Translation = {
     scanBarcode: 'Scanner le Code',
     itemCreated: 'Article enregistré',
     productCreated: 'Produit enregistré',
+    expired: 'Expiré',
+    expiringSoon: 'Expire bientôt',
+    thisWeek: 'Cette semaine',
+    thisMonth: 'Ce mois-ci',
+    valid: 'Valide',
   },
   login: {
     loginWithGoogle: 'Se connecter avec Google',
