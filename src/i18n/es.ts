@@ -87,6 +87,8 @@ const es: Translation = {
     density: 'Densidad',
     loadingDatabaseUsage: 'Cargando uso de la base de datos...',
     language: 'Idioma',
+    toggleEncryption: (disabled: boolean) => disabled ? 'Habilitar Cifrado (DEV only)' : 'Deshabilitar Cifrado (DEV only)',
+    resavingWithEncryption: (filename: string, current: string, max: string) => `Guardando nuevamente ${filename} (${current}/${max})...`,
   },
   dashboard: {
     title: 'Tablero',

@@ -9,21 +9,27 @@ import { clearFirestore } from "../../../data/firebase/google-services";
 
 import { DocumentModel } from "@models";
 import getRepositories, { Repositories, User } from "@repositories";
+import RepositoryWithCrypt from "../../../data/repositories/RepositoryWithCrypt";
 
 import { useCssVars, Theme, Density } from '@components/Vars';
 import { Container, ContainerScrollContent } from "@components/conteiners";
 
-interface ExportProgress {
+interface Progress {
   filename: string;
   current: number;
   max: number;
+  sub?: { max: number, current: number };
+  type: 'export' | 'resave';
 }
+
+const CHUNK_SIZE = 100;
 
 const SettingsScreen = () => {
 
   const { theme, setTheme, density, setDensity } = useCssVars();
   const [user, setUser] = useState<User>()
-  const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  const [encryptionDisabled, setEncryptionDisabled] = useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
   const [language, setCurrentLanguage] = useState<string>(SavedLang || "");
 
   useEffect(() => {
@@ -47,13 +53,14 @@ const SettingsScreen = () => {
     let progress = {
       current: 0,
       max: Object.keys(allRepos).length,
-      filename: ''
+      filename: '',
+      type: 'export' as const,
     };
-    setExportProgress(progress);
+    setProgress(progress);
 
     for (const key in allRepos) {
       progress = { ...progress, current: progress.current + 1, filename: key }
-      setExportProgress(progress);
+      setProgress(progress);
 
       const repo = allRepos[key as keyof Repositories];
       const data = await repo.getAll();
@@ -71,7 +78,38 @@ const SettingsScreen = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setExportProgress(null);
+    setProgress(null);
+  };
+
+  const toggleEncryption = async () => {
+    const newValue = !encryptionDisabled;
+    localStorage.setItem('disableEncryption', newValue ? 'true' : 'false');
+    setEncryptionDisabled(newValue);
+
+    const allRepos = getRepositories();
+    const repos = Object.entries(allRepos).filter(([, repo]) => repo instanceof RepositoryWithCrypt);
+
+    let progress: Progress = { current: 0, max: repos.length, filename: '', type: 'resave' };
+    setProgress(progress);
+
+    for (const [key, repo] of repos) {
+      const all: unknown[] = repo.getCache();
+      progress.filename = key;
+      progress.sub = { current: 0, max: all.length };
+      setProgress({...progress});
+
+      while (progress.sub.current < all.length) {
+        const chunk = all.slice(progress.sub.current, progress.sub.current + CHUNK_SIZE);
+        await repo.saveAll(chunk as any);
+        console.log(`Saved ${chunk.length} items to ${key}`);
+        progress.sub.current += chunk.length;
+        setProgress({...progress});
+      }
+
+      progress.current = progress.current + 1;
+    }
+
+    setProgress(null);
   };
 
   return <Container spaced className="SettingsScreen"><ContainerScrollContent>
@@ -85,9 +123,17 @@ const SettingsScreen = () => {
     <h3>{Lang.settings.privacy}</h3>
     <ul>
       <li onClick={() => exportData()}>{Lang.settings.exportData}</li>
-      {exportProgress && <div>
-        <div>{Lang.settings.exportingData(exportProgress.filename, exportProgress.current.toString(), exportProgress.max.toString())}</div>
-        <progress value={exportProgress.current} max={exportProgress.max} />
+      {progress && <div>
+        <div>
+          {progress.type === 'resave'
+            ? Lang.settings.resavingWithEncryption(progress.filename, progress.current.toString(), progress.max.toString())
+            : Lang.settings.exportingData(progress.filename, progress.current.toString(), progress.max.toString())}
+        </div>
+        <progress value={progress.current} max={progress.max} />
+        {progress.sub && <>
+          <div>{progress.sub.current}/{progress.sub.max}</div>
+          <progress value={progress.sub.current} max={progress.sub.max} />
+        </>}
       </div>}
     </ul>
     <h3>{Lang.settings.databaseUsage}</h3>
@@ -134,6 +180,8 @@ const SettingsScreen = () => {
     <div></div>
     {window.isDevelopment && <>
       <a onClick={clearFirestore}>{Lang.settings.clearLocalCaches}</a>
+      <br />
+      <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
     </>}
     <h3>{Lang.settings.language}</h3>
     <div>

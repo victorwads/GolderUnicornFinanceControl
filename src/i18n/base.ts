@@ -95,6 +95,8 @@ export default interface Translation {
     density: string;
     loadingDatabaseUsage: string;
     language: string;
+    toggleEncryption: (isDisabled: boolean) => string;
+    resavingWithEncryption: (filename: string, current: string, max: string) => string;
   };
   dashboard: {
     title: string;

@@ -98,6 +98,8 @@ const en: Translation = {
     density: 'Density',
     loadingDatabaseUsage: 'Loading database usage...',
     language: 'Language',
+    toggleEncryption: (disabled: boolean) => disabled ? 'Enable Encryption (DEV only)' : 'Disable Encryption (DEV only)',
+    resavingWithEncryption: (filename: string, current: string, max: string) => `Resaving ${filename} (${current}/${max})...`,
   },
   dashboard: {
     title: 'Dashboard',
