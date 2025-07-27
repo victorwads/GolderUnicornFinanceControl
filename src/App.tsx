@@ -20,6 +20,7 @@ import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
+import NotFoundScreen from '@features/commons/NotFoundScreen';
 
 import { clearRepositories, resetRepositories } from '@repositories';
 
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
   { path: '/categories/create', element: <AddCategoriesScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
   { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
+  { path: '*', element: <EmptyScreen title='Not Found' /> },
 ])
 
 function App() {
