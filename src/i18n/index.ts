@@ -4,14 +4,16 @@ import en from './en';
 import es from './es';
 import fr from './fr';
 import zh from './zh';
+import hi from './hi';
 
 export type Lang = keyof typeof Langs | undefined;
 export const Langs = {
-  "ptBR": {lang: ptBR, name: "Português (Brasil)"},
-  "en": {lang: en, name: "English"},
-  "es": {lang: es, name: "Español"},
-  "fr": {lang: fr, name: "Français"},
-  "zh": {lang: zh, name: "中文"},
+  "pt": {lang: ptBR, name: "Português - Portuguese"},
+  "en": {lang: en, name: "English - English"},
+  "es": {lang: es, name: "Español - Spanish"},
+  "fr": {lang: fr, name: "Français - French"},
+  "zh": {lang: zh, name: "中文 - Chinese"},
+  "hi": {lang: hi, name: "हिन्दी - Hindi"},
 };
 
 export function setLanguage(language?: Lang) {

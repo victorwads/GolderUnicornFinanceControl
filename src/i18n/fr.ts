@@ -11,6 +11,7 @@ const fr: Translation = {
     params: 'Paramètres',
     selectOption: (label: string) => `Sélectionnez l'option pour ${label}`,
     default: 'Défaut',
+    gohome: 'Retour à l’accueil',
   },
   timeline: {
     title: 'Chronologie',

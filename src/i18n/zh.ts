@@ -11,6 +11,7 @@ const zh: Translation = {
     params: '参数',
     selectOption: (label: string) => `请选择${label}的选项`,
     default: '默认',
+    gohome: '返回首页',
   },
   timeline: {
     title: '时间线',

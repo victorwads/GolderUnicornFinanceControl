@@ -9,6 +9,7 @@ export default interface Translation {
     params: string;
     selectOption: (label: string) => string;
     default: string;
+    gohome: string;
   };
   timeline: {
     title: string;

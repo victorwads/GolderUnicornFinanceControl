@@ -11,6 +11,7 @@ const ptBR: Translation = {
     params: 'Parâmetros',
     selectOption: (label: string) => `Selecione a opção para ${label}`,
     default: 'Padrão',
+    gohome: 'Voltar ao início',
   },
   timeline: {
     title: 'Linha do Tempo',

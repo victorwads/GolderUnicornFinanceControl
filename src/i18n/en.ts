@@ -11,6 +11,7 @@ const en: Translation = {
     params: 'Parameters',
     selectOption: (label: string) => `Select the option for ${label}`,
     default: 'Default',
+    gohome: 'Go to home',
   },
   timeline: {
     title: 'Timeline',
