@@ -1,0 +1,38 @@
+.SpeechScreen {
+  position: relative;
+}
+
+.play-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.speech-textarea {
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  min-height: 200px;
+  font-size: 1rem;
+}
+
+.speech-marquee {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 90%;
+}
+
+.speech-marquee-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
