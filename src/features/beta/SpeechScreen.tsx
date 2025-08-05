@@ -1,9 +1,12 @@
+import './SpeechScreen.css';
 import { useEffect, useRef, useState } from 'react';
+
+import { getCurrentLangInfo } from '@lang';
+
 import Icon from '@components/Icons';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
-import './SpeechScreen.css';
 
-const LAST_CHARS = 100;
+const LAST_CHARS = 80;
 
 const SpeechScreen = () => {
   const [listening, setListening] = useState(false);
@@ -11,14 +14,15 @@ const SpeechScreen = () => {
   const [interimTranscript, setInterimTranscript] = useState('');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
+  const currentLangInfo = getCurrentLangInfo();
 
   useEffect(() => {
     const SpeechRecognition: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    if (!SpeechRecognition) return alert('Seu navegador não suporta reconhecimento de voz.');
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'pt-BR';
+    recognition.lang = currentLangInfo.short;
     recognition.onresult = (event: any) => {
       let interim = '';
       let final = '';
@@ -44,6 +48,13 @@ const SpeechScreen = () => {
     }
   };
 
+  const stopListening = () => {
+    if (recognitionRef.current && listening) {
+      recognitionRef.current.stop();
+      setListening(false);
+    }
+  };
+
   const text = finalTranscript + interimTranscript;
 
   useEffect(() => {
@@ -57,18 +68,27 @@ const SpeechScreen = () => {
 
   return (
     <Container screen spaced className="SpeechScreen">
-      <ContainerFixedContent>
+      <ContainerFixedContent spaced>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <button onClick={startListening} disabled={listening} className="play-button">
-          <Icon icon={Icon.all.faPlay} />
+          <Icon icon={Icon.all.faPlay} /> Start
         </button>
+        <button onClick={stopListening} disabled={!listening} className="stop-button">
+          <Icon icon={Icon.all.faStop} /> Stop
+        </button>
+        <label>Selected Language: </label>
+        <span>{currentLangInfo.short} - {currentLangInfo.name}</span>
+        </div>
       </ContainerFixedContent>
       <ContainerScrollContent>
         <textarea ref={textAreaRef} value={text} readOnly className="speech-textarea" />
+        {listening && (
+          <div className="speech-marquee">
+            <span className="speech-marquee-text">{marqueeText}</span>
+            <Icon icon={Icon.all.faMicrophone} />
+          </div>
+        )}
       </ContainerScrollContent>
-      <div className="speech-marquee">
-        <span className="speech-marquee-text">{marqueeText}</span>
-        <Icon icon={Icon.all.faMicrophone} />
-      </div>
     </Container>
   );
 };

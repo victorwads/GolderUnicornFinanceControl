@@ -25,6 +25,7 @@
       "@repositories": ["src/data/repositories"],
       "@components/*": ["src/components/*"],
       "@features/*": ["src/features/*"],
+      "@lang": ["src/i18n"]
     }
   },
   "include": [

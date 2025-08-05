@@ -27,6 +27,7 @@ export default defineConfig({
       '@repositories': resolve(rootDir, 'src/data/repositories'),
       '@components': resolve(rootDir, 'src/components'),
       '@features': resolve(rootDir, 'src/features'),
+      '@lang': resolve(rootDir, 'src/i18n'),
     },
   },
 });

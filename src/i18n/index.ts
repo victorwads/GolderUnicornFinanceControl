@@ -7,13 +7,23 @@ import zh from './zh';
 import hi from './hi';
 
 export type Lang = keyof typeof Langs | undefined;
-export const Langs = {
-  "pt": {lang: ptBR, name: "Português - Portuguese"},
-  "en": {lang: en, name: "English - English"},
-  "es": {lang: es, name: "Español - Spanish"},
-  "fr": {lang: fr, name: "Français - French"},
-  "zh": {lang: zh, name: "中文 - Chinese"},
-  "hi": {lang: hi, name: "हिन्दी - Hindi"},
+export type LangInfo = {
+  lang: Translation;
+  name: string;
+  short: string;
+};
+
+export const Langs: Record<string, LangInfo> = {
+  "pt": {lang: ptBR, name: "Português - Portuguese", short: "pt-BR"},
+  "en": {lang: en, name: "English - English", short: "en-US"},
+  "es": {lang: es, name: "Español - Spanish", short: "es-ES"},
+  "fr": {lang: fr, name: "Français - French", short: "fr-FR"},
+  "zh": {lang: zh, name: "中文 - Chinese", short: "zh-CN"},
+  "hi": {lang: hi, name: "हिन्दी - Hindi", short: "hi-IN"},
+};
+
+export const getCurrentLangInfo = (): LangInfo => {
+  return Langs[window.CurrentLang] || Langs['en'];
 };
 
 export function setLanguage(language?: Lang) {
@@ -32,7 +42,7 @@ export function setLanguage(language?: Lang) {
     ) as Lang || 'en';
   }
   window.CurrentLang = language;
-  window.Lang = Langs[language]?.lang || en;
+  window.Lang = getCurrentLangInfo().lang;
 }
 
 setLanguage(localStorage.getItem('lang') as Lang);
