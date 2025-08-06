@@ -26,6 +26,7 @@ const SpeechScreen = () => {
   useEffect(() => {
     if (!aiParserManager.current) {
       aiParserManager.current = new AIParserManager();
+      setGroceryItems(aiParserManager.current.list);
     }
     if(!speechManager.current) {
       speechManager.current = new SpeechRecognitionManager(

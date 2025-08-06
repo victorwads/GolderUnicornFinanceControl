@@ -13,7 +13,7 @@ export class GroceryItemModel extends DocumentModel {
     public id: string,
     public name: string,
     public quantity: number = 1,
-    public unit: QuantityUnit = QuantityUnit.UNIT,
+    public unit: QuantityUnit = QuantityUnit.UN,
     public barcode?: string,
     public expirationDate?: Date,
     public paidPrice?: number,

@@ -9,6 +9,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@mlc-ai/web-llm": "^0.2.79",
     "clsx": "^2.1.1",
     "firebase": "^11.7.3",
     "html5-qrcode": "^2.3.8",

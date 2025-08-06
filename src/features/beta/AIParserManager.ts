@@ -34,17 +34,13 @@ export default class AIParserManager {
       dangerouslyAllowBrowser: true,
     });
 
-    const savedList = localStorage.getItem(STOREAGE_KEY);
+    const savedList = localStorage.getItem(STOREAGE_KEY) || sessionStorage.getItem(STOREAGE_KEY);
     this.currentList = savedList ? JSON.parse(savedList) : [];
   }
 
   public async parse(text: string): Promise<AIResponse<AIGroceryItem>> {
     const currentList = this.currentList;
-    const prompt = `Transforme o texto abaixo em um array de objetos no formato AIResponseItem (action, id, name, price, quantity, expirationDate). Responda apenas o JSON.\nTexto: ${text}`;
-    const completion = await this.openai.chat.completions.create({
-      model: 'gpt-4.1-nano',
-      messages: [
-        { role: 'system', content: `
+    const prompt = `
 As grocery list assistant, analyze input and extract a list of actions for whether the user adds, updates, or removes items.
 action scheme {
   action: add | update | remove,
@@ -64,15 +60,11 @@ Context:
 - Current list: ${JSON.stringify(
   this.currentList.map(({id, name}) => ({id, name}))
 )}
-` },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.2,
-      max_tokens: 512,
-    });
-    
-    const response: string = completion.choices[0]?.message?.content || '';
+`;
+
+    const response = await this.withOpenAI(prompt, text);
     console.log('AIParserManager response:', response);
+
     let result: AIGroceryItem[] = [...currentList];
     try {
       JSON.parse(response).forEach((item: Partial<AIResponseAction & AIGroceryItem>) => {
@@ -104,11 +96,32 @@ Context:
       console.error('Failed to parse AI response:', response, error);
     }
     this.saveCurrentList(result);
-    return result;
+    return this.list;
   }
 
   private saveCurrentList(list: AIResponseItem[]) {
     this.currentList = list;
     localStorage.setItem(STOREAGE_KEY, JSON.stringify(list));
+  }
+
+  private async withOpenAI(system: string, user: string): Promise<string> {
+    const completion = await this.openai.chat.completions.create({
+      model: 'gpt-4.1-nano',
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user }
+      ],
+      temperature: 0.2,
+      max_tokens: 512,
+    });
+    
+    return completion.choices[0]?.message?.content || '';
+  }
+
+  public get list() {
+    return this.currentList.map((item: AIGroceryItem) => ({
+      ...item,
+      expirationDate: item.expirationDate ? new Date(item.expirationDate) : undefined
+    }));
   }
 }
