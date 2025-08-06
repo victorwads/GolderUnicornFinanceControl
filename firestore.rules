@@ -18,28 +18,21 @@ service cloud.firestore {
     match /Users/{userId} {
       allow read, write: if isOwner(userId);
 
-      match /Categories/{id} {
-        allow read, write: if isOwner(userId);
+      function isValidCollection(collection) {
+        return collection in [
+          'Categories',
+          'Accounts',
+          'AccountsRegistries',
+          'CreditCards',
+          'CreditCardRegistries',
+          'CreditCardInvoices',
+          'GroceriesItems',
+          'GroceriesProducts'
+          ];
       }
 
-      match /Accounts/{id} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /AccountsRegistries/{id} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /CreditCards/{cardId} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /CreditCardRegistries/{id} {
-        allow read, write: if isOwner(userId);
-      }
-
-      match /CreditCardInvoices/{id} {
-        allow read, write: if isOwner(userId);
+      match /{collection}/{id} {
+        allow read, write: if isValidCollection(collection) && isOwner(userId);
       }
     } 
   }

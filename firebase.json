@@ -30,8 +30,5 @@
       "host": "0.0.0.0"
     },
     "singleProjectMode": true
-  },
-  "remoteconfig": {
-    "template": "remoteconfig.template.json"
   }
 }
