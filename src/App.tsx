@@ -21,6 +21,7 @@ import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import NotFoundScreen from '@features/commons/NotFoundScreen';
+import SpeechScreen from '@features/beta/SpeechScreen';
 
 import { clearRepositories, resetRepositories } from '@repositories';
 
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
   { path: '/categories/create', element: <AddCategoriesScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
   { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
+  { path: '/beta/speech', element: <SpeechScreen /> },
   { path: '*', element: <EmptyScreen title='Not Found' /> },
 ])
 
