@@ -4,7 +4,7 @@ import { GroceryItemModel } from '@models';
 import getRepositories from '@repositories';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import Icon from '@components/Icons';
-import { getExpirationLabel } from './expirationUtils';
+import GroceryList from './GroceryList';
 import './GroceriesMainScreen.css';
 
 const GroceriesMainScreen = () => {
@@ -24,29 +24,7 @@ const GroceriesMainScreen = () => {
       </div>
     </ContainerFixedContent>
     <ContainerScrollContent>
-      <ul className="GroceryList">
-        {items.map(item => {
-          const badge = getExpirationLabel(item);
-          return (
-            <li key={item.id}>
-              <Link to={`/groceries/${item.id}/edit`} className="GroceryItemLink">
-                <div className="GroceryItemRow">
-                  <span>{item.name}</span>
-                  {badge && (
-                    <span className="Badge" style={{ backgroundColor: badge.color }}>
-                      {badge.label}
-                    </span>
-                  )}
-                </div>
-                <div className="GroceryItemDetails">
-                  {item.quantity} {item.unit}
-                  {item.expirationDate && ' - ' + item.expirationDate.toLocaleDateString()}
-                </div>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <GroceryList items={items} />
     </ContainerScrollContent>
   </Container>;
 };

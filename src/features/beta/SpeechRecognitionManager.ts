@@ -1,6 +1,6 @@
-const SPEECH_SPLITS_TIME = 6000;
+const SPEECH_SPLITS_TIME = 500;
 
-export type UpdateListener = (manager: SpeechRecognitionManager, shouldSend: boolean) => void;
+export type UpdateListener = (manager: SpeechRecognitionManager) => void;
 export type RequestListener = (request: Request, finish: () => void) => void;
 export type EndListener = () => void;
 export type Request = {
@@ -11,8 +11,9 @@ export type Request = {
 export class SpeechRecognitionManager {
   private finalText = '';
   private tempText = '';
-  private lastSentIndex = 0;
+  private lastSent = '';
   private requests: Request[] = [];
+  private running = false;
 
   private recognition: SpeechRecognition;
   private timer: NodeJS.Timeout | null = null;
@@ -59,40 +60,57 @@ export class SpeechRecognitionManager {
       .map(r => r[0].transcript)
       .join('');
 
-    console.log('Final:', final, 'Temp:', temp);
-
     if (final) {
       this.finalText = final;
     }
     this.tempText = temp;
 
-    this.onUpdate(this, false);
+    this.onUpdate(this);
+    
     if (this.timer) clearTimeout(this.timer);
     this.timer = setTimeout(() => {
       const request: Request = {
         sent: false,
-        segment: this.finalText.slice(this.lastSentIndex)
+        segment: this.finalText.slice(this.lastSent.length)
       };
+
+      if (!request.segment) {
+        console.log('No new segment to send', this.finalText, this.lastSent);
+        return;
+      }
+
       this.onRequest(request, () => {
         request.sent = true;
       });
-      this.lastSentIndex += request.segment.length;
+      this.lastSent = this.finalText;
     }, SPEECH_SPLITS_TIME);
   }
 
   private handleEnd() {
-    this.onEnd();
+    console.log('Recognition auto ended');
+    this.finalText = '';
+    this.tempText = '';
+    this.lastSent = '';
+    if (this.running) {
+      setTimeout(() => this.recognition.start(), 200);
+    } else {
+      this.onEnd();
+    }
   }
 
   public start() {
+    console.log('Manual Starting recognition');
     if (this.recognition) {
       this.recognition.start();
+      this.running = true;
     }
   }
 
   public stop() {
+    console.log('Manual Stopping recognition');
     if (this.recognition) {
       this.recognition.stop();
+      this.running = false;
     }
   }
 

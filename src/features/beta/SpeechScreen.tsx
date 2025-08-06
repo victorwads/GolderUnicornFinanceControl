@@ -5,30 +5,46 @@ import { getCurrentLangInfo } from '@lang';
 
 import Icon from '@components/Icons';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
+
+import { GroceryItemModel } from '@models';
+import GroceryList from '../../features/groceries/GroceryList';
 import { SpeechRecognitionManager } from './SpeechRecognitionManager';
+import AIParserManager, { AIGroceryItem } from './AIParserManager';
+
 
 const SpeechScreen = () => {
   const [listening, setListening] = useState(false);
   const [text, setText] = useState('');
   const [marqueeText, setMarqueeText] = useState('');
+  const [groceryItems, setGroceryItems] = useState<AIGroceryItem[]>([]);
+  const aiParserManager = useRef<AIParserManager>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const currentLangInfo = getCurrentLangInfo();
 
   const speechManager = useRef<SpeechRecognitionManager | null>(null);
 
   useEffect(() => {
+    if (!aiParserManager.current) {
+      aiParserManager.current = new AIParserManager();
+    }
     if(!speechManager.current) {
       speechManager.current = new SpeechRecognitionManager(
         currentLangInfo.short,
-        (manager, shouldSend) => {
-          setText(`
-  Current: ${manager.currentSegment}, Send: ${shouldSend}
-  Full: ${manager.finalFranscript}
-          `);
-          setMarqueeText((manager.finalFranscript + manager.currentSegment)); // Atualiza os últimos 80 caracteres
+        (manager) => {
+          setText(`\n  Current: ${manager.currentSegment}\n  Full: ${manager.finalFranscript}\n          `);
+          setMarqueeText((manager.currentSegment));
         },
-        (request) => {
+        async (request, finish) => {
           console.log('Request to send:', request);
+          const parcer = aiParserManager.current;
+          if (!parcer) return;
+          try {
+            const aiItems = await parcer.parse(request.segment);
+            setGroceryItems(aiItems);
+            finish();
+          } catch (err) {
+            console.error('Erro ao processar AIParserManager:', err);
+          }
         },
         () => setListening(false)
       );
@@ -75,13 +91,16 @@ const SpeechScreen = () => {
         </div>
       </ContainerFixedContent>
       <ContainerScrollContent>
-        <textarea ref={textAreaRef} value={text} readOnly className="speech-textarea" />
         {listening && (
           <div className="speech-marquee">
             <span className="speech-marquee-text">{marqueeText}</span>
             <Icon icon={Icon.all.faMicrophone} />
           </div>
         )}
+        <div style={{ marginTop: 24 }}>
+          <h2>Itens de Compras {}</h2>
+          <GroceryList items={groceryItems as any} />
+        </div>
       </ContainerScrollContent>
     </Container>
   );

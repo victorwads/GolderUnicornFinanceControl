@@ -3049,6 +3049,7 @@ __metadata:
     jszip: "npm:^3.10.1"
     mkcert: "npm:^3.2.0"
     nodemon: "npm:^3.1.10"
+    openai: "npm:^5.12.0"
     react: "npm:^19.1.0"
     react-dom: "npm:^19.1.0"
     react-router-dom: "npm:^7.5.0"
@@ -3781,6 +3782,23 @@ __metadata:
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: 10c0/1f4df9945120325d041ccf7b86f31e8bcc14e73d29171e37a7903050e96b81323784ec59f93f102ec635bcf6fa8034ba3ea0a8c7e69fa202b87ae3b6cec5a414
+  languageName: node
+  linkType: hard
+
+"openai@npm:^5.12.0":
+  version: 5.12.0
+  resolution: "openai@npm:5.12.0"
+  peerDependencies:
+    ws: ^8.18.0
+    zod: ^3.23.8
+  peerDependenciesMeta:
+    ws:
+      optional: true
+    zod:
+      optional: true
+  bin:
+    openai: bin/cli
+  checksum: 10c0/adab04e90cae8f393f76c007f98c0636af97a280fb05766b0cee5ab202c802db01c113d0ce0dfea42e1a1fe3b08c9a3881b6eea9a0b0703375f487688aaca1fc
   languageName: node
   linkType: hard
 
