@@ -29,10 +29,14 @@
   align-items: center;
   gap: 8px;
   max-width: 90%;
+  overflow: hidden;
 }
 
 .speech-marquee-text {
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: clip;
+  text-overflow: ellipsis;
+  text-align: right;
+  max-width: 100%;
+  direction: rtl;
 }

@@ -5,57 +5,53 @@ import { getCurrentLangInfo } from '@lang';
 
 import Icon from '@components/Icons';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
-
-const LAST_CHARS = 80;
+import { SpeechRecognitionManager } from './SpeechRecognitionManager';
 
 const SpeechScreen = () => {
   const [listening, setListening] = useState(false);
-  const [finalTranscript, setFinalTranscript] = useState('');
-  const [interimTranscript, setInterimTranscript] = useState('');
+  const [text, setText] = useState('');
+  const [marqueeText, setMarqueeText] = useState('');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const recognitionRef = useRef<any>(null);
   const currentLangInfo = getCurrentLangInfo();
 
+  const speechManager = useRef<SpeechRecognitionManager | null>(null);
+
   useEffect(() => {
-    const SpeechRecognition: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert('Seu navegador não suporta reconhecimento de voz.');
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = currentLangInfo.short;
-    recognition.onresult = (event: any) => {
-      let interim = '';
-      let final = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          final += result[0].transcript;
-        } else {
-          interim += result[0].transcript;
-        }
-      }
-      if (final) setFinalTranscript(prev => prev + final);
-      setInterimTranscript(interim);
+    if(!speechManager.current) {
+      speechManager.current = new SpeechRecognitionManager(
+        currentLangInfo.short,
+        (manager, shouldSend) => {
+          setText(`
+  Current: ${manager.currentSegment}, Send: ${shouldSend}
+  Full: ${manager.finalFranscript}
+          `);
+          setMarqueeText((manager.finalFranscript + manager.currentSegment)); // Atualiza os últimos 80 caracteres
+        },
+        (request) => {
+          console.log('Request to send:', request);
+        },
+        () => setListening(false)
+      );
+    }
+
+    return () => {
+      speechManager.current?.stop();
     };
-    recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-  }, []);
+  }, [currentLangInfo.short]);
 
   const startListening = () => {
-    if (recognitionRef.current && !listening) {
-      recognitionRef.current.start();
+    if (speechManager.current && !listening) {
+      speechManager.current.start();
       setListening(true);
     }
   };
 
   const stopListening = () => {
-    if (recognitionRef.current && listening) {
-      recognitionRef.current.stop();
+    if (speechManager.current && listening) {
+      speechManager.current.stop();
       setListening(false);
     }
   };
-
-  const text = finalTranscript + interimTranscript;
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -64,20 +60,18 @@ const SpeechScreen = () => {
     }
   }, [text]);
 
-  const marqueeText = text.slice(-LAST_CHARS);
-
   return (
     <Container screen spaced className="SpeechScreen">
       <ContainerFixedContent spaced>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <button onClick={startListening} disabled={listening} className="play-button">
-          <Icon icon={Icon.all.faPlay} /> Start
-        </button>
-        <button onClick={stopListening} disabled={!listening} className="stop-button">
-          <Icon icon={Icon.all.faStop} /> Stop
-        </button>
-        <label>Selected Language: </label>
-        <span>{currentLangInfo.short} - {currentLangInfo.name}</span>
+          <button onClick={startListening} disabled={listening} className="play-button">
+            <Icon icon={Icon.all.faPlay} /> Start
+          </button>
+          <button onClick={stopListening} disabled={!listening} className="stop-button">
+            <Icon icon={Icon.all.faStop} /> Stop
+          </button>
+          <label>Selected Language: </label>
+          <span>{currentLangInfo.short} - {currentLangInfo.name}</span>
         </div>
       </ContainerFixedContent>
       <ContainerScrollContent>
