@@ -1,3 +1,18 @@
+.loading-spinner {
+  border: 3px solid #fff2;
+  border-top: 3px solid #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 .SpeechScreen {
   position: relative;
 }
@@ -16,27 +31,89 @@
   font-size: 1rem;
 }
 
+
 .speech-marquee {
   position: fixed;
-  bottom: 20px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 20px;
+  background: linear-gradient(90deg, #232526 0%, #414345 100%);
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 32px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  max-width: 90%;
-  overflow: hidden;
+  gap: 18px;
+  max-width: 95vw;
+  min-width: 320px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
+  z-index: 1000;
+  overflow: visible;
+  transition: box-shadow 0.2s;
+}
+
+.speech-marquee--with-controls {
+  justify-content: flex-start;
+}
+
+.speech-marquee-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
 }
 
 .speech-marquee-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: right;
-  max-width: 100%;
-  direction: rtl;
+  text-align: left;
+  max-width: 350px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.speech-marquee-lang {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+.speech-marquee-lang-short {
+  font-weight: bold;
+  background: #fff2;
+  border-radius: 8px;
+  padding: 2px 8px;
+  margin-right: 4px;
+}
+.speech-marquee-lang-name {
+  font-style: italic;
+}
+
+.microphone-toggle {
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  outline: none;
+}
+.microphone-toggle.listening {
+  background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
+  animation: pulse 1.2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,81,47,0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(255,81,47,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,81,47,0); }
 }

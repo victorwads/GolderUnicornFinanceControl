@@ -1,6 +1,6 @@
 import { QuantityUnit } from '@models';
-import { error } from 'console';
 import { OpenAI } from 'openai';
+import { CreateMLCEngine, MLCEngine, ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 
 export type AIResponseItem = {
   id: string; // identifying the same product between action calls
@@ -26,6 +26,9 @@ export default class AIParserManager {
   private openai: OpenAI;
   private currentList: AIResponseItem[];
 
+  private webllm: MLCEngine | null = null;
+  private webllmReady: boolean = false;
+
   constructor() {
     this.openai = new OpenAI({ 
       apiKey: "",
@@ -41,19 +44,19 @@ export default class AIParserManager {
   public async parse(text: string): Promise<AIResponse<AIGroceryItem>> {
     const currentList = this.currentList;
     const prompt = `
-As grocery list assistant, analyze input and extract a list of actions for whether the user adds, updates, or removes items.
-action scheme {
-  action: add | update | remove,
-  id, # snake_case identify same item across actions
-  name, # commercial product name, try to update with brand, size, flavor, etc if more info is provided.
+analyze input and extract a list of actions for whether the user adds, updates, or removes items.
+exemple: [{
+  action: string, # add | update | remove
+  id: string, # snake_case identify same item across actions
+  name: string, # commercial product name, if more info is provided use brand, size, flavor, etc.
   paidPrice?: number,
   unit?: string, # un | kg | g | l | ml
   quantity?: number,
   expirationDate?: string # ISO
   location?: string, # where the item is stored
-}
+  }]
 
-Respond only with a valid JSON array of actions.
+output only one valid JSON array of actions.
 
 Context:
 - Current date: ${new Date().toISOString()}.
@@ -104,6 +107,7 @@ Context:
     localStorage.setItem(STOREAGE_KEY, JSON.stringify(list));
   }
 
+
   private async withOpenAI(system: string, user: string): Promise<string> {
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4.1-nano',
@@ -114,8 +118,45 @@ Context:
       temperature: 0.2,
       max_tokens: 512,
     });
-    
     return completion.choices[0]?.message?.content || '';
+  }
+
+  private async withWebLLM(system: string, user: string): Promise<string> {
+    if (!this.webllmReady || !this.webllm) {
+      throw new Error('web-llm não está pronto. Aguarde a inicialização.');
+    }
+    const messages: ChatCompletionMessageParam[] = [
+      { role: 'system', content: system },
+      { role: 'user', content: user }
+    ];
+    const reply = await this.webllm.chat.completions.create({
+      messages,
+      stream: false,
+      max_tokens: 512,
+      temperature: 0.2,
+      response_format: {
+        type: 'json_object',
+      },
+
+    });
+    return reply.choices[0]?.message?.content || '';
+  }
+
+  private async initWebLLM() {
+    try {
+      // Nome do modelo pode ser ajustado conforme disponível localmente
+      const selectedModel = 'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC';
+      this.webllm = await CreateMLCEngine(selectedModel, {
+        initProgressCallback: (progress) => {
+          // Pode logar ou exibir progresso
+          console.log('web-llm progress:', progress);
+        }
+      });
+      this.webllmReady = true;
+    } catch (e) {
+      console.error('Erro ao inicializar web-llm:', e);
+      this.webllmReady = false;
+    }
   }
 
   public get list() {

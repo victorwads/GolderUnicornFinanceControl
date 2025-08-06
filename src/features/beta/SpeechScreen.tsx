@@ -12,11 +12,13 @@ import { SpeechRecognitionManager } from './SpeechRecognitionManager';
 import AIParserManager, { AIGroceryItem } from './AIParserManager';
 
 
+
 const SpeechScreen = () => {
   const [listening, setListening] = useState(false);
   const [text, setText] = useState('');
   const [marqueeText, setMarqueeText] = useState('');
   const [groceryItems, setGroceryItems] = useState<AIGroceryItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const aiParserManager = useRef<AIParserManager>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const currentLangInfo = getCurrentLangInfo();
@@ -39,12 +41,15 @@ const SpeechScreen = () => {
           console.log('Request to send:', request);
           const parcer = aiParserManager.current;
           if (!parcer) return;
+          setLoading(true);
           try {
             const aiItems = await parcer.parse(request.segment);
             setGroceryItems(aiItems);
             finish();
           } catch (err) {
             console.error('Erro ao processar AIParserManager:', err);
+          } finally {
+            setLoading(false);
           }
         },
         () => setListening(false)
@@ -79,28 +84,37 @@ const SpeechScreen = () => {
 
   return (
     <Container screen spaced className="SpeechScreen">
-      <ContainerFixedContent spaced>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={startListening} disabled={listening} className="play-button">
-            <Icon icon={Icon.all.faPlay} /> Start
-          </button>
-          <button onClick={stopListening} disabled={!listening} className="stop-button">
-            <Icon icon={Icon.all.faStop} /> Stop
-          </button>
-          <label>Selected Language: </label>
-          <span>{currentLangInfo.short} - {currentLangInfo.name}</span>
-        </div>
-      </ContainerFixedContent>
       <ContainerScrollContent>
-        {listening && (
-          <div className="speech-marquee">
-            <span className="speech-marquee-text">{marqueeText}</span>
-            <Icon icon={Icon.all.faMicrophone} />
-          </div>
-        )}
         <div style={{ marginTop: 24 }}>
-          <h2>Itens de Compras {}</h2>
+          <h2>Itens de Compras</h2>
           <GroceryList items={groceryItems as any} />
+        </div>
+        <div className="speech-marquee speech-marquee--with-controls">
+          <button
+            className={`microphone-toggle${listening ? ' listening' : ''}`}
+            onClick={listening ? stopListening : startListening}
+            aria-label={listening ? 'Parar escuta' : 'Iniciar escuta'}
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="loading-spinner" />
+            ) : (
+              <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
+            )}
+          </button>
+          <div className="speech-marquee-content">
+            <span className="speech-marquee-text">
+              {loading ? 'Processando itens...' : (
+                marqueeText || (
+                  listening ? 'Fale para adicionar itens...' : 'Pressione o botão para falar'
+                )
+              )}
+            </span>
+            <div className="speech-marquee-lang">
+              <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
+              <span className="speech-marquee-lang-name">{currentLangInfo.name}</span>
+            </div>
+          </div>
         </div>
       </ContainerScrollContent>
     </Container>
