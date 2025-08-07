@@ -7,7 +7,7 @@ export interface ExpirationLabel {
 
 export function getExpirationLabel(item: GroceryItemModel): ExpirationLabel | undefined {
   const expiration = item.expirationDate;
-  if (!expiration) return undefined;
+  if (!expiration || !(expiration instanceof Date)) return undefined;
 
   const now = new Date();
   const diffDays = Math.ceil((expiration.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));

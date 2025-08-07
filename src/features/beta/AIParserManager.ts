@@ -1,35 +1,40 @@
-import { QuantityUnit } from '@models';
 import { OpenAI } from 'openai';
 import { CreateMLCEngine, MLCEngine, ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 
-export type AIResponseItem = {
-  id: string; // identifying the same product between action calls
-  name?: string; // should be the formated product name
+export type AIResponse<T> = AIItemWithAction<T>[]
+export type AIItem = {
+  id: string;
+  name?: string;
 };
 
-export type AIResponseAction = {
-  action: 'add' | 'update' | 'remove';
-} & AIResponseItem;
+export type AIItemWithAction<T, Action = 'add' | 'update' | 'remove'> = {
+  action: Action;
+} & AIItem & T;
 
-export type AIGroceryItem = AIResponseItem & {
-  price?: number; // price paid for each unit
-  quantity?: number; // optional
-  units?: QuantityUnit; // un|kg|g|l|ml
-  expirationDate?: string | Date; // ISO Date
-};
-
-export type AIResponse<T extends AIResponseItem> = T[]
 
 const STOREAGE_KEY = 'currentGroceryList';
+const n = (id: string) => id.trim().toLowerCase();
 
-export default class AIParserManager {
+export default class AIActionsParser<T extends AIItem> {
   private openai: OpenAI;
-  private currentList: AIResponseItem[];
-
   private webllm: MLCEngine | null = null;
   private webllmReady: boolean = false;
 
-  constructor() {
+  public items: (AIItem & Partial<T>)[];
+  public onAction: (actions: AIResponse<T>) => void = () => {};
+
+  /**
+   * @param language User language
+   * @param listDescription Short description of what kind of items are in the list
+   * @param outputAditionalFieldsDescription Description of additional fields to include in the output. id and action are already defined.
+   * @param normalizer Function to normalize item fields (e.g., convert strings to dates)
+   */
+  constructor(
+    public language: string,
+    public listDescription: string,
+    public outputAditionalFieldsDescription: string,
+    public normalizer: (item: Partial<T>) => Partial<T> = (item) => item
+  ) {
     this.openai = new OpenAI({ 
       apiKey: "",
       project: "",
@@ -38,85 +43,108 @@ export default class AIParserManager {
     });
 
     const savedList = localStorage.getItem(STOREAGE_KEY) || sessionStorage.getItem(STOREAGE_KEY);
-    this.currentList = savedList ? JSON.parse(savedList) : [];
+    this.items = savedList ? JSON.parse(savedList) : [];
   }
 
-  public async parse(text: string): Promise<AIResponse<AIGroceryItem>> {
-    const currentList = this.currentList;
+  public async parse(text: string): Promise<AIResponse<T>> {
     const prompt = `
-analyze input and extract a list of actions for whether the user adds, updates, or removes items.
-exemple: [{
-  action: string, # add | update | remove
-  id: string, # snake_case identify same item across actions
-  name: string, # commercial product name, if more info is provided use brand, size, flavor, etc.
-  paidPrice?: number,
-  unit?: string, # un | kg | g | l | ml
-  quantity?: number,
-  expirationDate?: string # ISO
-  location?: string, # where the item is stored
-  }]
+# Output Array Item Fields
+action (add | update | remove )
+id (unique simple short id)
+${this.outputAditionalFieldsDescription.trim()}
 
-output only one valid JSON array of actions.
+# Context
+You are list (${
+  this.listDescription.split('\n').join(', ')
+}) assistant, analyze the user's input to extract actions for each item to update the list.
 
-Context:
-- Current date: ${new Date().toISOString()}.
-- Current list: ${JSON.stringify(
-  this.currentList.map(({id, name}) => ({id, name}))
+include fields only if the user explicit provided that information.
+never use null unless the user explicitly rectifies some info.
+dates should be handled in ISO Format.
+
+today: ${new Date().toISOString().split('T')[0]}
+list: ${JSON.stringify(
+  this.items.map(({id, name}) => ({id, name}))
 )}
 `;
 
+    console.log('AIParserManager prompt:', prompt);
     const response = await this.withOpenAI(prompt, text);
     console.log('AIParserManager response:', response);
 
-    let result: AIGroceryItem[] = [...currentList];
+    let actions: AIItemWithAction<T>[] = [];
     try {
-      JSON.parse(response).forEach((item: Partial<AIResponseAction & AIGroceryItem>) => {
-        const { id, name, action, expirationDate } = item;
-        delete item.action;
-
+      actions = JSON.parse(response);
+      actions.forEach((item: Partial<AIItemWithAction<T>>) => {
+        const { id, action } = item;
         if (!id) throw new Error('Item must have an id');
-        if (expirationDate) item.expirationDate = new Date(expirationDate);
 
+        delete item.action;
+        let guardItem = item as Partial<T> & AIItem;
+
+        let index = this.items.findIndex((i: AIItem) => n(i.id) === n(id));
         switch (action) {
-          case 'add':
-            if (!name) throw new Error('Item must have a name');
-            result.push({ ...item, id, name});
-            break;
-          case 'remove':
-            result = result.filter((i) => i.id !== id);
-            break;
-          case 'update':
-            let index = result.findIndex((i) => i.id === id);
-            if (index === -1) result.findIndex((i) => i.id.includes(id));
-            if (index === -1) throw new Error(`Item with id ${id} not found for update`);
-            result[index] = { ...result[index], ...item };
-            break;
-          default:
-            throw new Error(`Unknown action: ${action}`);
+          case 'remove': this.remove(guardItem, index); break;
+          case 'add': this.add(guardItem, index); break;
+          case 'update': this.update(guardItem, index); break;
+          default: throw new Error(`Unknown action: ${action}`);
         }
       });
     } catch(error: unknown) {
       console.error('Failed to parse AI response:', response, error);
     }
-    this.saveCurrentList(result);
-    return this.list;
+    this.saveCurrentList();
+    return actions;
   }
 
-  private saveCurrentList(list: AIResponseItem[]) {
-    this.currentList = list;
-    localStorage.setItem(STOREAGE_KEY, JSON.stringify(list));
+  private add(item: AIItem & Partial<T>, index: number): void {
+    if (!item.name) return console.error(new Error('Item to add must have a name'), item);
+    if (index !== -1) {
+      console.warn(`Item with id '${item.id}' already exists, switching add to update`, item);
+      return this.update(item, index);
+    }
+    this.items.push({ ...item });
   }
 
+  private update(item: AIItem & Partial<T>, index: number): void {
+    if (index === -1) {
+      index = index !== -1 ? index : this.items.findIndex(({id}: AIItem) => n(item.id).includes(n(id)));
+      console.warn(`Item with id ${item.id} not found exactly for update, trying to find by partial match`, item);
+    }
+    if (index === -1) {
+      console.warn(`Item with id ${item.id} not found for update, switching to add`, item);
+      return this.add(item, index);
+    } else {
+      this.items[index] = { ...this.items[index], ...item };
+    }
+  }
+
+  private remove(item: AIItem, index: number) {
+    if (index === -1) {
+      console.warn(`Item with id ${item.id} not found for removal`, item);
+      return;
+    }
+    this.items = this.items.filter(({id}: AIItem) => n(id) !== n(item.id));
+    this.saveCurrentList();
+  }
+
+  private saveCurrentList() {
+    localStorage.setItem(STOREAGE_KEY, JSON.stringify(this.items));
+  }
 
   private async withOpenAI(system: string, user: string): Promise<string> {
+    const messages: ChatCompletionMessageParam[] = [
+      { role: 'system', content: system },
+      { role: 'user', content: user }
+    ];
+
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4.1-nano',
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user }
-      ],
-      temperature: 0.2,
-      max_tokens: 512,
+      messages,
+      stream: false,
+      max_tokens: 1024,
+      temperature: 0.01,
+      top_p: 0.3,
     });
     return completion.choices[0]?.message?.content || '';
   }
@@ -132,23 +160,18 @@ Context:
     const reply = await this.webllm.chat.completions.create({
       messages,
       stream: false,
-      max_tokens: 512,
-      temperature: 0.2,
-      response_format: {
-        type: 'json_object',
-      },
-
+      max_tokens: 1024, // Ajust depeding of user paid plan
+      temperature: 0.01,
+      top_p: 0.3,
     });
     return reply.choices[0]?.message?.content || '';
   }
 
   private async initWebLLM() {
     try {
-      // Nome do modelo pode ser ajustado conforme disponível localmente
       const selectedModel = 'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC';
       this.webllm = await CreateMLCEngine(selectedModel, {
         initProgressCallback: (progress) => {
-          // Pode logar ou exibir progresso
           console.log('web-llm progress:', progress);
         }
       });
@@ -157,12 +180,5 @@ Context:
       console.error('Erro ao inicializar web-llm:', e);
       this.webllmReady = false;
     }
-  }
-
-  public get list() {
-    return this.currentList.map((item: AIGroceryItem) => ({
-      ...item,
-      expirationDate: item.expirationDate ? new Date(item.expirationDate) : undefined
-    }));
   }
 }

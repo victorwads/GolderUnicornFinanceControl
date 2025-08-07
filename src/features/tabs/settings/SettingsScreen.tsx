@@ -114,6 +114,12 @@ const SettingsScreen = () => {
 
   return <Container spaced className="SettingsScreen"><ContainerScrollContent>
     <h2>{Lang.settings.title}</h2>
+
+    <h3>Beta Features</h3>
+    <ul>
+      <li><Link to={'/beta/speech'}>Groceries Speech Recognition (Alpha Stage)</Link></li>
+    </ul>
+
     <h3>{Lang.settings.data}</h3>
     <ul>
       <li><Link to={'/categories'}>{Lang.categories.title}</Link></li>

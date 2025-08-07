@@ -22,7 +22,7 @@ export class SpeechRecognitionManager {
   public onEnd: EndListener;
 
   constructor(
-    private language: string,
+    language: string,
     onUpdate?: UpdateListener,
     onRequest?: RequestListener,
     onEnd?: EndListener

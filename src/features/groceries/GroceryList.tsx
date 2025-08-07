@@ -26,7 +26,7 @@ const GroceryList: React.FC<GroceryListProps> = ({ items }) => (
             <div className="GroceryItemDetails">
               {item.quantity} {item.unit}
               {item.paidPrice && ` - R$ ${item.paidPrice.toFixed(2)}`}
-              {item.expirationDate && ' - ' + item.expirationDate.toLocaleDateString()}
+              {item.expirationDate && ' - ' + new Date(item.expirationDate).toLocaleDateString()}
               {item.location && ` - ${item.location}`}
             </div>
           </Link>

@@ -9,55 +9,66 @@ import { Container, ContainerFixedContent, ContainerScrollContent } from '@compo
 import { GroceryItemModel } from '@models';
 import GroceryList from '../../features/groceries/GroceryList';
 import { SpeechRecognitionManager } from './SpeechRecognitionManager';
-import AIParserManager, { AIGroceryItem } from './AIParserManager';
-
-
+import AIActionsParser from './AIParserManager';
+import { useNavigate } from 'react-router-dom';
 
 const SpeechScreen = () => {
   const [listening, setListening] = useState(false);
   const [text, setText] = useState('');
   const [marqueeText, setMarqueeText] = useState('');
-  const [groceryItems, setGroceryItems] = useState<AIGroceryItem[]>([]);
+  const [groceryItems, setGroceryItems] = useState<GroceryItemModel[]>([]);
   const [loading, setLoading] = useState(false);
-  const aiParserManager = useRef<AIParserManager>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const speechManager = useRef<SpeechRecognitionManager | null>(null);
+  const navigate = useNavigate();
   const currentLangInfo = getCurrentLangInfo();
 
-  const speechManager = useRef<SpeechRecognitionManager | null>(null);
-
   useEffect(() => {
-    if (!aiParserManager.current) {
-      aiParserManager.current = new AIParserManager();
-      setGroceryItems(aiParserManager.current.list);
-    }
-    if(!speechManager.current) {
-      speechManager.current = new SpeechRecognitionManager(
-        currentLangInfo.short,
-        (manager) => {
-          setText(`\n  Current: ${manager.currentSegment}\n  Full: ${manager.finalFranscript}\n          `);
-          setMarqueeText((manager.currentSegment));
-        },
-        async (request, finish) => {
-          console.log('Request to send:', request);
-          const parcer = aiParserManager.current;
-          if (!parcer) return;
-          setLoading(true);
-          try {
-            const aiItems = await parcer.parse(request.segment);
-            setGroceryItems(aiItems);
-            finish();
-          } catch (err) {
-            console.error('Erro ao processar AIParserManager:', err);
-          } finally {
-            setLoading(false);
-          }
-        },
-        () => setListening(false)
-      );
-    }
+    const aiParser = new AIActionsParser<GroceryItemModel>(
+      currentLangInfo.short,
+      "grocery and household items",
+      `
+name (pretty product description, eg: "Ground Beef 500g")
+state ( packed | frozen | opened )
+quantity (number of units purchased)
+location (where the item is stored)
+expirationDate
+paidPrice
+`,
+      (item) => ({
+        ...item,
+        expirationDate: item.expirationDate ? new Date(item.expirationDate) || undefined : undefined,
+      })
+    );
+
+    setGroceryItems(aiParser.items as GroceryItemModel[]);
+    aiParser.language = currentLangInfo.short;
+
+    speechManager.current = new SpeechRecognitionManager(
+      currentLangInfo.short,
+      (manager) => {
+        setText(`\n  Current: ${manager.currentSegment}\n  Full: ${manager.finalFranscript}\n          `);
+        setMarqueeText((manager.currentSegment));
+      },
+      async (request, finish) => {
+        console.log('Request to send:', request);
+        setLoading(true);
+        try {
+          await aiParser.parse(request.segment);
+          setGroceryItems(aiParser.items as GroceryItemModel[]);
+          finish();
+        } catch (err) {
+          console.error('Erro ao processar AIActionsParser:', err);
+        } finally {
+          setLoading(false);
+        }
+      },
+      () => setListening(false)
+    );
 
     return () => {
       speechManager.current?.stop();
+      speechManager.current = null;
     };
   }, [currentLangInfo.short]);
 
@@ -84,11 +95,12 @@ const SpeechScreen = () => {
 
   return (
     <Container screen spaced className="SpeechScreen">
-      <ContainerScrollContent>
-        <div style={{ marginTop: 24 }}>
-          <h2>Itens de Compras</h2>
-          <GroceryList items={groceryItems as any} />
-        </div>
+      <ContainerFixedContent>
+        <h2 style={{ marginBottom: 24 }}>Itens de Compras</h2>
+      </ContainerFixedContent>
+      <ContainerScrollContent spaced>
+        <GroceryList items={groceryItems as any} />
+        <div style={{ height: 120 }}></div>
         <div className="speech-marquee speech-marquee--with-controls">
           <button
             className={`microphone-toggle${listening ? ' listening' : ''}`}
@@ -110,7 +122,7 @@ const SpeechScreen = () => {
                 )
               )}
             </span>
-            <div className="speech-marquee-lang">
+            <div className="speech-marquee-lang" onClick={() => navigate('/main/settings')}>
               <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
               <span className="speech-marquee-lang-name">{currentLangInfo.name}</span>
             </div>
@@ -122,4 +134,3 @@ const SpeechScreen = () => {
 };
 
 export default SpeechScreen;
-
