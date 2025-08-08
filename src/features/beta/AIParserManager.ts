@@ -1,6 +1,8 @@
 import { OpenAI } from 'openai';
-import { CreateMLCEngine, MLCEngine, ChatCompletionMessageParam } from '@mlc-ai/web-llm';
+import { ChatCompletionMessageParam } from 'openai/resources/index';
+
 import StreamedJsonArrayParser from './StreamedJsonArrayParser';
+import BaseRepository from '@repositories/RepositoryBase';
 
 export type AIResponse<T> = AIItemWithAction<T>[]
 
@@ -157,7 +159,7 @@ ${this.config.outputExample.trim()}
   }
 
   private async withOpenAI(system: string, user: string, onStream?: (chunk: string) => void): Promise<string> {
-    const messages: ChatCompletionMessageParam[] = [
+    const messages: Array<ChatCompletionMessageParam> = [
       { role: 'system', content: system },
       { role: 'user', content: user }
     ];
@@ -167,17 +169,27 @@ ${this.config.outputExample.trim()}
       model: 'gpt-5-nano',
       messages,
       stream: true,
+      stream_options: { include_usage: true },
     });
 
     let full = '';
-    for await (const chunk of stream as any) {
+    let tokens = 0;
+    for await (const chunk of stream) {
       const delta = chunk?.choices?.[0]?.delta?.content ?? '';
       if (delta) {
         full += delta;
         console.log('AIParserManager stream chunk:', delta);
         onStream?.(delta);
       }
+      tokens += chunk?.usage?.total_tokens || 0;
     }
+
+    BaseRepository.updateUse((use) => {
+      use.openai = use.openai || { requests: 0, tokens: 0 };
+      use.openai.requests++;
+      use.openai.tokens += tokens;
+    });
+    console.log('[OpenAI] Tokens usados:', tokens);
 
     return full;
   }

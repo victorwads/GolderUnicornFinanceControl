@@ -13,11 +13,15 @@ import { DocumentModel } from "@models";
 
 const queryField: keyof DocumentModel = "_updatedAt";
 interface DatabaseUse { queryReads: number, docReads: number, writes: number }
-export interface DatabasesUse { remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse }
+export interface DatabasesUse { 
+  remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse ,
+  openai?: { tokens: number, requests: number }
+}
 const createEmptyUse = (): DatabasesUse => ({
   remote: { queryReads: 0, docReads: 0, writes: 0 },
   local: { queryReads: 0, docReads: 0, writes: 0 },
   cache: { queryReads: 0, docReads: 0, writes: 0 },
+  openai: { tokens: 0, requests: 0 }
 });
 const DB_USE = "dbUse";;
 const SAVED_CACHE = localStorage.getItem(DB_USE);
@@ -264,7 +268,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
 
   public static updateUserUse = async (data: DocumentData) => { };
 
-  protected static async updateUse(updater: (use: DatabasesUse) => void) {
+  public static async updateUse(updater: (use: DatabasesUse) => void) {
     updater(BaseRepository.use);
 
     const use = BaseRepository.use;

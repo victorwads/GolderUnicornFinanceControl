@@ -154,6 +154,9 @@ const SettingsScreen = () => {
         <div>
           Local &rarr; Reads: {user.dbUse.local.docReads}, Writes: {user.dbUse.local.writes}, QueryReads: {user.dbUse.local.queryReads}
         </div>
+        <div>
+          OpenAI &rarr; Requests: {user.dbUse.openai?.requests || 0}, Tokens: {user.dbUse.openai?.tokens || 0}
+        </div>
       </div>
     ) : (
       <div>{Lang.settings.loadingDatabaseUsage}</div>
