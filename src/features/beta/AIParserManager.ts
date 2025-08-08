@@ -55,10 +55,6 @@ export default class AIActionsParser<T extends AIItemData, A extends string = st
     const prompt = `
 You are an action extractor that updates a list of items. Interpret the user's message and produce only a valid JSON array.
 
-Ask something to the user Action Data model:
-- action: "ask"
-- message: string (a really short and simple question only if need more details about updating the item, otherwise do not ask)
-
 Item Action Data model:
 - action: "add" | "update" | "remove"
 - id: string (required in every object)
@@ -75,7 +71,7 @@ Rules:
 - Dates must be in ISO format (YYYY-MM-DD). Resolve relative dates using "today".
 - ID generation, use a short id, could be a slug or any unique identifier
 - Never alter existing ids for "update" or "remove".
-- If the instruction is ambiguous or no actionable item is found, return [] or add an "ask" action with a message.
+- If the instruction is ambiguous or no actionable item is found, return []
 
 Context:
 - today: ${today}
