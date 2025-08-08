@@ -6,8 +6,8 @@ export interface ExpirationLabel {
 }
 
 export function getExpirationLabel(item: GroceryItemModel): ExpirationLabel | undefined {
-  const expiration = item.expirationDate;
-  if (!expiration || !(expiration instanceof Date)) return undefined;
+  if (!item.expirationDate) return undefined;
+  const expiration = new Date(item.expirationDate);
 
   const now = new Date();
   const diffDays = Math.ceil((expiration.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -24,5 +24,7 @@ export function getExpirationLabel(item: GroceryItemModel): ExpirationLabel | un
   if (diffDays <= 30) {
     return { label: Lang.groceries.thisMonth, color: 'var(--color-info)' };
   }
+
+  return undefined;
   return { label: Lang.groceries.valid, color: 'var(--color-success)' };
 }

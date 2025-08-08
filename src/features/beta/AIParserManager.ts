@@ -49,8 +49,8 @@ export default class AIActionsParser<T extends AIItem> {
   public async parse(text: string): Promise<AIResponse<T>> {
     const prompt = `
 # Output Array Item Fields
-action (add | update | remove )
-id (unique simple short id)
+action (add | update | remove ) required
+id (unique simple short id) required
 ${this.outputAditionalFieldsDescription.trim()}
 
 # Context
@@ -68,13 +68,14 @@ list: ${JSON.stringify(
 )}
 `;
 
-    console.log('AIParserManager prompt:', prompt);
+    console.log('AIParserManager prompt:', text, {system: prompt});
     const response = await this.withOpenAI(prompt, text);
     console.log('AIParserManager response:', response);
 
     let actions: AIItemWithAction<T>[] = [];
     try {
       actions = JSON.parse(response);
+      actions = Array.isArray(actions) ? actions : [actions];
       actions.forEach((item: Partial<AIItemWithAction<T>>) => {
         const { id, action } = item;
         if (!id) throw new Error('Item must have an id');
@@ -139,13 +140,16 @@ list: ${JSON.stringify(
     ];
 
     const completion = await this.openai.chat.completions.create({
-      model: 'gpt-4.1-nano',
+      model: 'gpt-5-nano',
       messages,
       stream: false,
       max_tokens: 1024,
       temperature: 0.01,
       top_p: 0.3,
     });
+
+    console.log(`[OpenAI] Tokens usados: `, completion.usage);
+
     return completion.choices[0]?.message?.content || '';
   }
 

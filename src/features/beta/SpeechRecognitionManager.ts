@@ -43,6 +43,7 @@ export class SpeechRecognitionManager {
     this.recognition.onend = this.handleEnd.bind(this);
     this.recognition.onerror = (event) => {
       console.error('Speech recognition error', event);
+      this.stop();
       this.onEnd();
     }
   }
@@ -109,8 +110,8 @@ export class SpeechRecognitionManager {
   public stop() {
     console.log('Manual Stopping recognition');
     if (this.recognition) {
-      this.recognition.stop();
       this.running = false;
+      this.recognition.stop();
     }
   }
 

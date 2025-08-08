@@ -28,15 +28,16 @@ const SpeechScreen = () => {
       currentLangInfo.short,
       "grocery and household items",
       `
-name (pretty product description, eg: "Ground Beef 500g")
-state ( packed | frozen | opened )
-quantity (number of units purchased)
+name (pretty product description with weight, details, avoid duplicates)
+opened ( true if the package is in use or opened )
+quantity (integer of how many packages are there)
 location (where the item is stored)
 expirationDate
 paidPrice
 `,
       (item) => ({
         ...item,
+        opened: item?.opened?.toString() === "true",
         expirationDate: item.expirationDate ? new Date(item.expirationDate) || undefined : undefined,
       })
     );
@@ -51,7 +52,6 @@ paidPrice
         setMarqueeText((manager.currentSegment));
       },
       async (request, finish) => {
-        console.log('Request to send:', request);
         setLoading(true);
         try {
           await aiParser.parse(request.segment);
