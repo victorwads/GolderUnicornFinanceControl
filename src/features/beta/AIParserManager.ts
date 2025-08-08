@@ -33,40 +33,50 @@ export default class AIActionsParser<T extends AIItem> {
     public language: string,
     public listDescription: string,
     public outputAditionalFieldsDescription: string,
+    public outputExemple: string,
     public normalizer: (item: Partial<T>) => Partial<T> = (item) => item
   ) {
-    this.openai = new OpenAI({ 
-      apiKey: "",
-      project: "",
-      organization: "",
-      dangerouslyAllowBrowser: true,
-    });
+    this.initOpenAI();
 
     const savedList = localStorage.getItem(STOREAGE_KEY) || sessionStorage.getItem(STOREAGE_KEY);
     this.items = savedList ? JSON.parse(savedList) : [];
   }
 
   public async parse(text: string): Promise<AIResponse<T>> {
+    const today = new Date().toISOString().split('T')[0];
     const prompt = `
-# Output Array Item Fields
-action (add | update | remove ) required
-id (unique simple short id) required
-${this.outputAditionalFieldsDescription.trim()}
+You are an action extractor that updates a list of items. Interpret the user's message written in "${this.language}" and produce only a valid JSON array.
 
-# Context
-You are list (${
-  this.listDescription.split('\n').join(', ')
-}) assistant, analyze the user's input to extract actions for each item to update the list.
+Ask something to the user Action Data model:
+- action: "ask"
+- message: string (the question to ask the user)
 
-include fields only if the user explicit provided that information.
-never use null unless the user explicitly rectifies some info.
-dates should be handled in ISO Format.
+Item Action Data model:
+- action: "add" | "update" | "remove"
+- id: string (required in every object)
+${this.outputAditionalFieldsDescription
+  .trim()
+  .replace(/^\s-\s/, '')
+  .split('\n')
+  .map(line => `- ${line.trim()}`)
+  .join('\n')
+}
 
-today: ${new Date().toISOString().split('T')[0]}
-list: ${JSON.stringify(
-  this.items.map(({id, name}) => ({id, name}))
-)}
-`;
+Rules:
+- Include only fields explicitly provided by the user. Never use null; omit unknown fields.
+- Dates must be in ISO format (YYYY-MM-DD). Resolve relative dates using "today".
+- ID generation, use a short id, could be a slug or any unique identifier
+- Never alter existing ids for "update" or "remove".
+- If the instruction is ambiguous or no actionable item is found, return [] or add an "ask" action with a message.
+
+Context:
+- today: ${today}
+- list type: ${this.listDescription.split('\n').join(', ')}
+- current list reference: ${JSON.stringify(this.items.map(({id, name}) => ({id, name})))}
+
+Examples:
+${this.outputExemple.trim()}
+`.trim();
 
     console.log('AIParserManager prompt:', text, {system: prompt});
     const response = await this.withOpenAI(prompt, text);
@@ -74,25 +84,36 @@ list: ${JSON.stringify(
 
     let actions: AIItemWithAction<T>[] = [];
     try {
-      actions = JSON.parse(response);
-      actions = Array.isArray(actions) ? actions : [actions];
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(response);
+      } catch (e) {
+        const coerced = this.coerceJsonArray(response);
+        if (!coerced) throw e;
+        parsed = JSON.parse(coerced);
+      }
+
+      actions = Array.isArray(parsed) ? (parsed as AIItemWithAction<T>[]) : [parsed as AIItemWithAction<T>];
+
       actions.forEach((item: Partial<AIItemWithAction<T>>) => {
         const { id, action } = item;
         if (!id) throw new Error('Item must have an id');
 
-        delete item.action;
-        let guardItem = item as Partial<T> & AIItem;
+        delete (item as any).action;
+        const guardItem = item as Partial<T> & AIItem;
+        const normalized = { ...guardItem, ...this.normalizer(guardItem) } as AIItem & Partial<T>;
 
         let index = this.items.findIndex((i: AIItem) => n(i.id) === n(id));
         switch (action) {
-          case 'remove': this.remove(guardItem, index); break;
-          case 'add': this.add(guardItem, index); break;
-          case 'update': this.update(guardItem, index); break;
+          case 'remove': this.remove(normalized, index); break;
+          case 'add': this.add(normalized, index); break;
+          case 'update': this.update(normalized, index); break;
           default: throw new Error(`Unknown action: ${action}`);
         }
       });
     } catch(error: unknown) {
-      console.error('Failed to parse AI response:', response, error);
+      console.error('Failed to parse AI response', error);
+      return [];
     }
     this.saveCurrentList();
     return actions;
@@ -109,14 +130,21 @@ list: ${JSON.stringify(
 
   private update(item: AIItem & Partial<T>, index: number): void {
     if (index === -1) {
-      index = index !== -1 ? index : this.items.findIndex(({id}: AIItem) => n(item.id).includes(n(id)));
-      console.warn(`Item with id ${item.id} not found exactly for update, trying to find by partial match`, item);
+      // Try partial id match (both directions)
+      index = this.items.findIndex(({id}: AIItem) => n(item.id).includes(n(id)) || n(id).includes(n(item.id)));
+      // Fallback by name exact match
+      if (index === -1 && item.name) {
+        index = this.items.findIndex(({name}: AIItem) => !!name && n(name) === n(item.name!));
+      }
+      console.warn(`Item with id ${item.id} not found exactly for update, trying to find by partial match or name`, item);
     }
     if (index === -1) {
       console.warn(`Item with id ${item.id} not found for update, switching to add`, item);
       return this.add(item, index);
     } else {
-      this.items[index] = { ...this.items[index], ...item };
+      const current = this.items[index];
+      this.items[index] = { ...current, ...item };
+      console.log(`Item with id ${item.id} updated from:`, current, 'to:', this.items[index]);
     }
   }
 
@@ -143,9 +171,6 @@ list: ${JSON.stringify(
       model: 'gpt-5-nano',
       messages,
       stream: false,
-      max_tokens: 1024,
-      temperature: 0.01,
-      top_p: 0.3,
     });
 
     console.log(`[OpenAI] Tokens usados: `, completion.usage);
@@ -153,36 +178,38 @@ list: ${JSON.stringify(
     return completion.choices[0]?.message?.content || '';
   }
 
-  private async withWebLLM(system: string, user: string): Promise<string> {
-    if (!this.webllmReady || !this.webllm) {
-      throw new Error('web-llm não está pronto. Aguarde a inicialização.');
-    }
-    const messages: ChatCompletionMessageParam[] = [
-      { role: 'system', content: system },
-      { role: 'user', content: user }
-    ];
-    const reply = await this.webllm.chat.completions.create({
-      messages,
-      stream: false,
-      max_tokens: 1024, // Ajust depeding of user paid plan
-      temperature: 0.01,
-      top_p: 0.3,
+  private async initOpenAI() {
+    this.openai = new OpenAI({
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+      project: import.meta.env.VITE_OPENAI_PROJECT,
+      organization: import.meta.env.VITE_OPENAI_ORG,
+      dangerouslyAllowBrowser: true,
     });
-    return reply.choices[0]?.message?.content || '';
   }
 
-  private async initWebLLM() {
-    try {
-      const selectedModel = 'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC';
-      this.webllm = await CreateMLCEngine(selectedModel, {
-        initProgressCallback: (progress) => {
-          console.log('web-llm progress:', progress);
-        }
-      });
-      this.webllmReady = true;
-    } catch (e) {
-      console.error('Erro ao inicializar web-llm:', e);
-      this.webllmReady = false;
+  // Try to coerce LLM responses into a JSON array string
+  private coerceJsonArray(text: string): string | null {
+    if (!text) return null;
+    let s = text.trim();
+    // strip markdown fences
+    s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+    // Try to extract array
+    const firstBracket = s.indexOf('[');
+    const lastBracket = s.lastIndexOf(']');
+    if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+      const candidate = s.slice(firstBracket, lastBracket + 1).trim();
+      if (candidate.startsWith('[') && candidate.endsWith(']')) return candidate;
     }
+
+    // Try to extract single object and wrap as array
+    const firstBrace = s.indexOf('{');
+    const lastBrace = s.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      const obj = s.slice(firstBrace, lastBrace + 1).trim();
+      if (obj.startsWith('{') && obj.endsWith('}')) return `[${obj}]`;
+    }
+
+    return null;
   }
 }

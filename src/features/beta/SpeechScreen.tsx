@@ -28,18 +28,29 @@ const SpeechScreen = () => {
       currentLangInfo.short,
       "grocery and household items",
       `
-name (pretty product description with weight, details, avoid duplicates)
-opened ( true if the package is in use or opened )
-quantity (integer of how many packages are there)
-location (where the item is stored)
-expirationDate
-paidPrice
+name: (pretty product description with weight, details, avoid duplicates)
+opened?: ( true if the package is in use or opened )
+quantity?: (integer of how many packages are there)
+location?: (where the item is stored)
+expirationDate?: string
+paidPrice?: number
 `,
-      (item) => ({
-        ...item,
-        opened: item?.opened?.toString() === "true",
-        expirationDate: item.expirationDate ? new Date(item.expirationDate) || undefined : undefined,
-      })
+      `
+Context: there is no rice on list and he just bought it
+User: "i've bought 2 packages with 2kg of rice and the beans are gone"
+Assistant:
+[{ "action": "add", "id": "d52aadfd1", "name": "rice 5kg", quantity: 2 },{ "action": "remove", "id": "beans" }]
+
+Context: there is already a milk on list
+User: "the milk on refrigerator expiry to Friday"
+Assistant:
+[{ "action": "update", "id": "milk", "expiryDate": "CALCULATED_DATE", location: "refrigerator" }]
+`,
+      (item) => {
+        if (item.opened !== undefined) item.opened.toString() === "true"
+        if (item.expirationDate !== undefined) item.expirationDate = new Date(item.expirationDate);
+        return item;
+      }
     );
 
     setGroceryItems(aiParser.items as GroceryItemModel[]);
@@ -97,6 +108,17 @@ paidPrice
     <Container screen spaced className="SpeechScreen">
       <ContainerFixedContent>
         <h2 style={{ marginBottom: 24 }}>Itens de Compras</h2>
+        <h3>Como usar</h3>
+        <p>Fale naturalmente sobre sua lista de compras ou sobre os itens guardados na sua casa, O assistente vai tentar entender o que você disse e adicionar, remove ou atualizar os itens na lista.</p>
+        <p>Vocie pode falar sobre o nome, validade, se esta aberto/usado ou não, quantidade, quanto pagou, onde esta guardado e etc.</p>
+        <p>Exemplos:</p>
+        <ul>
+          <li>comprei 2 pacotes de arroz</li>
+          <li>tenho 3 pacotes de macarão no armário</li>
+          <li>Eu tenho presunto e queijo abertos na geladeira e vão estragar daqui 3 dias</li>
+          <li>O pacote de café vence daqui 2 meses</li>
+          <li>não tenho mais o feijão</li>
+        </ul>
       </ContainerFixedContent>
       <ContainerScrollContent spaced>
         <GroceryList items={groceryItems as any} />
