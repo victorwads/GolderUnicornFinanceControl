@@ -17,9 +17,8 @@ export default class StreamedJsonArrayParser<T> {
   public push(chunk: string) {
     const chars = chunk.split('');
     for (const char of chars) {
-
       // ignore characters outside of JSON objects
-      if (char !== '{' && !this.isInsideObject) return;
+      if (char !== '{' && !this.isInsideObject) continue;
       
       this.buffer += char;
       if (char === '{') {
@@ -36,7 +35,7 @@ export default class StreamedJsonArrayParser<T> {
   private parseCompleteObject() {
     this.removeJSLikeCommas();
     try {
-      const data: T[] = JSON.parse(this.buffer);
+      const data: T = JSON.parse(this.buffer);
       this.onFoundObject(data);
     } catch (error) {
       console.error('Failed to parse streamed JSON objected:', this.buffer, error);

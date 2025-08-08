@@ -85,13 +85,9 @@ Context:
 Examples:
 ${this.config.outputExample.trim()}
 `.trim();
-
-    console.log('AIParserManager prompt:', text, {system: prompt});
-    const response = await this.withOpenAI(prompt, text);
-    console.log('AIParserManager response:', response);
-
     const jsonParser = new StreamedJsonArrayParser<AIItemWithAction<T, A>>(
       (item) => {
+        console.log('action:', item);
         const { id, action } = item;
         if (action === 'ask') {
           this.onAction(item);
@@ -113,6 +109,11 @@ ${this.config.outputExample.trim()}
         this.onAction(item);
       }
     );
+    console.log('AIParserManager prompt:', text, {system: prompt});
+    const response = await this.withOpenAI(prompt, text);
+    console.log('AIParserManager response:', response);
+
+    jsonParser.push(response);
   }
 
   private add(item: Partial<T>, index: number): void {

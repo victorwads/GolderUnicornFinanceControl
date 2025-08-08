@@ -90,4 +90,25 @@ describe('StreamedJsonArrayParser', () => {
     expect(errorSpy).toHaveBeenCalled();
     expect(found.length).toBe(0);
   });
+
+  it('when have noise on text', () => {
+    const { parser, found } = collect<any>();
+
+    parser.push('other things here {"a":"text"} more thing here'); // invalid JSON
+
+    expect(found.length).toBe(1);
+    expect(found[0]).toEqual({ a: 'text' });
+  });
+
+  it('perfect array', () => {
+    const { parser, found } = collect<any>();
+
+    parser.push('[{"a":1},{"a":2},{"b":3}]');
+
+    expect(found.length).toBe(3);
+    expect(found[0]).toEqual({ a: 1 });
+    expect(found[1]).toEqual({ a: 2 });
+    expect(found[2]).toEqual({ b: 3 });
+  });
+
 });
