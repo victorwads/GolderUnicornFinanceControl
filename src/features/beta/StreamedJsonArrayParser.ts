@@ -12,7 +12,7 @@ export default class StreamedJsonArrayParser<T> {
     return this.oppenedBrackets > 0;
   }
 
-  constructor(private onFoundObject: (data: T[]) => void) {}
+  constructor(private onFoundObject: (data: T) => void) {}
 
   public push(chunk: string) {
     const chars = chunk.split('');

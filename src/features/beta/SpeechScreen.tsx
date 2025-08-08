@@ -11,6 +11,7 @@ import GroceryList from '../../features/groceries/GroceryList';
 import { SpeechRecognitionManager } from './SpeechRecognitionManager';
 import AIActionsParser from './AIParserManager';
 import { useNavigate } from 'react-router-dom';
+import { AIGroceryListConfig } from './GroceryListAiInfo';
 
 const SpeechScreen = () => {
   const [listening, setListening] = useState(false);
@@ -25,36 +26,15 @@ const SpeechScreen = () => {
 
   useEffect(() => {
     const aiParser = new AIActionsParser<GroceryItemModel>(
-      currentLangInfo.short,
-      "grocery and household items",
-      `
-name: (pretty product description with weight, details, avoid duplicates)
-opened?: ( true if the package is in use or opened )
-quantity?: (integer of how many packages are there)
-location?: (where the item is stored)
-expirationDate?: string
-paidPrice?: number
-`,
-      `
-Context: there is no rice on list and he just bought it
-User: "i've bought 2 packages with 2kg of rice and the beans are gone"
-Assistant:
-[{ "action": "add", "id": "d52aadfd1", "name": "rice 5kg", quantity: 2 },{ "action": "remove", "id": "beans" }]
-
-Context: there is already a milk on list
-User: "the milk on refrigerator expiry to Friday"
-Assistant:
-[{ "action": "update", "id": "milk", "expiryDate": "CALCULATED_DATE", location: "refrigerator" }]
-`,
+      AIGroceryListConfig,
       (item) => {
         if (item.opened !== undefined) item.opened.toString() === "true"
         if (item.expirationDate !== undefined) item.expirationDate = new Date(item.expirationDate);
+
         return item;
       }
     );
-
     setGroceryItems(aiParser.items as GroceryItemModel[]);
-    aiParser.language = currentLangInfo.short;
 
     speechManager.current = new SpeechRecognitionManager(
       currentLangInfo.short,
