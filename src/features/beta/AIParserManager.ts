@@ -110,10 +110,13 @@ ${this.config.outputExample.trim()}
       }
     );
     console.log('AIParserManager prompt:', text, {system: prompt});
-    const response = await this.withOpenAI(prompt, text);
-    console.log('AIParserManager response:', response);
 
-    jsonParser.push(response);
+    const fullResponse = await this.withOpenAI(prompt, text, (chunk) => {
+      // push character-by-character to be conservative with parser expectations
+      for (const ch of chunk) jsonParser.push(ch);
+    });
+
+    console.log('AIParserManager response (final):', fullResponse);
   }
 
   private add(item: Partial<T>, index: number): void {
@@ -153,21 +156,30 @@ ${this.config.outputExample.trim()}
     localStorage.setItem(STOREAGE_KEY, JSON.stringify(this.items));
   }
 
-  private async withOpenAI(system: string, user: string): Promise<string> {
+  private async withOpenAI(system: string, user: string, onStream?: (chunk: string) => void): Promise<string> {
     const messages: ChatCompletionMessageParam[] = [
       { role: 'system', content: system },
       { role: 'user', content: user }
     ];
 
-    const completion = await this.openai.chat.completions.create({
+    // Streaming response; still accumulate and return the full text
+    const stream = await this.openai.chat.completions.create({
       model: 'gpt-5-nano',
       messages,
-      stream: false,
+      stream: true,
     });
 
-    console.log(`[OpenAI] Tokens usados: `, completion.usage);
+    let full = '';
+    for await (const chunk of stream as any) {
+      const delta = chunk?.choices?.[0]?.delta?.content ?? '';
+      if (delta) {
+        full += delta;
+        console.log('AIParserManager stream chunk:', delta);
+        onStream?.(delta);
+      }
+    }
 
-    return completion.choices[0]?.message?.content || '';
+    return full;
   }
 
   private initOpenAI() {
