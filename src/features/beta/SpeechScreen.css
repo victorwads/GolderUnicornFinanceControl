@@ -1,6 +1,7 @@
 .loading-spinner {
-  border: 3px solid #fff2;
-  border-top: 3px solid #fff;
+  /* Usa destaque de fundo para borda inferior e cor de fonte padrão para a parte superior, adaptando ao tema */
+  border: 3px solid var(--bg-color-highlight);
+  border-top: 3px solid var(--font-color-default);
   border-radius: 50%;
   width: 28px;
   height: 28px;
@@ -23,33 +24,17 @@
   cursor: pointer;
 }
 
-.speech-textarea {
-  width: 100%;
-  resize: none;
-  overflow: hidden;
-  min-height: 200px;
-  font-size: 1rem;
-}
-
-
 .speech-marquee {
   position: fixed;
   bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(90deg, #232526 0%, #414345 100%);
-  color: #fff;
-  padding: 14px 24px;
-  border-radius: 32px;
+  right: 5%;
+  /* transform: translateX(-50%); */
+  color: var(--font-color-default);
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: var(--spacing-lg);
   max-width: 95vw;
   min-width: 320px;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
-  z-index: 1000;
-  overflow: visible;
-  transition: box-shadow 0.2s;
 }
 
 .speech-marquee--with-controls {
@@ -72,24 +57,25 @@
   font-size: 1.1rem;
   font-weight: 500;
   letter-spacing: 0.01em;
+  text-align: right;
+  direction: rtl;
 }
 
 .speech-marquee-lang {
   display: flex;
   align-items: center;
-  gap: 8px;
   font-size: 0.95rem;
+  margin-top: 2px;
+  gap: 8px;
   opacity: 0.85;
+  cursor: pointer;
 }
 .speech-marquee-lang-short {
   font-weight: bold;
-  background: #fff2;
+  background: var(--bg-color-highlight);
   border-radius: 8px;
-  padding: 2px 8px;
+  padding: 3px 8px;
   margin-right: 4px;
-}
-.speech-marquee-lang-name {
-  font-style: italic;
 }
 
 .microphone-toggle {
@@ -116,4 +102,46 @@
   0% { box-shadow: 0 0 0 0 rgba(255,81,47,0.4); }
   70% { box-shadow: 0 0 0 12px rgba(255,81,47,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,81,47,0); }
+}
+
+.glass-container {
+  background: transparent;
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.glass-filter {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  backdrop-filter: blur(0px);
+  filter: url(#lg-dist);
+  isolation: isolate;
+}
+
+.glass-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--lg-bg-color);
+}
+
+.glass-specular {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  overflow: hidden;
+  box-shadow: inset 1px 1px 0 var(--lg-highlight),
+    inset 0 0 5px var(--lg-highlight);
+}
+
+.glass-content {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: 1rem 1.5rem 0.9rem;
 }

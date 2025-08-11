@@ -114,6 +114,28 @@ const ptBR: Translation = {
       otherThings: 'Outras coisas',
       ideasWelcome: 'Ideias são bem-vindas',
     }
+  },
+  speech: {
+    title: 'Itens de Compras',
+    howToUseTitle: 'Como usar',
+    intro1: 'Fale naturalmente sobre sua lista de compras ou sobre os itens guardados na sua casa. O assistente vai tentar entender o que você disse e adicionar, remover ou atualizar os itens na lista.',
+    intro2: 'Você pode falar sobre o nome, validade, se está aberto/usado ou não, quantidade, quanto pagou, onde está guardado etc.',
+    examplesTitle: 'Exemplos:',
+    examples: [
+      'comprei 2 pacotes de arroz',
+      'tenho 3 pacotes de macarrão no armário',
+      'eu tenho presunto e queijo abertos na geladeira e vão estragar daqui 3 dias',
+      'o pacote de café vence daqui 2 meses',
+      'não tenho mais o feijão'
+    ],
+    micStart: 'Iniciar escuta',
+    micStop: 'Parar escuta',
+    placeholderListeningHasItems: 'Fale sobre seus itens...',
+    placeholderListeningNoItems: 'Pode continuar falando...',
+    placeholderNotListening: 'Pressione o botão para falar',
+    browserNotSupported: 'Seu navegador não suporta reconhecimento de voz.',
+    changeLangTooltip: 'Clique para mudar o idioma',
+    tokensUsed: (tokens: number) => `Usados: ${tokens} Tokens,`
   }
 };
 

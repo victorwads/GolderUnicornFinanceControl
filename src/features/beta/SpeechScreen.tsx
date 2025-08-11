@@ -1,132 +1,161 @@
+
+// const Dictaphone = () => {
+//   return (
+//     <div>
+//       <p>Microphone: {listening ? 'on' : 'off'}</p>
+//       <button onClick={startListening}>Start</button>
+//       <button onClick={SpeechRecognition.stopListening}>Stop</button>
+//       <button onClick={resetTranscript}>Reset</button>
+//       <p>{transcript}</p>
+//     </div>
+//   );
+// };
+// export default Dictaphone;
+
 import './SpeechScreen.css';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { getCurrentLangInfo } from '@lang';
+import { GroceryItemModel } from '@models';
 
 import Icon from '@components/Icons';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 
-import { GroceryItemModel } from '@models';
 import GroceryList from '../../features/groceries/GroceryList';
-import { SpeechRecognitionManager } from './SpeechRecognitionManager';
-import AIActionsParser from './AIParserManager';
-import { useNavigate } from 'react-router-dom';
+import AIActionsParser, { AITokens } from './AIParserManager';
 import { AIGroceryListConfig } from './GroceryListAiInfo';
 
+/*
+Input:
+$0.050 / 1M tokens
+Cached input:
+$0.005 / 1M tokens
+Output:
+$0.400 / 1M tokens 
+*/
+const DOLAR_PRICE = 5.5;
+const tokenPrice = {
+  dolarPerInput: 0.050 / 1000000,
+  dolarPerOutput: 0.400 / 1000000
+};
+
+const aiParser = new AIActionsParser<GroceryItemModel>(
+  AIGroceryListConfig,
+  (item) => {
+    if (item.opened !== undefined) item.opened.toString() === "true"
+    if (item.expirationDate !== undefined) item.expirationDate = new Date(item.expirationDate);
+
+    return item;
+  }
+);
+
 const SpeechScreen = () => {
-  const [listening, setListening] = useState(false);
-  const [text, setText] = useState('');
-  const [marqueeText, setMarqueeText] = useState('');
-  const [groceryItems, setGroceryItems] = useState<GroceryItemModel[]>([]);
-  const [loading, setLoading] = useState(false);
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const speechManager = useRef<SpeechRecognitionManager | null>(null);
   const navigate = useNavigate();
   const currentLangInfo = getCurrentLangInfo();
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  const sendTimeOut = useRef<NodeJS.Timeout | null>(null);
+  const [groceryItems, setGroceryItems] = useState<GroceryItemModel[]>([]);
+  const [loading, setLoading] = useState(false);  
+  const [usedTokens, setUsedTokens] = useState<AITokens>({input: 0, output: 0});
 
   useEffect(() => {
-    const aiParser = new AIActionsParser<GroceryItemModel>(
-      AIGroceryListConfig,
-      (item) => {
-        if (item.opened !== undefined) item.opened.toString() === "true"
-        if (item.expirationDate !== undefined) item.expirationDate = new Date(item.expirationDate);
+    if (sendTimeOut.current) clearTimeout(sendTimeOut.current);
+    if (!transcript) return;
 
-        return item;
-      }
-    );
+    sendTimeOut.current = setTimeout(async () => {
+      setLoading(true);
+      const result = await aiParser.parse(transcript);
+      setUsedTokens({
+        input: usedTokens.input + result.usedTokens.input,
+        output: usedTokens.output + result.usedTokens.output
+      });
+      resetTranscript();
+      setLoading(false);
+    }, 1500);
+
+  }, [transcript]);
+
+  useEffect(() => {
     setGroceryItems(aiParser.items as GroceryItemModel[]);
-
-    speechManager.current = new SpeechRecognitionManager(
-      currentLangInfo.short,
-      (manager) => {
-        setText(`\n  Current: ${manager.currentSegment}\n  Full: ${manager.finalFranscript}\n          `);
-        setMarqueeText((manager.currentSegment));
-      },
-      async (request, finish) => {
-        setLoading(true);
-        try {
-          await aiParser.parse(request.segment);
-          setGroceryItems(aiParser.items as GroceryItemModel[]);
-          finish();
-        } catch (err) {
-          console.error('Erro ao processar AIActionsParser:', err);
-        } finally {
-          setLoading(false);
-        }
-      },
-      () => setListening(false)
-    );
+    aiParser.onAction = (action) => {
+      setGroceryItems([...aiParser.items] as GroceryItemModel[]);
+    }
 
     return () => {
-      speechManager.current?.stop();
-      speechManager.current = null;
+      SpeechRecognition.stopListening();
     };
-  }, [currentLangInfo.short]);
+  }, []);
 
-  const startListening = () => {
-    if (speechManager.current && !listening) {
-      speechManager.current.start();
-      setListening(true);
-    }
-  };
+  if (!browserSupportsSpeechRecognition) {
+    return <span>{Lang.speech.browserNotSupported}</span>;
+  }
 
-  const stopListening = () => {
-    if (speechManager.current && listening) {
-      speechManager.current.stop();
-      setListening(false);
-    }
-  };
-
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = 'auto';
-      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
-    }
-  }, [text]);
+  const startListening = () => SpeechRecognition.startListening({
+    continuous: true,
+    language: currentLangInfo.short
+  });
 
   return (
     <Container screen spaced className="SpeechScreen">
       <ContainerFixedContent>
-        <h2 style={{ marginBottom: 24 }}>Itens de Compras</h2>
-        <h3>Como usar</h3>
-        <p>Fale naturalmente sobre sua lista de compras ou sobre os itens guardados na sua casa, O assistente vai tentar entender o que você disse e adicionar, remove ou atualizar os itens na lista.</p>
-        <p>Vocie pode falar sobre o nome, validade, se esta aberto/usado ou não, quantidade, quanto pagou, onde esta guardado e etc.</p>
-        <p>Exemplos:</p>
+        <h2 style={{ marginBottom: 24 }}>{Lang.speech.title}</h2>
+        <h3>{Lang.speech.howToUseTitle}</h3>
+        <p>{Lang.speech.intro1}</p>
+        <p>{Lang.speech.intro2}</p>
+        <p>{Lang.speech.examplesTitle}</p>
         <ul>
-          <li>comprei 2 pacotes de arroz</li>
-          <li>tenho 3 pacotes de macarão no armário</li>
-          <li>Eu tenho presunto e queijo abertos na geladeira e vão estragar daqui 3 dias</li>
-          <li>O pacote de café vence daqui 2 meses</li>
-          <li>não tenho mais o feijão</li>
+          {Lang.speech.examples.map((ex, i) => <li key={i}>{ex}</li>)}
         </ul>
       </ContainerFixedContent>
       <ContainerScrollContent spaced>
         <GroceryList items={groceryItems as any} />
         <div style={{ height: 120 }}></div>
-        <div className="speech-marquee speech-marquee--with-controls">
-          <button
-            className={`microphone-toggle${listening ? ' listening' : ''}`}
-            onClick={listening ? stopListening : startListening}
-            aria-label={listening ? 'Parar escuta' : 'Iniciar escuta'}
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="loading-spinner" />
-            ) : (
-              <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
-            )}
-          </button>
-          <div className="speech-marquee-content">
-            <span className="speech-marquee-text">
-              {loading ? 'Processando itens...' : (
-                marqueeText || (
-                  listening ? 'Fale para adicionar itens...' : 'Pressione o botão para falar'
-                )
+        <div className="speech-marquee glass-container speech-marquee--with-controls">
+          <div className="glass-filter"></div>
+          <div className="glass-overlay"></div>
+          <div className="glass-specular"></div>
+          <div className="glass-content glass-content--inline">
+            <button
+              className={`microphone-toggle${listening ? ' listening' : ''}`}
+              onClick={listening ? SpeechRecognition.stopListening : startListening}
+              aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
+              disabled={loading}
+            >
+              {loading ? ( 
+                <span className="loading-spinner" />
+              ) : (
+                <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
               )}
-            </span>
-            <div className="speech-marquee-lang" onClick={() => navigate('/main/settings')}>
-              <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
-              <span className="speech-marquee-lang-name">{currentLangInfo.name}</span>
+            </button>
+            {/* <div className="container"> */}
+            <div className="speech-marquee-content">
+              <span className="speech-marquee-text">
+                {
+                // {loading ? 'Processando itens...' : (
+                  transcript || ( 
+                    listening ? (groceryItems.length > 0 ? Lang.speech.placeholderListeningHasItems : Lang.speech.placeholderListeningNoItems) : 
+                    Lang.speech.placeholderNotListening
+                   )
+                }
+              </span>
+              <div className="speech-marquee-lang" title={Lang.speech.changeLangTooltip} onClick={() => navigate('/main/settings')}>
+                <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
+                <span className="">
+                  {Lang.speech.tokensUsed(usedTokens.input + usedTokens.output)}
+                  R$ {(DOLAR_PRICE * (
+                    (usedTokens.input * tokenPrice.dolarPerInput) + 
+                    (usedTokens.output * tokenPrice.dolarPerOutput)
+                  )).toFixed(4).replace('.', ',')}
+                </span>
+              </div>
             </div>
           </div>
         </div>

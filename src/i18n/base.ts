@@ -112,4 +112,20 @@ export default interface Translation {
       ideasWelcome: string;
     };
   };
+  speech: {
+    title: string;
+    howToUseTitle: string;
+    intro1: string;
+    intro2: string;
+    examplesTitle: string;
+    examples: string[]; // ordered list of example utterances
+    micStart: string; // aria label start listening
+    micStop: string; // aria label stop listening
+    placeholderListeningHasItems: string;
+    placeholderListeningNoItems: string;
+    placeholderNotListening: string;
+    browserNotSupported: string;
+    changeLangTooltip: string;
+    tokensUsed: (tokens: number) => string; // e.g. "Used: 123 tokens,"
+  };
 }

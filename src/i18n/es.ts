@@ -104,6 +104,28 @@ const es: Translation = {
       ideasWelcome: 'Las ideas son bienvenidas',
     },
   },
+  speech: {
+    title: 'Artículos de Compras',
+    howToUseTitle: 'Cómo usar',
+    intro1: 'Hable naturalmente sobre su lista de compras o los artículos guardados en su casa. El asistente intentará entender lo que dijo y agregar, quitar o actualizar los artículos en la lista.',
+    intro2: 'Puede hablar sobre el nombre, vencimiento, si está abierto/en uso o no, cantidad, cuánto pagó, dónde está guardado, etc.',
+    examplesTitle: 'Ejemplos:',
+    examples: [
+      'compré 2 paquetes de arroz',
+      'tengo 3 paquetes de pasta en el armario',
+      'tengo jamón y queso abiertos en la nevera y se echarán a perder en 3 días',
+      'el paquete de café vence en 2 meses',
+      'ya no tengo frijoles'
+    ],
+    micStart: 'Iniciar escucha',
+    micStop: 'Detener escucha',
+    placeholderListeningHasItems: 'Hable sobre sus artículos...',
+    placeholderListeningNoItems: 'Puede seguir hablando...',
+    placeholderNotListening: 'Presione el botón para hablar',
+    browserNotSupported: 'El navegador no soporta reconocimiento de voz.',
+    changeLangTooltip: 'Haga clic para cambiar el idioma',
+    tokensUsed: (tokens: number) => `Usados: ${tokens} Tokens,`
+  },
   registry: {
     title: 'Registro',
     description: 'Descripción',

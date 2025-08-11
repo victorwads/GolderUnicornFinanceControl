@@ -2,38 +2,16 @@ import { OpenAI } from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/index';
 
 import StreamedJsonArrayParser from './StreamedJsonArrayParser';
-import BaseRepository from '@repositories/RepositoryBase';
-
-export type AIResponse<T> = AIItemWithAction<T>[]
-
-export type AIItemData = {
-  id?: string;
-  name?: string;
-}
-
-export type AIActionData<A extends string = string> = {
-  action: A;
-} & AIItemData;
-
-export type AIItemWithAction<T, Action extends string = string> = 
-  AIActionData<Action | 'add' | 'update' | 'remove' | 'ask'> & Partial<T>;
-
-export type AIConfig = {
-  /** Description of the list items */
-  listDescription: string;
-  /** Description of additional fields to include in the output */
-  outputAditionalFieldsDescription: string;
-  /** Example of the output format */
-  outputExample: string;
-}
-
-export type AIItemTransformer<T> = (item: Partial<T>) => Partial<T>;
+import RepositoryBase from '../../data/repositories/RepositoryBase';
 
 const STOREAGE_KEY = 'currentGroceryList';
+const CHAT_HISTORY_SIZE = 2;
 const n = (id: string|undefined|null): string => id?.toString().trim().toLowerCase() || '';
 
 export default class AIActionsParser<T extends AIItemData, A extends string = string> {
   private openai: OpenAI;
+  private chatHistory: ChatCompletionMessageParam[] = [];
+
   public items: (Partial<T>)[];
   public onAction: (action: AIItemWithAction<T, A>) => void = () => {};
 
@@ -50,12 +28,12 @@ export default class AIActionsParser<T extends AIItemData, A extends string = st
     this.openai = this.initOpenAI();
   }
 
-  public async parse(text: string): Promise<void> {
+  public async parse(text: string): Promise<AIParseResponse> {
     const today = new Date().toISOString().split('T')[0];
     const prompt = `
-You are an action extractor that updates a list of items. Interpret the user's message and produce only a valid JSON array.
+You are a personal assistant that helps users manage a list of items sending actions to the front-end interface with JSON objects for each action. no text.
 
-Item Action Data model:
+Each action object is like:
 - action: "add" | "update" | "remove"
 - id: string (required in every object)
 ${this.config.outputAditionalFieldsDescription
@@ -67,11 +45,10 @@ ${this.config.outputAditionalFieldsDescription
 }
 
 Rules:
-- Include only fields explicitly provided by the user. Never use null; omit unknown fields.
-- Dates must be in ISO format (YYYY-MM-DD). Resolve relative dates using "today".
-- ID generation, use a short id, could be a slug or any unique identifier
-- Never alter existing ids for "update" or "remove".
-- If the instruction is ambiguous or no actionable item is found, return []
+- Include only fields related with the user input. Never use null unless a field needs removal.
+- Dates must be in ISO format. For relative dates use "today".
+- When adding, give numeric unique id.
+- If the instruction is ambiguous, return []
 
 Context:
 - today: ${today}
@@ -79,13 +56,16 @@ Context:
 - current list reference: ${JSON.stringify(
   this.items.map(this.itemContextMap)
 ).replace(/\n/g, ' ')}
-
-Examples:
-${this.config.outputExample.trim()}
 `.trim();
+// Examples:
+// ${this.config.outputExample.trim()}
+// `.trim();
+
+    let actionsFound = 0;
     const jsonParser = new StreamedJsonArrayParser<AIItemWithAction<T, A>>(
       (item) => {
         console.log('action:', item);
+        actionsFound++;
         const { id, action } = item;
         if (action === 'ask') {
           this.onAction(item);
@@ -107,14 +87,17 @@ ${this.config.outputExample.trim()}
         this.onAction(item);
       }
     );
-    console.log('AIParserManager prompt:', text, {system: prompt});
 
     const fullResponse = await this.withOpenAI(prompt, text, (chunk) => {
-      // push character-by-character to be conservative with parser expectations
       for (const ch of chunk) jsonParser.push(ch);
     });
 
     console.log('AIParserManager response (final):', fullResponse);
+
+    return {
+      actionsFound,
+      usedTokens: fullResponse.usedTokens
+    };
   }
 
   private add(item: Partial<T>, index: number): void {
@@ -154,13 +137,15 @@ ${this.config.outputExample.trim()}
     localStorage.setItem(STOREAGE_KEY, JSON.stringify(this.items));
   }
 
-  private async withOpenAI(system: string, user: string, onStream?: (chunk: string) => void): Promise<string> {
+  private async withOpenAI(system: string, user: string, onStream?: (chunk: string) => void): Promise<AIResponse> {
+    const userMessage: ChatCompletionMessageParam = { role: 'user', content: user };
     const messages: Array<ChatCompletionMessageParam> = [
       { role: 'system', content: system },
-      { role: 'user', content: user }
+      ...this.chatHistory.slice(-CHAT_HISTORY_SIZE),
+      userMessage
     ];
 
-    // Streaming response; still accumulate and return the full text
+    console.log('AIParserManager withOpenAI messages:', messages);
     const stream = await this.openai.chat.completions.create({
       model: 'gpt-5-nano',
       messages,
@@ -169,25 +154,34 @@ ${this.config.outputExample.trim()}
     });
 
     let full = '';
-    let tokens = 0;
+    let tokens = {
+      input: 0,
+      output: 0
+    };
     for await (const chunk of stream) {
       const delta = chunk?.choices?.[0]?.delta?.content ?? '';
       if (delta) {
         full += delta;
-        console.log('AIParserManager stream chunk:', delta);
         onStream?.(delta);
       }
-      tokens += chunk?.usage?.total_tokens || 0;
+      tokens.input += chunk?.usage?.prompt_tokens || 0;
+      tokens.output += chunk?.usage?.completion_tokens || 0;
     }
 
-    BaseRepository.updateUse((use) => {
+    RepositoryBase.updateUse((use) => {
       use.openai = use.openai || { requests: 0, tokens: 0 };
       use.openai.requests++;
-      use.openai.tokens += tokens;
+      use.openai.tokens += tokens.input + tokens.output;
     });
-    console.log('[OpenAI] Tokens usados:', tokens);
 
-    return full;
+    this.chatHistory.push(userMessage);
+    this.chatHistory.push({ role: 'assistant', content: full.trim() });
+    this.chatHistory = this.chatHistory.slice(-CHAT_HISTORY_SIZE);
+
+    return {
+      message: full.trim(),
+      usedTokens: tokens,
+    };
   }
 
   private initOpenAI() {
@@ -199,3 +193,41 @@ ${this.config.outputExample.trim()}
     });
   }
 }
+
+export type AIItemData = {
+  id?: string;
+  name?: string;
+}
+
+export type AIParseResponse = {
+  actionsFound: number;
+  usedTokens: AITokens;
+}
+
+export type AITokens = {
+  input: number;
+  output: number;
+}
+
+export type AIResponse = {
+  message: string;
+  usedTokens: AITokens;
+}
+
+export type AIActionData<A extends string = string> = {
+  action: A;
+} & AIItemData;
+
+export type AIItemWithAction<T, Action extends string = string> = 
+  AIActionData<Action | 'add' | 'update' | 'remove' | 'ask'> & Partial<T>;
+
+export type AIConfig = {
+  /** Description of the list items */
+  listDescription: string;
+  /** Description of additional fields to include in the output */
+  outputAditionalFieldsDescription: string;
+  /** Example of the output format */
+  outputExample: string;
+}
+
+export type AIItemTransformer<T> = (item: Partial<T>) => Partial<T>;

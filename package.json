@@ -16,7 +16,8 @@
     "openai": "^5.12.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.5.0"
+    "react-router-dom": "^7.5.0",
+    "react-speech-recognition": "^4.0.1"
   },
   "scripts": {
     "proxy": "nodemon --watch proxy --ext ts --exec \"yarn tsx proxy/proxy.ts\"",
@@ -56,6 +57,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
     "@types/react-router-dom": "^5.3.3",
+    "@types/react-speech-recognition": "^3.9.6",
     "@vitejs/plugin-react": "^4.5.2",
     "http-proxy": "^1.18.1",
     "jsdom": "^26.1.0",
