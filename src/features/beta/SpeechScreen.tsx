@@ -1,17 +1,3 @@
-
-// const Dictaphone = () => {
-//   return (
-//     <div>
-//       <p>Microphone: {listening ? 'on' : 'off'}</p>
-//       <button onClick={startListening}>Start</button>
-//       <button onClick={SpeechRecognition.stopListening}>Stop</button>
-//       <button onClick={resetTranscript}>Reset</button>
-//       <p>{transcript}</p>
-//     </div>
-//   );
-// };
-// export default Dictaphone;
-
 import './SpeechScreen.css';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { useEffect, useRef, useState } from 'react';
@@ -26,15 +12,8 @@ import { Container, ContainerFixedContent, ContainerScrollContent } from '@compo
 import GroceryList from '../../features/groceries/GroceryList';
 import AIActionsParser, { AITokens } from './AIParserManager';
 import { AIGroceryListConfig } from './GroceryListAiInfo';
+import BaseRepository from '../../data/repositories/RepositoryBase';
 
-/*
-Input:
-$0.050 / 1M tokens
-Cached input:
-$0.005 / 1M tokens
-Output:
-$0.400 / 1M tokens 
-*/
 const DOLAR_PRICE = 5.5;
 const tokenPrice = {
   dolarPerInput: 0.050 / 1000000,
@@ -63,22 +42,30 @@ const SpeechScreen = () => {
 
   const sendTimeOut = useRef<NodeJS.Timeout | null>(null);
   const [groceryItems, setGroceryItems] = useState<GroceryItemModel[]>([]);
-  const [loading, setLoading] = useState(false);  
-  const [usedTokens, setUsedTokens] = useState<AITokens>({input: 0, output: 0});
+  // Fila de processamentos em andamento
+  interface ProcessingTask { id: number; text: string; startedAt: number; }
+  const [processingQueue, setProcessingQueue] = useState<ProcessingTask[]>([]);
+  const taskIdRef = useRef(0);
 
   useEffect(() => {
     if (sendTimeOut.current) clearTimeout(sendTimeOut.current);
     if (!transcript) return;
 
     sendTimeOut.current = setTimeout(async () => {
-      setLoading(true);
-      const result = await aiParser.parse(transcript);
-      setUsedTokens({
-        input: usedTokens.input + result.usedTokens.input,
-        output: usedTokens.output + result.usedTokens.output
-      });
-      resetTranscript();
-      setLoading(false);
+      const textToProcess = transcript.trim();
+      if (!textToProcess) return;
+
+      // cria tarefa
+      const id = ++taskIdRef.current;
+      const newTask: ProcessingTask = { id, text: textToProcess, startedAt: Date.now() };
+      setProcessingQueue(q => [...q, newTask]);
+
+      resetTranscript(); // limpa para capturar próximas falas
+      try {
+        const result = await aiParser.parse(textToProcess);
+      } finally {
+        setProcessingQueue(q => q.filter(t => t.id !== id));
+      }
     }, 1500);
 
   }, [transcript]);
@@ -103,6 +90,8 @@ const SpeechScreen = () => {
     language: currentLangInfo.short
   });
 
+  const usedTokens = BaseRepository.getDatabaseUse().openai?.tokens || { input: 0, output: 0 };
+
   return (
     <Container screen spaced className="SpeechScreen">
       <ContainerFixedContent>
@@ -115,7 +104,7 @@ const SpeechScreen = () => {
           {Lang.speech.examples.map((ex, i) => <li key={i}>{ex}</li>)}
         </ul>
       </ContainerFixedContent>
-      <ContainerScrollContent spaced>
+      <ContainerScrollContent spaced autoScroll>
         <GroceryList items={groceryItems as any} />
         <div style={{ height: 120 }}></div>
         <div className="speech-marquee glass-container speech-marquee--with-controls">
@@ -123,17 +112,20 @@ const SpeechScreen = () => {
           <div className="glass-overlay"></div>
           <div className="glass-specular"></div>
           <div className="glass-content glass-content--inline">
+            <div className="speech-processing-list">
+              {processingQueue.map(task => (
+                <div key={task.id} className="speech-processing-item" title={task.text}>
+                  <span className="loading-spinner loading-spinner--sm" />
+                  <span className="speech-processing-text">{task.text}</span>
+                </div>
+              ))}
+            </div>
             <button
               className={`microphone-toggle${listening ? ' listening' : ''}`}
               onClick={listening ? SpeechRecognition.stopListening : startListening}
               aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
-              disabled={loading}
             >
-              {loading ? ( 
-                <span className="loading-spinner" />
-              ) : (
-                <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
-              )}
+              <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
             </button>
             {/* <div className="container"> */}
             <div className="speech-marquee-content">

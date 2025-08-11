@@ -155,7 +155,8 @@ const SettingsScreen = () => {
           Local &rarr; Reads: {user.dbUse.local.docReads}, Writes: {user.dbUse.local.writes}, QueryReads: {user.dbUse.local.queryReads}
         </div>
         <div>
-          OpenAI &rarr; Requests: {user.dbUse.openai?.requests || 0}, Tokens: {user.dbUse.openai?.tokens || 0}
+          OpenAI &rarr; Requests: {user.dbUse.openai?.requests || 0},
+          Tokens Input: {user.dbUse.openai?.tokens?.input || 0} (Input), Output: {user.dbUse.openai?.tokens?.output || 0}
         </div>
       </div>
     ) : (

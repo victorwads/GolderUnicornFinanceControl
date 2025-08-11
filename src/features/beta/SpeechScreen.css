@@ -145,3 +145,46 @@
   gap: var(--spacing-lg);
   padding: 1rem 1.5rem 0.9rem;
 }
+
+/* Lista de processamentos (toasts) */
+.speech-processing-list {
+  display: flex;
+  flex-direction: column-reverse; /* itens novos aparecem em cima visualmente */
+  gap: var(--spacing-xs);
+  max-height: 240px;
+  overflow: hidden; /* evita estourar demais; comportamento simples */
+  align-items: flex-start;
+}
+
+.speech-processing-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  max-width: 160px;
+  padding: var(--spacing-xxs) var(--spacing-xs);
+  border-radius: 8px;
+  background: var(--bg-color-highlight);
+  color: var(--font-color-default);
+  box-shadow: 0 1px 2px var(--bg-color-shadow);
+  animation: fadeInUp 0.25s ease;
+}
+
+.speech-processing-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.loading-spinner--sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

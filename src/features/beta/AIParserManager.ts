@@ -169,9 +169,10 @@ Context:
     }
 
     RepositoryBase.updateUse((use) => {
-      use.openai = use.openai || { requests: 0, tokens: 0 };
+      use.openai = use.openai || { requests: 0, tokens: { input: 0, output: 0 } };
       use.openai.requests++;
-      use.openai.tokens += tokens.input + tokens.output;
+      use.openai.tokens.input += tokens.input;
+      use.openai.tokens.output += tokens.output;
     });
 
     this.chatHistory.push(userMessage);
