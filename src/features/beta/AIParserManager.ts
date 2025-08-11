@@ -12,7 +12,7 @@ export default class AIActionsParser<T extends AIItemData, A extends string = st
   private openai: OpenAI;
   private chatHistory: ChatCompletionMessageParam[] = [];
 
-  public items: (Partial<T>)[];
+  public items: (Partial<T> & { glow?: boolean })[];
   public onAction: (action: AIItemWithAction<T, A>) => void = () => {};
 
   /**
@@ -62,6 +62,11 @@ Context:
 // `.trim();
 
     let actionsFound = 0;
+
+    this.items.forEach(item => {
+      delete item.glow;
+    });
+
     const jsonParser = new StreamedJsonArrayParser<AIItemWithAction<T, A>>(
       (item) => {
         console.log('action:', item);
@@ -106,7 +111,7 @@ Context:
       console.warn(`Item with id '${item.id}' already exists, switching add to update`, item);
       return this.update(item, index);
     }
-    this.items.push({ ...item });
+    this.items.push({ ...item, glow: true });
   }
 
   private update(item: Partial<T>, index: number): void {
@@ -120,7 +125,7 @@ Context:
       return this.add(item, index);
     } else {
       const current = this.items[index];
-      this.items[index] = { ...current, ...item };
+      this.items[index] = { ...current, ...item, glow: true };
     }
   }
 

@@ -12,7 +12,8 @@ import { Container, ContainerFixedContent, ContainerScrollContent } from '@compo
 import GroceryList from '../../features/groceries/GroceryList';
 import AIActionsParser, { AITokens } from './AIParserManager';
 import { AIGroceryListConfig } from './GroceryListAiInfo';
-import BaseRepository from '../../data/repositories/RepositoryBase';
+import UserRepository, { User } from '../../data/repositories/UserRepository';
+import getRepositories from '@repositories';
 
 const DOLAR_PRICE = 5.5;
 const tokenPrice = {
@@ -42,10 +43,9 @@ const SpeechScreen = () => {
 
   const sendTimeOut = useRef<NodeJS.Timeout | null>(null);
   const [groceryItems, setGroceryItems] = useState<GroceryItemModel[]>([]);
-  // Fila de processamentos em andamento
-  interface ProcessingTask { id: number; text: string; startedAt: number; }
   const [processingQueue, setProcessingQueue] = useState<ProcessingTask[]>([]);
   const taskIdRef = useRef(0);
+  const [, setUser] = useState<User>();
 
   useEffect(() => {
     if (sendTimeOut.current) clearTimeout(sendTimeOut.current);
@@ -76,6 +76,10 @@ const SpeechScreen = () => {
       setGroceryItems([...aiParser.items] as GroceryItemModel[]);
     }
 
+    getRepositories().user.getUserData().then((user) => {
+      setUser(user)
+    });
+
     return () => {
       SpeechRecognition.stopListening();
     };
@@ -90,7 +94,7 @@ const SpeechScreen = () => {
     language: currentLangInfo.short
   });
 
-  const usedTokens = BaseRepository.getDatabaseUse().openai?.tokens || { input: 0, output: 0 };
+  const usedTokens = UserRepository.userTotalCache?.openai?.tokens || { input: 0, output: 0 };
 
   return (
     <Container screen spaced className="SpeechScreen">
@@ -105,7 +109,7 @@ const SpeechScreen = () => {
         </ul>
       </ContainerFixedContent>
       <ContainerScrollContent spaced autoScroll>
-        <GroceryList items={groceryItems as any} />
+        <GroceryList items={groceryItems} />
         <div style={{ height: 120 }}></div>
         <div className="speech-marquee glass-container speech-marquee--with-controls">
           <div className="glass-filter"></div>
@@ -157,3 +161,5 @@ const SpeechScreen = () => {
 };
 
 export default SpeechScreen;
+
+interface ProcessingTask { id: number; text: string; startedAt: number; }

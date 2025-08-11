@@ -4,7 +4,7 @@ import { getExpirationLabel } from './expirationUtils';
 import './GroceriesMainScreen.css';
 
 interface GroceryListProps {
-  items: GroceryItemModel[];
+  items: (GroceryItemModel & { glow?: boolean })[];
 }
 
 const GroceryList: React.FC<GroceryListProps> = ({ items }) => (
@@ -15,7 +15,7 @@ const GroceryList: React.FC<GroceryListProps> = ({ items }) => (
       const isOpenedColor = item.opened ? '#f0ad4e' : '#5cb85c';
       return (
         <li key={item.id}>
-          <Link to={`/groceries/${item.id}/edit`} className="GroceryItemLink">
+          <Link to={`/groceries/${item.id}/edit`} className={item.glow ? "GroceryItemLink grocery-highlight" :   "GroceryItemLink"}>
             <div className="GroceryItemRow">
               <span>{item.name}</span>
               <div style={{flex: 1}}></div>

@@ -276,7 +276,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     updater(BaseRepository.use);
 
     const use = BaseRepository.use;
-    if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10 || use.openai?.tokens?.input !== 500)) {
+    if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10 || use.openai?.tokens?.input !== 0)) {
       saveUse = false;
       setTimeout(async () => {
         use.remote.writes++;

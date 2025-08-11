@@ -63,7 +63,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
       model.dbUse.remote.docReads += currentUse.remote.docReads;
       model.dbUse.remote.queryReads += currentUse.remote.queryReads;
       model.dbUse.remote.writes += currentUse.remote.writes;
-      model.dbUse.openai = currentUse.openai || { requests: 0, tokens: { input: 0, output: 0 } };
+      model.dbUse.openai = model.dbUse.openai || currentUse.openai || { requests: 0, tokens: { input: 0, output: 0 } };
       model.dbUse.openai.requests += currentUse.openai?.requests || 0;
       model.dbUse.openai.tokens.input += currentUse.openai?.tokens?.input || 0;
       model.dbUse.openai.tokens.output += currentUse.openai?.tokens?.output || 0;
