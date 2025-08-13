@@ -10,25 +10,14 @@ import {
 } from "firebase/firestore";
 
 import { DocumentModel } from "@models";
-import { incrementUseValues, UseNode } from "./useUtils";
+import {
+  incrementUseValues,
+  ResourceUseNode,
+  DatabasesUse,
+  createEmptyUse,
+} from "./useUtils";
 
 const queryField: keyof DocumentModel = "_updatedAt";
-interface DatabaseUse { queryReads: number, docReads: number, writes: number }
-export interface OpenAIModelUse {
-  inputTokens: number;
-  outputTokens: number;
-  requests: number;
-}
-export interface DatabasesUse {
-  remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse,
-  openai?: { ai: Record<string, OpenAIModelUse> }
-}
-const createEmptyUse = (): DatabasesUse => ({
-  remote: { queryReads: 0, docReads: 0, writes: 0 },
-  local: { queryReads: 0, docReads: 0, writes: 0 },
-  cache: { queryReads: 0, docReads: 0, writes: 0 },
-  openai: { ai: {} }
-});
 const DB_USE = "dbUse";;
 const SAVED_CACHE = localStorage.getItem(DB_USE);
 let updateUse = true; let saveUse = true;
@@ -278,12 +267,14 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     updater(BaseRepository.use);
 
     const use = BaseRepository.use;
-    const hasAI = Object.keys(use.openai?.ai || {}).length > 0;
+    const hasAI = Object.keys(use.ai || {}).length > 0;
     if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10 || hasAI)) {
       saveUse = false;
       setTimeout(async () => {
         use.remote.writes++;
-        await BaseRepository.updateUserUse(incrementUseValues(use as unknown as UseNode));
+        await BaseRepository.updateUserUse(
+          incrementUseValues(use as unknown as ResourceUseNode)
+        );
         BaseRepository.use = createEmptyUse();
         localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
         saveUse = true;

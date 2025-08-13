@@ -5,8 +5,13 @@ import { DocumentModel } from '@models';
 
 import { Collections } from "../firebase/Collections";
 import RepositoryWithCrypt from './RepositoryWithCrypt';
-import BaseRepository, { DatabasesUse } from './RepositoryBase';
-import { sumValues, UseNode } from './useUtils';
+import BaseRepository from './RepositoryBase';
+import {
+  DatabasesUse,
+  sumValues,
+  ResourceUseNode,
+  createEmptyUse,
+} from './useUtils';
 
 export class User extends DocumentModel {
   public dbUse?: DatabasesUse;
@@ -55,9 +60,12 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
 
     const currentUse = BaseRepository.getDatabaseUse();
     if (model.dbUse) {
-      model.dbUse = sumValues(model.dbUse as UseNode, currentUse as unknown as UseNode) as DatabasesUse;
+      sumValues(model.dbUse as ResourceUseNode, currentUse as ResourceUseNode);
     } else {
-      model.dbUse = currentUse;
+      model.dbUse = sumValues(
+        createEmptyUse() as ResourceUseNode,
+        currentUse as ResourceUseNode
+      ) as DatabasesUse;
     }
 
     return model;
@@ -66,17 +74,25 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
   public static userTotalCache?: DatabasesUse;
 
   public static getAIUsageTotals() {
-    const dbAi = UserRepository.userTotalCache?.openai?.ai as UseNode | undefined;
-    const localAi = BaseRepository.getDatabaseUse().openai?.ai as UseNode | undefined;
-    const combined = sumValues(dbAi || {}, localAi || {}) as Record<string, any>;
-    let requests = 0;
-    let input = 0;
-    let output = 0;
-    Object.values(combined).forEach((m: any) => {
-      requests += m.requests || 0;
-      input += m.inputTokens || 0;
-      output += m.outputTokens || 0;
-    });
-    return { requests, tokens: { input, output } };
+    const db = UserRepository.userTotalCache?.openai;
+    const local = BaseRepository.getDatabaseUse().openai;
+    return {
+      requests: (db?.requests || 0) + (local?.requests || 0),
+      tokens: {
+        input: (db?.tokens.input || 0) + (local?.tokens.input || 0),
+        output: (db?.tokens.output || 0) + (local?.tokens.output || 0),
+      },
+    };
+  }
+
+  public static getAIUsageByModel() {
+    const dbAi = JSON.parse(
+      JSON.stringify(UserRepository.userTotalCache?.ai || {})
+    ) as ResourceUseNode;
+    const localAi = BaseRepository.getDatabaseUse().ai as ResourceUseNode;
+    return sumValues(dbAi, localAi) as Record<
+      string,
+      { inputTokens: number; outputTokens: number; requests: number }
+    >;
   }
 }

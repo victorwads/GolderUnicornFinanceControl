@@ -175,13 +175,16 @@ Context:
     }
 
     RepositoryBase.updateUse((use) => {
-      use.openai = use.openai || { ai: {} };
-      const ai = use.openai.ai;
-      const modelUse = ai[model] || { inputTokens: 0, outputTokens: 0, requests: 0 };
+      use.openai.tokens.input += tokens.input;
+      use.openai.tokens.output += tokens.output;
+      use.openai.requests++;
+
+      const modelUse =
+        use.ai[model] || { inputTokens: 0, outputTokens: 0, requests: 0 };
       modelUse.requests++;
       modelUse.inputTokens += tokens.input;
       modelUse.outputTokens += tokens.output;
-      ai[model] = modelUse;
+      use.ai[model] = modelUse;
     });
 
     this.chatHistory.push(userMessage);

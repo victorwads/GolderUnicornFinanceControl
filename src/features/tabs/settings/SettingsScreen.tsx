@@ -32,7 +32,8 @@ const SettingsScreen = () => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [encryptionDisabled, setEncryptionDisabled] = useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
   const [language, setCurrentLanguage] = useState<string>(SavedLang || "");
-  const openaiTotals = UserRepository.getAIUsageTotals();
+  const aiTotals = UserRepository.getAIUsageTotals();
+  const aiByModel = UserRepository.getAIUsageByModel();
 
   useEffect(() => {
     getRepositories().user.getUserData().then((user) => {
@@ -157,9 +158,15 @@ const SettingsScreen = () => {
           Local &rarr; Reads: {user.dbUse.local.docReads}, Writes: {user.dbUse.local.writes}, QueryReads: {user.dbUse.local.queryReads}
         </div>
         <div>
-          OpenAI &rarr; Requests: {openaiTotals.requests},
-          Tokens Input: {openaiTotals.tokens.input} (Input), Output: {openaiTotals.tokens.output}
+          AI total &rarr; Requests: {aiTotals.requests}, Tokens Input:
+          {aiTotals.tokens.input} (Input), Output: {aiTotals.tokens.output}
         </div>
+        {Object.entries(aiByModel).map(([name, data]) => (
+          <div key={name}>
+            {name} &rarr; Requests: {data.requests}, Tokens Input:
+            {data.inputTokens} (Input), Output: {data.outputTokens}
+          </div>
+        ))}
       </div>
     ) : (
       <div>{Lang.settings.loadingDatabaseUsage}</div>
