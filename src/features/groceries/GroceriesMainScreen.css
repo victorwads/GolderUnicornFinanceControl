@@ -22,6 +22,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .GroceryItemDetails {
@@ -34,4 +35,19 @@
   border-radius: 999px;
   font-size: 0.75em;
   color: #fff;
+}
+
+.grocery-highlight {
+  position: relative;
+  /* 3 pulsos sutis de glow */
+  animation: groceryGlow 2s ease-in-out 0s 1;
+  will-change: box-shadow;
+}
+
+@keyframes groceryGlow {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 0%, transparent); }
+  25% { box-shadow: 0 0 6px 2px color-mix(in srgb, var(--primary-color) 55%, transparent); }
+  50% { box-shadow: 0 0 10px 4px color-mix(in srgb, var(--primary-color) 75%, transparent); }
+  75% { box-shadow: 0 0 6px 2px color-mix(in srgb, var(--primary-color) 55%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 0%, transparent); }
 }

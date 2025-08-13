@@ -1,5 +1,5 @@
 import './Containers.css'
-import { ReactNode, Children, isValidElement } from 'react';
+import { ReactNode, Children, isValidElement, useRef, useState, useLayoutEffect, useEffect, UIEvent } from 'react';
 import clsx from 'clsx';
 
 interface ContainerProps {
@@ -34,6 +34,8 @@ export function Container({ children, wide = false, spaced = false, screen = fal
 interface ContainerContentProps {
   children: ReactNode;
   spaced?: boolean;
+  /** Ativa auto-scroll (grudar ao final quando já estiver no final). Desligado por padrão. */
+  autoScroll?: boolean;
 }
 
 export function ContainerFixedContent({ children, spaced }: ContainerContentProps) {
@@ -43,8 +45,45 @@ export function ContainerFixedContent({ children, spaced }: ContainerContentProp
 }
 ContainerFixedContent.displayName = 'ContainerFixedContent';
 
-export function ContainerScrollContent({ children, spaced }: ContainerContentProps) {
-  return <div className={clsx("container-content scroll", { spaced })}>
+export function ContainerScrollContent({ children, spaced, autoScroll = false }: ContainerContentProps) {
+  // Se autoScroll desativado, render simples
+  if (!autoScroll) {
+    return <div className={clsx("container-content scroll", { spaced })}>{children}</div>;
+  }
+
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [stickToBottom, setStickToBottom] = useState(true); // assume inicia no final
+  const THRESHOLD_PX = 48; // tolerância para considerar "quase no final"
+
+  const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setStickToBottom(distanceFromBottom < THRESHOLD_PX);
+  };
+
+  // Primeira render: posiciona direto no fim sem animação para evitar salto visual
+  useLayoutEffect(() => {
+    if (ref.current) {
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  }, []);
+
+  // Atualizações: usa animação nativa (smooth) sem animação manual custom
+  useEffect(() => {
+    if (!stickToBottom || !ref.current) return;
+    try {
+      ref.current.scrollTo({ top: ref.current.scrollHeight * 2, behavior: 'smooth' });
+    } catch {
+      // fallback sem erro crítico
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  }, [children, stickToBottom]);
+
+  return <div
+    ref={ref}
+    onScroll={handleScroll}
+    data-autoscroll={stickToBottom ? 'stick' : 'free'}
+    className={clsx("container-content scroll", { spaced })}>
     {children}
   </div>;
 }

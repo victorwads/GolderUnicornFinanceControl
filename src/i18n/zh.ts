@@ -104,6 +104,28 @@ const zh: Translation = {
       ideasWelcome: '欢迎提出想法',
     },
   },
+  speech: {
+    title: '购物清单项目',
+    howToUseTitle: '使用方法',
+    intro1: '自然地描述你的购物清单或家里存放的物品。助手会尝试理解你的话，并在列表中添加、删除或更新项目。',
+    intro2: '你可以提到名称、到期、是否已打开/使用、数量、支付金额、存放位置等。',
+    examplesTitle: '示例：',
+    examples: [
+      '我买了2包大米',
+      '橱柜里有3包意大利面',
+      '冰箱里有火腿和奶酪已打开，3天后会坏掉',
+      '咖啡包装2个月后过期',
+      '我没有豆子了'
+    ],
+    micStart: '开始监听',
+    micStop: '停止监听',
+    placeholderListeningHasItems: '可以继续说...',
+    placeholderListeningNoItems: '说说你的物品...',
+    placeholderNotListening: '按下按钮开始说话',
+    browserNotSupported: '浏览器不支持语音识别。',
+    changeLangTooltip: '点击更改语言',
+    tokensUsed: (tokens: number) => `已用: ${tokens} 令牌,`
+  },
   registry: {
     title: '记录',
     description: '描述',

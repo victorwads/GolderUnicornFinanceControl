@@ -114,6 +114,28 @@ const en: Translation = {
       otherThings: 'Other things',
       ideasWelcome: 'Ideas are welcome',
     },
+  },
+  speech: {
+    title: 'Grocery Items',
+    howToUseTitle: 'How to use',
+    intro1: 'Speak naturally about your shopping list or the items stored in your home. The assistant will try to understand what you said and add, remove or update items in the list.',
+    intro2: 'You can mention the name, expiration, whether it is opened/in use, quantity, how much you paid, where it is stored, etc.',
+    examplesTitle: 'Examples:',
+    examples: [
+      'I bought 2 packs of rice',
+      'I have 3 packs of pasta in the cabinet',
+      'I have ham and cheese opened in the fridge and they will spoil in 3 days',
+      'The coffee package expires in 2 months',
+      'I have no more beans'
+    ],
+    micStart: 'Start listening',
+    micStop: 'Stop listening',
+    placeholderListeningHasItems: 'You can keep talking...',
+    placeholderListeningNoItems: 'Tell me about your items...',
+    placeholderNotListening: 'Press the button to speak',
+    browserNotSupported: 'Browser does not support speech recognition.',
+    changeLangTooltip: 'Click to change the language',
+    tokensUsed: (tokens: number) => `Used: ${tokens} Tokens,`
   }
 };
 

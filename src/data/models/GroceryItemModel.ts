@@ -1,19 +1,11 @@
 import { DocumentModel } from './DocumentModel';
 
-export enum QuantityUnit {
-  UN = 'un',
-  KG = 'kg',
-  G = 'g',
-  L = 'l',
-  ML = 'ml',
-}
-
 export class GroceryItemModel extends DocumentModel {
   constructor(
     public id: string,
     public name: string,
     public quantity: number = 1,
-    public unit: QuantityUnit = QuantityUnit.UNIT,
+    public opened: boolean = false,
     public barcode?: string,
     public expirationDate?: Date,
     public paidPrice?: number,

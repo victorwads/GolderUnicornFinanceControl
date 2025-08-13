@@ -104,6 +104,28 @@ const fr: Translation = {
       ideasWelcome: 'Les idées sont les bienvenues',
     },
   },
+  speech: {
+    title: 'Articles d\'Achats',
+    howToUseTitle: 'Comment utiliser',
+    intro1: 'Parlez naturellement de votre liste de courses ou des articles stockés chez vous. L\'assistant essaiera de comprendre et d\'ajouter, de retirer ou de mettre à jour les articles dans la liste.',
+    intro2: 'Vous pouvez mentionner le nom, la date d\'expiration, si c\'est ouvert/en usage, la quantité, le prix payé, où c\'est stocké, etc.',
+    examplesTitle: 'Exemples :',
+    examples: [
+      'j\'ai acheté 2 paquets de riz',
+      'j\'ai 3 paquets de pâtes dans l\'armoire',
+      'j\'ai du jambon et du fromage ouverts dans le frigo qui vont périmer dans 3 jours',
+      'le paquet de café expire dans 2 mois',
+      'je n\'ai plus de haricots'
+    ],
+    micStart: 'Démarrer l\'écoute',
+    micStop: 'Arrêter l\'écoute',
+    placeholderListeningHasItems: 'Vous pouvez continuer à parler...',
+    placeholderListeningNoItems: 'Parlez de vos articles...',
+    placeholderNotListening: 'Appuyez sur le bouton pour parler',
+    browserNotSupported: 'Le navigateur ne supporte pas la reconnaissance vocale.',
+    changeLangTooltip: 'Cliquez pour changer la langue',
+    tokensUsed: (tokens: number) => `Utilisés : ${tokens} Tokens,`
+  },
   registry: {
     title: 'Enregistrement',
     description: 'Description',

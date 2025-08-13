@@ -114,6 +114,12 @@ const SettingsScreen = () => {
 
   return <Container spaced className="SettingsScreen"><ContainerScrollContent>
     <h2>{Lang.settings.title}</h2>
+
+    <h3>Beta Features</h3>
+    <ul>
+      <li><Link to={'/beta/speech'}>Groceries Speech Recognition (Alpha Stage)</Link></li>
+    </ul>
+
     <h3>{Lang.settings.data}</h3>
     <ul>
       <li><Link to={'/categories'}>{Lang.categories.title}</Link></li>
@@ -147,6 +153,10 @@ const SettingsScreen = () => {
         </div>
         <div>
           Local &rarr; Reads: {user.dbUse.local.docReads}, Writes: {user.dbUse.local.writes}, QueryReads: {user.dbUse.local.queryReads}
+        </div>
+        <div>
+          OpenAI &rarr; Requests: {user.dbUse.openai?.requests || 0},
+          Tokens Input: {user.dbUse.openai?.tokens?.input || 0} (Input), Output: {user.dbUse.openai?.tokens?.output || 0}
         </div>
       </div>
     ) : (

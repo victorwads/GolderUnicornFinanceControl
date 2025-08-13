@@ -2,23 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import getRepositories from '@repositories';
-import { GroceryItemModel, QuantityUnit, ProductModel, ProductPrice } from '@models';
+import { GroceryItemModel, ProductModel } from '@models';
 
 import Button from '@components/Button';
 import Field from '@components/fields/Field';
 import { DatePicker } from '@components/inputs';
 import PriceField from '@components/fields/PriceField';
-import SelectField from '@components/fields/SelectField';
 import { ModalScreen } from '@components/conteiners/ModalScreen';
 import BarcodeScanner from './BarcodeScanner';
-
-const units = [
-  { value: QuantityUnit.UN, label: 'un' },
-  { value: QuantityUnit.KG, label: 'kg' },
-  { value: QuantityUnit.G, label: 'g' },
-  { value: QuantityUnit.L, label: 'l' },
-  { value: QuantityUnit.ML, label: 'ml' },
-];
 
 const GroceryItemForm = () => {
   const { id } = useParams();
@@ -31,7 +22,6 @@ const GroceryItemForm = () => {
   const [barcode, setBarcode] = useState<string | undefined>(item?.barcode);
   const [expiration, setExpiration] = useState<Date | null>(item?.expirationDate ?? null);
   const [quantity, setQuantity] = useState(item?.quantity || 1);
-  const [unit, setUnit] = useState<QuantityUnit>(item?.unit || QuantityUnit.UN);
   const [paidPrice, setPaidPrice] = useState(item?.paidPrice || 0);
   const [purchase, setPurchase] = useState<Date | null>(item?.purchaseDate ?? new Date());
   const [location, setLocation] = useState(item?.location || '');
@@ -58,7 +48,7 @@ const GroceryItemForm = () => {
       id || '',
       name,
       quantity,
-      unit,
+      false, // TODO: handle opened state,
       barcode,
       expirationDate,
       paidPrice || undefined,
@@ -97,7 +87,6 @@ const GroceryItemForm = () => {
     <DatePicker label={Lang.groceries.expirationDate} value={expiration} onChange={setExpiration} />
     <DatePicker label={Lang.groceries.purchaseDate} value={purchase} onChange={setPurchase} />
     <Field label={Lang.groceries.quantity} value={String(quantity)} onChange={(v) => setQuantity(Number(v))} />
-    <SelectField label={Lang.groceries.unit} value={unit} onChange={setUnit} options={units} />
     <PriceField label={Lang.groceries.paidPrice} price={paidPrice} onChange={setPaidPrice} />
     <Field label={Lang.groceries.storageLocation} value={location} onChange={setLocation} />
     <div>
