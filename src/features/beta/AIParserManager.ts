@@ -151,8 +151,9 @@ Context:
     ];
 
     console.log('AIParserManager withOpenAI messages:', messages);
+    const model = 'gpt-5-nano';
     const stream = await this.openai.chat.completions.create({
-      model: 'gpt-5-nano',
+      model,
       messages,
       stream: true,
       stream_options: { include_usage: true },
@@ -174,10 +175,13 @@ Context:
     }
 
     RepositoryBase.updateUse((use) => {
-      use.openai = use.openai || { requests: 0, tokens: { input: 0, output: 0 } };
-      use.openai.requests++;
-      use.openai.tokens.input += tokens.input;
-      use.openai.tokens.output += tokens.output;
+      use.openai = use.openai || { ai: {} };
+      const ai = use.openai.ai;
+      const modelUse = ai[model] || { inputTokens: 0, outputTokens: 0, requests: 0 };
+      modelUse.requests++;
+      modelUse.inputTokens += tokens.input;
+      modelUse.outputTokens += tokens.output;
+      ai[model] = modelUse;
     });
 
     this.chatHistory.push(userMessage);

@@ -6,6 +6,7 @@ import { DocumentModel } from '@models';
 import { Collections } from "../firebase/Collections";
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 import BaseRepository, { DatabasesUse } from './RepositoryBase';
+import { sumValues, UseNode } from './useUtils';
 
 export class User extends DocumentModel {
   public dbUse?: DatabasesUse;
@@ -54,19 +55,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
 
     const currentUse = BaseRepository.getDatabaseUse();
     if (model.dbUse) {
-      model.dbUse.cache.docReads += currentUse.cache.docReads;
-      model.dbUse.cache.queryReads += currentUse.cache.queryReads;
-      model.dbUse.cache.writes += currentUse.cache.writes;
-      model.dbUse.local.docReads += currentUse.local.docReads;
-      model.dbUse.local.queryReads += currentUse.local.queryReads;
-      model.dbUse.local.writes += currentUse.local.writes;
-      model.dbUse.remote.docReads += currentUse.remote.docReads;
-      model.dbUse.remote.queryReads += currentUse.remote.queryReads;
-      model.dbUse.remote.writes += currentUse.remote.writes;
-      model.dbUse.openai = model.dbUse.openai || currentUse.openai || { requests: 0, tokens: { input: 0, output: 0 } };
-      model.dbUse.openai.requests += currentUse.openai?.requests || 0;
-      model.dbUse.openai.tokens.input += currentUse.openai?.tokens?.input || 0;
-      model.dbUse.openai.tokens.output += currentUse.openai?.tokens?.output || 0;
+      model.dbUse = sumValues(model.dbUse as UseNode, currentUse as unknown as UseNode) as DatabasesUse;
     } else {
       model.dbUse = currentUse;
     }
@@ -75,4 +64,19 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
   }
 
   public static userTotalCache?: DatabasesUse;
+
+  public static getAIUsageTotals() {
+    const dbAi = UserRepository.userTotalCache?.openai?.ai as UseNode | undefined;
+    const localAi = BaseRepository.getDatabaseUse().openai?.ai as UseNode | undefined;
+    const combined = sumValues(dbAi || {}, localAi || {}) as Record<string, any>;
+    let requests = 0;
+    let input = 0;
+    let output = 0;
+    Object.values(combined).forEach((m: any) => {
+      requests += m.requests || 0;
+      input += m.inputTokens || 0;
+      output += m.outputTokens || 0;
+    });
+    return { requests, tokens: { input, output } };
+  }
 }

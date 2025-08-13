@@ -94,7 +94,7 @@ const SpeechScreen = () => {
     language: currentLangInfo.short
   });
 
-  const usedTokens = UserRepository.userTotalCache?.openai?.tokens || { input: 0, output: 0 };
+  const usedTokens = UserRepository.getAIUsageTotals().tokens;
 
   return (
     <Container screen spaced className="SpeechScreen">

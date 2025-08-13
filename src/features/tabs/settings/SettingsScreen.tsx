@@ -9,6 +9,7 @@ import { clearFirestore } from "../../../data/firebase/google-services";
 
 import { DocumentModel } from "@models";
 import getRepositories, { Repositories, User } from "@repositories";
+import UserRepository from "@repositories/UserRepository";
 import RepositoryWithCrypt from "../../../data/repositories/RepositoryWithCrypt";
 
 import { useCssVars, Theme, Density } from '@components/Vars';
@@ -31,6 +32,7 @@ const SettingsScreen = () => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [encryptionDisabled, setEncryptionDisabled] = useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
   const [language, setCurrentLanguage] = useState<string>(SavedLang || "");
+  const openaiTotals = UserRepository.getAIUsageTotals();
 
   useEffect(() => {
     getRepositories().user.getUserData().then((user) => {
@@ -155,8 +157,8 @@ const SettingsScreen = () => {
           Local &rarr; Reads: {user.dbUse.local.docReads}, Writes: {user.dbUse.local.writes}, QueryReads: {user.dbUse.local.queryReads}
         </div>
         <div>
-          OpenAI &rarr; Requests: {user.dbUse.openai?.requests || 0},
-          Tokens Input: {user.dbUse.openai?.tokens?.input || 0} (Input), Output: {user.dbUse.openai?.tokens?.output || 0}
+          OpenAI &rarr; Requests: {openaiTotals.requests},
+          Tokens Input: {openaiTotals.tokens.input} (Input), Output: {openaiTotals.tokens.output}
         </div>
       </div>
     ) : (

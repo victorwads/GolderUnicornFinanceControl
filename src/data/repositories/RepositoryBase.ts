@@ -6,26 +6,28 @@ import {
   DocumentData, DocumentReference,
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc, writeBatch,
-  collection, doc, query, orderBy, limit, where, increment,
+  collection, doc, query, orderBy, limit, where,
 } from "firebase/firestore";
 
 import { DocumentModel } from "@models";
-import { AITokens } from "@features/beta/AIParserManager";
+import { incrementUseValues, UseNode } from "./useUtils";
 
 const queryField: keyof DocumentModel = "_updatedAt";
 interface DatabaseUse { queryReads: number, docReads: number, writes: number }
-export interface DatabasesUse { 
-  remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse ,
-  openai?: { tokens: AITokens, requests: number }
+export interface OpenAIModelUse {
+  inputTokens: number;
+  outputTokens: number;
+  requests: number;
+}
+export interface DatabasesUse {
+  remote: DatabaseUse, local: DatabaseUse, cache: DatabaseUse,
+  openai?: { ai: Record<string, OpenAIModelUse> }
 }
 const createEmptyUse = (): DatabasesUse => ({
   remote: { queryReads: 0, docReads: 0, writes: 0 },
   local: { queryReads: 0, docReads: 0, writes: 0 },
   cache: { queryReads: 0, docReads: 0, writes: 0 },
-  openai: { tokens: {
-    input: 0,
-    output: 0
-  }, requests: 0 }
+  openai: { ai: {} }
 });
 const DB_USE = "dbUse";;
 const SAVED_CACHE = localStorage.getItem(DB_USE);
@@ -276,19 +278,12 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     updater(BaseRepository.use);
 
     const use = BaseRepository.use;
-    if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10 || use.openai?.tokens?.input !== 0)) {
+    const hasAI = Object.keys(use.openai?.ai || {}).length > 0;
+    if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10 || hasAI)) {
       saveUse = false;
       setTimeout(async () => {
         use.remote.writes++;
-        await BaseRepository.updateUserUse({
-          remote: { queryReads: increment(use.remote.queryReads), docReads: increment(use.remote.docReads), writes: increment(use.remote.writes) },
-          local: { queryReads: increment(use.local.queryReads), docReads: increment(use.local.docReads), writes: increment(use.local.writes) },
-          cache: { queryReads: increment(use.cache.queryReads), docReads: increment(use.cache.docReads), writes: increment(use.cache.writes) },
-          openai: { tokens: {
-            input: increment(use.openai?.tokens?.input || 0),
-            output: increment(use.openai?.tokens?.output || 0)
-          }, requests: increment(use.openai?.requests || 0) }
-        })
+        await BaseRepository.updateUserUse(incrementUseValues(use as unknown as UseNode));
         BaseRepository.use = createEmptyUse();
         localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
         saveUse = true;
