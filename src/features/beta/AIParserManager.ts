@@ -4,6 +4,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/index';
 import StreamedJsonArrayParser from './StreamedJsonArrayParser';
 import RepositoryBase from '../../data/repositories/RepositoryBase';
 
+type Model = 'gpt-5-nano' | 'gpt-5-mini' | 'gpt-4_1-nano';
 const STOREAGE_KEY = 'currentGroceryList';
 const CHAT_HISTORY_SIZE = 2;
 const n = (id: string|undefined|null): string => id?.toString().trim().toLowerCase() || '';
@@ -151,7 +152,7 @@ Context:
     ];
 
     console.log('AIParserManager withOpenAI messages:', messages);
-    const model = 'gpt-5-nano';
+    const model: Model = 'gpt-5-nano';
     const stream = await this.openai.chat.completions.create({
       model,
       messages,
@@ -174,17 +175,13 @@ Context:
       tokens.output += chunk?.usage?.completion_tokens || 0;
     }
 
-    RepositoryBase.updateUse((use) => {
-      use.openai.tokens.input += tokens.input;
-      use.openai.tokens.output += tokens.output;
-      use.openai.requests++;
-
-      const modelUse =
-        use.ai[model] || { inputTokens: 0, outputTokens: 0, requests: 0 };
-      modelUse.requests++;
-      modelUse.inputTokens += tokens.input;
-      modelUse.outputTokens += tokens.output;
-      use.ai[model] = modelUse;
+    RepositoryBase.addUse({
+      ai: {
+        [model]: {
+          ...tokens,
+          requests: 1
+        }
+      }
     });
 
     this.chatHistory.push(userMessage);
@@ -199,9 +196,9 @@ Context:
 
   private initOpenAI() {
     return new OpenAI({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-      project: import.meta.env.VITE_OPENAI_PROJECT,
-      organization: import.meta.env.VITE_OPENAI_ORG,
+      apiKey: import.meta.env.VITE_MOD_K,
+      project: import.meta.env.VITE_MOD_P,
+      organization: import.meta.env.VITE_MOD_O,
       dangerouslyAllowBrowser: true,
     });
   }

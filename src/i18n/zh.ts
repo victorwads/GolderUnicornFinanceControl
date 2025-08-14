@@ -124,7 +124,7 @@ const zh: Translation = {
     placeholderNotListening: '按下按钮开始说话',
     browserNotSupported: '浏览器不支持语音识别。',
     changeLangTooltip: '点击更改语言',
-    tokensUsed: (tokens: number) => `已用: ${tokens} 令牌,`
+    tokensUsed: (tokens: number, price: string) => `已用: ${tokens} 令牌, R$ ${price}`
   },
   registry: {
     title: '记录',

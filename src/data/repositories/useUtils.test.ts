@@ -53,10 +53,39 @@ describe('useUtils', () => {
 
   describe('sumValues', () => {
     it('deve somar valores rasos e retornar o alvo mutado', () => {
-      const target = { a: 1, b: 2 };
+      const source = { a: 1, b: 2 };
       const additional = { a: 3, c: 4, d: 5 };
-      const result = sumValues(target, additional);
-      expect(result).toEqual({ a: 4, b: 2, c: 4, d: 5 });
+      const result = sumValues(source, additional);
+      const expected = { a: 4, b: 2, c: 4, d: 5 }
+      expect(result).toEqual(expected);
+      expect(result).not.toEqual(source);
+    });
+
+    it('deve somar valores rasos e retornar o alvo mutado', () => {
+      const source = { a: 1, b: 2 };
+      const additional = { a: 3, c: 4, d: 5 };
+      const result = sumValues(source, additional, false);
+      const expected = { a: 4, b: 2, c: 4, d: 5 }
+      expect(result).toEqual(expected);
+      expect(result).toEqual(source);
+    });
+
+    it('deve somar valores e criar sub objectos que não existem em copia', () => {
+      const source = {};
+      const additional = { a: 3, c: { t: { ok: 5}}, d: 5 };
+      const result = sumValues(source, additional);
+      const expected = { a: 3, c: { t: { ok: 5}}, d: 5 }
+      expect(result).toEqual(expected);
+      expect(result).not.toEqual(source);
+    });
+
+    it('deve somar valores e criar sub objectos que não existem no original', () => {
+      const source = {};
+      const additional = { a: 3, c: { t: { ok: 5}}, d: 5 };
+      const result = sumValues(source, additional, false);
+      const expected = { a: 3, c: { t: { ok: 5}}, d: 5 }
+      expect(result).toEqual(expected);
+      expect(result).toEqual(source);
     });
 
     it('deve somar valores aninhados criando objetos quando necessário', () => {

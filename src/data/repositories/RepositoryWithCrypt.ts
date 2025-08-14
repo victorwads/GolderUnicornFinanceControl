@@ -85,8 +85,8 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
       }
 
       await batch.commit();
-      BaseRepository.updateUse((use) => {
-        use.remote.writes += writes;
+      BaseRepository.addUse({
+        db: { remote: { writes } }
       });
     }
   }

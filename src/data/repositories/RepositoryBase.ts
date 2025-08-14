@@ -15,6 +15,8 @@ import {
   ResourceUseNode,
   DatabasesUse,
   createEmptyUse,
+  sumValues,
+  AIUse,
 } from "./useUtils";
 
 const queryField: keyof DocumentModel = "_updatedAt";
@@ -74,10 +76,11 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     const queryResult = await getDocsFromCache(
       fieldsFilter ? await this.createQuery(fieldsFilter) : this.ref
     );
-    BaseRepository.updateUse((use) => {
-      use.local.queryReads++;
-      use.local.docReads += queryResult.docs.length;
-      use.cache.writes += queryResult.docs.length;
+    BaseRepository.addUse({
+      db: {
+        local: { queryReads: 1, docReads: queryResult.docs.length },
+        cache: { writes: queryResult.docs.length }
+      }
     });
 
     const items = [];
@@ -94,15 +97,16 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected addToCache(model: Model): void {
     this.minimumCacheSize++;
     BaseRepository.cache[this.collectionName][model.id] = model;
-    BaseRepository.updateUse((use) => {
-      use.cache.writes++;
-    });
+    BaseRepository.addUse({
+      db: { cache: { writes: 1 } }
+    });    
   }
 
   public getLocalById(id?: string): Model | undefined {
-    BaseRepository.updateUse((use) => {
-      use.cache.docReads++;
+    BaseRepository.addUse({
+      db: { cache: { docReads: 1 } }
     });
+
     return BaseRepository.cache[this.collectionName][id ?? ""] as Model;
   }
 
@@ -121,10 +125,12 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     }
 
     BaseRepository.cache[this.collectionName][model.id] = model;
-    BaseRepository.updateUse((use) => {
-      use.remote.writes++;
-      use.local.writes++;
-      use.cache.writes++;
+    BaseRepository.addUse({
+      db: {
+        remote: { writes: 1 },
+        local: { writes: 1 },
+        cache: { writes: 1 }
+      }
     });
     return result;
   }
@@ -140,28 +146,28 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     }
 
     await batch.commit();
-    BaseRepository.updateUse((use) => {
-      use.remote.writes += models.length;
-      use.local.writes += models.length;
-      use.cache.writes += models.length;
+    BaseRepository.addUse({
+      db: {
+        remote: { writes: models.length },
+        local: { writes: models.length },
+        cache: { writes: models.length }
+      }
     });
   }
 
   public getCache(): Model[] {
     const result = Object.values(BaseRepository.cache[this.collectionName] || {}) as Model[];
 
-    BaseRepository.updateUse((use) => {
-      use.cache.queryReads++;
-      use.cache.docReads += result.length;
+    BaseRepository.addUse({
+      db: { cache: { queryReads: 1, docReads: result.length } }
     });
     return result;
   }
 
   protected async getLastUpdatedValue(): Promise<any> {
     const queryResult = await getDocsFromCache(query(this.ref, orderBy(queryField, "desc"), limit(1)));
-    BaseRepository.updateUse((use) => {
-      use.local.queryReads++;
-      use.local.docReads += queryResult.docs.length;
+    BaseRepository.addUse({
+      db: { local: { queryReads: 1, docReads: queryResult.docs.length } }
     });
     return queryResult.docs[0]?.data()[queryField];
   }
@@ -239,9 +245,8 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     }
     queryResult
       .then((snap) => {
-        BaseRepository.updateUse((use) => {
-          use.remote.queryReads++;
-          use.remote.docReads += snap.docs.length;
+        BaseRepository.addUse({
+          db: { remote: { queryReads: 1, docReads: snap.docs.length } }
         });
       })
       .catch(this.getErrorHanlder("listing"));
@@ -263,21 +268,27 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
 
   public static updateUserUse = async (data: DocumentData) => { };
 
-  public static async updateUse(updater: (use: DatabasesUse) => void) {
-    updater(BaseRepository.use);
-
+  public static async addUse(additions: DatabasesUse) {
     const use = BaseRepository.use;
-    const hasAI = Object.keys(use.ai || {}).length > 0;
-    if (saveUse && (use.remote.writes > 0 || use.remote.docReads > 10 || hasAI)) {
+    sumValues(use, additions, false);
+
+    console.log('Database use updated:', use);
+    if (saveUse && (
+      use.db?.remote?.writes ||
+      (use.db?.remote?.docReads ?? 0) > 20 ||
+      Object.entries(use).some(([, value]) => {
+        return ((value as AIUse)?.requests || 0) > 1
+      })
+    )) {
       saveUse = false;
       setTimeout(async () => {
-        use.remote.writes++;
-        await BaseRepository.updateUserUse(
-          incrementUseValues(use as unknown as ResourceUseNode)
-        );
-        BaseRepository.use = createEmptyUse();
-        localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
         saveUse = true;
+
+        console.log('Database use saving:', use);
+        sumValues(BaseRepository.use, { remote: { writes: 1 } }, false);
+        await BaseRepository.updateUserUse(incrementUseValues(use));
+        BaseRepository.use = {};
+        localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
       }, 10000);
     };
 

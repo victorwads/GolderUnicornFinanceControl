@@ -11,6 +11,7 @@ import {
   sumValues,
   ResourceUseNode,
   createEmptyUse,
+  FirestoreDatabasesUse,
 } from './useUtils';
 
 export class User extends DocumentModel {
@@ -21,7 +22,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
   constructor() {
     super(Collections.Users, User);
 
-    BaseRepository.updateUserUse = async (dbUse: any) => {
+    BaseRepository.updateUserUse = async (dbUse: FirestoreDatabasesUse) => {
       this.updateUserData({ dbUse: { ...dbUse, encrypted: false } });
       UserRepository.userTotalCache = undefined;
     };
@@ -51,8 +52,8 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
       model.dbUse = UserRepository.userTotalCache;
     } else {
       const user = await getDoc(doc(this.ref, userId));
-      BaseRepository.updateUse((use) => {
-        use.remote.docReads++;
+      BaseRepository.addUse({
+        db: { remote: { docReads: 1 } },
       });
       model = await this.fromFirestore(user.id, user.data());
       UserRepository.userTotalCache = model.dbUse;
@@ -72,27 +73,4 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
   }
 
   public static userTotalCache?: DatabasesUse;
-
-  public static getAIUsageTotals() {
-    const db = UserRepository.userTotalCache?.openai;
-    const local = BaseRepository.getDatabaseUse().openai;
-    return {
-      requests: (db?.requests || 0) + (local?.requests || 0),
-      tokens: {
-        input: (db?.tokens.input || 0) + (local?.tokens.input || 0),
-        output: (db?.tokens.output || 0) + (local?.tokens.output || 0),
-      },
-    };
-  }
-
-  public static getAIUsageByModel() {
-    const dbAi = JSON.parse(
-      JSON.stringify(UserRepository.userTotalCache?.ai || {})
-    ) as ResourceUseNode;
-    const localAi = BaseRepository.getDatabaseUse().ai as ResourceUseNode;
-    return sumValues(dbAi, localAi) as Record<
-      string,
-      { inputTokens: number; outputTokens: number; requests: number }
-    >;
-  }
 }

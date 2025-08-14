@@ -12,8 +12,11 @@ import { Container, ContainerFixedContent, ContainerScrollContent } from '@compo
 import GroceryList from '../../features/groceries/GroceryList';
 import AIActionsParser, { AITokens } from './AIParserManager';
 import { AIGroceryListConfig } from './GroceryListAiInfo';
-import UserRepository, { User } from '../../data/repositories/UserRepository';
+import { User } from '../../data/repositories/UserRepository';
+
 import getRepositories from '@repositories';
+import BaseRepository from '../../data/repositories/RepositoryBase';
+import { AIUse, sumValues } from '../../data/repositories/useUtils';
 
 const DOLAR_PRICE = 5.5;
 const tokenPrice = {
@@ -94,7 +97,11 @@ const SpeechScreen = () => {
     language: currentLangInfo.short
   });
 
-  const usedTokens = UserRepository.getAIUsageTotals().tokens;
+  const usedTokens = Object.values(BaseRepository.getDatabaseUse().ai || {})
+    .reduce((acc, tokens) => {
+      sumValues(acc, tokens as AITokens, false);
+      return acc;
+    }, { input: 0, output: 0, requests: 0 } as AIUse<number>) as Required<AIUse<number>>;
 
   return (
     <Container screen spaced className="SpeechScreen">
@@ -145,11 +152,10 @@ const SpeechScreen = () => {
               <div className="speech-marquee-lang" title={Lang.speech.changeLangTooltip} onClick={() => navigate('/main/settings')}>
                 <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
                 <span className="">
-                  {Lang.speech.tokensUsed(usedTokens.input + usedTokens.output)}
-                  R$ {(DOLAR_PRICE * (
+                  {Lang.speech.tokensUsed(usedTokens.input + usedTokens.output, (DOLAR_PRICE * (
                     (usedTokens.input * tokenPrice.dolarPerInput) + 
                     (usedTokens.output * tokenPrice.dolarPerOutput)
-                  )).toFixed(4).replace('.', ',')}
+                  )).toFixed(4).replace('.', ','))}
                 </span>
               </div>
             </div>

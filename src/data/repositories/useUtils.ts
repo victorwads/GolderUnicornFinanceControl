@@ -10,27 +10,33 @@ export interface AIUse<T = number> extends ResourceUseNode<T> {
   requests?: T;
 }
 
-export interface DatabaseUse<T = number> extends ResourceUseNode<T> {
+export interface ResourceUse<T = number> extends ResourceUseNode<T> {
   queryReads?: T;
   docReads?: T;
   writes?: T;
 }
 
+export type AIUses<T = number> = {
+  [model: string]: AIUse<T>
+} 
+
 export interface DatabasesUse<T = number> extends ResourceUseNode<T> {
-  remote: DatabaseUse<T>;
-  local: DatabaseUse<T>;
-  cache: DatabaseUse<T>;
-  ai: {
-    [model: string]: AIUse<T>
-  };
+  db?: {
+    remote?: ResourceUse<T>;
+    local?: ResourceUse<T>;
+    cache?: ResourceUse<T>;
+  }
+  ai?: AIUses<T>;
 }
 
-export type FirestoreDatabasesUse = Partial<DatabaseUse<FieldValue>>
+export type FirestoreDatabasesUse = Partial<ResourceUse<FieldValue>>
 
 export const createEmptyUse = (): DatabasesUse => ({
-  remote: { queryReads: 0, docReads: 0, writes: 0 },
-  local: { queryReads: 0, docReads: 0, writes: 0 },
-  cache: { queryReads: 0, docReads: 0, writes: 0 },
+  db: {
+    remote: { queryReads: 0, docReads: 0, writes: 0 },
+    local: { queryReads: 0, docReads: 0, writes: 0 },
+    cache: { queryReads: 0, docReads: 0, writes: 0 },
+  },
   ai: {},
 });
 
@@ -53,9 +59,10 @@ export const incrementUseValues = (
 
 export const sumValues = <T extends ResourceUseNode>(
   source: Partial<T> = {},
-  adition: Partial<T> = {}
+  adition: Partial<T> = {},
+  copy: boolean = true
 ): Partial<T> => {
-  const result = copyRecursive(source);
+  const result = copy ? copyRecursive(source) : source;
   for (const [key, value] of Object.entries(adition)) {
     const current = source[key];
     if (typeof value === 'number') {
@@ -64,7 +71,7 @@ export const sumValues = <T extends ResourceUseNode>(
       if (typeof current !== 'object' || current === null) {
         result[key] = {};
       }
-      result[key] = sumValues(source[key] as ResourceUseNode, value);
+      result[key] = sumValues(source[key] as ResourceUseNode, value, copy);
     }
   }
   return result as Partial<T>;

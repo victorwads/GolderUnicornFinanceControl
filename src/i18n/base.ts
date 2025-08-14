@@ -126,6 +126,6 @@ export default interface Translation {
     placeholderNotListening: string;
     browserNotSupported: string;
     changeLangTooltip: string;
-    tokensUsed: (tokens: number) => string; // e.g. "Used: 123 tokens,"
+    tokensUsed: (tokens: number, price: string) => string; // e.g. "Used: 123 tokens,"
   };
 }

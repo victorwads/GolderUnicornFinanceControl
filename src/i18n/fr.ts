@@ -124,7 +124,7 @@ const fr: Translation = {
     placeholderNotListening: 'Appuyez sur le bouton pour parler',
     browserNotSupported: 'Le navigateur ne supporte pas la reconnaissance vocale.',
     changeLangTooltip: 'Cliquez pour changer la langue',
-    tokensUsed: (tokens: number) => `Utilisés : ${tokens} Tokens,`
+    tokensUsed: (tokens: number, price: string) => `Utilisés : ${tokens} Tokens, R$ ${price}`
   },
   registry: {
     title: 'Enregistrement',
