@@ -11,6 +11,7 @@ import EmptyScreen from '@features/commons/EmptyScreen';
 import LoginScreen from '@features/login/LoginScreen';
 import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
+import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CategoriesScreen from '@features/categories/CategoriesScreen';
 import AddCategoriesScreen from '@features/categories/AddCategoriesScreen';
@@ -20,7 +21,6 @@ import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
-import NotFoundScreen from '@features/commons/NotFoundScreen';
 import SpeechScreen from '@features/beta/SpeechScreen';
 
 import { clearRepositories, resetRepositories } from '@repositories';
@@ -32,7 +32,8 @@ const router = createBrowserRouter([
       { path: 'dashboard', element: <DashboardScreen /> },
       { path: 'timeline/:id?', element: <TimelineScreen /> },
       { path: 'groceries', element: <GroceriesMainScreen /> },
-      { path: 'settings', element: <SettingsScreen /> },
+  { path: 'settings', element: <SettingsScreen /> },
+  { path: 'resource-usage', element: <ResourceUsageScreen /> },
     ]
   },
   { path: '/accounts', element: <AccountsScreen /> },

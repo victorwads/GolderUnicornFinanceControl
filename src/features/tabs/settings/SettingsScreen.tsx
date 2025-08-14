@@ -9,7 +9,6 @@ import { clearFirestore } from "../../../data/firebase/google-services";
 
 import { DocumentModel } from "@models";
 import getRepositories, { Repositories, User } from "@repositories";
-import UserRepository from "@repositories/UserRepository";
 import RepositoryWithCrypt from "../../../data/repositories/RepositoryWithCrypt";
 
 import { useCssVars, Theme, Density } from '@components/Vars';
@@ -32,8 +31,6 @@ const SettingsScreen = () => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [encryptionDisabled, setEncryptionDisabled] = useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
   const [language, setCurrentLanguage] = useState<string>(SavedLang || "");
-  const aiTotals = UserRepository.getAIUsageTotals();
-  const aiByModel = UserRepository.getAIUsageByModel();
 
   useEffect(() => {
     getRepositories().user.getUserData().then((user) => {
@@ -146,31 +143,11 @@ const SettingsScreen = () => {
       </div>}
     </ul>
     <h3>{Lang.settings.databaseUsage}</h3>
-    {user?.dbUse ? (
-      <div className="db-usage">
-        <div>
-          Remote &rarr; Reads: {user.dbUse.remote.docReads}, Writes: {user.dbUse.remote.writes}, QueryReads: {user.dbUse.remote.queryReads}
-        </div>
-        <div>
-          Cache &rarr; Reads: {user.dbUse.cache.docReads}, Writes: {user.dbUse.cache.writes}, QueryReads: {user.dbUse.cache.queryReads}
-        </div>
-        <div>
-          Local &rarr; Reads: {user.dbUse.local.docReads}, Writes: {user.dbUse.local.writes}, QueryReads: {user.dbUse.local.queryReads}
-        </div>
-        <div>
-          AI total &rarr; Requests: {aiTotals.requests}, Tokens Input:
-          {aiTotals.tokens.input} (Input), Output: {aiTotals.tokens.output}
-        </div>
-        {Object.entries(aiByModel).map(([name, data]) => (
-          <div key={name}>
-            {name} &rarr; Requests: {data.requests}, Tokens Input:
-            {data.inputTokens} (Input), Output: {data.outputTokens}
-          </div>
-        ))}
-      </div>
-    ) : (
-      <div>{Lang.settings.loadingDatabaseUsage}</div>
-    )}
+    <ul>
+      <li>
+        <Link to="/main/resource-usage">Ver uso de recursos</Link>
+      </li>
+    </ul>
 
     <div className="ThemeSettings">
       <div>

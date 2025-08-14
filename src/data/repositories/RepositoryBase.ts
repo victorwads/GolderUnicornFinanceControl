@@ -41,6 +41,12 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.ref = collection(this.db, this.collectionName);
   }
 
+  protected getSafeUserId(): string {
+    const userId = this.userId;
+    if (!userId) throw new Error('User not authenticated');
+    return userId;
+  }
+
   public async waitInit(): Promise<void> {
     if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === this.minimumCacheSize) {
       await this.getAll();
