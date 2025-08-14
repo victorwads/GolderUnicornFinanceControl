@@ -93,7 +93,6 @@ export default interface Translation {
     privacy: string;
     exportData: string;
     exportingData: (filename: string, current: string, max: string) => string;
-    databaseUsage: string;
     auth: string;
     logout: string;
     clearLocalCaches: string;

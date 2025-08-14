@@ -96,7 +96,6 @@ const en: Translation = {
     exportData: 'Export My Data',
     exportingData: (filename: string, current: string, max: string) =>
       `Exporting ${filename} (${current}/${max})%`,
-    databaseUsage: 'Database Usage',
     auth: 'Auth',
     logout: 'Logout',
     clearLocalCaches: 'Clear local caches',

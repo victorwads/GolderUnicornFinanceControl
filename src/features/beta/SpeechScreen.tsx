@@ -10,19 +10,15 @@ import Icon from '@components/Icons';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 
 import GroceryList from '../../features/groceries/GroceryList';
-import AIActionsParser, { AITokens } from './AIParserManager';
+import AIActionsParser from './AIParserManager';
 import { AIGroceryListConfig } from './GroceryListAiInfo';
 import { User } from '../../data/repositories/UserRepository';
 
 import getRepositories from '@repositories';
-import BaseRepository from '../../data/repositories/RepositoryBase';
-import { AIUse, sumValues } from '../../data/repositories/useUtils';
+import { get } from 'http';
+import { getCurrentCosts } from '@resourceUse';
 
 const DOLAR_PRICE = 5.5;
-const tokenPrice = {
-  dolarPerInput: 0.050 / 1000000,
-  dolarPerOutput: 0.400 / 1000000
-};
 
 const aiParser = new AIActionsParser<GroceryItemModel>(
   AIGroceryListConfig,
@@ -97,11 +93,7 @@ const SpeechScreen = () => {
     language: currentLangInfo.short
   });
 
-  const usedTokens = Object.values(BaseRepository.getDatabaseUse().ai || {})
-    .reduce((acc, tokens) => {
-      sumValues(acc, tokens as AITokens, false);
-      return acc;
-    }, { input: 0, output: 0, requests: 0 } as AIUse<number>) as Required<AIUse<number>>;
+  const currentCosts = getCurrentCosts();
 
   return (
     <Container screen spaced className="SpeechScreen">
@@ -152,10 +144,7 @@ const SpeechScreen = () => {
               <div className="speech-marquee-lang" title={Lang.speech.changeLangTooltip} onClick={() => navigate('/main/settings')}>
                 <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
                 <span className="">
-                  {Lang.speech.tokensUsed(usedTokens.input + usedTokens.output, (DOLAR_PRICE * (
-                    (usedTokens.input * tokenPrice.dolarPerInput) + 
-                    (usedTokens.output * tokenPrice.dolarPerOutput)
-                  )).toFixed(4).replace('.', ','))}
+                  {Lang.speech.tokensUsed(currentCosts.tokens, (DOLAR_PRICE * currentCosts.dolars).toFixed(4).replace('.', ','))}
                 </span>
               </div>
             </div>

@@ -10,19 +10,9 @@ import {
 } from "firebase/firestore";
 
 import { DocumentModel } from "@models";
-import {
-  incrementUseValues,
-  ResourceUseNode,
-  DatabasesUse,
-  createEmptyUse,
-  sumValues,
-  AIUse,
-} from "./useUtils";
+import { addResourceUse } from "./ResourcesUseRepositoryShared";
 
 const queryField: keyof DocumentModel = "_updatedAt";
-const DB_USE = "dbUse";;
-const SAVED_CACHE = localStorage.getItem(DB_USE);
-let updateUse = true; let saveUse = true;
 
 export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
@@ -41,7 +31,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.ref = collection(this.db, this.collectionName);
   }
 
-  protected getSafeUserId(): string {
+  protected get safeUserId(): string {
     const userId = this.userId;
     if (!userId) throw new Error('User not authenticated');
     return userId;
@@ -82,7 +72,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     const queryResult = await getDocsFromCache(
       fieldsFilter ? await this.createQuery(fieldsFilter) : this.ref
     );
-    BaseRepository.addUse({
+    addResourceUse({
       db: {
         local: { queryReads: 1, docReads: queryResult.docs.length },
         cache: { writes: queryResult.docs.length }
@@ -103,13 +93,13 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected addToCache(model: Model): void {
     this.minimumCacheSize++;
     BaseRepository.cache[this.collectionName][model.id] = model;
-    BaseRepository.addUse({
+    addResourceUse({
       db: { cache: { writes: 1 } }
     });    
   }
 
   public getLocalById(id?: string): Model | undefined {
-    BaseRepository.addUse({
+    addResourceUse({
       db: { cache: { docReads: 1 } }
     });
 
@@ -131,7 +121,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     }
 
     BaseRepository.cache[this.collectionName][model.id] = model;
-    BaseRepository.addUse({
+    addResourceUse({
       db: {
         remote: { writes: 1 },
         local: { writes: 1 },
@@ -152,7 +142,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     }
 
     await batch.commit();
-    BaseRepository.addUse({
+    addResourceUse({
       db: {
         remote: { writes: models.length },
         local: { writes: models.length },
@@ -164,7 +154,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   public getCache(): Model[] {
     const result = Object.values(BaseRepository.cache[this.collectionName] || {}) as Model[];
 
-    BaseRepository.addUse({
+    addResourceUse({
       db: { cache: { queryReads: 1, docReads: result.length } }
     });
     return result;
@@ -172,7 +162,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
 
   protected async getLastUpdatedValue(): Promise<any> {
     const queryResult = await getDocsFromCache(query(this.ref, orderBy(queryField, "desc"), limit(1)));
-    BaseRepository.addUse({
+    addResourceUse({
       db: { local: { queryReads: 1, docReads: queryResult.docs.length } }
     });
     return queryResult.docs[0]?.data()[queryField];
@@ -251,7 +241,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     }
     queryResult
       .then((snap) => {
-        BaseRepository.addUse({
+        addResourceUse({
           db: { remote: { queryReads: 1, docReads: snap.docs.length } }
         });
       })
@@ -266,46 +256,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   private static cache: { [key: string]: { [key: string]: DocumentData } } = {};
-  private static use: DatabasesUse = SAVED_CACHE ? JSON.parse(SAVED_CACHE) : createEmptyUse();
-
-  public static getDatabaseUse(): DatabasesUse {
-    return BaseRepository.use;
-  }
-
-  public static updateUserUse = async (data: DocumentData) => { };
-
-  public static async addUse(additions: DatabasesUse) {
-    const use = BaseRepository.use;
-    sumValues(use, additions, false);
-
-    console.log('Database use updated:', use);
-    if (saveUse && (
-      use.db?.remote?.writes ||
-      (use.db?.remote?.docReads ?? 0) > 20 ||
-      Object.entries(use).some(([, value]) => {
-        return ((value as AIUse)?.requests || 0) > 1
-      })
-    )) {
-      saveUse = false;
-      setTimeout(async () => {
-        saveUse = true;
-
-        console.log('Database use saving:', use);
-        sumValues(BaseRepository.use, { remote: { writes: 1 } }, false);
-        await BaseRepository.updateUserUse(incrementUseValues(use));
-        BaseRepository.use = {};
-        localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
-      }, 10000);
-    };
-
-    if (updateUse) {
-      updateUse = false;
-      setTimeout(() => {
-        updateUse = true;
-        localStorage.setItem(DB_USE, JSON.stringify(BaseRepository.use));
-      }, 1000);
-    };
-  }
 
   protected getErrorHanlder(name: 'adding' | 'listing' | 'setting', ...args: any[]) {
     return (e: Error) => {

@@ -2,9 +2,7 @@ import { OpenAI } from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/index';
 
 import StreamedJsonArrayParser from './StreamedJsonArrayParser';
-import RepositoryBase from '../../data/repositories/RepositoryBase';
 
-type Model = 'gpt-5-nano' | 'gpt-5-mini' | 'gpt-4_1-nano';
 const STOREAGE_KEY = 'currentGroceryList';
 const CHAT_HISTORY_SIZE = 2;
 const n = (id: string|undefined|null): string => id?.toString().trim().toLowerCase() || '';

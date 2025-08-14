@@ -5,27 +5,12 @@ import { DocumentModel } from '@models';
 
 import { Collections } from "../firebase/Collections";
 import RepositoryWithCrypt from './RepositoryWithCrypt';
-import BaseRepository from './RepositoryBase';
-import {
-  DatabasesUse,
-  sumValues,
-  ResourceUseNode,
-  createEmptyUse,
-  FirestoreDatabasesUse,
-} from './useUtils';
 
-export class User extends DocumentModel {
-  public dbUse?: DatabasesUse;
-}
+export class User extends DocumentModel {}
 
 export default class UserRepository extends RepositoryWithCrypt<User> {
   constructor() {
     super(Collections.Users, User);
-
-    BaseRepository.updateUserUse = async (dbUse: FirestoreDatabasesUse) => {
-      this.updateUserData({ dbUse: { ...dbUse, encrypted: false } });
-      UserRepository.userTotalCache = undefined;
-    };
   }
 
   public override async waitInit(): Promise<void> { }
@@ -43,34 +28,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
   }
 
   public async getUserData(): Promise<User> {
-    const userId = getAuth().currentUser?.uid;
-    if (!userId) throw new Error('User not authenticated');
-
-    let model;
-    if (UserRepository.userTotalCache) {
-      model = new User(userId);
-      model.dbUse = UserRepository.userTotalCache;
-    } else {
-      const user = await getDoc(doc(this.ref, userId));
-      BaseRepository.addUse({
-        db: { remote: { docReads: 1 } },
-      });
-      model = await this.fromFirestore(user.id, user.data());
-      UserRepository.userTotalCache = model.dbUse;
-    }
-
-    const currentUse = BaseRepository.getDatabaseUse();
-    if (model.dbUse) {
-      sumValues(model.dbUse as ResourceUseNode, currentUse as ResourceUseNode);
-    } else {
-      model.dbUse = sumValues(
-        createEmptyUse() as ResourceUseNode,
-        currentUse as ResourceUseNode
-      ) as DatabasesUse;
-    }
-
-    return model;
+    const user = await getDoc(doc(this.ref, this.safeUserId));
+    return await this.fromFirestore(user.id, user.data());;
   }
-
-  public static userTotalCache?: DatabasesUse;
 }

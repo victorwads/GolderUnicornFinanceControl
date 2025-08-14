@@ -95,7 +95,6 @@ const hi: Translation = {
     privacy: 'गोपनीयता',
     exportData: 'मेरा डेटा निर्यात करें',
     exportingData: (filename: string, current: string, max: string) => `${filename} निर्यात हो रहा है (${current}/${max})%`,
-    databaseUsage: 'डेटाबेस उपयोग',
     auth: 'प्रमाणीकरण',
     logout: 'लॉगआउट',
     clearLocalCaches: 'स्थानीय कैश साफ़ करें',

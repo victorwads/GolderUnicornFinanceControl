@@ -85,7 +85,6 @@ const es: Translation = {
     exportData: 'Exportar Mis Datos',
     exportingData: (filename: string, current: string, max: string) =>
       `Exportando ${filename} (${current}/${max})%`,
-    databaseUsage: 'Uso de la Base de Datos',
     auth: 'Autenticación',
     logout: 'Cerrar sesión',
     clearLocalCaches: 'Borrar cachés locales',

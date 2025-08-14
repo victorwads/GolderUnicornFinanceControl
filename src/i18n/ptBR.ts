@@ -96,7 +96,6 @@ const ptBR: Translation = {
     exportData: 'Exportar Meus Dados',
     exportingData: (filename: string, current: string, max: string) =>
       `Exportando ${filename} (${current}/${max})%`,
-    databaseUsage: 'Uso do Banco de Dados',
     auth: 'Autenticação',
     logout: 'Sair',
     clearLocalCaches: 'Limpar caches locais',

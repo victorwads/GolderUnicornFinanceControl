@@ -85,7 +85,6 @@ const zh: Translation = {
     exportData: '导出我的数据',
     exportingData: (filename: string, current: string, max: string) =>
       `正在导出 ${filename} (${current}/${max})%`,
-    databaseUsage: '数据库使用情况',
     auth: '认证',
     logout: '登出',
     clearLocalCaches: '清除本地缓存',

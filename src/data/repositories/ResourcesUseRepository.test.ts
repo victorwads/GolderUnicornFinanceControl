@@ -1,21 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { increment } from 'firebase/firestore';
-
-import { createEmptyUse, DatabasesUse, incrementUseValues, sumValues } from './useUtils';
+import { incrementUseValues, sumValues } from './ResourcesUseRepository';
 
 describe('useUtils', () => {
-  describe('createEmptyUse', () => {
-    it('deve criar uma estrutura vazia com contadores 0 e ai vazio', () => {
-      const use = createEmptyUse();
-      expect(use).toEqual({
-        remote: { queryReads: 0, docReads: 0, writes: 0 },
-        local: { queryReads: 0, docReads: 0, writes: 0 },
-        cache: { queryReads: 0, docReads: 0, writes: 0 },
-        ai: {},
-      });
-    });
-  });
-
   describe('incrementUseValues', () => {
     it('deve transformar números em sentinelas increment nos níveis de topo', () => {
       const input = { queryReads: 2, docReads: 3, writes: 1 } as any;
@@ -104,7 +91,7 @@ describe('useUtils', () => {
         },
       };
 
-      const result = sumValues<DatabasesUse>(target, additional);
+      const result = sumValues(target, additional);
       expect(result).toEqual({
         remote: { writes: 3, docReads: 5 },
         ai: {

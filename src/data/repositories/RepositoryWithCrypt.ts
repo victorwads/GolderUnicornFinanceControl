@@ -8,6 +8,7 @@ import { DocumentModel } from "@models";
 
 import Encryptor from "../crypt/Encryptor";
 import BaseRepository from "./RepositoryBase";
+import { addResourceUse } from "./ResourcesUseRepositoryShared";
 
 export default abstract class RepositoryWithCrypt<Model extends DocumentModel> extends BaseRepository<Model> {
 
@@ -85,7 +86,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
       }
 
       await batch.commit();
-      BaseRepository.addUse({
+      addResourceUse({
         db: { remote: { writes } }
       });
     }
