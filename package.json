@@ -1,10 +1,12 @@
 {
-  "name": "Back",
+  "name": "importer",
   "version": "1.0.0",
+  "private": true,
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "tsx src/index.ts"
+    "fullUser": "tsx src/fullUser.ts",
+    "resourceUseMigration": "tsx src/resourceUseMigration.ts"
   },
   "dependencies": {
     "chalk": "^5.4.1",
