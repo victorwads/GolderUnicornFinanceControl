@@ -1,59 +1,44 @@
-import { increment } from 'firebase/firestore';
+import { FieldValue, increment } from 'firebase/firestore';
 
-// Generic node describing a hierarchy of resource usage values
-export interface ResourceUseNode {
-  [key: string]: number | ResourceUseNode;
+export interface ResourceUseNode<T = number> {
+  [key: string]: T | ResourceUseNode<T> | undefined;
 }
 
-// Represents usage for a given AI model
-export interface AIModelUse {
-  inputTokens: number;
-  outputTokens: number;
-  requests: number;
+export interface AIUse<T = number> extends ResourceUseNode<T> {
+  input?: T;
+  output?: T;
+  requests?: T;
 }
 
-// Root structure for resource usage allowing additional dynamic nodes
-export interface ResourceUse extends ResourceUseNode {
-  ai: Record<string, AIModelUse>;
+export interface DatabaseUse<T = number> extends ResourceUseNode<T> {
+  queryReads?: T;
+  docReads?: T;
+  writes?: T;
 }
 
-export interface DatabaseUse {
-  queryReads: number;
-  docReads: number;
-  writes: number;
+export interface DatabasesUse<T = number> extends ResourceUseNode<T> {
+  remote: DatabaseUse<T>;
+  local: DatabaseUse<T>;
+  cache: DatabaseUse<T>;
+  ai: {
+    [model: string]: AIUse<T>
+  };
 }
 
-export interface OpenAIUse {
-  tokens: { input: number; output: number };
-  requests: number;
-}
-
-export interface DatabasesUse extends ResourceUse {
-  remote: DatabaseUse;
-  local: DatabaseUse;
-  cache: DatabaseUse;
-  openai: OpenAIUse;
-}
-
-// Firestore increment structure
-export type FirestoreUseNode = Record<
-  string,
-  ReturnType<typeof increment> | FirestoreUseNode
->;
+export type FirestoreDatabasesUse = Partial<DatabaseUse<FieldValue>>
 
 export const createEmptyUse = (): DatabasesUse => ({
   remote: { queryReads: 0, docReads: 0, writes: 0 },
   local: { queryReads: 0, docReads: 0, writes: 0 },
   cache: { queryReads: 0, docReads: 0, writes: 0 },
-  openai: { tokens: { input: 0, output: 0 }, requests: 0 },
   ai: {},
 });
 
 export const incrementUseValues = (
-  obj: ResourceUseNode
-): FirestoreUseNode => {
-  const result: FirestoreUseNode = {};
-  for (const [key, value] of Object.entries(obj || {})) {
+  use: DatabasesUse
+): FirestoreDatabasesUse => {
+  const result: FirestoreDatabasesUse = {};
+  for (const [key, value] of Object.entries(use)) {
     if (typeof value === 'number') {
       result[key] = increment(value);
     } else if (value) {
@@ -66,22 +51,33 @@ export const incrementUseValues = (
   return result;
 };
 
-// Mutates target by summing values from source recursively
-export const sumValues = (
-  target: ResourceUseNode = {},
-  source: ResourceUseNode = {}
-): ResourceUseNode => {
-  for (const [key, value] of Object.entries(source || {})) {
-    const current = (target as any)[key];
+export const sumValues = <T extends ResourceUseNode>(
+  source: Partial<T> = {},
+  adition: Partial<T> = {}
+): Partial<T> => {
+  const result = copyRecursive(source);
+  for (const [key, value] of Object.entries(adition)) {
+    const current = source[key];
     if (typeof value === 'number') {
-      (target as any)[key] = (typeof current === 'number' ? current : 0) + value;
+      result[key] = (typeof current === 'number' ? current : 0) + value;
     } else {
       if (typeof current !== 'object' || current === null) {
-        (target as any)[key] = {};
+        result[key] = {};
       }
-      sumValues((target as any)[key], value);
+      result[key] = sumValues(source[key] as ResourceUseNode, value);
     }
   }
-  return target;
+  return result as Partial<T>;
 };
 
+function copyRecursive(obj: ResourceUseNode): ResourceUseNode {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+
+  const copy: ResourceUseNode = {};
+  for (const [key, value] of Object.entries(obj)) {
+    copy[key] = copyRecursive(value as any);
+  }
+  return copy;
+}
