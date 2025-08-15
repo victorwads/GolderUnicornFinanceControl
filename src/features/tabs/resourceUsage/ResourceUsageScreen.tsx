@@ -21,7 +21,7 @@ const ResourceUsageScreen: React.FC = () => {
       <ContainerScrollContent>
         {!usersUsages.length && <ResourceUsageView usage={usage} title="Resources Usages (Beta)" />}
         {usersUsages.map(userUsage => 
-          <ResourceUsageView usage={userUsage.use} title={"User " + userUsage.id} />
+          <ResourceUsageView usage={userUsage.use} title={"User " + userUsage.id} hide />
         )}
       </ContainerScrollContent>
     </Container>
@@ -31,7 +31,8 @@ const ResourceUsageScreen: React.FC = () => {
 const ResourceUsageView: React.FC<{ 
   usage?: ResourceUsage
   title: string
-}> = ({ usage, title }) => {
+  hide?: boolean
+}> = ({ usage, title, hide = false }) => {
   const currentCosts = getCurrentCosts(usage?.ai);
   const aiEntries = Object.entries(usage?.ai || {});
   const aiTotals = aiEntries.reduce(
@@ -47,7 +48,7 @@ const ResourceUsageView: React.FC<{
 return <>
     <h2>{title}</h2>
     <section className="database-usage">
-      <h3>Database</h3>
+      {!hide && <h3>Database</h3>}
       <div className="cards-grid">
         {Object.entries(usage.db || {}).map(([key, item]) => {
           const label = key.charAt(0).toUpperCase() + key.slice(1);
@@ -77,7 +78,7 @@ return <>
       </div>
     </section>
     <section className="ai-section">
-      <h3>AI Models</h3>
+      {!hide && <h3>AI Models</h3>}
       {aiEntries.length === 0 ? (
         <p>Sem dados de uso de IA.</p>
       ) : (
@@ -97,7 +98,7 @@ return <>
             </div>
             <div>
               <span>Estimated Cost</span>
-              <span>R$ {(currentCosts.dolars * 5.6).toFixed(6)}</span>
+              <span>R$ {(currentCosts.dolars * 5.6).toFixed(4)}</span>
             </div>             
           </div>
           <div>
