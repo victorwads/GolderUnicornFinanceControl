@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Button from "@components/Button";
@@ -14,6 +14,9 @@ import getRepositories from "@repositories";
 
 import BankInfo from "../banks/BankInfo";
 import CategoryListItem from "../categories/CategoryListItem";
+import AIMicrophone from "@components/voice/AIMicrophone";
+import AIActionsParser, { AIItemWithAction } from "@features/beta/AIParserManager";
+import { RegistryAiConfig, RegistryAiItem, RegistryAiNormalizer } from "./RegistryAiInfo";
 
 const RegistryScreenForm = () => {
   const { id } = useParams();
@@ -29,6 +32,11 @@ const RegistryScreenForm = () => {
     return getRepositories().accountRegistries.getLocalById(id);
   }, [id]);
 
+  const parser = useMemo(
+    () => new AIActionsParser<RegistryAiItem>(RegistryAiConfig, RegistryAiNormalizer),
+    []
+  );
+
   const [description, setDescription] = useState("");
   const [value, setValue] = useState(0);
   const [date, setDate] = useState<Date | null>(new Date());
@@ -36,6 +44,28 @@ const RegistryScreenForm = () => {
   const [accountId, setAccountId] = useState<string | undefined>();
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const navigate = useNavigate();
+
+  const handleAiAction = useCallback(
+    (action: AIItemWithAction<Partial<RegistryAiItem>>) => {
+      if (action.description !== undefined) setDescription(action.description);
+      if (typeof action.value === 'number') setValue(action.value);
+      if (action.date) setDate(new Date(action.date));
+      if (action.paid !== undefined) setPaid(action.paid);
+      if (action.accountName) {
+        const acc = accounts.find(
+          a => a.name.toLowerCase() === action.accountName!.toLowerCase()
+        );
+        if (acc) setAccountId(acc.id);
+      }
+      if (action.categoryName) {
+        const cat = getRepositories().categories
+          .getCache()
+          .find(c => c.name.toLowerCase() === action.categoryName!.toLowerCase());
+        if (cat) setCategoryId(cat.id);
+      }
+    },
+    [accounts]
+  );
 
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
@@ -131,6 +161,7 @@ const RegistryScreenForm = () => {
         <Button text={Lang.commons.cancel} onClick={() => navigate(-1)} />
         <Button text={Lang.commons.save} onClick={saveRegistry} />
       </div>
+      <AIMicrophone parser={parser} onAction={handleAiAction} />
     </ModalScreen>
   );
 };
