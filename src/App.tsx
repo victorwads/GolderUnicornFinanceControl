@@ -10,6 +10,7 @@ import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
 import LoginScreen from '@features/login/LoginScreen';
 import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
+import TimelineFilterScreen from '@features/tabs/timeline/TimelineFilterScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
   { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/categories', element: <CategoriesScreen /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
+  { path: '/timeline/filters', element: <TimelineFilterScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
   { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
   { path: '/beta/speech', element: <SpeechScreen /> },

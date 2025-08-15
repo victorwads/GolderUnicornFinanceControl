@@ -16,6 +16,8 @@ export default defineConfig({
       '@repositories': resolve(rootDir, 'src/data/repositories'),
       '@components': resolve(rootDir, 'src/components'),
       '@features': resolve(rootDir, 'src/features'),
+      '@utils': resolve(rootDir, 'src/data/utils'),
+      '@resourceUse': resolve(rootDir, 'src/data/repositories/ResourcesUseRepositoryShared.ts'),
     },
   },
 });

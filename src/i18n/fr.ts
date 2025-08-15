@@ -18,6 +18,10 @@ const fr: Translation = {
     balance: 'Solde',
     clearFilter: 'Afficher tout',
     registryCount: 'Enregistrements',
+    filters: 'Filtres',
+    from: 'De',
+    to: 'À',
+    apply: 'Appliquer',
   },
   accounts: {
     title: 'Comptes',

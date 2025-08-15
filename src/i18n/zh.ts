@@ -18,6 +18,10 @@ const zh: Translation = {
     balance: '余额',
     clearFilter: '显示全部',
     registryCount: '记录',
+    filters: '筛选',
+    from: '从',
+    to: '到',
+    apply: '应用',
   },
   accounts: {
     title: '账户',

@@ -43,6 +43,24 @@
   margin-right: 5px;
 }
 
+.FilterButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: var(--bg-color-highlight);
+  margin-right: var(--spacing-md);
+}
+
+.FilterButton:hover {
+  background-color: var(--bg-color-shadow);
+}
+
 .RegistryCount {
   padding: var(--spacing-md) 0;
   font-weight: bold;
