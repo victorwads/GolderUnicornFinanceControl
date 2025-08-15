@@ -7,7 +7,7 @@ name: (pretty product description with weight, details, avoid duplicates)
 opened?: ( true if the package is in use or opened )
 quantity?: (integer of how many packages are there)
 location?: (where the item is stored)
-expirationDate?: string
+expirationDate?: string (when the products will expire)
 paidPrice?: number
 `,
   outputExample: `

@@ -59,7 +59,7 @@ const SpeechScreen = () => {
 
       resetTranscript(); // limpa para capturar próximas falas
       try {
-        const result = await aiParser.parse(textToProcess);
+        const result = await aiParser.parse(textToProcess, currentLangInfo.short);
       } finally {
         setProcessingQueue(q => q.filter(t => t.id !== id));
       }

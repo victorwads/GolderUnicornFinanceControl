@@ -43,6 +43,7 @@ export function setLanguage(language?: Lang) {
   }
   window.CurrentLang = language;
   window.Lang = getCurrentLangInfo().lang;
+  window.ThemeSettings?.setLang(language);
 }
 
 setLanguage(localStorage.getItem('lang') as Lang);

@@ -5,6 +5,10 @@
     --bg-color-input: #CCC;
     --bg-color-highlight: rgba(0, 0, 0, 0.08);
     --bg-color-shadow: rgba(0, 0, 0, 0.25);
+    
+    --bg-step-1: rgba(30, 120, 255, 0.04);
+    --bg-step-2: rgba(30, 120, 255, 0.07);
+    --bg-step-3: rgba(30, 120, 255, 0.12);
 
     --font-color-default: #333;
     --font-color-link: blue;
@@ -22,6 +26,10 @@
     --bg-color-input: #555;
     --bg-color-highlight: rgba(0, 0, 0, 0.1);
     --bg-color-shadow: rgba(255, 255, 255, 0.25);
+    
+    --bg-step-1: rgba(128, 90, 200, 0.06); /* subtle purple */
+    --bg-step-2: rgba(128, 90, 200, 0.10);
+    --bg-step-3: rgba(128, 90, 200, 0.16);
 
     --font-color-default: #f5f5f5;
     --font-color-link: #bbb;

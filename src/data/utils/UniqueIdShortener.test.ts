@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { UniqueIdShortener } from './minUniquePrefix';
+import { UniqueIdShortener } from './UniqueIdShortener';
 
 const fireChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const randomFirestoreId = () => Array.from({ length: 20 }, () => fireChars[Math.floor(Math.random() * fireChars.length)]).join('');

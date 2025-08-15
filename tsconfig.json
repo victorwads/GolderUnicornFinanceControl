@@ -24,6 +24,7 @@
       "@models": ["src/data/models"],
       "@repositories": ["src/data/repositories"],
       "@resourceUse": ["src/data/repositories/ResourcesUseRepositoryShared.ts"],
+      "@utils/*": ["src/data/utils/*"],
       "@components/*": ["src/components/*"],
       "@features/*": ["src/features/*"],
       "@lang": ["src/i18n"]

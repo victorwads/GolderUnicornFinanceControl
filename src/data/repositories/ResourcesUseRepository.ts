@@ -1,14 +1,19 @@
 import { doc, getDoc, getDocs, increment } from "firebase/firestore";
 
+import getBroadcastChannel from "@utils/Broadcast";
+
 import BaseRepository from "./RepositoryBase";
 import { Collections } from "../firebase/Collections";
-import { ResourceUsage, FirestoreDatabasesUse, ResourcesUseRepository as Interface, ResourceUseNode, setInstance, ResourcesUseModel } from "./ResourcesUseRepositoryShared";
+import { 
+  ResourceUsage, FirestoreDatabasesUse, ResourcesUseRepository as Interface, 
+  ResourceUseNode, setInstance, ResourcesUseModel, ResourceUseChannel
+} from "./ResourcesUseRepositoryShared";
 
+const CACHE_KEY = "dbUse-";
 const MIN_READS_TO_SEND = 100;
 const MIN_WRITES_TO_SEND = 10;
 const MIN_AI_REQUESTS_TO_SEND = 1;
 const MAX_SECONDS_WITHOUT_SENDING = 60 * 5;
-const CACHE_KEY = "dbUse-";
 const REPORT_USERS = ["fUztrRAGqQZ3lzT5AmvIki5x0443"]
 
 export default class ResourcesUseRepository extends BaseRepository<ResourcesUseModel> implements Interface {
@@ -24,23 +29,31 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
     return this.totalCache;
   }
 
-  public add(additions: ResourceUsage) {
-    sumValues(this.toSendCache, additions, false);
+  public add(additions: ResourceUsage): void {
+    this._add(additions);
     this.saveSendCache();
     this.checkShouldSendToDB();
+    ResourceUseChannel.publish('addition', additions);
   }
 
   public async getAllUsersUsage(): Promise<ResourcesUseModel[]> {
     if (!REPORT_USERS.includes(this.safeUserId)) return []
         
     const users = await getDocs(this.ref);
-    return users.docs.map(doc => new ResourcesUseModel(doc.id, doc.data()));
+    return users.docs
+      .filter(doc => doc.id !== this.safeUserId)
+      .map(doc => new ResourcesUseModel(doc.id, doc.data()));
   }
 
   override async reset(userId?: string): Promise<void> {
     super.reset(userId);
     this.initCaches();
     setInstance(this);
+  }
+
+  public _add(additions: ResourceUsage): void {
+    sumValues(this.toSendCache, additions, false);
+    sumValues(this.totalCache, additions, false);
   }
 
   private get cacheKey(): string {

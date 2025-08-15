@@ -49,7 +49,7 @@ export class UniqueIdShortener<T extends { id: string }> {
     return this.minLength;
   }
 
-  shorten(): (Omit<T, 'id'> & { id: string })[] {
+  shorten(): T[] {
     this.ensure();
     const len = this.minLength;
     return this.items.map(i => ({ ...i, id: i.id.slice(0, len) }));

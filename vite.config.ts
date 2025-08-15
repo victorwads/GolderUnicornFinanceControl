@@ -26,6 +26,7 @@ export default defineConfig({
       '@models': resolve(rootDir, 'src/data/models'),
       '@repositories': resolve(rootDir, 'src/data/repositories'),
       '@resourceUse': resolve(rootDir, 'src/data/repositories/ResourcesUseRepositoryShared.ts'),
+      '@utils': resolve(rootDir, 'src/data/utils'),
       '@components': resolve(rootDir, 'src/components'),
       '@features': resolve(rootDir, 'src/features'),
       '@lang': resolve(rootDir, 'src/i18n'),

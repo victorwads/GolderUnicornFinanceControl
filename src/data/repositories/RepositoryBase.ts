@@ -41,7 +41,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === this.minimumCacheSize) {
       await this.getAll();
       const length = Object.keys(BaseRepository.cache[this.collectionName]).length;
-      console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
+      // console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
     }
   }
 

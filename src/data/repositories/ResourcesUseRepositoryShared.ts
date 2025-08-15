@@ -1,9 +1,12 @@
 import { FieldValue } from "firebase/firestore";
 import { DocumentModel } from "@models";
+import getBroadcastChannel from "@utils/Broadcast";
+
+let STATIC_INSTANTE: ResourcesUseRepository | null = null;
+const CHANNEL_NAME = "ResourcesUseRepository";
+const MILION = 1000000;
 
 type Dolar = number
-type AiModel = "gpt-5-nano" | "gpt-5-mini" | "gpt-4.1-nano" | "gpt-4.1-mini";
-const MILION = 1000000;
 const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
   "gpt-5-nano": { input: 0.05, output: 0.40},
   "gpt-5-mini": { input: 0.25, output: 2.00 },
@@ -12,13 +15,13 @@ const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
 };
 TOKEN_PRICES['legacy'] = TOKEN_PRICES['gpt-4.1-mini'];
 
-let STATIC_INSTANTE: ResourcesUseRepository | null = null;
 export class ResourcesUseModel extends DocumentModel {
-
   constructor(id: string, public use?: ResourceUsage) {
     super(id);
   }
 }
+
+export const ResourceUseChannel = getBroadcastChannel<UsageMsgTypes, ResourceUsage>(CHANNEL_NAME);
 
 export function setInstance(instance: typeof STATIC_INSTANTE): void {
   STATIC_INSTANTE = instance
@@ -47,6 +50,9 @@ export function getCurrentCosts(uses?: AIUses): {
   return { tokens: totalTokens, dolars: totalDolar };
 }
 
+export type UsageMsgTypes = 'addition'
+export type AiModel = "gpt-5-nano" | "gpt-5-mini" | "gpt-4.1-nano" | "gpt-4.1-mini";
+
 export interface ResourcesUseRepository {
   currentUse: ResourceUsage;
   add: (additions: ResourceUsage) => void;
@@ -63,8 +69,8 @@ interface ResourceUse<T = number> extends ResourceUseNode<T> {
 }
 
 export interface AIUse<T = number> extends ResourceUseNode<T> {
-  input: T;
-  output: T;
+  input?: T;
+  output?: T;
   requests?: T;
 }
 
@@ -82,3 +88,8 @@ export interface ResourceUsage<T = number> extends ResourceUseNode<T> {
 }
 
 export type FirestoreDatabasesUse = Partial<ResourceUse<FieldValue>>;
+
+ResourceUseChannel.subscribe((type, payload) => {
+  if (type !== 'addition') return;
+  (STATIC_INSTANTE as any)?._add(payload);
+});
