@@ -96,7 +96,6 @@ const en: Translation = {
     exportData: 'Export My Data',
     exportingData: (filename: string, current: string, max: string) =>
       `Exporting ${filename} (${current}/${max})%`,
-    databaseUsage: 'Database Usage',
     auth: 'Auth',
     logout: 'Logout',
     clearLocalCaches: 'Clear local caches',
@@ -135,7 +134,7 @@ const en: Translation = {
     placeholderNotListening: 'Press the button to speak',
     browserNotSupported: 'Browser does not support speech recognition.',
     changeLangTooltip: 'Click to change the language',
-    tokensUsed: (tokens: number) => `Used: ${tokens} Tokens,`
+    tokensUsed: (tokens: number, price: string) => `Used: ${tokens} Tokens, R$ ${price}`
   }
 };
 

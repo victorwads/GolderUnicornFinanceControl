@@ -27,16 +27,9 @@ const CHUNK_SIZE = 100;
 const SettingsScreen = () => {
 
   const { theme, setTheme, density, setDensity } = useCssVars();
-  const [user, setUser] = useState<User>()
   const [progress, setProgress] = useState<Progress | null>(null);
   const [encryptionDisabled, setEncryptionDisabled] = useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
   const [language, setCurrentLanguage] = useState<string>(SavedLang || "");
-
-  useEffect(() => {
-    getRepositories().user.getUserData().then((user) => {
-      setUser(user)
-    });
-  }, []);
 
   useEffect(() => {
     localStorage.setItem('theme', theme)
@@ -115,16 +108,19 @@ const SettingsScreen = () => {
   return <Container spaced className="SettingsScreen"><ContainerScrollContent>
     <h2>{Lang.settings.title}</h2>
 
+    <h3>Dev Features</h3>
+    {window.isDevelopment && <ul>
+      <li><a onClick={clearFirestore}>{Lang.settings.clearLocalCaches}</a></li>
+      <li><a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a></li>
+    </ul>}
+
     <h3>Beta Features</h3>
     <ul>
-      <li><Link to={'/beta/speech'}>Groceries Speech Recognition (Alpha Stage)</Link></li>
-    </ul>
-
-    <h3>{Lang.settings.data}</h3>
-    <ul>
+      <li><Link to="/main/resource-usage">Ver uso de recursos</Link></li>
       <li><Link to={'/categories'}>{Lang.categories.title}</Link></li>
       <li><Link to={'/accounts'}>{Lang.accounts.title}</Link></li>
-      <li><Link to={'/creditcards'}>{Lang.creditcards.title}</Link></li>
+      <li>(Alpha Stage) <Link to={'/beta/speech'}>Groceries Speech Recognition</Link></li>
+      <li>(Alpha Stage) <Link to={'/creditcards'}>{Lang.creditcards.title}</Link></li>
     </ul>
     <h3>{Lang.settings.privacy}</h3>
     <ul>
@@ -142,26 +138,13 @@ const SettingsScreen = () => {
         </>}
       </div>}
     </ul>
-    <h3>{Lang.settings.databaseUsage}</h3>
-    {user?.dbUse ? (
-      <div className="db-usage">
-        <div>
-          Remote &rarr; Reads: {user.dbUse.remote.docReads}, Writes: {user.dbUse.remote.writes}, QueryReads: {user.dbUse.remote.queryReads}
-        </div>
-        <div>
-          Cache &rarr; Reads: {user.dbUse.cache.docReads}, Writes: {user.dbUse.cache.writes}, QueryReads: {user.dbUse.cache.queryReads}
-        </div>
-        <div>
-          Local &rarr; Reads: {user.dbUse.local.docReads}, Writes: {user.dbUse.local.writes}, QueryReads: {user.dbUse.local.queryReads}
-        </div>
-        <div>
-          OpenAI &rarr; Requests: {user.dbUse.openai?.requests || 0},
-          Tokens Input: {user.dbUse.openai?.tokens?.input || 0} (Input), Output: {user.dbUse.openai?.tokens?.output || 0}
-        </div>
-      </div>
-    ) : (
-      <div>{Lang.settings.loadingDatabaseUsage}</div>
-    )}
+
+    <h3>{Lang.settings.auth}</h3>
+    <ul>
+      <li><a onClick={() => signOut(getAuth())}>{Lang.settings.logout}</a></li>
+      <li><Link to={'/accounts'}>{Lang.accounts.title}</Link></li>
+      <li><Link to={'/creditcards'}>{Lang.creditcards.title}</Link></li>
+    </ul>
 
     <div className="ThemeSettings">
       <div>
@@ -183,16 +166,6 @@ const SettingsScreen = () => {
       </div>
     </div>
 
-    <h3>{Lang.settings.auth}</h3>
-    <div>
-      <a onClick={() => signOut(getAuth())}>{Lang.settings.logout}</a>
-    </div>
-    <div></div>
-    {window.isDevelopment && <>
-      <a onClick={clearFirestore}>{Lang.settings.clearLocalCaches}</a>
-      <br />
-      <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
-    </>}
     <h3>{Lang.settings.language}</h3>
     <div>
       <select value={language} onChange={(e) => {

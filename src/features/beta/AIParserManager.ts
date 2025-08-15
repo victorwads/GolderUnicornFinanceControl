@@ -2,7 +2,6 @@ import { OpenAI } from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/index';
 
 import StreamedJsonArrayParser from './StreamedJsonArrayParser';
-import RepositoryBase from '../../data/repositories/RepositoryBase';
 
 const STOREAGE_KEY = 'currentGroceryList';
 const CHAT_HISTORY_SIZE = 2;
@@ -151,8 +150,9 @@ Context:
     ];
 
     console.log('AIParserManager withOpenAI messages:', messages);
+    const model: Model = 'gpt-5-nano';
     const stream = await this.openai.chat.completions.create({
-      model: 'gpt-5-nano',
+      model,
       messages,
       stream: true,
       stream_options: { include_usage: true },
@@ -173,11 +173,13 @@ Context:
       tokens.output += chunk?.usage?.completion_tokens || 0;
     }
 
-    RepositoryBase.updateUse((use) => {
-      use.openai = use.openai || { requests: 0, tokens: { input: 0, output: 0 } };
-      use.openai.requests++;
-      use.openai.tokens.input += tokens.input;
-      use.openai.tokens.output += tokens.output;
+    RepositoryBase.addUse({
+      ai: {
+        [model]: {
+          ...tokens,
+          requests: 1
+        }
+      }
     });
 
     this.chatHistory.push(userMessage);
@@ -192,9 +194,9 @@ Context:
 
   private initOpenAI() {
     return new OpenAI({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-      project: import.meta.env.VITE_OPENAI_PROJECT,
-      organization: import.meta.env.VITE_OPENAI_ORG,
+      apiKey: import.meta.env.VITE_MOD_K,
+      project: import.meta.env.VITE_MOD_P,
+      organization: import.meta.env.VITE_MOD_O,
       dangerouslyAllowBrowser: true,
     });
   }

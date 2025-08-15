@@ -96,7 +96,6 @@ const ptBR: Translation = {
     exportData: 'Exportar Meus Dados',
     exportingData: (filename: string, current: string, max: string) =>
       `Exportando ${filename} (${current}/${max})%`,
-    databaseUsage: 'Uso do Banco de Dados',
     auth: 'Autenticação',
     logout: 'Sair',
     clearLocalCaches: 'Limpar caches locais',
@@ -135,7 +134,7 @@ const ptBR: Translation = {
     placeholderNotListening: 'Pressione o botão para falar',
     browserNotSupported: 'Seu navegador não suporta reconhecimento de voz.',
     changeLangTooltip: 'Clique para mudar o idioma',
-    tokensUsed: (tokens: number) => `Usados: ${tokens} Tokens,`
+    tokensUsed: (tokens: number, price: string) => `Usados: ${tokens} Tokens, R$ ${price}`
   }
 };
 

@@ -11,4 +11,5 @@ export const Collections = {
     Registers: "Registers",
     Products: "GroceriesProducts",
     Groceries: "GroceriesItems",
+    ResourcesUse: "ResourcesUse",
 };

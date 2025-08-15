@@ -95,7 +95,6 @@ const hi: Translation = {
     privacy: 'गोपनीयता',
     exportData: 'मेरा डेटा निर्यात करें',
     exportingData: (filename: string, current: string, max: string) => `${filename} निर्यात हो रहा है (${current}/${max})%`,
-    databaseUsage: 'डेटाबेस उपयोग',
     auth: 'प्रमाणीकरण',
     logout: 'लॉगआउट',
     clearLocalCaches: 'स्थानीय कैश साफ़ करें',
@@ -134,7 +133,7 @@ const hi: Translation = {
     placeholderNotListening: 'बोलने के लिए बटन दबाएँ',
     browserNotSupported: 'ब्राउज़र वॉइस रिकग्निशन सपोर्ट नहीं करता।',
     changeLangTooltip: 'भाषा बदलने के लिए क्लिक करें',
-    tokensUsed: (tokens: number) => `उपयोग: ${tokens} टोकन,`
+    tokensUsed: (tokens: number, price: string) => `उपयोग: ${tokens} टोकन, R$ ${price}`
   }
 };
 

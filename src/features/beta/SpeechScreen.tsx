@@ -10,17 +10,14 @@ import Icon from '@components/Icons';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 
 import GroceryList from '../../features/groceries/GroceryList';
-import AIActionsParser, { AITokens } from './AIParserManager';
+import AIActionsParser from './AIParserManager';
 import { AIGroceryListConfig } from './GroceryListAiInfo';
-import UserRepository, { User } from '../../data/repositories/UserRepository';
+import { User } from '../../data/repositories/UserRepository';
+
 import getRepositories from '@repositories';
+import { getCurrentCosts } from '@resourceUse';
 
 const DOLAR_PRICE = 5.5;
-const tokenPrice = {
-  dolarPerInput: 0.050 / 1000000,
-  dolarPerOutput: 0.400 / 1000000
-};
-
 const aiParser = new AIActionsParser<GroceryItemModel>(
   AIGroceryListConfig,
   (item) => {
@@ -94,7 +91,7 @@ const SpeechScreen = () => {
     language: currentLangInfo.short
   });
 
-  const usedTokens = UserRepository.userTotalCache?.openai?.tokens || { input: 0, output: 0 };
+  const currentCosts = getCurrentCosts();
 
   return (
     <Container screen spaced className="SpeechScreen">
@@ -145,11 +142,7 @@ const SpeechScreen = () => {
               <div className="speech-marquee-lang" title={Lang.speech.changeLangTooltip} onClick={() => navigate('/main/settings')}>
                 <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
                 <span className="">
-                  {Lang.speech.tokensUsed(usedTokens.input + usedTokens.output)}
-                  R$ {(DOLAR_PRICE * (
-                    (usedTokens.input * tokenPrice.dolarPerInput) + 
-                    (usedTokens.output * tokenPrice.dolarPerOutput)
-                  )).toFixed(4).replace('.', ',')}
+                  {Lang.speech.tokensUsed(currentCosts.tokens, (DOLAR_PRICE * currentCosts.dolars).toFixed(4).replace('.', ','))}
                 </span>
               </div>
             </div>

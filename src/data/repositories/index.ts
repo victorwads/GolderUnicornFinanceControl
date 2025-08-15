@@ -12,6 +12,7 @@ import GroceriesRepository from './GroceriesRepository';
 
 import Encryptor from '../crypt/Encryptor';
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
+import ResourcesUseRepository from './ResourcesUseRepository';
 import CreditcardsRepository from "./CreditcardsRepository";
 
 export  { User } from "./UserRepository";
@@ -28,6 +29,7 @@ export type Repositories = {
   cardsInvoices: CreditCardInvoicesRepository;
   products: GroceriesProductsRepository;
   groceries: GroceriesRepository;
+  resourcesUse: ResourcesUseRepository;
 }
 let repositorieInstances: Repositories | null = null;
 
@@ -47,6 +49,7 @@ export async function resetRepositories(): Promise<void> {
     cardsInvoices: new CreditCardInvoicesRepository(),
     products: new GroceriesProductsRepository(),
     groceries: new GroceriesRepository(),
+    resourcesUse: new ResourcesUseRepository(),
   }
   
   debugTimestamp('Modules Initialization', initTime);
