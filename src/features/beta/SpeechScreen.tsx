@@ -15,11 +15,9 @@ import { AIGroceryListConfig } from './GroceryListAiInfo';
 import { User } from '../../data/repositories/UserRepository';
 
 import getRepositories from '@repositories';
-import { get } from 'http';
 import { getCurrentCosts } from '@resourceUse';
 
 const DOLAR_PRICE = 5.5;
-
 const aiParser = new AIActionsParser<GroceryItemModel>(
   AIGroceryListConfig,
   (item) => {

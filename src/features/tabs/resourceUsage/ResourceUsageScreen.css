@@ -1,0 +1,169 @@
+.ResourceUsageScreen {
+  color: var(--font-color-default);
+}
+
+.ResourceUsageScreen h2 {
+  font-size: 1.4rem;
+  margin: 0 0 var(--spacing-md);
+}
+
+.ResourceUsageScreen section {
+  background: var(--bg-color-default);
+  border: 1px solid var(--divider-color-soft);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.ResourceUsageScreen h3 {
+  margin: 0 0 var(--spacing-sm);
+  font-size: 1.05rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.card {
+  border: 1px solid var(--divider-color-default);
+  border-radius: 10px;
+  background: var(--bg-color-default);
+  padding: var(--spacing-md);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.badge {
+  background: var(--bg-color-highlight);
+  color: var(--primary-color);
+  font-size: 0.7rem;
+  padding: calc(var(--spacing-xxs)) calc(var(--spacing-xs));
+  border-radius: 999px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xs);
+}
+
+.metric {
+  background: var(--bg-color-highlight);
+  border: 1px dashed var(--divider-color-soft);
+  border-radius: 8px;
+  padding: var(--spacing-sm);
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.metric-value {
+  display: block;
+  font-weight: 600;
+}
+
+.ai-section > h3 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.ai-section > div:first-of-type {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.ai-section > div:first-of-type > div {
+  background: var(--bg-color-default);
+  border: 1px solid var(--divider-color-default);
+  border-radius: 10px;
+  padding: var(--spacing-sm);
+  text-align: center;
+}
+
+.ai-section > div:first-of-type > div > span:first-child {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.ai-section > div:first-of-type > div > span:last-child {
+  display: block;
+  font-weight: 600;
+}
+
+.ai-section > div:last-of-type {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.ai-section > div:last-of-type > div {
+  border: 1px solid var(--divider-color-default);
+  border-radius: 10px;
+  background: var(--bg-color-default);
+  padding: var(--spacing-md);
+}
+
+.ai-section > div:last-of-type > div > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.ai-section > div:last-of-type > div > div:first-child > span:first-child {
+  font-weight: 600;
+}
+
+.ai-section > div:last-of-type > div > div:first-child > span:last-child {
+  background: var(--bg-color-highlight);
+  color: var(--primary-color);
+  font-size: 0.7rem;
+  padding: calc(var(--spacing-xxs)) calc(var(--spacing-xs));
+  border-radius: 999px;
+}
+
+.ai-section > div:last-of-type > div > div:last-child {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xs);
+}
+
+.ai-section > div:last-of-type > div > div:last-child > div {
+  background: var(--bg-color-highlight);
+  border: 1px dashed var(--divider-color-soft);
+  border-radius: 8px;
+  padding: var(--spacing-sm);
+  text-align: center;
+}
+
+.ai-section > div:last-of-type > div > div:last-child > div > span:first-child {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.ai-section > div:last-of-type > div > div:last-child > div > span:last-child {
+  display: block;
+  font-weight: 600;
+}
+
+.back-link {
+  color: var(--font-color-link);
+}

@@ -1,18 +1,15 @@
-import { doc, getDoc, increment } from "firebase/firestore";
+import { doc, getDoc, getDocs, increment } from "firebase/firestore";
+
 import BaseRepository from "./RepositoryBase";
-import { DocumentModel } from "@models";
 import { Collections } from "../firebase/Collections";
-import { ResourceUsage, FirestoreDatabasesUse, ResourcesUseRepository as Interface, ResourceUseNode, setInstance } from "./ResourcesUseRepositoryShared";
+import { ResourceUsage, FirestoreDatabasesUse, ResourcesUseRepository as Interface, ResourceUseNode, setInstance, ResourcesUseModel } from "./ResourcesUseRepositoryShared";
 
 const MIN_READS_TO_SEND = 100;
 const MIN_WRITES_TO_SEND = 10;
 const MIN_AI_REQUESTS_TO_SEND = 1;
 const MAX_SECONDS_WITHOUT_SENDING = 60 * 5;
 const CACHE_KEY = "dbUse-";
-
-class ResourcesUseModel extends DocumentModel {
-  public use?: ResourceUsage;
-}
+const REPORT_USERS = ["fUztrRAGqQZ3lzT5AmvIki5x0443"]
 
 export default class ResourcesUseRepository extends BaseRepository<ResourcesUseModel> implements Interface {
   private lastSent: Date = new Date();
@@ -31,6 +28,13 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
     sumValues(this.toSendCache, additions, false);
     this.saveSendCache();
     this.checkShouldSendToDB();
+  }
+
+  public async getAllUsersUsage(): Promise<ResourcesUseModel[]> {
+    if (!REPORT_USERS.includes(this.safeUserId)) return []
+        
+    const users = await getDocs(this.ref);
+    return users.docs.map(doc => new ResourcesUseModel(doc.id, doc.data()));
   }
 
   override async reset(userId?: string): Promise<void> {
@@ -60,7 +64,7 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
 
     sumValues(this.totalCache, bdUse.data() || {}, false);
     sumValues(this.totalCache, this.toSendCache, false);
-}
+  }
 
   private async saveDb(): Promise<void> {
     await this.set(

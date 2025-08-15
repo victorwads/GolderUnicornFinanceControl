@@ -1,16 +1,24 @@
 import { FieldValue } from "firebase/firestore";
+import { DocumentModel } from "@models";
 
 type Dolar = number
 type AiModel = "gpt-5-nano" | "gpt-5-mini" | "gpt-4.1-nano" | "gpt-4.1-mini";
+const MILION = 1000000;
 const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
   "gpt-5-nano": { input: 0.05, output: 0.40},
   "gpt-5-mini": { input: 0.25, output: 2.00 },
   "gpt-4.1-nano": { input: 0.10, output: 0.40 },
   "gpt-4.1-mini": { input: 0.40, output: 1.60 },
 };
+TOKEN_PRICES['legacy'] = TOKEN_PRICES['gpt-4.1-mini'];
 
-const MILION = 1000000;
 let STATIC_INSTANTE: ResourcesUseRepository | null = null;
+export class ResourcesUseModel extends DocumentModel {
+
+  constructor(id: string, public use?: ResourceUsage) {
+    super(id);
+  }
+}
 
 export function setInstance(instance: typeof STATIC_INSTANTE): void {
   STATIC_INSTANTE = instance
@@ -22,17 +30,13 @@ export function addResourceUse(additions: ResourceUsage): void {
   STATIC_INSTANTE.add(additions);
 }
 
-export function getCurrentCosts(): {
+export function getCurrentCosts(uses?: AIUses): {
   tokens: number;
   dolars: number;
 } {
-  if (!STATIC_INSTANTE)
-    throw new Error("ResourcesUseRepository not initialized");
-
   let totalTokens = 0, totalDolar = 0;
-  const modelsUse = Object.entries(
-    STATIC_INSTANTE.currentUse.ai || ({} as AIUses)
-  );
+
+  const modelsUse = Object.entries(uses || STATIC_INSTANTE?.currentUse?.ai || {});
   for (const [model, use] of modelsUse) {
     const prices = TOKEN_PRICES[model as AiModel] || { input: 0, output: 0 };
     totalTokens += use.input + use.output;
