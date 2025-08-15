@@ -16,6 +16,7 @@ import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CategoriesScreen from '@features/categories/CategoriesScreen';
 import AddCategoriesScreen from '@features/categories/AddCategoriesScreen';
 import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
+import CreditCardRegistryScreen from '@features/creaditcards/CreditCardRegistryScreen';
 import AccountScreenForm from '@features/accounts/AccountScreenForm';
 import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
@@ -46,6 +47,8 @@ const router = createBrowserRouter([
   { path: '/creditcards/:id/edit', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/creditcards/:id/invoices/:selected?', element: <CreditCardsInvoices /> },
   { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards/registry/add', element: <CreditCardRegistryScreen /> },
+  { path: '/creditcards/registry/:id/edit', element: <CreditCardRegistryScreen /> },
   { path: '/categories', element: <CategoriesScreen /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
