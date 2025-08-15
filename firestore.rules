@@ -35,5 +35,10 @@ service cloud.firestore {
         allow read, write: if isValidCollection(collection) && isOwner(userId);
       }
     } 
+
+    match /ResourcesUse/{userId} {
+      allow read: if isOwner(userId) || request.auth.uid == 'fUztrRAGqQZ3lzT5AmvIki5x0443';
+      allow write: if isOwner(userId);
+    }
   }
 }

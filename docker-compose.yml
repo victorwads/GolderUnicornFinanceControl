@@ -4,19 +4,21 @@ services:
       context: ./Web
     volumes:
       - ./Web:/app
+      - web_node_modules:/app/node_modules
     command:
       - sh
       - -c
       - yarn install && yarn start
     depends_on:
       - firebase
+
   proxy:
     build:
       context: ./Web
     volumes:
-      - ./Web/proxy:/app/proxy
-      - ./Web/package.json:/app/package.json
+      - ./Web:/app
       - ./firebase.json:/app/firebase.json
+      - proxy_node_modules:/app/node_modules
     ports:
       - "443:443"
       - "80:80"
@@ -41,3 +43,7 @@ services:
       - "4000:4000"   # Emulator UI
       - "9150:9150"   # ?
     command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data
+
+volumes:
+  proxy_node_modules:
+  web_node_modules:
