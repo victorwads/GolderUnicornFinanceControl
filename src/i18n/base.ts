@@ -54,6 +54,15 @@ export default interface Translation {
     noCreditCards: string;
     addCreditCard: string;
     selectedInvoice: string;
+    editCreditCard: string;
+    cardName: string;
+    brand: string;
+    limit: string;
+    account: string;
+    closingDay: string;
+    dueDay: string;
+    creditCardCreated: string;
+    creditCardUpdated: string;
   };
   categories: {
     title: string;
