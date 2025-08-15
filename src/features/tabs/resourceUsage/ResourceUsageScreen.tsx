@@ -7,7 +7,11 @@ import getRepositories from "@repositories";
 
 import { Container, ContainerScrollContent } from "@components/conteiners";
 import ResourceUsageView from "./ResourceUsageView";
-import { UniqueIdShortener } from "@utils/UniqueIdShortener";
+  
+const users: { uid: string, email: string }[] = JSON.parse(localStorage.getItem("ACCOUNTS") || '{}');
+function getInfo(userId: string) {
+  return users.find(user => user.uid === userId)?.email || userId;
+}
 
 const ResourceUsageScreen: React.FC = () => {
   
@@ -15,10 +19,7 @@ const ResourceUsageScreen: React.FC = () => {
   const [usage, setUsage] = React.useState<ResourceUsage>(getRepositories().resourcesUse.currentUse);
 
   useEffect(() => {
-    getRepositories().resourcesUse.getAllUsersUsage().then((usages) => {
-      const shortener = new UniqueIdShortener(usages);
-      setUsersUsages(shortener.shorten());
-    })
+    getRepositories().resourcesUse.getAllUsersUsage().then(setUsersUsages)
   }, [setUsersUsages]);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const ResourceUsageScreen: React.FC = () => {
       <ContainerScrollContent>
         <ResourceUsageView usage={usage} title="Resources Usages (Beta)" />
         {usersUsages.map(userUsage => 
-          <ResourceUsageView usage={userUsage.use} title={"User " + userUsage.id} hide />
+          <ResourceUsageView usage={userUsage.use} title={"User " + getInfo(userUsage.id)} hide />
         )}
         <p>
           <Link to="/main/settings" className="back-link">
