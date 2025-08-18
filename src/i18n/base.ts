@@ -127,4 +127,5 @@ export default interface Translation {
     changeLangTooltip: string;
     tokensUsed: (tokens: number, price: string) => string; // e.g. "Used: 123 tokens,"
   };
+  subscriptions?: import("@features/subscriptions/i18n/base").default;
 }
