@@ -62,7 +62,7 @@ export interface ResourceUseNode<T = number> {
   [key: string]: T | ResourceUseNode<T> | undefined;
 }
 
-interface ResourceUse<T = number> extends ResourceUseNode<T> {
+interface DBResourceUse<T = number> extends ResourceUseNode<T> {
   queryReads?: T;
   docReads?: T;
   writes?: T;
@@ -80,14 +80,14 @@ export type AIUses<T = number, Model extends string = AiModel> = {
 
 export interface ResourceUsage<T = number> extends ResourceUseNode<T> {
   db?: {
-    remote?: ResourceUse<T>;
-    local?: ResourceUse<T>;
-    cache?: ResourceUse<T>;
+    remote?: DBResourceUse<T>;
+    local?: DBResourceUse<T>;
+    cache?: DBResourceUse<T>;
   };
   ai?: AIUses<T>;
 }
 
-export type FirestoreDatabasesUse = Partial<ResourceUse<FieldValue>>;
+export type FirestoreDatabasesUse = Partial<DBResourceUse<FieldValue>>;
 
 ResourceUseChannel.subscribe((type, payload) => {
   if (type !== 'addition') return;
