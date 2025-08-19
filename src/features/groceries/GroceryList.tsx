@@ -11,7 +11,9 @@ const GroceryList: React.FC<GroceryListProps> = ({ items }) => (
   <ul className="GroceryList">
     {items.map(item => {
       const badge = getExpirationLabel(item);
-      const isOpened = item.opened ? 'em uso / aberto' : (!badge && 'novo');
+      const validLabel = !badge ? Lang.groceries.valid : undefined;
+      const isOpened = item.opened ? 'em uso / aberto' : validLabel;
+
       const isOpenedColor = item.opened ? '#f0ad4e' : '#5cb85c';
       return (
         <li key={item.id}>

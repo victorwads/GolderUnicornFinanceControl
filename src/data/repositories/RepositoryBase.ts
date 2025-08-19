@@ -163,7 +163,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected async getLastUpdatedValue(): Promise<any> {
     const queryResult = await getDocsFromCache(query(this.ref, orderBy(queryField, "desc"), limit(1)));
     addResourceUse({
-      db: { local: { queryReads: 1, docReads: queryResult.docs.length } }
+      db: { local: { queryReads: 1, docReads: queryResult.docs.length } },
     });
     return queryResult.docs[0]?.data()[queryField];
   }
