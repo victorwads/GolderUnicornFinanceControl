@@ -1,3 +1,7 @@
+import { AI_TOKEN_RATIO } from '../planData';
+
+const { input, output } = AI_TOKEN_RATIO;
+
 const costs = [
   {
     title: 'Servidores & Banco de Dados',
@@ -11,7 +15,7 @@ const costs = [
   },
   {
     title: 'Inteligência Artificial',
-    description: 'Cada chamada à IA gera custo por token (entrada/saída de texto).',
+    description: `Cada chamada à IA gera custo por token (${input * 100}% entrada / ${output * 100}% saída).`,
     cost: '~R$ 0,02 a R$ 0,10 por 1.000 tokens'
   },
   {
@@ -42,10 +46,15 @@ const CostsExplained: React.FC = () => (
     <p><em>✨ Se você é designer ou tem experiência em UX (Experiência do Usuário), sua ajuda seria <strong>incrivelmente bem-vinda</strong>. Queremos tornar o app mais simples e acessível para pessoas com limitações de visão, motoras ou intelectuais.</em></p>
     <p>📩 Se quiser colaborar, entre em contato no Telegram: <a href="https://t.me/victorwads" target="_blank" rel="noreferrer">@victorwads</a></p>
     <h3>Como isso afeta os planos</h3>
-    <p><ul><li><strong>Plano Gratuito</strong>: custeado pelos assinantes, com limites para manter o uso viável.</li><li><strong>Plano Plus</strong>: cobre parte dos custos de IA, libera mais registros e relatórios avançados.</li><li><strong>Plano Premium</strong>: financia integrações extras, maior limite de registros e acesso prioritário a novos recursos.</li></ul></p>
-    <p>Em resumo: <strong>quanto mais avançado o plano, mais custos diretos ele cobre</strong> — e, ao mesmo tempo, mantém o plano gratuito vivo para quem precisa.</p>
+    <p><ul>
+      <li><strong>Plano Free</strong>: custeado pelos assinantes, com limites para manter o uso viável.</li>
+      <li><strong>Plano Basic</strong>: cobre parte dos custos de IA, libera mais registros e relatórios avançados.</li>
+      <li><strong>Plano Plus</strong>: melhor custo‑benefício: assistente fluido.</li>
+      <li><strong>Plano Pro</strong>: financia integrações extras, maior limite de registros e acesso prioritário a novos recursos.</li>
+    </ul></p>
+    <p>Em resumo: <strong>quanto mais avançado o plano, mais custos diretos ele cobre</strong> — e, ao mesmo tempo, mantém o plano Free vivo para quem precisa.</p>
     <h3>Reinvestindo em Todos</h3>
-    <p>Nenhum valor é retirado como lucro pessoal. Cada real arrecadado vai para pagar os custos de servidores, Firebase e IA, garantir que o plano gratuito continue existindo e trazer novos recursos e melhorias para todos.</p>
+    <p>Nenhum valor é retirado como lucro pessoal. Cada real arrecadado vai para pagar os custos de servidores, Firebase e IA, garantir que o plano Free continue existindo e trazer novos recursos e melhorias para todos.</p>
   </div>
 );
 
