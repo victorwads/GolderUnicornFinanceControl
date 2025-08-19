@@ -9,7 +9,7 @@ const SubscriptionsRouter: React.FC = () => (
   <Routes>
     <Route path="plans" element={<Plans />} />
     <Route path="why" element={<WhyWeCharge />} />
-    <Route path="why/cots" element={<CostsExplained />} />
+    <Route path="why/costs" element={<CostsExplained />} />
     <Route path="checkout/:plan" element={<Checkout />} />
     <Route path="thankyou" element={<ThankYou />} />
     <Route path="*" element={<Navigate to="plans" replace />} />
