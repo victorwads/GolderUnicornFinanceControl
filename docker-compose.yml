@@ -1,7 +1,7 @@
 services:
   web:
     build:
-      context: ./Web
+      context: ./Web/configs
     volumes:
       - ./Web:/app
       - web_node_modules:/app/node_modules
@@ -14,7 +14,7 @@ services:
 
   proxy:
     build:
-      context: ./Web
+      context: ./Web/configs
     volumes:
       - ./Web:/app
       - ./firebase.json:/app/firebase.json
@@ -32,11 +32,9 @@ services:
     build:
       context: ./emulators
     volumes:
-      - ./emulators:/app/emulators
+      - ./Firebase:/app/emulators
       - ./.firebaserc:/app/.firebaserc
       - ./firebase.json:/app/firebase.json
-      - ./firestore.rules:/app/firestore.rules
-      - ./firestore.indexes.json:/app/firestore.indexes.json
     ports:
       - "8006:8006"   # Auth
       - "8008:8008"   # Firestore

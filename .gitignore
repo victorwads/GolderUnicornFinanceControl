@@ -9,7 +9,8 @@ firebase-debug.*.log*
 
 # IDEs
 .idea/
-.vscode/
+.project
+# .vscode/
 
 # Firebase cache
 .firebase/
