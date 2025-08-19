@@ -19,6 +19,10 @@ const ptBR: Translation = {
     balance: 'Saldo',
     clearFilter: 'Mostrar todos',
     registryCount: 'Registros',
+    filters: 'Filtros',
+    from: 'De',
+    to: 'Até',
+    apply: 'Aplicar',
   },
   registry: {
     title: 'Registro',

@@ -16,6 +16,10 @@ export default interface Translation {
     balance: string;
     clearFilter: string;
     registryCount: string;
+    filters: string;
+    from: string;
+    to: string;
+    apply: string;
   };
   registry: {
     title: string;

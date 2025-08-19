@@ -1,0 +1,25 @@
+.TimelineFiltersCategories {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.TimelineFiltersCategoryOption {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  padding: var(--spacing-xs) 0;
+}
+
+.TimelineFiltersCategoryChild {
+  margin-left: var(--spacing-xl);
+}
+
+.TimelineFiltersActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
