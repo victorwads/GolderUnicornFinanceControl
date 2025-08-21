@@ -9,12 +9,13 @@ quantity?: (integer of how many packages are there)
 location?: (where the item is stored)
 expirationDate?: string (when the products will expire)
 paidPrice?: number
+toBuy?: boolean (true if the user needs to buy it, false if already owned)
 `,
   outputExample: `
 Context: there is no rice on list and he just bought it
 User: "i've bought 2 packages with 2kg of rice and the beans are gone"
 Assistant:
-[{ "action": "add", "id": "d52aadfd1", "name": "rice 5kg", quantity: 2 },{ "action": "remove", "id": "beans" }]
+[{ "action": "add", "id": "d52aadfd1", "name": "rice 5kg", quantity: 2, toBuy: false },{ "action": "remove", "id": "beans" }]
 
 Context: there is already a milk on list
 User: "the milk on refrigerator expiry to Friday"

@@ -1,3 +1,12 @@
 .SpeechScreen {
   position: relative;
 }
+
+.SpeechGroceryLists {
+  display: flex;
+  gap: 16px;
+}
+
+.SpeechGroceryColumn {
+  flex: 1;
+}

@@ -136,6 +136,8 @@ export default interface Translation {
     placeholderListeningHasItems: string;
     placeholderListeningNoItems: string;
     placeholderNotListening: string;
+    haveListTitle: string;
+    toBuyListTitle: string;
     browserNotSupported: string;
     changeLangTooltip: string;
     tokensUsed: (tokens: number, price: string) => string; // e.g. "Used: 123 tokens,"

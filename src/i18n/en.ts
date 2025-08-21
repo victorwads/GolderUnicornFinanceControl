@@ -130,10 +130,11 @@ const en: Translation = {
   speech: {
     title: 'Grocery Items',
     howToUseTitle: 'How to use',
-    intro1: 'Speak naturally about your shopping list or the items stored in your home. The assistant will try to understand what you said and add, remove or update items in the list.',
+    intro1: 'Speak naturally about groceries you already have and those you still need to buy. The assistant will understand your phrases to add, remove or update items and will separate owned items from your shopping list.',
     intro2: 'You can mention the name, expiration, whether it is opened/in use, quantity, how much you paid, where it is stored, etc.',
     examplesTitle: 'Examples:',
     examples: [
+      'I need to buy eggs and milk',
       'I bought 2 packs of rice',
       'I have 3 packs of pasta in the cabinet',
       'I have ham and cheese opened in the fridge and they will spoil in 3 days',
@@ -145,6 +146,8 @@ const en: Translation = {
     placeholderListeningHasItems: 'You can keep talking...',
     placeholderListeningNoItems: 'Tell me about your items...',
     placeholderNotListening: 'Press the button to speak',
+    haveListTitle: 'Have',
+    toBuyListTitle: 'To Buy',
     browserNotSupported: 'Browser does not support speech recognition.',
     changeLangTooltip: 'Click to change the language',
     tokensUsed: (tokens: number, price: string) => `Used: ${tokens} Tokens, R$ ${price}`

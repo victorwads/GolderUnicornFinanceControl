@@ -12,12 +12,19 @@ import { AIGroceryListConfig } from './GroceryListAiInfo';
 const SpeechScreen = () => {
   const aiParser = useMemo(
     () =>
-      new AIActionsParser<GroceryItemModel>(AIGroceryListConfig, (item) => {
-        if (item.opened !== undefined) item.opened.toString() === 'true';
-        if (item.expirationDate !== undefined)
-          item.expirationDate = new Date(item.expirationDate);
-        return item;
-      }),
+      new AIActionsParser<GroceryItemModel>(
+        AIGroceryListConfig,
+        (item) => {
+          if (item.opened !== undefined)
+            item.opened = item.opened.toString() === 'true';
+          if (item.toBuy !== undefined)
+            item.toBuy = item.toBuy.toString() === 'true';
+          if (item.expirationDate !== undefined)
+            item.expirationDate = new Date(item.expirationDate);
+          return item;
+        },
+        ({ id, name, toBuy }) => ({ id, name, toBuy })
+      ),
     []
   );
 
@@ -46,7 +53,16 @@ const SpeechScreen = () => {
         </ul>
       </ContainerFixedContent>
       <ContainerScrollContent spaced autoScroll>
-        <GroceryList items={groceryItems} />
+        <div className="SpeechGroceryLists">
+          <div className="SpeechGroceryColumn">
+            <h3>{Lang.speech.haveListTitle}</h3>
+            <GroceryList items={groceryItems.filter((i) => !i.toBuy)} />
+          </div>
+          <div className="SpeechGroceryColumn">
+            <h3>{Lang.speech.toBuyListTitle}</h3>
+            <GroceryList items={groceryItems.filter((i) => i.toBuy)} />
+          </div>
+        </div>
         <div style={{ height: 120 }}></div>
         <AIMicrophone parser={aiParser} onAction={handleAiAction} />
       </ContainerScrollContent>

@@ -119,10 +119,11 @@ const zh: Translation = {
   speech: {
     title: '购物清单项目',
     howToUseTitle: '使用方法',
-    intro1: '自然地描述你的购物清单或家里存放的物品。助手会尝试理解你的话，并在列表中添加、删除或更新项目。',
+    intro1: '自然地谈论你已经拥有的物品以及需要购买的物品。助手会理解你的话，将项目添加、删除或更新，并把已有物品与购物清单分开。',
     intro2: '你可以提到名称、到期、是否已打开/使用、数量、支付金额、存放位置等。',
     examplesTitle: '示例：',
     examples: [
+      '我需要买鸡蛋和牛奶',
       '我买了2包大米',
       '橱柜里有3包意大利面',
       '冰箱里有火腿和奶酪已打开，3天后会坏掉',
@@ -134,6 +135,8 @@ const zh: Translation = {
     placeholderListeningHasItems: '可以继续说...',
     placeholderListeningNoItems: '说说你的物品...',
     placeholderNotListening: '按下按钮开始说话',
+    haveListTitle: '已有',
+    toBuyListTitle: '待购买',
     browserNotSupported: '浏览器不支持语音识别。',
     changeLangTooltip: '点击更改语言',
     tokensUsed: (tokens: number, price: string) => `已用: ${tokens} 令牌, R$ ${price}`

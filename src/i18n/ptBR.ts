@@ -131,10 +131,11 @@ const ptBR: Translation = {
   speech: {
     title: 'Itens de Compras',
     howToUseTitle: 'Como usar',
-    intro1: 'Fale naturalmente sobre sua lista de compras ou sobre os itens guardados na sua casa. O assistente vai tentar entender o que você disse e adicionar, remover ou atualizar os itens na lista.',
-    intro2: 'Você pode falar sobre o nome, validade, se está aberto/usado ou não, quantidade, quanto pagou, onde está guardado etc.',
+    intro1: 'Fale naturalmente sobre os itens que você já tem e sobre os que precisa comprar. O assistente vai entender suas frases e adicionar, remover ou atualizar os itens, separando o que está em casa do que ainda está na lista de compras.',
+    intro2: 'Você pode falar sobre o nome, validade, se está aberto/usado, quantidade, quanto pagou, onde está guardado etc.',
     examplesTitle: 'Exemplos:',
     examples: [
+      'preciso comprar ovos e leite',
       'comprei 2 pacotes de arroz',
       'tenho 3 pacotes de macarrão no armário',
       'eu tenho presunto e queijo abertos na geladeira e vão estragar daqui 3 dias',
@@ -146,6 +147,8 @@ const ptBR: Translation = {
     placeholderListeningHasItems: 'Pode continuar falando...',
     placeholderListeningNoItems: 'Fale sobre seus itens...',
     placeholderNotListening: 'Pressione o botão para falar',
+    haveListTitle: 'Tenho',
+    toBuyListTitle: 'Para Comprar',
     browserNotSupported: 'Seu navegador não suporta reconhecimento de voz.',
     changeLangTooltip: 'Clique para mudar o idioma',
     tokensUsed: (tokens: number, price: string) => `Usados: ${tokens} Tokens, R$ ${price}`
