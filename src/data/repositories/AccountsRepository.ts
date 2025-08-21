@@ -19,7 +19,7 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
     return this.getAccountItems(accountId, showArchived, true).balance;
   }
 
-  public getAccountItems(accountId?: string, showArchived: boolean = false, light: boolean = false): {
+  public getAccountItems(accountId?: string, showArchived: boolean = false, light: boolean = false, includeFuture: boolean = false): {
     registries: RegistryWithDetails[],
     balance: number
   } {
@@ -49,7 +49,7 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
       }));
 
     const registries = ([...debit, ...credit])
-      .filter((item) => item.registry.date.getTime() <= now.getTime())
+      .filter((item) => includeFuture || item.registry.date.getTime() <= now.getTime())
       .sort(({registry: {date: a}}, {registry: {date: b}}) => b.getTime() - a.getTime());
 
     return {

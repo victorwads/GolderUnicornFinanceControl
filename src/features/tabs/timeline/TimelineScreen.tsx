@@ -35,7 +35,7 @@ const TimelineScreen = () => {
       setSelectedAccount(null);
     }
 
-    let items = accounts.getAccountItems(params.id, showAll);
+    let items = accounts.getAccountItems(params.id, showAll, false, true);
     setRegistries(items.registries);
   }, [params.id, showArchived]);
 
@@ -44,14 +44,33 @@ const TimelineScreen = () => {
   const categoriaIds = categoriaParam?.split(',') ?? [];
   const hasCategoryFilter = categoriaIds.length > 0;
 
+  const monthParam = searchParams.get('m');
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    if (monthParam) {
+      const [year, month] = monthParam.split('-').map(Number);
+      return new Date(year, month - 1, 1);
+    }
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+
   const fromParam = searchParams.get('from');
   const toParam = searchParams.get('to');
   const fromDate = fromParam ? new Date(fromParam) : null;
   const toDate = toParam ? new Date(toParam) : null;
 
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  const hasDateFilter = !!fromDate || !!toDate;
+
   let filteredRegistries = registries;
   if (hasCategoryFilter) {
     filteredRegistries = filteredRegistries.filter(({ registry: { categoryId } }) => categoryId && categoriaIds.includes(categoryId));
+  }
+  if (!hasDateFilter) {
+    filteredRegistries = filteredRegistries.filter(({ registry: { date } }) =>
+      date.getTime() >= monthStart.getTime() && date.getTime() <= monthEnd.getTime()
+    );
   }
   if (fromDate) {
     filteredRegistries = filteredRegistries.filter(({ registry: { date } }) => date.getTime() >= fromDate.getTime());
@@ -69,6 +88,17 @@ const TimelineScreen = () => {
       categoriaIds.push(categoryId);
     }
     newParams.set(categoryParamName, categoriaIds.join(','));
+    setSearchParams(newParams);
+  }
+
+  function changeMonth(offset: number) {
+    const newMonth = new Date(currentMonth);
+    newMonth.setMonth(newMonth.getMonth() + offset);
+    setCurrentMonth(newMonth);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('m', `${newMonth.getFullYear()}-${String(newMonth.getMonth() + 1).padStart(2, '0')}`);
+    newParams.delete('from');
+    newParams.delete('to');
     setSearchParams(newParams);
   }
 
@@ -112,6 +142,17 @@ const TimelineScreen = () => {
           </span>}
         </div>
         {registries.length !== 0 && <span className="RegistryCount">({filteredRegistries.length}) {Lang.timeline.registryCount}</span>}
+      </div>
+      <div className="TimelineMonthNav">
+        <button className="TimelineMonthNavButton" onClick={() => changeMonth(-1)}>
+          <Icon icon={Icon.all.faChevronLeft} />
+        </button>
+        <span className="TimelineMonthLabel">
+          {currentMonth.toLocaleDateString(navigator.language, { month: 'long', year: 'numeric' })}
+        </span>
+        <button className="TimelineMonthNavButton" onClick={() => changeMonth(1)}>
+          <Icon icon={Icon.all.faChevronRight} />
+        </button>
       </div>
       <div className="FloatButton">
         <Link to={'/accounts/registry/add?'
