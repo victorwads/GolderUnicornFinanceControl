@@ -1,22 +1,24 @@
+import './CategoriesScreen.css';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import './CategoriesScreen.css';
-import { ModalScreen } from '@components/conteiners/ModalScreen';
-import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
+import { RootCategory } from '@models';
 import getRepositories from '@repositories';
-import { RootCategory } from '@repositories/CategoriesRepository';
+
+import { ModalScreen } from '@components/conteiners/ModalScreen';
 import CategoryListItem from './CategoryListItem';
+import { WithRepo } from '@components/WithRepo';
+
 
 const CategoriesScreen: React.FC = () => {
   const [categories, setCategories] = useState<RootCategory[]>([]);
 
-  useEffect(() => {
+  const fetchCategories = () => {
     const { categories } = getRepositories();
     setCategories(categories.getAllRoots());
-  }, []);
+  };
 
-  return <ModalScreen title={Lang.categories.title}>
+  return <ModalScreen title={Lang.categories.title}><WithRepo names={['categories']} onReady={fetchCategories}>
       <ul className="categories-list">
         {categories.map((category) => (
           <li key={category.id} className="category-item">
@@ -34,7 +36,7 @@ const CategoriesScreen: React.FC = () => {
       <Link to="/categories/create" className="add-category-button">
         {Lang.categories.addCategory}
       </Link>
-  </ModalScreen>;
+  </WithRepo></ModalScreen>;
 };
 
 export default CategoriesScreen;

@@ -18,6 +18,10 @@ const hi: Translation = {
     balance: 'शेष',
     clearFilter: 'सभी दिखाएं',
     registryCount: 'रजिस्ट्रियाँ',
+    filters: 'फ़िल्टर',
+    from: 'से',
+    to: 'तक',
+    apply: 'लागू करें',
   },
   registry: {
     title: 'रजिस्टर',

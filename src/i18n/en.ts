@@ -18,6 +18,10 @@ const en: Translation = {
     balance: 'Balance',
     clearFilter: 'Show all',
     registryCount: 'Records',
+    filters: 'Filters',
+    from: 'From',
+    to: 'To',
+    apply: 'Apply',
   },
   registry: {
     title: 'Registry',

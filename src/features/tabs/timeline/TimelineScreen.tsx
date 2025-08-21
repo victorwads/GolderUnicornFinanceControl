@@ -23,7 +23,6 @@ const TimelineScreen = () => {
   const [showArchived, setShowArchived] = useState(false)
   const [registries, setRegistries] = useState<RegistryWithDetails[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [total, setTotal] = useState(0);
   const params = useParams<{ id?: string }>();
 
   useEffect(() => {
@@ -37,7 +36,6 @@ const TimelineScreen = () => {
     }
 
     let items = accounts.getAccountItems(params.id, showAll);
-    setTotal(items.balance);
     setRegistries(items.registries);
   }, [params.id, showArchived]);
 
@@ -45,10 +43,24 @@ const TimelineScreen = () => {
   const categoriaParam = searchParams.get(categoryParamName);
   const categoriaIds = categoriaParam?.split(',') ?? [];
   const hasCategoryFilter = categoriaIds.length > 0;
+
+  const fromParam = searchParams.get('from');
+  const toParam = searchParams.get('to');
+  const fromDate = fromParam ? new Date(fromParam) : null;
+  const toDate = toParam ? new Date(toParam) : null;
+
   let filteredRegistries = registries;
   if (hasCategoryFilter) {
-    filteredRegistries = registries.filter(({ registry: { categoryId } }) => categoryId && categoriaIds.includes(categoryId));
+    filteredRegistries = filteredRegistries.filter(({ registry: { categoryId } }) => categoryId && categoriaIds.includes(categoryId));
   }
+  if (fromDate) {
+    filteredRegistries = filteredRegistries.filter(({ registry: { date } }) => date.getTime() >= fromDate.getTime());
+  }
+  if (toDate) {
+    filteredRegistries = filteredRegistries.filter(({ registry: { date } }) => date.getTime() <= toDate.getTime());
+  }
+
+  const total = filteredRegistries.reduce((acc, { registry }) => registry.paid ? acc + registry.value : acc, 0);
 
   function addCategoryFilter(categoryId: string) {
     const newParams = new URLSearchParams(searchParams);
@@ -61,7 +73,7 @@ const TimelineScreen = () => {
   }
 
   let perDayTotal = total;
-  let currentDay = registries[0]?.registry.date.getDate();
+  let currentDay = filteredRegistries[0]?.registry.date.getDate();
   return <Container spaced full>
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
@@ -84,6 +96,12 @@ const TimelineScreen = () => {
             {Lang.accounts.showArchived}
           </label>
         </div>}
+        {(() => {
+          const filterParams = new URLSearchParams(searchParams);
+          if (selectedAccount) filterParams.set('account', selectedAccount.id);
+          const filterLink = `/timeline/filters${filterParams.toString() ? `?${filterParams.toString()}` : ''}`;
+          return <Link to={filterLink} className="FilterButton"><Icon icon={Icon.all.faFilter} /></Link>;
+        })()}
       </div>
       <div className="ScreenHeaderRow">
         <div className="ScreenTotal">
@@ -93,7 +111,7 @@ const TimelineScreen = () => {
             {formatNumber(total)}
           </span>}
         </div>
-        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
+        {registries.length !== 0 && <span className="RegistryCount">({filteredRegistries.length}) {Lang.timeline.registryCount}</span>}
       </div>
       <div className="FloatButton">
         <Link to={'/accounts/registry/add?'
