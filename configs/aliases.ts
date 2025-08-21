@@ -6,6 +6,7 @@ const projectRoot = resolve(rootDir, '..');
 
 export const alias = {
   '@models': resolve(projectRoot, 'src/data/models'),
+  '@configs': resolve(projectRoot, 'src/data/firebase/google-services.ts'),
   '@repositories': resolve(projectRoot, 'src/data/repositories'),
   '@resourceUse': resolve(projectRoot, 'src/data/repositories/ResourcesUseRepositoryShared.ts'),
   '@utils': resolve(projectRoot, 'src/data/utils'),

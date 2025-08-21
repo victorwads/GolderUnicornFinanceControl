@@ -11,3 +11,7 @@ export class Category extends DocumentModel {
     super(id);
   }
 }
+
+export interface RootCategory extends Category {
+	children: Category[];
+}

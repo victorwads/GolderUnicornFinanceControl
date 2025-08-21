@@ -82,7 +82,6 @@ export interface ResourceUsage<T = number> extends ResourceUseNode<T> {
   db?: {
     remote?: DBResourceUse<T>;
     local?: DBResourceUse<T>;
-    cache?: DBResourceUse<T>;
   };
   ai?: AIUses<T>;
 }

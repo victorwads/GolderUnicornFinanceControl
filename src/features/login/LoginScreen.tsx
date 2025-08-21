@@ -1,8 +1,6 @@
 import './LoginScreen.css'
 import { OAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 
-const isLogged = () => getAuth().currentUser
-
 function loginIn(providerName: string) {
   let provider: OAuthProvider
   switch (providerName) {
@@ -20,9 +18,7 @@ function loginIn(providerName: string) {
   }
   provider.addScope('email');
 
-  let auth = getAuth()
-  auth.useDeviceLanguage()
-  signInWithPopup(auth, provider)
+  signInWithPopup(getAuth(), provider)
     .then((result) => {
       console.log(result)
     })
