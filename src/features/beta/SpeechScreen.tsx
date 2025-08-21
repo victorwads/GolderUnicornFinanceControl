@@ -55,11 +55,11 @@ const SpeechScreen = () => {
       <ContainerScrollContent spaced autoScroll>
         <div className="SpeechGroceryLists">
           <div className="SpeechGroceryColumn">
-            <h3>Have</h3>
+            <h3>{Lang.speech.haveListTitle}</h3>
             <GroceryList items={groceryItems.filter((i) => !i.toBuy)} />
           </div>
           <div className="SpeechGroceryColumn">
-            <h3>To Buy</h3>
+            <h3>{Lang.speech.toBuyListTitle}</h3>
             <GroceryList items={groceryItems.filter((i) => i.toBuy)} />
           </div>
         </div>
