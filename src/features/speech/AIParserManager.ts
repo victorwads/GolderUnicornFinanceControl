@@ -51,11 +51,12 @@ Rules:
 - Include only fields related with the user input. Never use null unless a field needs removal.
 - Dates must be in ISO format. For relative dates use "today".
 - When adding, give numeric unique id.
+- when user ask to merge, join, split or duplicate alike items, you can generate a set of actions to handle the request.
 
 Each action object is like:
 - action: ${
-      this.config.availableActions?.join(" | ") || "add | update | remove"
-    }
+  this.config.availableActions?.join(" | ") || "add | update | remove"
+}
 - id: string (required)
 ${this.config.outputAditionalFieldsDescription
   .trim()
@@ -78,15 +79,14 @@ Context:
     ).replace(/\n/g, " ")}
 `.trim();
 
-    let actionsFound = 0;
-
     this.items.forEach((item) => {
       delete item.changed;
     });
 
+    const actions: AIItemWithAction<T, A>[] = [];
     const jsonParser = new StreamedJsonArrayParser<AIItemWithAction<T, A>>(
       (item) => {
-        actionsFound++;
+        actions.push(item);
         const { id, action } = item;
         if (action === "ask") {
           this.onAction(item);
@@ -126,10 +126,10 @@ Context:
       }
     );
 
-    console.log("AIParserManager response (final):", fullResponse);
+    console.log("AIParserManager final response:", actions, fullResponse);
 
     return {
-      actionsFound,
+      actions: actions.length,
       usedTokens: fullResponse.usedTokens,
     };
   }
@@ -218,6 +218,8 @@ Context:
       stream: true,
       stream_options: { include_usage: true },
       temperature: 0.1,
+      // tool_choice: 'none',
+      // tools: [],
       top_p: 0.3,
     });
 
@@ -270,7 +272,7 @@ export type AIItemData = {
 };
 
 export type AIParseResponse = {
-  actionsFound: number;
+  actions: number;
   usedTokens: AITokens;
 };
 
@@ -284,14 +286,13 @@ export type AIResponse = {
   usedTokens: AITokens;
 };
 
-export type AIActionData<A extends string = string> = {
+export type AIActionData<A extends string> = {
   action: A;
 } & AIItemData;
 
-export type AIItemWithAction<T, Action extends string = string> = AIActionData<
+export type AIItemWithAction<T, Action extends string> = AIActionData<
   Action | "add" | "update" | "remove"
-> &
-  Partial<T>;
+> & Partial<T>;
 
 export type AIConfig = {
   /** Description of the list items */

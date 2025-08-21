@@ -2,15 +2,16 @@ import { AIConfig } from "../speech/AIParserManager";
 import { GroceryItemModel } from "@models";
 
 export const AIGroceryListConfig: AIConfig = {
-  listDescription: "grocery and household items",
+  listDescription: "lists of grocery and household items stored or to buy that are separated by the fields 'toBuy'",
   outputAditionalFieldsDescription: `
-name: (pretty product description with weight, details, avoid duplicates)
-opened?: ( true if the package is in use or opened )
-quantity?: (integer of how many packages are there)
+name: (pretty product description, optionally with weight, brand, flavor, etc)
+quantity?: (integer of how many packages of the item)
 location?: (where the item is stored)
+purchaseDate?: (when the product was purchased if informed)
 expirationDate?: string (when the products will expire)
 paidPrice?: number
-toBuy?: boolean (true if the user needs to buy it, false if already owned)
+opened?: ( true if the package is in use or opened )
+toBuy?: (true if the user needs to buy it, false otherwise)
 `,
   outputExample: `
 Context: there is no rice on list and he just bought it

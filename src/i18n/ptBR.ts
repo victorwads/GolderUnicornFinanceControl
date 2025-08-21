@@ -79,7 +79,7 @@ const ptBR: Translation = {
     categoryCreated: 'Categoria criada com sucesso',
   },
   groceries: {
-    title: 'Mercado',
+    title: 'Dispensa',
     addItem: 'Adicionar Item',
     editItem: 'Editar Item',
     name: 'Nome',

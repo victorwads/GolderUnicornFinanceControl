@@ -64,7 +64,7 @@ const privateRouter = createBrowserRouter([
   { path: '/categories', element: <CategoriesScreen /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
-  { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
+  { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
   { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
   { path: '*', element: <EmptyScreen title='Not Found' /> },
 ])

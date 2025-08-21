@@ -8,9 +8,10 @@ import { GroceryItemModel } from '@models';
 
 interface GroceryListProps {
   items: WithChanged<GroceryItemModel>[];
+  hideBadges?: boolean;
 }
 
-const GroceryList: React.FC<GroceryListProps> = ({ items }) => (
+const GroceryList: React.FC<GroceryListProps> = ({ items, hideBadges }) => (
   <ul className="GroceryList">
     {items.map(item => {
       const badge = getExpirationLabel(item);
@@ -24,14 +25,16 @@ const GroceryList: React.FC<GroceryListProps> = ({ items }) => (
             <div className="GroceryItemRow">
               <span>{item.name}</span>
               <div style={{flex: 1}}></div>
-              {isOpened && (<span className="Badge" style={{ backgroundColor: isOpenedColor }}>
-                {isOpened}
-              </span>)}
-              {badge && (
-                <span className="Badge" style={{ backgroundColor: badge.color }}>
-                  {badge.label}
-                </span>
-              )}
+              {!hideBadges && <div className='badge-container'>
+                {isOpened && (<span className="Badge" style={{ backgroundColor: isOpenedColor }}>
+                  {isOpened}
+                </span>)}
+                {badge && (
+                  <span className="Badge" style={{ backgroundColor: badge.color }}>
+                    {badge.label}
+                  </span>
+                )}
+              </div>}
             </div>
             <div className="GroceryItemDetails">
               {item.quantity || 1} un
