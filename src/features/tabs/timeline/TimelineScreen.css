@@ -95,3 +95,25 @@
   gap: 12px;
   padding-bottom: 3em;
 }
+
+.TimelineMonthNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.TimelineMonthNavButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.TimelineMonthLabel {
+  text-transform: capitalize;
+  font-weight: bold;
+}
