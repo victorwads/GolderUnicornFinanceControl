@@ -12,7 +12,18 @@ export class GroceryItemModel extends DocumentModel {
     public purchaseDate: Date = new Date(),
     public location?: string,
     public toBuy: boolean = false,
+    public removed: boolean = false
   ) {
     super(id);
+  }
+
+  static fromObject(obj: Partial<GroceryItemModel>): GroceryItemModel {
+    if (!obj.id || !obj.name) throw new Error('Invalid GroceryItemModel');
+
+    const { id, name, quantity, opened, barcode, expirationDate, paidPrice, purchaseDate, location, toBuy, removed } = obj;
+    return Object.assign(
+      new GroceryItemModel(id, name),
+      { quantity, opened, barcode, expirationDate, paidPrice, purchaseDate, location, toBuy, removed }
+    );
   }
 }

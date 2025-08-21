@@ -6,18 +6,20 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '@components/Icons';
 import { getCurrentLangInfo } from '@lang';
 import { getCurrentCosts } from '@resourceUse';
-import AIActionsParser, { AIItemWithAction } from '@features/beta/AIParserManager';
+import AIActionsParser, { AIActionHandler, AIItemData, AIItemWithAction } from '@features/speech/AIParserManager';
 
 const DOLAR_PRICE = 5.5;
 
-export interface AIMicrophoneProps<TAction> {
-  parser: AIActionsParser<TAction>;
-  onAction: (action: AIItemWithAction<Partial<TAction>>) => void;
+export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
+  parser: AIActionsParser<T, A>;
+  onAction: AIActionHandler<T, A>;
 }
 
 interface ProcessingTask { id: number; text: string; startedAt: number; }
 
-export default function AIMicrophone<TAction>({ parser, onAction }: AIMicrophoneProps<TAction>) {
+export default function AIMicrophone<T extends AIItemData, A extends string>(
+  { parser, onAction }: AIMicrophoneProps<T, A>
+) {
   const navigate = useNavigate();
   const currentLangInfo = getCurrentLangInfo();
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();

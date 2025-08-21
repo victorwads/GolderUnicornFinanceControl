@@ -25,7 +25,7 @@ import AccountScreenForm from '@features/accounts/AccountScreenForm';
 import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
-import SpeechScreen from '@features/beta/SpeechScreen';
+import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 
 import { clearRepositories, resetRepositories } from '@repositories';
@@ -41,7 +41,7 @@ const privateRouter = createBrowserRouter([
         <TimelineScreen />,
         'accountRegistries', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
       ) },
-      { path: 'groceries', element: withRepos(<SpeechScreen />, 'groceries', 'products') },
+      { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'settings', element: <SettingsScreen /> },
       { path: 'resource-usage', element: <ResourceUsageScreen /> },
     ]

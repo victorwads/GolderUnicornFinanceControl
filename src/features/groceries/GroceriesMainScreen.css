@@ -1,3 +1,12 @@
+.GroceryLists {
+  display: flex;
+  gap: 16px;
+}
+
+.GroceryColumn {
+  flex: 1;
+}
+
 .GroceryList {
   list-style: none;
   padding: 0;

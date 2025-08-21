@@ -1,4 +1,5 @@
-import { AIConfig } from "./AIParserManager";
+import { AIConfig } from "../speech/AIParserManager";
+import { GroceryItemModel } from "@models";
 
 export const AIGroceryListConfig: AIConfig = {
   listDescription: "grocery and household items",
@@ -22,4 +23,12 @@ User: "the milk on refrigerator expiry to Friday"
 Assistant:
 [{ "action": "update", "id": "milk", "expiryDate": "CALCULATED_DATE", location: "refrigerator" }]
 `,
+};
+
+export const normalizer = (item: Partial<GroceryItemModel>) => {
+  if (item.opened !== undefined) item.opened = String(item.opened) === "true";
+  if (item.toBuy !== undefined) item.toBuy = String(item.toBuy) === "true";
+  if (item.expirationDate !== undefined)
+    item.expirationDate = new Date(item.expirationDate);
+  return item;
 };

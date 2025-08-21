@@ -15,7 +15,7 @@ import getRepositories from "@repositories";
 import BankInfo from "../banks/BankInfo";
 import CategoryListItem from "../categories/CategoryListItem";
 import AIMicrophone from "@components/voice/AIMicrophone";
-import AIActionsParser, { AIItemWithAction } from "@features/beta/AIParserManager";
+import AIActionsParser, { AIItemWithAction } from "@features/speech/AIParserManager";
 import { RegistryAiConfig, RegistryAiItem, RegistryAiNormalizer } from "./RegistryAiInfo";
 
 const RegistryScreenForm = () => {
