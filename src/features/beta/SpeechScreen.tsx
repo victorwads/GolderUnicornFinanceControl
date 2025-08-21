@@ -48,8 +48,8 @@ const SpeechScreen = () => {
       <ContainerScrollContent spaced autoScroll>
         <GroceryList items={groceryItems} />
         <div style={{ height: 120 }}></div>
+        <AIMicrophone parser={aiParser} onAction={handleAiAction} />
       </ContainerScrollContent>
-      <AIMicrophone parser={aiParser} onAction={handleAiAction} />
     </Container>
   );
 };
