@@ -1,6 +1,6 @@
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 
-import { InvoiceRegistry, Category } from '@models';
+import { InvoiceRegistry, Category, RootCategory } from '@models';
 import { Collections } from "../../data/firebase/Collections";
 
 export default class CategoriesRepository extends RepositoryWithCrypt<Category> {
@@ -52,8 +52,4 @@ export default class CategoriesRepository extends RepositoryWithCrypt<Category> 
 		}
 		return category;
 	}
-}
-
-export interface RootCategory extends Category {
-	children: Category[];
 }

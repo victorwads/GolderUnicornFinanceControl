@@ -1,4 +1,5 @@
 import Translation from './base';
+import subscriptions from '@features/subscriptions/i18n/ptBR';
 
 const ptBR: Translation = {
   commons: {
@@ -18,6 +19,10 @@ const ptBR: Translation = {
     balance: 'Saldo',
     clearFilter: 'Mostrar todos',
     registryCount: 'Registros',
+    filters: 'Filtros',
+    from: 'De',
+    to: 'Até',
+    apply: 'Aplicar',
   },
   registry: {
     title: 'Registro',
@@ -56,6 +61,15 @@ const ptBR: Translation = {
     noCreditCards: 'Não há cartões de crédito registrados ainda.',
     addCreditCard: 'Adicionar Cartão de Crédito',
     selectedInvoice: 'Fatura Selecionada',
+    editCreditCard: 'Editar Cartão de Crédito',
+    cardName: 'Nome do Cartão',
+    brand: 'Bandeira',
+    limit: 'Limite',
+    account: 'Conta',
+    closingDay: 'Dia de fechamento',
+    dueDay: 'Dia de vencimento',
+    creditCardCreated: 'Cartão de crédito salvo',
+    creditCardUpdated: 'Cartão de crédito atualizado',
   },
   categories: {
     title: 'Categorias',
@@ -135,7 +149,8 @@ const ptBR: Translation = {
     browserNotSupported: 'Seu navegador não suporta reconhecimento de voz.',
     changeLangTooltip: 'Clique para mudar o idioma',
     tokensUsed: (tokens: number, price: string) => `Usados: ${tokens} Tokens, R$ ${price}`
-  }
+  },
+  subscriptions,
 };
 
 export default ptBR;

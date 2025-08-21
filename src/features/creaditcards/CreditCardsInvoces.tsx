@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef, use, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import './CreditCardsInvoices.css';
 
 import routes from "../navigate";
 import RegistryItem from '../tabs/timeline/RegistryItem';
 import { ModalScreen } from "@components/conteiners/ModalScreen";
+import Icon from "@components/Icons";
 
 import getRepositories from "@repositories";
 import { CreditCard, CreditCardInvoice, RegistryWithDetails } from "@models";
@@ -107,6 +108,13 @@ const CreditCardsInvoices: React.FC = () => {
         <RegistryItem onlyOutcome item={item} key={item.registry.id} />
       ))}
     </div>
+    {id && (
+      <div className="FloatButton">
+        <Link to={`/creditcards/registry/add?card=${id}`}>
+          <Icon icon={Icon.all.faPlus} size="2x" />
+        </Link>
+      </div>
+    )}
   </ModalScreen>;
 };
 

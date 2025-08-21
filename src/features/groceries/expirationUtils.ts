@@ -24,7 +24,5 @@ export function getExpirationLabel(item: GroceryItemModel): ExpirationLabel | un
   if (diffDays <= 30) {
     return { label: Lang.groceries.thisMonth, color: 'var(--color-info)' };
   }
-
-  return undefined;
   return { label: Lang.groceries.valid, color: 'var(--color-success)' };
 }

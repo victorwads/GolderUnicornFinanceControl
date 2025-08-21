@@ -14,7 +14,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
 
   private encryptor?: Encryptor = undefined;
 
-  public init(encryptor: Encryptor) {
+  public config(encryptor: Encryptor) {
     this.encryptor = encryptor;
   }
 

@@ -20,7 +20,8 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected collectionName: string;
   protected userId?: string;
   private minimumCacheSize = 0;
-  private inited: boolean = false;
+  private waitRef: Promise<any> | null = null;
+  protected waitFinished: boolean = false;
 
   constructor(
     private collectionNamePattern: string,
@@ -37,22 +38,41 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return userId;
   }
 
-  public async waitInit(): Promise<void> {
+  public get isReady(): boolean {
+    return this.waitFinished;
+  }
+
+  public async waitUntilReady(): Promise<void> {
+    if (!this.waitRef) await this.waitInit();
+    else await this.waitRef;
+  }
+
+  private async handleWait<T>(promisse: Promise<T>): Promise<T> {
+    this.waitRef = promisse;
+    this.waitFinished = false;
+    await promisse;
+    this.waitFinished = true;
+    return promisse;
+  }
+
+  protected async waitInit(): Promise<void> {
     if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === this.minimumCacheSize) {
-      await this.getAll();
-      const length = Object.keys(BaseRepository.cache[this.collectionName]).length;
+      await this.handleWait(this.getAll());
+      console.warn(`Repository ${this.collectionName} initialized`);
+      // const length = Object.keys(BaseRepository.cache[this.collectionName]).length;
       // console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
     }
   }
 
   public async reset(userId?: string) {
     this.userId = userId;
+    this.waitFinished = false;
     this.collectionName = this.parseCollectionName();
     this.ref = collection(this.db, this.collectionName);
     if (!BaseRepository.cache[this.collectionName]) {
       BaseRepository.cache[this.collectionName] = {};
     }
-    await this.waitInit();
+    // await this.waitInit();
   }
 
   protected async createQuery(field: Partial<Model>): Promise<Query<Model, DocumentData>> {
@@ -75,7 +95,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     addResourceUse({
       db: {
         local: { queryReads: 1, docReads: queryResult.docs.length },
-        cache: { writes: queryResult.docs.length }
       }
     });
 
@@ -93,16 +112,9 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected addToCache(model: Model): void {
     this.minimumCacheSize++;
     BaseRepository.cache[this.collectionName][model.id] = model;
-    addResourceUse({
-      db: { cache: { writes: 1 } }
-    });    
   }
 
   public getLocalById(id?: string): Model | undefined {
-    addResourceUse({
-      db: { cache: { docReads: 1 } }
-    });
-
     return BaseRepository.cache[this.collectionName][id ?? ""] as Model;
   }
 
@@ -125,7 +137,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       db: {
         remote: { writes: 1 },
         local: { writes: 1 },
-        cache: { writes: 1 }
       }
     });
     return result;
@@ -146,24 +157,19 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       db: {
         remote: { writes: models.length },
         local: { writes: models.length },
-        cache: { writes: models.length }
       }
     });
   }
 
   public getCache(): Model[] {
     const result = Object.values(BaseRepository.cache[this.collectionName] || {}) as Model[];
-
-    addResourceUse({
-      db: { cache: { queryReads: 1, docReads: result.length } }
-    });
     return result;
   }
 
   protected async getLastUpdatedValue(): Promise<any> {
     const queryResult = await getDocsFromCache(query(this.ref, orderBy(queryField, "desc"), limit(1)));
     addResourceUse({
-      db: { local: { queryReads: 1, docReads: queryResult.docs.length } }
+      db: { local: { queryReads: 1, docReads: queryResult.docs.length } },
     });
     return queryResult.docs[0]?.data()[queryField];
   }
@@ -225,6 +231,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       queryResult = getDocs(query(this.ref, where(queryField, ">", lastUpdated)));
     } else {
       queryResult = getDocs(this.ref)
+        // TODO: Remove it. everything needs to have soft deletes
         .then((snap) => {
           const ids = snap.docs.map((doc) => doc.id);
           this.getCache().forEach((item) => {

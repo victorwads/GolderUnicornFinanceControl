@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { alias } from './configs/aliases';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const rootDir = dirname(fileURLToPath(import.meta.url));
@@ -21,15 +22,5 @@ export default defineConfig({
     port: 3000,
     allowedHosts: ['web', 'localhost'],
   },
-  resolve: {
-    alias: {
-      '@models': resolve(rootDir, 'src/data/models'),
-      '@repositories': resolve(rootDir, 'src/data/repositories'),
-      '@resourceUse': resolve(rootDir, 'src/data/repositories/ResourcesUseRepositoryShared.ts'),
-      '@utils': resolve(rootDir, 'src/data/utils'),
-      '@components': resolve(rootDir, 'src/components'),
-      '@features': resolve(rootDir, 'src/features'),
-      '@lang': resolve(rootDir, 'src/i18n'),
-    },
-  },
+  resolve: { alias },
 });
