@@ -11,6 +11,7 @@ export class GroceryItemModel extends DocumentModel {
     public paidPrice?: number,
     public purchaseDate: Date = new Date(),
     public location?: string,
+    public toBuy: boolean = false,
   ) {
     super(id);
   }
