@@ -3,8 +3,11 @@ const routes = {
     invoice: (cardId: string, invoiceName: string): string => {
         return `/creditcards/${cardId}/invoices/${invoiceName}`;
     },
-    registry: (id: string): string => {
+    debit: (id: string): string => {
         return `/accounts/registry/${id}/edit`;
+    },
+    credit: (id: string): string => {
+        return `/creditcards/registry/${id}/edit`;
     },
     account: (id: string): string => {
         return `/accounts/${id}`;

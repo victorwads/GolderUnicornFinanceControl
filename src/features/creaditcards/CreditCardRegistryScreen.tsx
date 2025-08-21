@@ -8,16 +8,18 @@ import PriceField from "@components/fields/PriceField";
 import { DatePicker } from "@components/inputs";
 import Selector, { SelectorSection } from "@components/Selector";
 
-import { CreditCard, CreditCardRegistry, Category } from "@models";
+import { CreditCardRegistry, Category } from "@models";
 import getRepositories from "@repositories";
 
 import CategoryListItem from "../categories/CategoryListItem";
+import BankInfo from "@features/banks/BankInfo";
 
 const CreditCardRegistryScreen = () => {
   const { id } = useParams();
+  const { card } = useSearchParams();
   const navigate = useNavigate();
 
-  const creditCards: CreditCard[] = getRepositories().creditCards.getCache();
+  const creditCards = getRepositories().creditCards.getCacheWithBank();
   const categorySections = getRepositories().categories
     .getAllRoots()
     .map((root): SelectorSection<Category> => ({
@@ -34,7 +36,7 @@ const CreditCardRegistryScreen = () => {
   const [description, setDescription] = useState("");
   const [value, setValue] = useState(0);
   const [date, setDate] = useState<Date | null>(new Date());
-  const [cardId, setCardId] = useState<string | undefined>();
+  const [cardId, setCardId] = useState<string | undefined>(card);
   const [categoryId, setCategoryId] = useState<string | undefined>();
 
   const [searchParams] = useSearchParams();
@@ -109,6 +111,9 @@ const CreditCardRegistryScreen = () => {
         sections={[{ options: creditCards }]}
         getInfo={option => ({ label: option.name, value: option.id })}
         onChange={option => setCardId(option.id)}
+        renderOption={(option, selected) => 
+          <BankInfo bank={option.bank} />
+        }
       />
       <Selector
         label={Lang.categories.title}
