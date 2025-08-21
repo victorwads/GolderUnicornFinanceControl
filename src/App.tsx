@@ -17,6 +17,7 @@ import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CategoriesScreen from '@features/categories/CategoriesScreen';
 import AddCategoriesScreen from '@features/categories/AddCategoriesScreen';
 import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
+import CreditCardRegistryScreen from '@features/creaditcards/CreditCardRegistryScreen';
 import CreditCardsScreen from '@features/creaditcards/CreditCardsScreen';
 import CreditCardScreenForm from '@features/creaditcards/CreditCardScreenForm';
 import ViewCreditCardsScreen from '@features/creaditcards/ViewCreditCardsScreen';
@@ -31,12 +32,12 @@ import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 import { clearRepositories, resetRepositories } from '@repositories';
 import { getCurrentUser, saveUser } from '@configs';
 
-// Private routes (requires authenticated user)
 const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
   {
     path: '/main', element: <TabScreen />, children: [
       { path: 'dashboard', element: <DashboardScreen />},
+      { path: 'timeline/filters', element: <TimelineFilterScreen /> },
       { path: 'timeline/:id?', element: withRepos(
         <TimelineScreen />,
         'accountRegistries', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
@@ -46,22 +47,23 @@ const privateRouter = createBrowserRouter([
       { path: 'resource-usage', element: <ResourceUsageScreen /> },
     ]
   },
-  { path: '/accounts', element: <AccountsScreen /> },
-  { path: '/accounts/create', element: <AccountScreenForm /> },
-  { path: '/accounts/:id/edit', element: <AccountScreenForm /> },
-  { path: '/accounts/registry/add', element: <RegistryScreenForm /> },
-  { path: '/accounts/registry/:id/edit', element: <RegistryScreenForm /> },
-  { path: '/creditcards', element: <CreditCardsScreen /> },
-  { path: '/creditcards/create', element: <CreditCardScreenForm /> },
+  { path: '/accounts', element: withRepos(<AccountsScreen />, 'accounts', 'banks') },
+  { path: '/accounts/create', element: withRepos(<AccountScreenForm />, 'banks') },
+  { path: '/accounts/:id/edit', element: withRepos(<AccountScreenForm />, 'accounts', 'banks') },
+  { path: '/accounts/registry/add', element: withRepos(<RegistryScreenForm />, 'accounts', 'categories', 'banks') },
+  { path: '/accounts/registry/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountRegistries') },
+  { path: '/creditcards', element: withRepos(<CreditCardsScreen />, 'creditCards') },
+  { path: '/creditcards/create', element: withRepos(<CreditCardScreenForm />, 'accounts') },
   { path: '/creditcards/:id', element: <ViewCreditCardsScreen /> },
-  { path: '/creditcards/:id/edit', element: <CreditCardScreenForm /> },
+  { path: '/creditcards/:id/edit', element: withRepos(<CreditCardScreenForm />, 'creditCards', 'accounts') },
   { path: '/creditcards/:id/invoices/:selected?', element: withRepos(
     <CreditCardsInvoices />,
-    'creditCardsInvoices', 'creditCardsRegistries'
+    'creditCardsInvoices', 'creditCardsRegistries', 'categories', 'creditCards'
   ) },
+  { path: '/creditcards/registry/add', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards') },
+  { path: '/creditcards/registry/:id/edit', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards', 'creditCardsRegistries') },
   { path: '/categories', element: <CategoriesScreen /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
-  { path: '/timeline/filters', element: <TimelineFilterScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
   { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
   { path: '/beta/speech', element: <SpeechScreen /> },

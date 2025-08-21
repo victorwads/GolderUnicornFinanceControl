@@ -1,16 +1,12 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 
 import Card from "@components/visual/Card"
 import BankInfo from "../banks/BankInfo"
 
-import { Bank, CreditCard } from "@models"
 import getRepositories from "@repositories"
 import { WithRepo } from "@components/WithRepo"
-
-interface CreditCardWithInfos extends CreditCard {
-  bank: Bank
-}
+import { CreditCardWithInfos } from "src/data/repositories/CreditcardsRepository"
 
 const CreditCardsCard: React.FC<{}> = () => {
 
@@ -18,10 +14,7 @@ const CreditCardsCard: React.FC<{}> = () => {
 
   const fetchCreditCards = () => {
     const { creditCards } = getRepositories();
-    const cards = creditCards.getCache().map(creditCard => ({
-      ...creditCard,
-      bank: new Bank('', creditCard.name, '', creditCard.brand.toLowerCase() + '.png')
-    }));
+    const cards = creditCards.getCacheWithBank();
     setCreditCards(cards)
   }
 

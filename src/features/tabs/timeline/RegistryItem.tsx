@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import routes from "../../navigate";
 
 import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
-import { InvoiceRegistry, AccountsRegistry, RegistryType, RegistryWithDetails} from '@models';
+import { InvoiceRegistry, AccountsRegistry, RegistryType, RegistryWithDetails, CreditCardRegistry} from '@models';
 
 interface RegistryItemProps {
   item: RegistryWithDetails;
@@ -27,11 +27,9 @@ const RegistryItem = (
   return <div 
       key={registry.id} className={"TimelineItem" + (registry.paid ? '' : ' not-paid')}
       onClick={() => {
-        if(registry instanceof InvoiceRegistry) {
-          navigate(routes.invoice(registry.cardId, registry.name));
-          return
-        };
-        navigate(routes.registry(registry.id))
+        if (registry instanceof InvoiceRegistry) navigate(routes.invoice(registry.cardId, registry.name));
+        else if (registry instanceof CreditCardRegistry) navigate(routes.credit(registry.id))
+        else navigate(routes.debit(registry.id))
       }}
     >
     {/* Área Esquerda: Círculo com cor da categoria */}
