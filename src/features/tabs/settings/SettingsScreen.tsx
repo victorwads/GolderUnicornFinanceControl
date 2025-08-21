@@ -120,7 +120,7 @@ const SettingsScreen = () => {
       <li><Link to="/main/resource-usage">Ver uso de recursos</Link></li>
       <li><Link to={'/categories'}>{Lang.categories.title}</Link></li>
       <li><Link to={'/accounts'}>{Lang.accounts.title}</Link></li>
-      <li>(Alpha Stage) <Link to={'/beta/speech'}>Groceries Speech Recognition</Link></li>
+      <li>(Alpha Stage) <Link to={'/main/groceries'}>Groceries Speech Recognition</Link></li>
       <li>(Alpha Stage) <Link to={'/creditcards'}>{Lang.creditcards.title}</Link></li>
       <li>(Alpha Stage) <Link to={'/subscriptions'}>Subscriptions [Only Informative]</Link></li>
     </ul>

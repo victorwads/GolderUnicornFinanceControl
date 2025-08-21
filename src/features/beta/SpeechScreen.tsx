@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { GroceryItemModel } from '@models';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import AIMicrophone from '@components/voice/AIMicrophone';
+import getRepositories from '@repositories';
 
 import GroceryList from '../../features/groceries/GroceryList';
 import AIActionsParser from './AIParserManager';
@@ -28,14 +29,25 @@ const SpeechScreen = () => {
     []
   );
 
-  const [groceryItems, setGroceryItems] = useState<GroceryItemModel[]>([]);
+  type GroceryItemWithFlags = GroceryItemModel & { glow?: boolean; changed?: boolean };
+  const [groceryItems, setGroceryItems] = useState<GroceryItemWithFlags[]>([]);
 
   useEffect(() => {
-    setGroceryItems(aiParser.items as GroceryItemModel[]);
+    setGroceryItems(aiParser.items as GroceryItemWithFlags[]);
   }, [aiParser]);
 
-  const handleAiAction = () => {
-    setGroceryItems([...aiParser.items] as GroceryItemModel[]);
+  const handleAiAction = async () => {
+    const items = [...(aiParser.items as GroceryItemWithFlags[])];
+    setGroceryItems(items);
+
+    const changedItems = items.filter((i) => i.changed === true);
+    if (changedItems.length > 0) {
+      const { groceries } = getRepositories();
+      for (const item of changedItems) {
+        const { changed, glow, ...toSave } = item;
+        await groceries.set(toSave as GroceryItemModel);
+      }
+    }
   };
 
   return (
@@ -64,7 +76,7 @@ const SpeechScreen = () => {
           </div>
         </div>
         <div style={{ height: 120 }}></div>
-        <AIMicrophone parser={aiParser} onAction={handleAiAction} />
+        <AIMicrophone parser={aiParser} onAction={handleAiAction as any} />
       </ContainerScrollContent>
     </Container>
   );

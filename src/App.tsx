@@ -24,7 +24,6 @@ import ViewCreditCardsScreen from '@features/creaditcards/ViewCreditCardsScreen'
 import AccountScreenForm from '@features/accounts/AccountScreenForm';
 import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
-import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import SpeechScreen from '@features/beta/SpeechScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
@@ -42,7 +41,7 @@ const privateRouter = createBrowserRouter([
         <TimelineScreen />,
         'accountRegistries', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
       ) },
-      { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
+      { path: 'groceries', element: withRepos(<SpeechScreen />, 'groceries', 'products') },
       { path: 'settings', element: <SettingsScreen /> },
       { path: 'resource-usage', element: <ResourceUsageScreen /> },
     ]
@@ -66,7 +65,6 @@ const privateRouter = createBrowserRouter([
   { path: '/categories/create', element: <AddCategoriesScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
   { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
-  { path: '/beta/speech', element: <SpeechScreen /> },
   { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
   { path: '*', element: <EmptyScreen title='Not Found' /> },
 ])
