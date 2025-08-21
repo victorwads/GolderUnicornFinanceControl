@@ -17,6 +17,9 @@ import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CategoriesScreen from '@features/categories/CategoriesScreen';
 import AddCategoriesScreen from '@features/categories/AddCategoriesScreen';
 import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
+import CreditCardsScreen from '@features/creaditcards/CreditCardsScreen';
+import CreditCardScreenForm from '@features/creaditcards/CreditCardScreenForm';
+import ViewCreditCardsScreen from '@features/creaditcards/ViewCreditCardsScreen';
 import AccountScreenForm from '@features/accounts/AccountScreenForm';
 import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
@@ -48,14 +51,14 @@ const privateRouter = createBrowserRouter([
   { path: '/accounts/:id/edit', element: <AccountScreenForm /> },
   { path: '/accounts/registry/add', element: <RegistryScreenForm /> },
   { path: '/accounts/registry/:id/edit', element: <RegistryScreenForm /> },
-  { path: '/creditcards', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/creditcards/:id', element: <EmptyScreen title='Credit Cards' /> },
-  { path: '/creditcards/:id/edit', element: <EmptyScreen title='Credit Cards' /> },
+  { path: '/creditcards', element: <CreditCardsScreen /> },
+  { path: '/creditcards/create', element: <CreditCardScreenForm /> },
+  { path: '/creditcards/:id', element: <ViewCreditCardsScreen /> },
+  { path: '/creditcards/:id/edit', element: <CreditCardScreenForm /> },
   { path: '/creditcards/:id/invoices/:selected?', element: withRepos(
     <CreditCardsInvoices />,
     'creditCardsInvoices', 'creditCardsRegistries'
   ) },
-  { path: '/creditcards/create', element: <EmptyScreen title='Credit Cards' /> },
   { path: '/categories', element: <CategoriesScreen /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
   { path: '/timeline/filters', element: <TimelineFilterScreen /> },

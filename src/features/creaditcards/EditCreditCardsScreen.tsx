@@ -1,11 +1,3 @@
-import { useParams } from "react-router-dom"
+import CreditCardScreenForm from "./CreditCardScreenForm";
 
-const EditCreditCardsScreen = () => {
-    let { id } = useParams()
-
-    return <div className="Screen">
-        EditCreditCardsScreen. Id: {id}
-    </div>
-}
-
-export default EditCreditCardsScreen
+export default CreditCardScreenForm;
