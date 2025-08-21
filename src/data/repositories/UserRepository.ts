@@ -1,7 +1,7 @@
 import { doc, DocumentData, getDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
 
 import { DocumentModel } from '@models';
+import { getCurrentUser } from '@configs';
 
 import { Collections } from "../firebase/Collections";
 import RepositoryWithCrypt from './RepositoryWithCrypt';
@@ -13,7 +13,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
     super(Collections.Users, User);
   }
 
-  public override async waitInit(): Promise<void> { }
+  protected override async waitInit(): Promise<void> { }
 
   public override async getAll(): Promise<User[]> {
     return [
@@ -22,7 +22,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
   }
 
   public async updateUserData(data: DocumentData) {
-    const userId = getAuth().currentUser?.uid;
+    const userId = getCurrentUser;
     data.id = userId;
     await this.set(data as any, true, false);
   }

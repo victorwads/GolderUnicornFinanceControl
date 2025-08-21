@@ -6,6 +6,8 @@ import BankInfo from "../banks/BankInfo"
 
 import { Bank, Account } from "@models"
 import getRepositories from "@repositories"
+import { waitUntilReady } from '@repositories';
+import { WithRepo } from "@components/WithRepo"
 
 export interface WithInfoAccount extends Account {
   bank: Bank
@@ -13,9 +15,10 @@ export interface WithInfoAccount extends Account {
 
 const AccountsCard: React.FC<{}> = () => {
   const [accounts, setAccounts] = useState<WithInfoAccount[]>([])
-  const [showArchived, setShowArchived] = useState(false)
+  const [showArchived, setShowArchived] = useState<boolean|null>(null)
 
   useEffect(() => {
+    if (showArchived === null) return
     const { accounts: accountsRepo, banks } = getRepositories();
 
     setAccounts(
@@ -32,11 +35,12 @@ const AccountsCard: React.FC<{}> = () => {
   }, [showArchived])
 
   return <>
-    <div>
-      <label><input onChange={() => setShowArchived(!showArchived)} type="checkbox" checked={showArchived} /> {Lang.accounts.showArchived}</label>
-    </div>
     <Link to={'/accounts'}>{Lang.accounts.title}</Link>
+    <div>
+      <label><input onChange={() => setShowArchived(!showArchived)} type="checkbox" checked={!!showArchived} /> {Lang.accounts.showArchived}</label>
+    </div>
     <Card>
+      <WithRepo names={['accounts', 'banks']} onReady={() => setShowArchived(false)}>
       {accounts.map(account => 
         <AccountItem key={account.id} account={account} />
       )}
@@ -44,6 +48,7 @@ const AccountsCard: React.FC<{}> = () => {
       <div style={{ textAlign: 'right' }}>
         <Link to={'/accounts/create'}>{Lang.accounts.addAccount}</Link>
       </div>
+      </WithRepo>
     </Card>
   </>
 }
@@ -56,8 +61,10 @@ const AccountItem = ({ account }: AccountItemParams) => {
   const [balance, setBalance] = useState<number|true>(true)
 
   useEffect(() => {
+    waitUntilReady('accountRegistries', 'creditCardsInvoices').then(() => {
       const { accounts } = getRepositories();
       setBalance(accounts.getAccountBalance(account.id))
+    });
   }, [account.id]);
 
   return <Link to={'/main/timeline/' + account.id} key={account.id}>

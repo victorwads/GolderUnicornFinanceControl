@@ -1,15 +1,15 @@
 import './DashboardScreen.css'
 
-import { getAuth } from 'firebase/auth'
-
 import Card from '@components/visual/Card'
 import AccountsCard from '../../accounts/AccountsCard'
 import CreditCardsCard from '../../accounts/CreditCardsCard'
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners'
+import { getCurrentUser } from '@configs'
+import { WithRepo } from '@components/WithRepo'
 
 const DashboardScreen = () => {
 
-  const user = getAuth().currentUser
+  const user = getCurrentUser()
 
   return <Container screen spaced>
     <ContainerFixedContent>

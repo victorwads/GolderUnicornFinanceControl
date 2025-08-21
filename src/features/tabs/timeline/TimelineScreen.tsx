@@ -80,12 +80,6 @@ const TimelineScreen = () => {
         <h1 className="ScreenTitle">{Lang.timeline.title}</h1>
         <Loading show={registries.length === 0} type="wave" />
         <div className="spacer"></div>
-        {(() => {
-          const filterParams = new URLSearchParams(searchParams);
-          if (selectedAccount) filterParams.set('account', selectedAccount.id);
-          const filterLink = `/timeline/filters${filterParams.toString() ? `?${filterParams.toString()}` : ''}`;
-          return <Link to={filterLink} className="FilterButton"><Icon icon={Icon.all.faFilter} /></Link>;
-        })()}
         {(selectedAccount || hasCategoryFilter) && (
           <div className="SelectedBank">
             {selectedAccount && <span>{selectedAccount.name}</span>}
@@ -102,6 +96,12 @@ const TimelineScreen = () => {
             {Lang.accounts.showArchived}
           </label>
         </div>}
+        {(() => {
+          const filterParams = new URLSearchParams(searchParams);
+          if (selectedAccount) filterParams.set('account', selectedAccount.id);
+          const filterLink = `/timeline/filters${filterParams.toString() ? `?${filterParams.toString()}` : ''}`;
+          return <Link to={filterLink} className="FilterButton"><Icon icon={Icon.all.faFilter} /></Link>;
+        })()}
       </div>
       <div className="ScreenHeaderRow">
         <div className="ScreenTotal">
