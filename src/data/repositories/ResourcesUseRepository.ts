@@ -14,6 +14,7 @@ const MIN_READS_TO_SEND = 100;
 const MIN_WRITES_TO_SEND = 10;
 const MIN_AI_REQUESTS_TO_SEND = 1;
 const MAX_SECONDS_WITHOUT_SENDING = 60 * 5;
+const MIN_SECONDS_BETWEEN_UPDATES = 5;
 const REPORT_USERS = ["fUztrRAGqQZ3lzT5AmvIki5x0443"]
 
 export default class ResourcesUseRepository extends BaseRepository<ResourcesUseModel> implements Interface {
@@ -80,6 +81,7 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
   }
 
   private async saveDb(): Promise<void> {
+    this.lastSent = new Date();
     await this.set(
       {
         id: this.safeUserId,
@@ -94,16 +96,25 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
   private async checkShouldSendToDB() {
     const secondsSinceLastSent =
       (new Date().getTime() - this.lastSent.getTime()) / 1000;
+    const rules = {
+      minSeconds: secondsSinceLastSent > MIN_SECONDS_BETWEEN_UPDATES,
+      maxSeconds: false,
+      writes: false,
+      reads: false,
+      ai: false,
+    }
     if (
-      secondsSinceLastSent > MAX_SECONDS_WITHOUT_SENDING ||
-      (this.toSendCache.db?.remote?.writes || 0) > MIN_WRITES_TO_SEND ||
-      (this.toSendCache.db?.remote?.docReads || 0) > MIN_READS_TO_SEND ||
-      Object.entries(this.toSendCache.ai || {}).some(([, value]) => {
-        return (value?.requests || 0) > MIN_AI_REQUESTS_TO_SEND;
-      })
+      rules.minSeconds && (
+        (rules.maxSeconds = secondsSinceLastSent > MAX_SECONDS_WITHOUT_SENDING) ||
+        (rules.writes = (this.toSendCache.db?.remote?.writes || 0) > MIN_WRITES_TO_SEND) ||
+        (rules.reads = (this.toSendCache.db?.remote?.docReads || 0) > MIN_READS_TO_SEND) ||
+        (rules.ai = Object.entries(this.toSendCache.ai || {}).some(([, value]) => {
+          return (value?.requests || 0) > MIN_AI_REQUESTS_TO_SEND;
+        }))
+      )
     ) {
       this.saveDb();
-      console.log("Database use updated:", this.toSendCache);
+      console.log("Database use updated:", rules,  this.toSendCache);
     }
   }
 }

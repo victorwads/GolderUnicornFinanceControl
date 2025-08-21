@@ -1,3 +1,13 @@
+.GroceryLists {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap-reverse;
+}
+
+.GroceryColumn {
+  flex: auto;
+}
+
 .GroceryList {
   list-style: none;
   padding: 0;
@@ -20,9 +30,22 @@
 
 .GroceryItemRow {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-wrap: wrap;
+  justify-content: end;
+  align-items: start;
   gap: var(--spacing-sm);
+}
+
+.GroceryItemRow {
+  flex: auto;
+}
+
+.GroceryItemRow .badge-container {
+  display: flex;
+  flex: auto;
+  gap: var(--spacing-xs);
+  justify-content: end;
+  flex-wrap: wrap;
 }
 
 .GroceryItemDetails {
@@ -35,6 +58,8 @@
   border-radius: 999px;
   font-size: 0.75em;
   color: #fff;
+  /* NEVER wrap the text */
+  white-space: nowrap;
 }
 
 .grocery-highlight {

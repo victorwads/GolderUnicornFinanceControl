@@ -76,7 +76,6 @@ const GroceryItemForm = () => {
       await products.set(product, true);
     }
 
-    alert(id ? Lang.groceries.itemCreated : Lang.groceries.itemCreated);
     navigate(-1);
   };
 

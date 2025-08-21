@@ -4,10 +4,16 @@ import { ChatCompletionMessageParam } from "openai/resources/index";
 import StreamedJsonArrayParser from "./StreamedJsonArrayParser";
 import { addResourceUse, AiModel } from "@resourceUse";
 
-const STOREAGE_KEY = "currentGroceryList";
+// const STOREAGE_KEY = "currentGroceryList";
 const CHAT_HISTORY_SIZE = 2;
 const n = (id: string | undefined | null): string =>
   id?.toString().trim().toLowerCase() || "";
+
+export type WithChanged<T> = T & { changed?: boolean };
+export type AIActionHandler<
+  T extends AIItemData,
+  A extends string = string
+> = (action: AIItemWithAction<T, A>, changes?: Partial<WithChanged<T>>[]) => void
 
 export default class AIActionsParser<
   T extends AIItemData,
@@ -16,8 +22,8 @@ export default class AIActionsParser<
   private openai: OpenAI;
   private chatHistory: ChatCompletionMessageParam[] = [];
 
-  public items: (Partial<T> & { glow?: boolean })[];
-  public onAction: (action: AIItemWithAction<T, A>) => void = () => {};
+  public items: WithChanged<T>[] = [];
+  public onAction: AIActionHandler<T, A> = () => {};
 
   /**
    * @param normalizer Function to normalize item fields (e.g., convert strings to dates)
@@ -28,10 +34,7 @@ export default class AIActionsParser<
     private itemContextMap: AIItemTransformer<T> = ({ id, name }) =>
       ({ id, name } as Partial<T>)
   ) {
-    const savedList =
-      localStorage.getItem(STOREAGE_KEY) ||
-      sessionStorage.getItem(STOREAGE_KEY);
-    this.items = savedList ? JSON.parse(savedList) : [];
+    this.items = [];
     this.openai = this.initOpenAI();
   }
 
@@ -48,11 +51,12 @@ Rules:
 - Include only fields related with the user input. Never use null unless a field needs removal.
 - Dates must be in ISO format. For relative dates use "today".
 - When adding, give numeric unique id.
+- when user ask to merge, join, split or duplicate alike items, you can generate a set of actions to handle the request.
 
 Each action object is like:
 - action: ${
-      this.config.availableActions?.join(" | ") || "add | update | remove"
-    }
+  this.config.availableActions?.join(" | ") || "add | update | remove"
+}
 - id: string (required)
 ${this.config.outputAditionalFieldsDescription
   .trim()
@@ -75,16 +79,14 @@ Context:
     ).replace(/\n/g, " ")}
 `.trim();
 
-    let actionsFound = 0;
-
     this.items.forEach((item) => {
-      delete item.glow;
+      delete item.changed;
     });
 
+    const actions: AIItemWithAction<T, A>[] = [];
     const jsonParser = new StreamedJsonArrayParser<AIItemWithAction<T, A>>(
       (item) => {
-        console.log("action:", item);
-        actionsFound++;
+        actions.push(item);
         const { id, action } = item;
         if (action === "ask") {
           this.onAction(item);
@@ -92,25 +94,26 @@ Context:
         }
         if (!id) throw new Error("Item must have an id");
 
-        delete (item as any).action;
         const normalized = { ...item, ...this.normalizer(item) } as Partial<T>;
+        delete (normalized as any).action;
 
         let index = this.items.findIndex((i) => n(i.id) === n(id));
+        let changes: Partial<WithChanged<T>>[] = [];
         switch (action) {
           case "remove":
-            this.remove(normalized, index);
+            changes = this.remove(normalized, index);
             break;
           case "add":
-            this.add(normalized, index);
+            changes = this.add(normalized, index);
             break;
           case "update":
-            this.update(normalized, index);
+            changes = this.update(normalized, index);
             break;
           default:
             throw new Error(`Unknown action: ${action}`);
         }
         this.saveCurrentList();
-        this.onAction(item);
+        this.onAction(item, changes);
       }
     );
 
@@ -123,17 +126,19 @@ Context:
       }
     );
 
-    console.log("AIParserManager response (final):", fullResponse);
+    console.log("AIParserManager final response:", actions, fullResponse);
 
     return {
-      actionsFound,
+      actions: actions.length,
       usedTokens: fullResponse.usedTokens,
     };
   }
 
-  private add(item: Partial<T>, index: number): void {
-    if (!item.name)
-      return console.error(new Error("Item to add must have a name"), item);
+  private add(item: Partial<T>, index: number): Partial<T>[] {
+    if (!item.name) {
+      console.error(new Error("Item to add must have a name"), item);
+      return [];
+    }
     if (index !== -1) {
       console.warn(
         `Item with id '${item.id}' already exists, switching add to update`,
@@ -141,10 +146,12 @@ Context:
       );
       return this.update(item, index);
     }
-    this.items.push({ ...item, glow: true });
+    const created = { ...item, changed: true } as WithChanged<T>;
+    this.items.push(created);
+    return [created];
   }
 
-  private update(item: Partial<T>, index: number): void {
+  private update(item: Partial<T>, index: number): Partial<T>[] {
     if (index === -1) {
       // Try partial id match (both directions)
       index = this.items.findIndex(
@@ -163,21 +170,25 @@ Context:
       return this.add(item, index);
     } else {
       const current = this.items[index];
-      this.items[index] = { ...current, ...item, glow: true };
+      this.items[index] = { ...current, ...item, changed: true };
+      return [this.items[index]];
     }
   }
 
-  private remove(item: Partial<T>, index: number) {
+  private remove(item: Partial<T>, index: number): Partial<T>[] {
     if (index === -1) {
       console.warn(`Item with id ${item.id} not found for removal`, item);
-      return;
+      return [];
     }
-    this.items = this.items.filter(({ id }) => n(id) !== n(item.id));
+    const { items } = this;
+
+    this.items = items.filter(({ id }) => n(id) !== n(item.id));
     this.saveCurrentList();
+    return items.filter(({ id }) => n(id) === n(item.id));;
   }
 
   private saveCurrentList() {
-    localStorage.setItem(STOREAGE_KEY, JSON.stringify(this.items));
+    // localStorage.setItem(STOREAGE_KEY, JSON.stringify(this.items));
   }
 
   private async withOpenAI(
@@ -207,6 +218,8 @@ Context:
       stream: true,
       stream_options: { include_usage: true },
       temperature: 0.1,
+      // tool_choice: 'none',
+      // tools: [],
       top_p: 0.3,
     });
 
@@ -259,7 +272,7 @@ export type AIItemData = {
 };
 
 export type AIParseResponse = {
-  actionsFound: number;
+  actions: number;
   usedTokens: AITokens;
 };
 
@@ -273,14 +286,13 @@ export type AIResponse = {
   usedTokens: AITokens;
 };
 
-export type AIActionData<A extends string = string> = {
+export type AIActionData<A extends string> = {
   action: A;
 } & AIItemData;
 
-export type AIItemWithAction<T, Action extends string = string> = AIActionData<
+export type AIItemWithAction<T, Action extends string> = AIActionData<
   Action | "add" | "update" | "remove"
-> &
-  Partial<T>;
+> & Partial<T>;
 
 export type AIConfig = {
   /** Description of the list items */

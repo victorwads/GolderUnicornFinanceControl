@@ -1,4 +1,4 @@
-import { AIConfig, AIItemTransformer } from '@features/beta/AIParserManager';
+import { AIConfig, AIItemTransformer } from '@features/speech/AIParserManager';
 
 export interface RegistryAiItem {
   description?: string;

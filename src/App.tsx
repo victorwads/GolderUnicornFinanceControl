@@ -24,9 +24,8 @@ import ViewCreditCardsScreen from '@features/creaditcards/ViewCreditCardsScreen'
 import AccountScreenForm from '@features/accounts/AccountScreenForm';
 import AccountsScreen from '@features/accounts/AccountsScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
-import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
-import SpeechScreen from '@features/beta/SpeechScreen';
+import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 
 import { clearRepositories, resetRepositories } from '@repositories';
@@ -65,8 +64,7 @@ const privateRouter = createBrowserRouter([
   { path: '/categories', element: <CategoriesScreen /> },
   { path: '/categories/create', element: <AddCategoriesScreen /> },
   { path: '/groceries/create', element: <GroceryItemForm /> },
-  { path: '/groceries/:id/edit', element: <GroceryItemForm /> },
-  { path: '/beta/speech', element: <SpeechScreen /> },
+  { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
   { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
   { path: '*', element: <EmptyScreen title='Not Found' /> },
 ])
