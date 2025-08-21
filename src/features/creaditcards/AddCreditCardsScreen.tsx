@@ -1,8 +1,3 @@
-const AddCreditCardsScreen = () => {
+import CreditCardScreenForm from "./CreditCardScreenForm";
 
-    return <div className="Screen">
-        AddCreditCardsScreen
-    </div>
-}
-
-export default AddCreditCardsScreen
+export default CreditCardScreenForm;

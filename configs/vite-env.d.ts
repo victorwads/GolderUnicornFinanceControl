@@ -1,4 +1,5 @@
-/// <reference types="vite/client" />
+/// <reference path="./env.d.ts" />
+/// <reference types="vitest" />
 
 interface ImportMetaEnv {
   readonly VITE_MOD_K: string;

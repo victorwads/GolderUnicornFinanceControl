@@ -24,6 +24,7 @@
       "@models": ["src/data/models"],
       "@repositories": ["src/data/repositories"],
       "@resourceUse": ["src/data/repositories/ResourcesUseRepositoryShared.ts"],
+      "@configs": ["src/data/firebase/google-services.ts"],
       "@utils/*": ["src/data/utils/*"],
       "@components/*": ["src/components/*"],
       "@features/*": ["src/features/*"],
@@ -31,7 +32,8 @@
     }
   },
   "include": [
-    "src",
-    "vite-env.d.ts"
+    "src", 
+    "configs/vite-env.d.ts",
+    "configs/env.d.ts"
   ]
 }

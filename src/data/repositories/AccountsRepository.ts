@@ -2,7 +2,7 @@ import getRepositories from '.';
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 import { Collections } from '../../data/firebase/Collections'
 
-import { Account, InvoiceRegistry, RegistryWithDetails } from '@models';
+import { Account, CreditCard, InvoiceRegistry, RegistryWithDetails } from '@models';
 
 export default class AccountsRepository extends RepositoryWithCrypt<Account> {
 
@@ -16,10 +16,10 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
     if (AccountsRepository.balanceCache[accountId || '']) {
       return AccountsRepository.balanceCache[accountId || ''];
     }
-    return this.getAccountItems(accountId, showArchived).balance;
+    return this.getAccountItems(accountId, showArchived, true).balance;
   }
 
-  public getAccountItems(accountId?: string, showArchived: boolean = false): {
+  public getAccountItems(accountId?: string, showArchived: boolean = false, light: boolean = false): {
     registries: RegistryWithDetails[],
     balance: number
   } {
@@ -33,15 +33,18 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
       )
       .map<RegistryWithDetails>((registry) => ({
         registry,
-        category: categories.getLocalById(registry.categoryId),
+        category: !light ? categories.getLocalById(registry.categoryId) : undefined,
         sourceName: this.getLocalById(registry.accountId)?.name || 'Unknown Source',
       }));
 
     const credit = creditCardsInvoices.getCache()
       .filter(registry => !accountId || registry.paymentAccountId === accountId)
       .map<RegistryWithDetails>((invoice) => ({
-        registry: new InvoiceRegistry(invoice, creditCards.getLocalById(invoice.cardId)!),
-        category: categories.getLocalById(InvoiceRegistry.categoryId),
+        registry: new InvoiceRegistry(
+          invoice, 
+          light ? new CreditCard(invoice.cardId) : creditCards.getLocalById(invoice.cardId)!
+        ),
+        category: !light ? categories.getLocalById(InvoiceRegistry.categoryId) : undefined,
         sourceName: this.getLocalById(invoice.paymentAccountId)?.name || 'Unknown Source',
       }));
 

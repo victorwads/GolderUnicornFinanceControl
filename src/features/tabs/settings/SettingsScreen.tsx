@@ -56,6 +56,7 @@ const SettingsScreen = () => {
       setProgress(progress);
 
       const repo = allRepos[key as keyof Repositories];
+      await repo.waitUntilReady();
       const data = await repo.getAll();
       zip.file(key + '.json', JSON.stringify(data, null, 2));
       zip.file(key + '.csv', toCSV(data));
@@ -121,6 +122,7 @@ const SettingsScreen = () => {
       <li><Link to={'/accounts'}>{Lang.accounts.title}</Link></li>
       <li>(Alpha Stage) <Link to={'/beta/speech'}>Groceries Speech Recognition</Link></li>
       <li>(Alpha Stage) <Link to={'/creditcards'}>{Lang.creditcards.title}</Link></li>
+      <li>(Alpha Stage) <Link to={'/subscriptions'}>Subscriptions [Only Informative]</Link></li>
     </ul>
     <h3>{Lang.settings.privacy}</h3>
     <ul>

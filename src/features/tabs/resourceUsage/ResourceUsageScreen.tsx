@@ -7,8 +7,8 @@ import getRepositories from "@repositories";
 
 import { Container, ContainerScrollContent } from "@components/conteiners";
 import ResourceUsageView from "./ResourceUsageView";
-  
-const users: { uid: string, email: string }[] = JSON.parse(localStorage.getItem("ACCOUNTS") || '{}');
+
+const users: { uid: string, email: string }[] = JSON.parse(localStorage.getItem("ACCOUNTS") || '[]');
 function getInfo(userId: string) {
   return users.find(user => user.uid === userId)?.email || userId;
 }

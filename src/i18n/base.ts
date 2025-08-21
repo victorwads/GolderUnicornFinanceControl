@@ -16,6 +16,10 @@ export default interface Translation {
     balance: string;
     clearFilter: string;
     registryCount: string;
+    filters: string;
+    from: string;
+    to: string;
+    apply: string;
   };
   registry: {
     title: string;
@@ -54,6 +58,15 @@ export default interface Translation {
     noCreditCards: string;
     addCreditCard: string;
     selectedInvoice: string;
+    editCreditCard: string;
+    cardName: string;
+    brand: string;
+    limit: string;
+    account: string;
+    closingDay: string;
+    dueDay: string;
+    creditCardCreated: string;
+    creditCardUpdated: string;
   };
   categories: {
     title: string;
@@ -127,4 +140,5 @@ export default interface Translation {
     changeLangTooltip: string;
     tokensUsed: (tokens: number, price: string) => string; // e.g. "Used: 123 tokens,"
   };
+  subscriptions?: import("@features/subscriptions/i18n/base").default;
 }
