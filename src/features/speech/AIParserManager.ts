@@ -4,7 +4,6 @@ import { ChatCompletionMessageParam } from "openai/resources/index";
 import StreamedJsonArrayParser from "./StreamedJsonArrayParser";
 import { addResourceUse, AiModel } from "@resourceUse";
 
-// const STOREAGE_KEY = "currentGroceryList";
 const CHAT_HISTORY_SIZE = 2;
 const n = (id: string | undefined | null): string =>
   id?.toString().trim().toLowerCase() || "";
@@ -12,12 +11,12 @@ const n = (id: string | undefined | null): string =>
 export type WithChanged<T> = T & { changed?: boolean };
 export type AIActionHandler<
   T extends AIItemData,
-  A extends string = string
+  A extends AIDefaultActions = AIDefaultActions
 > = (action: AIItemWithAction<T, A>, changes?: Partial<WithChanged<T>>[]) => void
 
 export default class AIActionsParser<
   T extends AIItemData,
-  A extends string = string
+  A extends AIDefaultActions = AIDefaultActions
 > {
   private openai: OpenAI;
   private chatHistory: ChatCompletionMessageParam[] = [];
@@ -44,36 +43,36 @@ export default class AIActionsParser<
   ): Promise<AIParseResponse> {
     const today = new Date().toISOString().split("T")[0];
     const prompt = `
-You are a personal assistant that helps users manage a list of items several items,
-your role is to transform user's input into actions described by a JSON object for each action.
+You are a personal assistant that helps users manage a list of items.
+Your role is to convert the user's real-time speech input into actions, each represented by a JSON object.
 
-Rules:
-- Include only fields related with the user input. Never use null unless a field needs removal.
-- Dates must be in ISO format. For relative dates use "today".
-- When adding, give numeric unique id.
-- when user ask to merge, join, split or duplicate alike items, you can generate a set of actions to handle the request.
+List description:
+${this.config.listDescription.split("\n").join(", ")}
 
-Each action object is like:
-- action: ${
-  this.config.availableActions?.join(" | ") || "add | update | remove"
+Rules for each action object:
+- Choose an action from {
+${Object.entries(this.config.availableActions || DEFAULT_AI_ACTIONS).map(
+  ([action, description]) => `  - ${action} - ${description}`
+).join("\n")}
 }
-- id: string (required)
-${this.config.outputAditionalFieldsDescription
-  .trim()
-  .replace(/^\s-\s/, "")
-  .split("\n")
-  .map((line) => `- ${line.trim()}`)
-  .join("\n")}
+- Create an object with
+  - action: (choose action)
+  - id: (required for update/remove an existing item; for add you must generate a short, unique and hash-like)
+- Put some optional fields only if it is a new information about the item that would change the "current list reference" {
+${this.config.additionalFields?.map((field) => 
+  `  - ${field.name}: ${field.type || ''} (${field.description})`).join("\n")
+}
+}
+- Never use null unless it means removing a field.
+- Dates must be in ISO 8601. For relative dates, use "today".
+- Output NDJSON: one object per line (no extra text).
+
 `.trim();
-    // Examples:
-    // ${this.config.outputExample.trim()}
-    // `.trim();
 
     const context = `
 Context:
-- user language: ${userLanguage}
 - today: ${today}
-- list type: ${this.config.listDescription.split("\n").join(", ")}
+- my language: ${userLanguage}
 - current list reference: ${JSON.stringify(
       this.items.map(this.itemContextMap)
     ).replace(/\n/g, " ")}
@@ -88,7 +87,7 @@ Context:
       (item) => {
         actions.push(item);
         const { id, action } = item;
-        if (action === "ask") {
+        if (action === "stop") {
           this.onAction(item);
           return;
         }
@@ -187,9 +186,8 @@ Context:
     return items.filter(({ id }) => n(id) === n(item.id));;
   }
 
-  private saveCurrentList() {
-    // localStorage.setItem(STOREAGE_KEY, JSON.stringify(this.items));
-  }
+  /** @deprecated not called */
+  private saveCurrentList() {}
 
   private async withOpenAI(
     system: string,
@@ -204,12 +202,12 @@ Context:
     const messages: Array<ChatCompletionMessageParam> = [
       { role: "system", content: system },
       ...this.chatHistory.slice(-CHAT_HISTORY_SIZE),
-      { role: "system", content: context },
+      { role: "user", content: context },
       userMessage,
     ];
 
     console.log("AIParserManager withOpenAI messages:", messages);
-    const model: AiModel = "gpt-4.1-nano";
+    const model: AiModel = "gpt-5-nano";
 
     addResourceUse({ ai: { [model]: { requests: 1 } } });
     const stream = await this.openai.chat.completions.create({
@@ -217,10 +215,11 @@ Context:
       messages,
       stream: true,
       stream_options: { include_usage: true },
-      temperature: 0.1,
+      reasoning_effort: 'minimal',
+      // temperature: 0.1,
       // tool_choice: 'none',
       // tools: [],
-      top_p: 0.3,
+      // top_p: 0.3,
     });
 
     let full = "";
@@ -266,6 +265,13 @@ Context:
   }
 }
 
+const DEFAULT_AI_ACTIONS: ActionsDescription<AIDefaultActions> = {
+  add: "when users talk about an item not in the list or asks to add it",
+  update: "when users talk about an existing item or asks to modify it",
+  remove: "when users asks to remove an existing item",
+  stop: "when users explicitly asks to stop listening",
+};
+
 export type AIItemData = {
   id?: string;
   name?: string;
@@ -290,19 +296,33 @@ export type AIActionData<A extends string> = {
   action: A;
 } & AIItemData;
 
-export type AIItemWithAction<T, Action extends string> = AIActionData<
-  Action | "add" | "update" | "remove"
+export type AIDefaultActions = "add" | "update" | "remove" | "stop";
+
+export type AIItemWithAction<T, Action extends AIDefaultActions> = AIActionData<
+  Action | AIDefaultActions
 > & Partial<T>;
 
-export type AIConfig = {
+export type AditionalFieldInfo = {
+  /** the name of the field */
+  name: string;
+  /** the description about what, when and how AI should extract this field */
+  description: string;
+  /** the type of the field, default will make AI infer the type */
+  type?: string;
+}
+
+export type ActionsDescription<AIActions extends AIDefaultActions> = {
+  /** Key as the action name and value as the action description */
+  [key in AIActions]: string;
+};
+
+export type AIConfig<A extends AIDefaultActions = AIDefaultActions> = {
   /** Description of the list items */
   listDescription: string;
   /** Description of additional fields to include in the output */
-  outputAditionalFieldsDescription: string;
-  /** Example of the output format */
-  outputExample: string;
-  /** List of actions available for each item, default is ['add', 'update', 'remove'] */
-  availableActions?: string[];
+  additionalFields?: AditionalFieldInfo[];
+  /** @beta List of actions available for each item, default is ['add', 'update', 'remove'] */
+  availableActions?: ActionsDescription<A>;
 };
 
 export type AIItemTransformer<T> = (item: Partial<T>) => Partial<T>;

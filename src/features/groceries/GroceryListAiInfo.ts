@@ -3,27 +3,16 @@ import { GroceryItemModel } from "@models";
 
 export const AIGroceryListConfig: AIConfig = {
   listDescription: "lists of grocery and household items stored or to buy that are separated by the fields 'toBuy'",
-  outputAditionalFieldsDescription: `
-name: (pretty product description, optionally with weight, brand, flavor, etc)
-quantity?: (integer of how many packages of the item)
-location?: (where the item is stored)
-purchaseDate?: (when the product was purchased if informed)
-expirationDate?: string (when the products will expire)
-paidPrice?: number
-opened?: ( true if the package is in use or opened )
-toBuy?: (true if the user needs to buy it, false otherwise)
-`,
-  outputExample: `
-Context: there is no rice on list and he just bought it
-User: "i've bought 2 packages with 2kg of rice and the beans are gone"
-Assistant:
-[{ "action": "add", "id": "d52aadfd1", "name": "rice 5kg", quantity: 2, toBuy: false },{ "action": "remove", "id": "beans" }]
-
-Context: there is already a milk on list
-User: "the milk on refrigerator expiry to Friday"
-Assistant:
-[{ "action": "update", "id": "milk", "expiryDate": "CALCULATED_DATE", location: "refrigerator" }]
-`,
+  additionalFields: [
+    {name: "name", description: "(pretty product description, optionally with weight, brand, flavor, etc. avoid duplicates)"},
+    {name: "quantity", description: "(integer of how many packages of the item)", type: "number"},
+    {name: "location", description: "(where the item is stored)"},
+    {name: "purchaseDate", description: "(when the product was purchased if informed)"},
+    {name: "expirationDate", description: "(when the products will expire)"},
+    {name: "paidPrice", description: "(how much was paid for the product)", type: "number"},
+    {name: "opened", description: "( true if the package is in use or opened )", type: "boolean"},
+    {name: "toBuy", description: "(true if the user needs to buy it, false otherwise)", type: "boolean"},
+  ]
 };
 
 export const normalizer = (item: Partial<GroceryItemModel>) => {
