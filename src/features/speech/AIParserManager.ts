@@ -57,7 +57,7 @@ ${Object.entries(this.config.availableActions || DEFAULT_AI_ACTIONS).map(
 }
 - Create an object with
   - action: (choose action)
-  - id: (required for update/remove an existing item; for add you must generate a short, unique and hash-like)
+  - id: (identifier of item this actions applies to, add action should generate a uuid-v4)
 - Put some optional fields only if it is a new information about the item that would change the "current list reference" {
 ${this.config.additionalFields?.map((field) => 
   `  - ${field.name}: ${field.type || ''} (${field.description})`).join("\n")
@@ -269,7 +269,7 @@ const DEFAULT_AI_ACTIONS: ActionsDescription<AIDefaultActions> = {
   add: "when users talk about an item not in the list or asks to add it",
   update: "when users talk about an existing item or asks to modify it",
   remove: "when users asks to remove an existing item",
-  stop: "when users explicitly asks to stop listening",
+  // stop: "when users explicitly asks to stop listening",
 };
 
 export type AIItemData = {
@@ -296,7 +296,7 @@ export type AIActionData<A extends string> = {
   action: A;
 } & AIItemData;
 
-export type AIDefaultActions = "add" | "update" | "remove" | "stop";
+export type AIDefaultActions = "add" | "update" | "remove" | string;
 
 export type AIItemWithAction<T, Action extends AIDefaultActions> = AIActionData<
   Action | AIDefaultActions
