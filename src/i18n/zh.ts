@@ -94,7 +94,7 @@ const zh: Translation = {
   settings: {
     title: '设置',
     data: '数据',
-    privacy: '隐私',
+    myData: '我的数据',
     exportData: '导出我的数据',
     exportingData: (filename: string, current: string, max: string) =>
       `正在导出 ${filename} (${current}/${max})%`,

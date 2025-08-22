@@ -106,7 +106,7 @@ const ptBR: Translation = {
   settings: {
     title: 'Configurações',
     data: 'Dados',
-    privacy: 'Privacidade',
+    myData: 'Meus Dados',
     exportData: 'Exportar Meus Dados',
     exportingData: (filename: string, current: string, max: string) =>
       `Exportando ${filename} (${current}/${max})%`,

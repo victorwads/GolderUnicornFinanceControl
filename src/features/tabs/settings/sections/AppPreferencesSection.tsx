@@ -1,14 +1,11 @@
 import { Langs, setLanguage } from '../../../../i18n';
 import { Density, Theme, useCssVars } from '@components/Vars';
 import { useState } from 'react';
+import { SettingsSection } from './types';
 
-interface Props {
-  language: string;
-  setCurrentLanguage: (v: string) => void;
-}
-
-export const AppPreferencesSection = ({ language, setCurrentLanguage }: Props) => {
+const PreferencesContent = () => {
   const { theme, setTheme, density, setDensity } = useCssVars();
+  const [language, setCurrentLanguage] = useState<string>(SavedLang || '');
   return <div className="ThemeSettings">
     <div>
       <strong>{Lang.settings.theme}</strong>
@@ -35,3 +32,11 @@ export const AppPreferencesSection = ({ language, setCurrentLanguage }: Props) =
     </div>
   </div>;
 };
+
+const section: SettingsSection = {
+  id: 'app',
+  title: 'Aparência',
+  content: <PreferencesContent />
+};
+
+export default section;
