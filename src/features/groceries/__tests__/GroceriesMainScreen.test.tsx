@@ -4,10 +4,14 @@ import { vi } from 'vitest';
 import GroceriesMainScreen from '../GroceriesMainScreen';
 import { GroceryItemModel } from '../../../data/models/GroceryItemModel';
 
+vi.stubEnv('VITE_MOD_K', btoa(''));
+vi.stubEnv('VITE_MOD_P', btoa(''));
+vi.stubEnv('VITE_MOD_O', btoa(''));
+
 let items: GroceryItemModel[] = [];
 
 vi.mock('@repositories', () => ({
-  default: () => ({ groceries: { getAllSorted: () => items } }),
+  default: () => ({ groceries: { getCache: () => items } }),
 }));
 
 test('renders grocery items from repository', () => {

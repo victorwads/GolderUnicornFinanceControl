@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { GroceryItemModel } from '@models';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import AIMicrophone from '@components/voice/AIMicrophone';
 import getRepositories from '@repositories';
+import Icon from '@components/Icons';
 
 import GroceryList from './GroceryList';
 import AIActionsParser, { AIActionHandler } from '../speech/AIParserManager';
@@ -21,26 +23,32 @@ const SpeechScreen = () => {
   );
 
   const [groceryItems, setGroceryItems] = useState<typeof aiParser.items>([]);
+  const [removedCount, setRemovedCount] = useState(0);
 
   useEffect(() => {
     const { groceries } = getRepositories();
 
-    aiParser.items = groceries.getCache().filter((item) => !item.removed);
+    const cache = groceries.getCache();
+    aiParser.items = cache.filter((item) => !item.removed);
     setGroceryItems(aiParser.items);
+    setRemovedCount(cache.filter(item => item.removed && item.name).length);
   }, [aiParser]);
 
-  const handleAiAction: AIActionHandler<GroceryItemModel> = async (action, changes) => {
+  const handleAiAction: AIActionHandler<GroceryItemModel> = useCallback(async (action, changes) => {
     const items = [...aiParser.items];
     setGroceryItems(items);
 
+    let removed = 0;
     const { groceries } = getRepositories();
     for (const item of (changes || [])) {
       if (action.action === 'remove') {
         item.removed = true;
+        removed++;
       }
       groceries.set(GroceryItemModel.fromObject(item));
     }
-  };
+    setRemovedCount(removedCount + removed);
+  }, [removedCount]);
 
   const toBuyItems = groceryItems.filter((item) => item.toBuy);
   const onStorage = groceryItems.filter((item) => !item.toBuy);
@@ -49,7 +57,13 @@ const SpeechScreen = () => {
   return (
     <Container screen spaced className="SpeechScreen">
       <ContainerFixedContent>
-        <h2 style={{ marginBottom: 24 }}>{Lang.groceries.title}</h2>
+        <div className="GroceryHeader">
+          <h2>{Lang.groceries.title}</h2>
+          <Link to="/main/groceries/removed" className="TrashButton">
+            <Icon icon={Icon.all.faTrash} />
+            {removedCount > 0 && <span className="TrashCount">{removedCount}</span>}
+          </Link>
+        </div>
         {/* <h3>{Lang.speech.howToUseTitle}</h3> */}
         <p>{Lang.speech.intro1}</p>
         <p>{Lang.speech.intro2}</p>
