@@ -16,14 +16,13 @@
 
 .speech-marquee {
   position: fixed;
-  bottom: 24px;
+  bottom: 45px;
   right: 5%;
   color: var(--font-color-default);
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
   max-width: 95vw;
-  min-width: 320px;
 }
 
 .speech-marquee--with-controls {
@@ -34,7 +33,6 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 180px;
 }
 
 .speech-marquee-text {
@@ -114,7 +112,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: var(--lg-bg-color);
+  background: rgba(100, 100, 255, 0.05);
 }
 
 .glass-specular {
@@ -131,8 +129,8 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
-  padding: 1rem 1.5rem 0.9rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-xl);
 }
 
 .speech-processing-list {
@@ -147,11 +145,12 @@
 .speech-processing-item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  flex: 1;
+  gap: var(--spacing-md);
   font-size: 0.75rem;
   line-height: 1.2;
   max-width: 160px;
-  padding: var(--spacing-xxs) var(--spacing-xs);
+  padding: var(--spacing-xxs) var(--spacing-sm);
   border-radius: 8px;
   background: var(--bg-color-highlight);
   color: var(--font-color-default);
@@ -163,6 +162,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* use rtl text */
+  direction: rtl;
   max-width: 120px;
 }
 

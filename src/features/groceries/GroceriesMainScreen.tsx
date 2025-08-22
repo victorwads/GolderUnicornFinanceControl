@@ -63,7 +63,7 @@ const SpeechScreen = () => {
       <ContainerScrollContent spaced autoScroll>
         <div className="GroceryLists">
           {(onStorage.length || noItems) && <div className="GroceryColumn">
-            <h3>{Lang.speech.haveListTitle} - ({onStorage.length && 'fdg'})</h3>
+            <h3>{Lang.speech.haveListTitle} - ({onStorage.length && onStorage.length})</h3>
             <GroceryList items={onStorage} />
           </div>}
           {(toBuyItems.length || noItems) && <div className="GroceryColumn">
