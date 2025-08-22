@@ -7,6 +7,7 @@ import getRepositories from '@repositories';
 import { GroceryItemModel } from '@models';
 
 import './GroceriesMainScreen.css';
+import GroceryList from './GroceryList';
 
 const GroceriesTrashScreen = () => {
   const [items, setItems] = useState<GroceryItemModel[]>([]);
@@ -38,55 +39,24 @@ const GroceriesTrashScreen = () => {
     setSelected(new Set());
   };
 
-  const toBuy = items.filter(i => i.toBuy);
-  const onStorage = items.filter(i => !i.toBuy);
-  const noItems = items.length === 0;
-
   return (
     <Container screen spaced>
       <ContainerFixedContent>
         <div className="GroceryHeader">
-          <h2>Trash</h2>
+          <h2>Groceries Trash - {items.length}</h2>
           <Link to="/main/groceries" className="TrashButton">
             <Icon icon={Icon.all.faArrowLeft} />
           </Link>
         </div>
+        {items.length > 0 && (
+          <button className="FloatButton TrashDeleteButton" onClick={deleteSelected}>
+            <Icon icon={Icon.all.faTrash} size="2x" />
+          </button>
+        )}
       </ContainerFixedContent>
       <ContainerScrollContent spaced autoScroll>
-        <div className="GroceryLists">
-          {(onStorage.length || noItems) && <div className="GroceryColumn">
-            <h3>{Lang.speech.haveListTitle} - ({onStorage.length})</h3>
-            <ul className="GroceryList">
-              {onStorage.map(item => (
-                <li key={item.id} className="GroceryTrashItem">
-                  <label>
-                    <input type="checkbox" checked={selected.has(item.id)} onChange={() => toggle(item.id)} />
-                    <span>{item.name}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          </div>}
-          {(toBuy.length || noItems) && <div className="GroceryColumn">
-            <h3>{Lang.speech.toBuyListTitle} - ({toBuy.length})</h3>
-            <ul className="GroceryList">
-              {toBuy.map(item => (
-                <li key={item.id} className="GroceryTrashItem">
-                  <label>
-                    <input type="checkbox" checked={selected.has(item.id)} onChange={() => toggle(item.id)} />
-                    <span>{item.name}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          </div>}
-        </div>
+        <GroceryList items={items} selected={selected} onSelect={toggle} hideBadges />
       </ContainerScrollContent>
-      {items.length > 0 && (
-        <button className="FloatButton TrashDeleteButton" onClick={deleteSelected}>
-          <Icon icon={Icon.all.faTrash} size="2x" />
-        </button>
-      )}
     </Container>
   );
 };

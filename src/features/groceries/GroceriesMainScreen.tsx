@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { GroceryItemModel } from '@models';
@@ -34,18 +34,21 @@ const SpeechScreen = () => {
     setRemovedCount(cache.filter(item => item.removed && item.name).length);
   }, [aiParser]);
 
-  const handleAiAction: AIActionHandler<GroceryItemModel> = async (action, changes) => {
+  const handleAiAction: AIActionHandler<GroceryItemModel> = useCallback(async (action, changes) => {
     const items = [...aiParser.items];
     setGroceryItems(items);
 
+    let removed = 0;
     const { groceries } = getRepositories();
     for (const item of (changes || [])) {
       if (action.action === 'remove') {
         item.removed = true;
+        removed++;
       }
       groceries.set(GroceryItemModel.fromObject(item));
     }
-  };
+    setRemovedCount(removedCount + removed);
+  }, [removedCount]);
 
   const toBuyItems = groceryItems.filter((item) => item.toBuy);
   const onStorage = groceryItems.filter((item) => !item.toBuy);

@@ -55,6 +55,23 @@
   gap: var(--spacing-sm);
 }
 
+.GroceryList.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.GroceryList label {
+  display: flex;
+  flex: auto;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.GroceryList label > div {
+  flex: auto;
+}
+
 .GroceryItemLink {
   display: flex;
   flex-direction: column;
