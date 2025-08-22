@@ -103,7 +103,7 @@ export default interface Translation {
   settings: {
     title: string;
     data: string;
-    privacy: string;
+    myData: string;
     exportData: string;
     exportingData: (filename: string, current: string, max: string) => string;
     auth: string;

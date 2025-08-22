@@ -105,7 +105,7 @@ const hi: Translation = {
   settings: {
     title: 'सेटिंग्स',
     data: 'डेटा',
-    privacy: 'गोपनीयता',
+    myData: 'मेरे डेटा',
     exportData: 'मेरा डेटा निर्यात करें',
     exportingData: (filename: string, current: string, max: string) => `${filename} निर्यात हो रहा है (${current}/${max})%`,
     auth: 'प्रमाणीकरण',

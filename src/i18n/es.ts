@@ -94,7 +94,7 @@ const es: Translation = {
   settings: {
     title: 'Configuraciones',
     data: 'Datos',
-    privacy: 'Privacidad',
+    myData: 'Mis Datos',
     exportData: 'Exportar Mis Datos',
     exportingData: (filename: string, current: string, max: string) =>
       `Exportando ${filename} (${current}/${max})%`,
