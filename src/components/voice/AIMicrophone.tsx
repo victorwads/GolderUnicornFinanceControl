@@ -12,7 +12,7 @@ const DOLAR_PRICE = 5.5;
 
 export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
   parser: AIActionsParser<T, A>;
-  onAction: AIActionHandler<T, A>;
+  onAction?: AIActionHandler<T, A>;
 }
 
 interface ProcessingTask { id: number; text: string; startedAt: number; }
@@ -29,7 +29,12 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
   const taskIdRef = useRef(0);
 
   useEffect(() => {
-    parser.onAction = onAction;
+    parser.onAction = (action, changes) => {
+      if (action.action === 'stop') {
+        SpeechRecognition.stopListening();
+      }
+      onAction?.(action, changes);
+    };
   }, [parser, onAction]);
 
   useEffect(() => {
@@ -68,13 +73,11 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
     language: currentLangInfo.short,
   });
 
-  const currentCosts = getCurrentCosts();
-
-  const placeholder =
-    transcript ||
-    (listening
+  const placeholder = transcript || (
+    listening
       ? (parser.items?.length ? Lang.speech.placeholderListeningHasItems : Lang.speech.placeholderListeningNoItems)
-      : Lang.speech.placeholderNotListening);
+      : ''
+  )
 
   return (
     <div className="speech-marquee glass-container speech-marquee--with-controls">
@@ -82,14 +85,32 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
       <div className="glass-overlay"></div>
       <div className="glass-specular"></div>
       <div className="glass-content glass-content--inline">
-        <div className="speech-processing-list">
-          {processingQueue.map(task => (
-            <div key={task.id} className="speech-processing-item" title={task.text}>
-              <span className="loading-spinner loading-spinner--sm" />
-              <span className="speech-processing-text">{task.text}</span>
-            </div>
-          ))}
+        {!listening && <div
+          className="speech-marquee-lang"
+          title={Lang.speech.changeLangTooltip}
+          onClick={() => navigate('/main/settings')}
+        >
+          <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
+        </div>}
+        <div>
+          {listening && <div className="speech-marquee-content">
+            <span className="speech-marquee-text">{placeholder}</span>
+          </div>}
+          <div className="speech-processing-list">
+            {processingQueue.map(task => (
+              <div key={task.id} className="speech-processing-item" title={task.text}>
+                <span className="loading-spinner loading-spinner--sm" />
+                <span className="speech-processing-text">{task.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
+        {/* <span>
+          {Lang.speech.tokensUsed(
+            currentCosts.tokens,
+            (DOLAR_PRICE * currentCosts.dolars).toFixed(4).replace('.', ',')
+          )}
+        </span> */}
         <button
           className={`microphone-toggle${listening ? ' listening' : ''}`}
           onClick={listening ? SpeechRecognition.stopListening : startListening}
@@ -97,22 +118,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
         >
           <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
         </button>
-        <div className="speech-marquee-content">
-          <span className="speech-marquee-text">{placeholder}</span>
-          <div
-            className="speech-marquee-lang"
-            title={Lang.speech.changeLangTooltip}
-            onClick={() => navigate('/main/settings')}
-          >
-            <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
-            <span>
-              {Lang.speech.tokensUsed(
-                currentCosts.tokens,
-                (DOLAR_PRICE * currentCosts.dolars).toFixed(4).replace('.', ',')
-              )}
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );
