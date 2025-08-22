@@ -45,7 +45,7 @@ export default class Encryptor {
     switch (typeof data) {
       case 'number':
       case 'boolean': 
-        return this.numberHandler?.encrypt(data);
+        return Number.isNaN(data) ? undefined : this.numberHandler?.encrypt(data);
       case 'string':
         return Encryptor.ENCRYPTED_PREFIX + await this.encryptString(data);
       case 'object':
@@ -66,7 +66,9 @@ export default class Encryptor {
             encryptedData[key] = sourceData[key];
             continue
           };
-          encryptedData[key] = await this.encryptData(sourceData[key], ignoreKeys, nextDepth);
+          const result = await this.encryptData(sourceData[key], ignoreKeys, nextDepth);
+          if (result === undefined) continue;
+          encryptedData[key] = result;
         }
         encryptedData.encrypted = true;
         return encryptedData;  
