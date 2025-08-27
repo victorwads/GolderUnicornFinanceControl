@@ -104,6 +104,12 @@
   margin-bottom: var(--spacing-md);
 }
 
+.TimelineMonthInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .TimelineMonthNavButton {
   background: none;
   border: none;
@@ -116,4 +122,8 @@
 .TimelineMonthLabel {
   text-transform: capitalize;
   font-weight: bold;
+}
+
+.TimelineMonthPeriod {
+  font-size: 0.8em;
 }

@@ -118,6 +118,10 @@ const en: Translation = {
     language: 'Language',
     toggleEncryption: (disabled: boolean) => disabled ? 'Enable Encryption (DEV only)' : 'Disable Encryption (DEV only)',
     resavingWithEncryption: (filename: string, current: string, max: string) => `Resaving ${filename} (${current}/${max})...`,
+    timelineMode: 'Timeline mode',
+    timelineModeStart: 'Start',
+    timelineModeNext: 'Next',
+    timelineCutoffDay: 'Cut-off day',
   },
   dashboard: {
     title: 'Dashboard',

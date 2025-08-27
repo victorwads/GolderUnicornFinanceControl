@@ -17,7 +17,7 @@ import SearchBar from '@components/fields/SearchBar';
 import { PARAM_CATEGORY, PARAM_FROM, PARAM_TO } from './TimelineFilterScreen';
 import RegistryItem from "./RegistryItem";
 
-const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
+const formatNumber = (number: number) => number.toLocaleString(CurrentLangInfo.short, {
   style: "currency",
   currency: "BRL",
 });
@@ -155,9 +155,14 @@ const TimelineScreen = () => {
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(false)}>
           <Icon icon={Icon.all.faChevronLeft} />
         </button>
-        <span className="TimelineMonthLabel">
-          {currentMonth.localeName}
-        </span>
+        <div className="TimelineMonthInfo">
+          <span className="TimelineMonthLabel">
+            {currentMonth.localeName}
+          </span>
+          <span className="TimelineMonthPeriod">
+            {period.start.toLocaleDateString(CurrentLangInfo.short)} - {period.end.toLocaleDateString(CurrentLangInfo.short)}
+          </span>
+        </div>
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(true)}>
           <Icon icon={Icon.all.faChevronRight} />
         </button>

@@ -107,6 +107,10 @@ const zh: Translation = {
     language: '语言',
     toggleEncryption: (disabled: boolean) => disabled ? '启用加密 (DEV only)' : '禁用加密 (DEV only)',
     resavingWithEncryption: (filename: string, current: string, max: string) => `重新保存 ${filename} (${current}/${max})...`,
+    timelineMode: '时间线模式',
+    timelineModeStart: '起始',
+    timelineModeNext: '下一个',
+    timelineCutoffDay: '截断日',
   },
   dashboard: {
     title: '仪表板',

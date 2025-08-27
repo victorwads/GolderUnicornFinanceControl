@@ -119,6 +119,10 @@ const ptBR: Translation = {
     language: 'Idioma',
     toggleEncryption: (disabled: boolean) => disabled ? 'Ativar Criptografia (DEV only)' : 'Desativar Criptografia (DEV only)',
     resavingWithEncryption: (filename: string, current: string, max: string) => `Salvando novamente ${filename} (${current}/${max})...`,
+    timelineMode: 'Modo da timeline',
+    timelineModeStart: 'Início',
+    timelineModeNext: 'Próximo',
+    timelineCutoffDay: 'Dia de corte',
   },
   dashboard: {
     title: 'Visão Geral',

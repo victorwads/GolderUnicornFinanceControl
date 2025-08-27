@@ -107,6 +107,10 @@ const fr: Translation = {
     language: 'Langue',
     toggleEncryption: (disabled: boolean) => disabled ? 'Activer le Chiffrement (DEV only)' : 'Désactiver le Chiffrement (DEV only)',
     resavingWithEncryption: (filename: string, current: string, max: string) => `Réenregistrement de ${filename} (${current}/${max})...`,
+    timelineMode: 'Mode de timeline',
+    timelineModeStart: 'Début',
+    timelineModeNext: 'Suivant',
+    timelineCutoffDay: 'Jour de coupure',
   },
   dashboard: {
     title: 'Tableau de Bord',

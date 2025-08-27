@@ -6,7 +6,7 @@ import fr from './fr';
 import zh from './zh';
 import hi from './hi';
 
-export type Lang = keyof typeof Langs | undefined;
+export type Lang = keyof typeof Langs;
 export type LangInfo = {
   lang: Translation;
   name: string;
@@ -22,7 +22,7 @@ export const Langs: Record<string, LangInfo> = {
   "hi": {lang: hi, name: "हिन्दी - Hindi", short: "hi-IN"},
 };
 
-export const getCurrentLangInfo = (): LangInfo => {
+const getCurrentLangInfo = (): LangInfo => {
   return Langs[window.CurrentLang] || Langs['en'];
 };
 
@@ -42,7 +42,8 @@ export function setLanguage(language?: Lang) {
     ) as Lang || 'en';
   }
   window.CurrentLang = language;
-  window.Lang = getCurrentLangInfo().lang;
+  window.CurrentLangInfo = getCurrentLangInfo();
+  window.Lang = window.CurrentLangInfo.lang;
   window.ThemeSettings?.setLang(language);
 }
 
@@ -50,6 +51,7 @@ setLanguage(localStorage.getItem('lang') as Lang);
 
 declare global {
   var Lang: Translation;
-  var CurrentLang: keyof typeof Langs;
+  var CurrentLang: Lang;
+  var CurrentLangInfo: LangInfo;
   var SavedLang: Lang | undefined;
 }
