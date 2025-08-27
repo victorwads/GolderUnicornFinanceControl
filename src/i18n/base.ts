@@ -115,6 +115,10 @@ export default interface Translation {
     language: string;
     toggleEncryption: (isDisabled: boolean) => string;
     resavingWithEncryption: (filename: string, current: string, max: string) => string;
+    timelineMode: string;
+    timelineModeStart: string;
+    timelineModeNext: string;
+    timelineCutoffDay: string;
   };
   dashboard: {
     title: string;

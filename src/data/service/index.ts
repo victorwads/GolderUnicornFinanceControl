@@ -1,6 +1,7 @@
 import getRepositories, { Repositories } from "@repositories";
 import { BalanceService } from "./BalanceService";
 import TimelineService from "./TimelineService";
+import FinancialMonthPeriod from "../utils/FinancialMonthPeriod";
 import { getCurrentUser } from "@configs";
 
 export type Services = {
@@ -22,10 +23,14 @@ let servicesInstances: ServicesInstance | null = null;
 export function resetServices(uid: string, repositories: Repositories): Services {
   if (servicesInstances?.uid === uid) return servicesInstances.instances;
 
-  const timeline = new TimelineService(repositories);
+  const cutOff = parseInt(localStorage.getItem('financeDay') || '1');
+  const mode = (localStorage.getItem('financeMode') as "start" | "next") || 'start';
+  const period = new FinancialMonthPeriod(cutOff, mode);
+
+  const timeline = new TimelineService(repositories, period);
   const instances: Services = {
     timeline,
-    balance: new BalanceService(timeline),
+    balance: new BalanceService(timeline, period),
   };
 
   servicesInstances = { uid, instances };

@@ -23,13 +23,33 @@ const CUTOFF_MAX_DAY = 28;
 
 export default class FinancialMonthPeriod {
   constructor(
-    private readonly cutOffDay: number = 1,
+    private cutOffDay: number = 1,
     private displayType: "start" | "next" = "start"
   ) {
     if (cutOffDay < 1 || cutOffDay > CUTOFF_MAX_DAY) {
       throw new Error(`Cut-off day must be between 1 and ${CUTOFF_MAX_DAY}.`);
     }
     this.cutOffDay = cutOffDay;
+  }
+
+  public setConfig({ cutOffDay, displayType }: { cutOffDay?: number; displayType?: "start" | "next" }): void {
+    if (cutOffDay !== undefined) {
+      if (cutOffDay < 1 || cutOffDay > CUTOFF_MAX_DAY) {
+        throw new Error(`Cut-off day must be between 1 and ${CUTOFF_MAX_DAY}.`);
+      }
+      this.cutOffDay = cutOffDay;
+    }
+    if (displayType) {
+      this.displayType = displayType;
+    }
+  }
+
+  public getCutOffDay(): number {
+    return this.cutOffDay;
+  }
+
+  public getDisplayType(): "start" | "next" {
+    return this.displayType;
   }
 
   public getMonthPeriod(month: Month): Period {

@@ -107,6 +107,10 @@ const es: Translation = {
     language: 'Idioma',
     toggleEncryption: (disabled: boolean) => disabled ? 'Habilitar Cifrado (DEV only)' : 'Deshabilitar Cifrado (DEV only)',
     resavingWithEncryption: (filename: string, current: string, max: string) => `Guardando nuevamente ${filename} (${current}/${max})...`,
+    timelineMode: 'Modo de timeline',
+    timelineModeStart: 'Inicio',
+    timelineModeNext: 'Siguiente',
+    timelineCutoffDay: 'Día de corte',
   },
   dashboard: {
     title: 'Tablero',

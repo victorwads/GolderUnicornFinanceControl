@@ -117,6 +117,10 @@ const hi: Translation = {
     language: 'भाषा',
     toggleEncryption: (disabled: boolean) => disabled ? 'एन्क्रिप्शन सक्षम करें (केवल DEV)' : 'एन्क्रिप्शन अक्षम करें (केवल DEV)',
     resavingWithEncryption: (filename: string, current: string, max: string) => `${filename} फिर से सहेजा जा रहा है (${current}/${max})...`,
+    timelineMode: 'टाइमलाइन मोड',
+    timelineModeStart: 'प्रारंभ',
+    timelineModeNext: 'अगला',
+    timelineCutoffDay: 'कट-ऑफ दिन',
   },
   dashboard: {
     title: 'डैशबोर्ड',

@@ -161,9 +161,14 @@ const TimelineScreen = () => {
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(false)}>
           <Icon icon={Icon.all.faChevronLeft} />
         </button>
-        <span className="TimelineMonthLabel">
-          {currentMonth.localeName}
-        </span>
+        <div className="TimelineMonthInfo">
+          <span className="TimelineMonthLabel">
+            {currentMonth.localeName}
+          </span>
+          <span className="TimelineMonthPeriod">
+            {period.start.toLocaleDateString(navigator.language)} - {period.end.toLocaleDateString(navigator.language)}
+          </span>
+        </div>
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(true)}>
           <Icon icon={Icon.all.faChevronRight} />
         </button>

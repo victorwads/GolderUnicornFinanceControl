@@ -8,6 +8,7 @@ import AppSection from './sections/AppPreferencesSection';
 import AccountSection from './sections/AccountSection';
 import BetaSection from './sections/BetaSection';
 import DevSection from './sections/DevSection';
+import PreferencesSection from './sections/PreferencesSection';
 import { SettingsSection } from './sections/types';
 
 const SettingsScreen = () => {
@@ -15,6 +16,7 @@ const SettingsScreen = () => {
   const sections: SettingsSection[] = useMemo(() => ([
     FinancesSection,
     AccountSection,
+    PreferencesSection,
     AppSection,
     BetaSection,
     DevSection,
