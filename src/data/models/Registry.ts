@@ -34,7 +34,7 @@ export abstract class Registry extends DocumentModel {
   }
 
   public get formatedPrice() {
-    return this.value.toLocaleString(navigator.language, {
+    return this.value.toLocaleString(CurrentLangInfo.short, {
       style: "currency",
       currency: "BRL",
     });

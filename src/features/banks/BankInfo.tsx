@@ -21,7 +21,7 @@ const BankInfo = ({ bank, balance, divider, onClick }: BankInfoParams) => {
     <div style={{flex: 1}} />
     <Loading show={balance === true} />
     {typeof balance == "number" && <span className="BankInfo-Balance">
-      {balance.toLocaleString('pt-BR', {
+      {balance.toLocaleString(CurrentLangInfo.short, {
         style: 'currency',
         currency: 'BRL'
       })}

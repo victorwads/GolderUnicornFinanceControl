@@ -17,7 +17,7 @@ import { PARAM_CATEGORY, PARAM_FROM, PARAM_TO } from './TimelineFilterScreen';
 import RegistryItem from "./RegistryItem";
 import { a } from 'vitest/dist/chunks/suite.d.FvehnV49';
 
-const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
+const formatNumber = (number: number) => number.toLocaleString(CurrentLangInfo.short, {
   style: "currency",
   currency: "BRL",
 });
@@ -166,7 +166,7 @@ const TimelineScreen = () => {
             {currentMonth.localeName}
           </span>
           <span className="TimelineMonthPeriod">
-            {period.start.toLocaleDateString(navigator.language)} - {period.end.toLocaleDateString(navigator.language)}
+            {period.start.toLocaleDateString(CurrentLangInfo.short)} - {period.end.toLocaleDateString(CurrentLangInfo.short)}
           </span>
         </div>
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(true)}>

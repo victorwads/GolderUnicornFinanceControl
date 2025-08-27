@@ -121,7 +121,8 @@ export class Month {
   }
 
   public get localeName(): string {
-    return new Date(this.year, this.month - 1).toLocaleDateString(navigator.language, { month: 'long', year: 'numeric' })
+    return new Date(this.year, this.month - 1)
+      .toLocaleDateString(CurrentLangInfo.short, { month: 'long', year: 'numeric' })
   }
 
   plusOneMonth(): Month {

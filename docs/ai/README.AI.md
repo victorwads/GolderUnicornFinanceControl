@@ -60,6 +60,6 @@ The assistant never saves data automatically.  Every action must be confirmed by
 ## Good practices
 * Normalise dates and currency values locally before sending to the server.
 * Keep `temperature` and `top_p` low to reduce hallucinations and cost.
-* Use the app's global language – the parser receives `getCurrentLangInfo().short`.
+* Use the app's global language – the parser receives `CurrentLangInfo.short`.
 * Respect the current screen context when interpreting commands.
 * Confirmation is always required before committing changes.

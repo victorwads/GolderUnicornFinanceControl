@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Icon from '@components/Icons';
-import { getCurrentLangInfo } from '@lang';
-import { getCurrentCosts } from '@resourceUse';
 import AIActionsParser, { AIActionHandler, AIItemData, AIItemWithAction } from '@features/speech/AIParserManager';
 
 const DOLAR_PRICE = 5.5;
@@ -21,7 +19,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
   { parser, onAction }: AIMicrophoneProps<T, A>
 ) {
   const navigate = useNavigate();
-  const currentLangInfo = getCurrentLangInfo();
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
   const sendTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -51,12 +48,12 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
 
       resetTranscript();
       try {
-        await parser.parse(textToProcess, currentLangInfo.short);
+        await parser.parse(textToProcess, CurrentLangInfo.short);
       } finally {
         setProcessingQueue(q => q.filter(t => t.id !== id));
       }
     }, 1500);
-  }, [transcript, currentLangInfo.short, parser, resetTranscript]);
+  }, [transcript, CurrentLangInfo.short, parser, resetTranscript]);
 
   useEffect(() => {
     return () => {
@@ -70,7 +67,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
 
   const startListening = () => SpeechRecognition.startListening({
     continuous: true,
-    language: currentLangInfo.short,
+    language: CurrentLangInfo.short,
   });
 
   const placeholder = transcript || (
@@ -90,7 +87,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
           title={Lang.speech.changeLangTooltip}
           onClick={() => navigate('/main/settings')}
         >
-          <span className="speech-marquee-lang-short">{currentLangInfo.short}</span>
+          <span className="speech-marquee-lang-short">{CurrentLangInfo.short}</span>
         </div>}
         <div>
           {listening && <div className="speech-marquee-content">
