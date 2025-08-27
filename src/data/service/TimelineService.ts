@@ -3,6 +3,7 @@ import { Repositories } from "@repositories";
 import { getCurrentUser } from '../firebase/google-services';
 import { AccountsRegistry } from '../models/AccountRegistry';
 import FinancialMonthPeriod from "../utils/FinancialMonthPeriod";
+import searchScore from "../utils/SearchScore";
 
 export interface TimelineFilterPeriod {
   start: Date;
@@ -16,6 +17,7 @@ export interface TimelineFilterParams {
   accountIds?: string[];
   paid?: boolean;
   light?: boolean;
+  search?: string;
 }
 
 export default class TimelineService {
@@ -37,7 +39,8 @@ export default class TimelineService {
     accountIds = [],
     showArchived = false,
     light = false,
-    paid
+    paid,
+    search
   }: TimelineFilterParams = {}): RegistryWithDetails[] {
     const { accounts, categories, accountRegistries, creditCards, creditCardsInvoices } = this.repositories;
     const period = periodData && TimelineFilterPeriodImpl.fromData(periodData);
@@ -89,7 +92,26 @@ export default class TimelineService {
     const registries = ([...debit, ...credit])
       .sort(({registry: {date: a}}, {registry: {date: b}}) => b.getTime() - a.getTime());
 
-    return registries;
+    return search ? this.applySearch(registries, search) : registries;
+  }
+
+  private applySearch(registries: RegistryWithDetails[], query: string): RegistryWithDetails[] {
+    const trimmed = query.trim();
+    if (!trimmed) return registries;
+
+    return registries
+      .map(r => ({
+        item: r,
+        score: searchScore(trimmed, {
+          description: r.registry.description,
+          name: r.sourceName,
+          category: r.category?.name,
+          value: r.registry.value,
+        }),
+      }))
+      .filter(r => r.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(r => r.item);
   }
 
   private findAccountIdOfInvoice({ paymentAccountId, cardId}: CreditCardInvoice): string {

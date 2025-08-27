@@ -1,5 +1,5 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import "./TimelineScreen.css";
 
 import { Month, MonthKey } from '@utils/FinancialMonthPeriod';
@@ -13,11 +13,9 @@ import { ContainerScrollContent } from '@components/conteiners';
 import { Loading } from "@components/Loading";
 import Icon from '@components/Icons';
 import SearchBar from '@components/fields/SearchBar';
-import searchScore from '@utils/SearchScore';
 
 import { PARAM_CATEGORY, PARAM_FROM, PARAM_TO } from './TimelineFilterScreen';
 import RegistryItem from "./RegistryItem";
-import { a } from 'vitest/dist/chunks/suite.d.FvehnV49';
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -53,29 +51,13 @@ const TimelineScreen = () => {
       period: searchValue ? undefined : period,
       accountIds,
       categoryIds,
-      showArchived
+      showArchived,
+      search: searchValue,
     });
 
     setCurrentBalance(balance.getBalance(accountIds, period.end));
     setRegistries(registries);
   }, [categoryIds, accountIds, showArchived, period, searchValue]);
-
-  const displayedRegistries = useMemo(() => {
-    if (!searchValue.trim()) return registries;
-    return registries
-      .map(r => ({
-        item: r,
-        score: searchScore(searchValue, {
-          description: r.registry.description,
-          name: r.sourceName,
-          category: r.category?.name,
-          value: r.registry.value,
-        })
-      }))
-      .filter(r => r.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map(r => r.item);
-  }, [searchValue, registries]);
 
   const { id: accountId} = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -129,7 +111,7 @@ const TimelineScreen = () => {
 
   // TODO
   let perDayTotal = 0;
-  let currentDay = displayedRegistries[0]?.registry.date.getDate();
+  let currentDay = registries[0]?.registry.date.getDate();
   return <Container spaced full>
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
@@ -167,7 +149,7 @@ const TimelineScreen = () => {
             {formatNumber(currentBalance)}
           </span>}
         </div>
-        {displayedRegistries.length !== 0 && <span className="RegistryCount">({displayedRegistries.length}) {Lang.timeline.registryCount}</span>}
+        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
       </div>
       <div className="TimelineMonthNav">
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(false)}>
@@ -192,7 +174,7 @@ const TimelineScreen = () => {
     </ContainerFixedContent>
     <ContainerScrollContent>
       <div className="TimelineList">
-        {displayedRegistries.map(item => {
+        {registries.map(item => {
           const { id, value, date } = item.registry;
           const isCurrentDay = date.getDate() === currentDay;
           if (!isCurrentDay) {
