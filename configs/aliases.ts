@@ -8,6 +8,7 @@ export const alias = {
   '@models': resolve(projectRoot, 'src/data/models'),
   '@configs': resolve(projectRoot, 'src/data/firebase/google-services.ts'),
   '@repositories': resolve(projectRoot, 'src/data/repositories'),
+  '@services': resolve(projectRoot, 'src/data/service'),
   '@resourceUse': resolve(projectRoot, 'src/data/repositories/ResourcesUseRepositoryShared.ts'),
   '@utils': resolve(projectRoot, 'src/data/utils'),
   '@components': resolve(projectRoot, 'src/components'),

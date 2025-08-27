@@ -8,16 +8,20 @@ import getRepositories from '@repositories';
 import CategoryListItem from '@features/categories/CategoryListItem';
 import './TimelineFilterScreen.css';
 
+export const PARAM_FROM = 'f';
+export const PARAM_TO = 't';
+export const PARAM_CATEGORY = 'c';
+
 const TimelineFilterScreen = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { accounts, categories } = getRepositories();
 
   const [accountId, setAccountId] = useState<string | undefined>(searchParams.get('account') || undefined);
-  const [from, setFrom] = useState<Date | null>(searchParams.get('from') ? new Date(String(searchParams.get('from'))) : null);
-  const [to, setTo] = useState<Date | null>(searchParams.get('to') ? new Date(String(searchParams.get('to'))) : null);
+  const [from, setFrom] = useState<Date | null>(searchParams.get(PARAM_FROM) ? new Date(String(searchParams.get(PARAM_FROM))) : null);
+  const [to, setTo] = useState<Date | null>(searchParams.get(PARAM_TO) ? new Date(String(searchParams.get(PARAM_TO))) : null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    searchParams.get('c')?.split(',').filter(Boolean) ?? []
+    searchParams.get(PARAM_CATEGORY)?.split(',').filter(Boolean) ?? []
   );
 
   const accountsList = accounts.getCache();
@@ -31,9 +35,9 @@ const TimelineFilterScreen = () => {
 
   const applyFilters = () => {
     const params = new URLSearchParams();
-    if (selectedCategories.length) params.set('c', selectedCategories.join(','));
-    if (from) params.set('from', from.toISOString().substring(0,10));
-    if (to) params.set('to', to.toISOString().substring(0,10));
+    if (selectedCategories.length) params.set(PARAM_CATEGORY, selectedCategories.join(','));
+    if (from) params.set(PARAM_FROM, from.toISOString().substring(0,10));
+    if (to) params.set(PARAM_TO, to.toISOString().substring(0,10));
     const search = params.toString();
     navigate(`/main/timeline${accountId ? `/${accountId}` : ''}${search ? `?${search}` : ''}`);
   };

@@ -10,6 +10,7 @@ import Icon from "@components/Icons"
 import { ModalScreen } from "@components/conteiners/ModalScreen"
 import { WithInfoAccount } from './AccountsCard'
 import BankInfo from "../banks/BankInfo"
+import { getServices } from "@services"
 
 const AccountsScreen = () => {
   const [accounts, setAccounts] = useState<WithInfoAccount[]>([])
@@ -52,8 +53,8 @@ const AccountItem = ({ account }: { account: WithInfoAccount }) => {
   const [balance, setBalance] = useState<number | true>(true)
 
   useEffect(() => {
-    const { accounts } = getRepositories();
-    setBalance(accounts.getAccountBalance(account.id))
+    const { balance } = getServices();
+    setBalance(balance.getBalance(account.id))
   }, [account.id]);
 
   return <Link to={'/accounts/' + account.id + '/edit'} key={account.id}>
