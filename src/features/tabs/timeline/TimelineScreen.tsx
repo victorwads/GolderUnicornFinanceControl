@@ -12,10 +12,10 @@ import { Container, ContainerFixedContent } from "@components/conteiners";
 import { ContainerScrollContent } from '@components/conteiners';
 import { Loading } from "@components/Loading";
 import Icon from '@components/Icons';
+import SearchBar from '@components/fields/SearchBar';
 
 import { PARAM_CATEGORY, PARAM_FROM, PARAM_TO } from './TimelineFilterScreen';
 import RegistryItem from "./RegistryItem";
-import { a } from 'vitest/dist/chunks/suite.d.FvehnV49';
 
 const formatNumber = (number: number) => number.toLocaleString(navigator.language, {
   style: "currency",
@@ -34,11 +34,11 @@ const TimelineScreen = () => {
   const [currentMonth, setCurrentMonth] = useState<Month>(() => Month.fromDate(period.start));
   // @legacy
   const [selectedAccount, setSelectedAccount] = useState<Account | null>();
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     const { accounts } = getRepositories();
     const { balance, timeline } = getServices();
-    // const accountIds = params.id ? [params.id] : [];
 
     if (accountIds?.length) {
       const id = accountIds[0];
@@ -48,22 +48,16 @@ const TimelineScreen = () => {
     }
 
     let registries = timeline.getAccountItems({
-      period,
+      period: searchValue ? undefined : period,
       accountIds,
       categoryIds,
-      showArchived
+      showArchived,
+      search: searchValue,
     });
 
-    console.log("changes DEPS", {
-      period,
-      accountIds,
-      categoryIds,
-      registries
-    })
-
-    setCurrentBalance(balance.getBalance(accountIds,period.end));
+    setCurrentBalance(balance.getBalance(accountIds, period.end));
     setRegistries(registries);
-  }, [categoryIds, accountIds, showArchived, period]);
+  }, [categoryIds, accountIds, showArchived, period, searchValue]);
 
   const { id: accountId} = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -168,6 +162,7 @@ const TimelineScreen = () => {
           <Icon icon={Icon.all.faChevronRight} />
         </button>
       </div>
+      <SearchBar value={searchValue} onSearchEach={setSearchValue} onClose={() => setSearchValue('')} />
       <div className="FloatButton">
         <Link to={'/accounts/registry/add?'
           + (selectedAccount ? `&account=${selectedAccount.id}` : '')
