@@ -20,6 +20,10 @@ export class CreditCardInvoice extends DocumentModel {
     return CreditCardInvoice.makeName(this.year, this.month);
   }
 
+  public get paid(): boolean {
+    return this.paidValue !== undefined && !!this.paymentAccountId && !!this.paymentDate;
+  }
+
   public static nowName(): string {
     const now = new Date();
     return CreditCardInvoice.makeName(now.getFullYear(), now.getMonth() + 1);

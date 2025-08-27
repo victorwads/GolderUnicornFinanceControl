@@ -11,6 +11,7 @@ import {
 
 import { DocumentModel } from "@models";
 import { addResourceUse } from "./ResourcesUseRepositoryShared";
+import { initializeApp } from 'firebase/app';
 
 const queryField: keyof DocumentModel = "_updatedAt";
 
@@ -21,6 +22,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected userId?: string;
   private minimumCacheSize = 0;
   private waitRef: Promise<any> | null = null;
+  private inited: boolean = false;
   protected waitFinished: boolean = false;
 
   constructor(
@@ -56,10 +58,10 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   protected async waitInit(): Promise<void> {
-    if (Object.keys(BaseRepository.cache[this.collectionName] || {}).length === this.minimumCacheSize) {
+    if (Object.keys(this.cache || {}).length === this.minimumCacheSize) {
       await this.handleWait(this.getAll());
       console.warn(`Repository ${this.collectionName} initialized`);
-      // const length = Object.keys(BaseRepository.cache[this.collectionName]).length;
+      // const length = Object.keys(this.cache).length;
       // console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
     }
   }
@@ -69,8 +71,8 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.waitFinished = false;
     this.collectionName = this.parseCollectionName();
     this.ref = collection(this.db, this.collectionName);
-    if (!BaseRepository.cache[this.collectionName]) {
-      BaseRepository.cache[this.collectionName] = {};
+    if (!this.cache) {
+      this.cache = {};
     }
     // await this.waitInit();
   }
@@ -101,7 +103,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     const items = [];
     for (const snap of queryResult.docs) {
       let item = await this.fromFirestore(snap.id, snap.data());
-      BaseRepository.cache[this.collectionName][snap.id] = item;
+      this.addToCache(item);
       items.push(item);
     };
     this.postQueryProcess(items);
@@ -110,12 +112,12 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   protected addToCache(model: Model): void {
-    this.minimumCacheSize++;
-    BaseRepository.cache[this.collectionName][model.id] = model;
+    if (!this.cache[model.id]) this.minimumCacheSize++;
+    this.cache[model.id] = model;
   }
 
   public getLocalById(id?: string): Model | undefined {
-    return BaseRepository.cache[this.collectionName][id ?? ""] as Model;
+    return this.cache[id ?? ""] as Model;
   }
 
   public async set(model: Model, merge: boolean = false, update: boolean = true): Promise<DocumentReference<Model>> {
@@ -132,7 +134,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       (model as any).id = result.id;
     }
 
-    BaseRepository.cache[this.collectionName][model.id] = model;
+    this.addToCache(model);
     addResourceUse({
       db: {
         remote: { writes: 1 },
@@ -149,7 +151,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     for (const model of models) {
       const data = await this.toFirestore(model);
       batch.set(doc(this.ref, model.id), data);
-      BaseRepository.cache[this.collectionName][model.id] = model;
+      this.addToCache(model);
     }
 
     await batch.commit();
@@ -162,7 +164,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   public getCache(): Model[] {
-    const result = Object.values(BaseRepository.cache[this.collectionName] || {}) as Model[];
+    const result = Object.values(this.cache || {}) as Model[];
     return result;
   }
 
@@ -236,7 +238,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
           const ids = snap.docs.map((doc) => doc.id);
           this.getCache().forEach((item) => {
             if (!ids.includes(item.id)) {
-              delete BaseRepository.cache[this.collectionName][item.id];
+              delete this.cache[item.id];
             }
           });
           return snap;
@@ -262,7 +264,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return collectionNamePattern.replace(/\{userId\}/g, this.userId || "nouser");
   }
 
-  private static cache: { [key: string]: { [key: string]: DocumentData } } = {};
+  private cache: { [key: string]: DocumentData } = {};
 
   protected getErrorHanlder(name: 'adding' | 'listing' | 'setting', ...args: any[]) {
     return (e: Error) => {

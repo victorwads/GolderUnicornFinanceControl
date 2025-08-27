@@ -8,6 +8,7 @@ import { Bank, Account } from "@models"
 import getRepositories from "@repositories"
 import { waitUntilReady } from '@repositories';
 import { WithRepo } from "@components/WithRepo"
+import { getServices } from "@services"
 
 export interface WithInfoAccount extends Account {
   bank: Bank
@@ -62,8 +63,8 @@ const AccountItem = ({ account }: AccountItemParams) => {
 
   useEffect(() => {
     waitUntilReady('accountRegistries', 'creditCardsInvoices').then(() => {
-      const { accounts } = getRepositories();
-      setBalance(accounts.getAccountBalance(account.id))
+      const { balance } = getServices();
+      setBalance(balance.getBalance(account.id))
     });
   }, [account.id]);
 

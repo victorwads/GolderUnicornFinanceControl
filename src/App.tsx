@@ -29,8 +29,9 @@ import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 
-import { clearRepositories, resetRepositories } from '@repositories';
+import getRepositories, { clearRepositories, resetRepositories } from '@repositories';
 import { getCurrentUser, saveUser } from '@configs';
+import { clearServices, resetServices } from '@services';
 
 const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/main/dashboard" replace /> },
@@ -87,9 +88,11 @@ function App() {
     onAuthStateChanged(getAuth(), async (currentUser) => {
       setLoading(true)
       if(currentUser) {
-        await resetRepositories();
+        const repos = await resetRepositories(currentUser.uid);
+        resetServices(currentUser.uid, repos);
       } else {
         clearRepositories();
+        clearServices();
       }
 
       saveUser(currentUser);

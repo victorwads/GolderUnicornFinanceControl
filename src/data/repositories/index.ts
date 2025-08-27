@@ -12,7 +12,6 @@ import Encryptor from '../crypt/Encryptor';
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import ResourcesUseRepository from './ResourcesUseRepository';
 import CreditcardsRepository from "./CreditcardsRepository";
-import BaseRepository from "./RepositoryBase";
 import { getCurrentUser } from "@configs";
 
 export  { User } from "./UserRepository";
@@ -37,18 +36,14 @@ export type InitedRepositories = {
   [K in RepoName]: Promise<Repositories[K]>
 }
 
-
 export type RepositoriesInstance = {
   uid: string;
-  promise: Promise<void[]>;
   instances: Repositories
 }
 let repositorieInstances: RepositoriesInstance | null = null;
 
-export async function resetRepositories(): Promise<void> {
-  const { uid } = getCurrentUser()!;
-  if (!uid) throw new Error('User not authenticated');
-  if (repositorieInstances?.uid === uid) return;
+export async function resetRepositories(uid: string): Promise<Repositories> {
+  if (repositorieInstances?.uid === uid) return repositorieInstances.instances;
 
   const instances: Repositories = {
     user: new UserRepository(),
@@ -71,8 +66,6 @@ export async function resetRepositories(): Promise<void> {
   await encryptorInstance.init(uid);
   debugTimestamp('Encryptor initialized', initEncryption);
 
-  const initRepos = Date.now();
-  let totalRepoTime = 0;
   const toWait = Object.entries(instances).map(([key, repo]) => {
     if (repo instanceof RepositoryWithCrypt) repo.config(encryptorInstance);
     const init = Date.now();
@@ -81,10 +74,11 @@ export async function resetRepositories(): Promise<void> {
   
   repositorieInstances = {
     uid,
-    promise: Promise.all(toWait),
     instances: instances
   }
-  await repositorieInstances?.promise;
+  await Promise.all(toWait);
+
+  return instances;
 }
 
 export function clearRepositories(): void {
@@ -124,6 +118,7 @@ function debugTimestamp(message: string, init: number): number {
   return time;
 }
 
-if(getCurrentUser()) {
-  resetRepositories();
+const user = getCurrentUser()
+if (user) {
+  resetRepositories(user.uid);
 }
