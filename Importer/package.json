@@ -1,0 +1,22 @@
+{
+  "name": "importer",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "fullUser": "tsx src/fullUser.ts",
+    "resourceUseMigration": "tsx src/resourceUseMigration.ts"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "firebase-admin": "^13.2.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "firebase": "^11.6.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3"
+  }
+}
