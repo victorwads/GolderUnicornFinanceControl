@@ -1,0 +1,43 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    position: relative;
+}
+
+.container.full {
+    height: 100%;
+}
+
+.container.spaced {
+    padding: var(--spacing-md);
+    padding-bottom: 0;
+}
+
+.container.screen {
+    height: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.container.wide {
+    max-width: 900px;
+    width: 100%;
+}
+
+.container-content {
+    box-sizing: border-box;
+}
+
+.container-content.spaced {
+    padding: 0 var(--spacing-md);
+}
+
+.container-content.fixed {
+    flex: 0 1 auto;
+}
+
+.container-content.scroll {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}

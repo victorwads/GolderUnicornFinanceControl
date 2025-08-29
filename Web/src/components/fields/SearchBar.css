@@ -1,0 +1,30 @@
+.SearchBar {
+  display: flex;
+  height: 48px;
+  flex-direction: row;
+  align-items: center;
+  border-bottom: 1px solid var(--divider-color-default);
+  margin-bottom: 12px;
+}
+
+.SearchBar > span {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  /** Temp **/
+  border: 1px solid;
+  border-radius: 100%;
+}
+
+.SearchBar > input {
+  display: block;
+  margin: 4px;
+  padding: 8px 12px;
+  border: 0 none;
+  background-color: transparent;
+  flex: 1;
+  outline: none;
+}

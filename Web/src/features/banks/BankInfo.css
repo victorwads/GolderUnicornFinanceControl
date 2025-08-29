@@ -1,0 +1,19 @@
+.BankInfo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid var(--divider-color-soft);
+}
+
+.BankInfo.NoDivider {
+    border-bottom: none;
+}
+
+.BankInfo > img {
+    margin: var(--spacing-sm);
+    margin-right: 1em;
+}
+
+.BankInfo .loader {
+    margin-right: 1.5em;
+}

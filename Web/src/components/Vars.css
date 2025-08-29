@@ -1,0 +1,73 @@
+.theme-light {
+    --primary-color: #007bff;
+    --primary-color-hover: #0056b3;
+    --bg-color-default: #fefefe;
+    --bg-color-input: #CCC;
+    --bg-color-highlight: rgba(0, 0, 0, 0.08);
+    --bg-color-shadow: rgba(0, 0, 0, 0.25);
+    
+    --bg-step-1: rgba(30, 120, 255, 0.04);
+    --bg-step-2: rgba(30, 120, 255, 0.07);
+    --bg-step-3: rgba(30, 120, 255, 0.12);
+
+    --font-color-default: #333;
+    --font-color-link: blue;
+    --font-color-input: #222;
+
+    --divider-color-default: rgba(0, 0, 0, 0.2);
+    --divider-color-soft: rgba(0, 0, 0, 0.1);
+    --invert: 0.1;
+}
+
+.theme-dark {
+    --primary-color: #1e90ff;
+    --primary-color-hover: #1c86ee;
+    --bg-color-default: #282c34;
+    --bg-color-input: #555;
+    --bg-color-highlight: rgba(0, 0, 0, 0.1);
+    --bg-color-shadow: rgba(255, 255, 255, 0.25);
+    
+    --bg-step-1: rgba(128, 90, 200, 0.06); /* subtle purple */
+    --bg-step-2: rgba(128, 90, 200, 0.10);
+    --bg-step-3: rgba(128, 90, 200, 0.16);
+
+    --font-color-default: #f5f5f5;
+    --font-color-link: #bbb;
+    --font-color-input: #fff;
+
+    --divider-color-default: rgba(0, 0, 0, 0.2);
+    --divider-color-soft: rgba(0, 0, 0, 0.1);
+    --invert: 0.75;
+}
+
+.theme {
+    --spacing-xxs: 0.14em;
+    --spacing-xs: 0.28em;
+    --spacing-sm: 0.57em;
+    --spacing-md: 0.85em;
+    --spacing-lg: 1.15em;
+    --spacing-xl: 1.7em;
+
+    --color-danger: #dc3545;
+    --color-warning: #fd7e14;
+    --color-info: #ffc107;
+    --color-success: #28a745;
+    --color-expired: purple;
+}
+
+.density-1 {
+    --font-size: 12px;
+}
+
+.density-2 {
+    --font-size: 14px;
+}
+
+.density-3 {
+    --font-size: 16px;
+}
+
+.density-4 {
+    --font-size: 18px;
+}
+  

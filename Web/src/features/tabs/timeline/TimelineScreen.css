@@ -1,0 +1,129 @@
+.ScreenHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.ScreenHeaderRow:last-child {
+  margin-bottom: var(--spacing-md);
+}
+
+.ScreenTitle {
+  font-size: 1.8em;
+  font-weight: bold;
+}
+
+.SelectedBank {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: end;
+  column-gap: var(--spacing-sm);
+}
+
+.SelectedBank .ClearFilter {
+  font-size: 14px;
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.SelectedBank .ClearFilter:hover {
+  color: #0056b3;
+}
+
+.ScreenOptions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.ScreenOptions input{
+  margin-right: 5px;
+}
+
+.FilterButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: var(--bg-color-highlight);
+  margin-right: var(--spacing-md);
+}
+
+.FilterButton:hover {
+  background-color: var(--bg-color-shadow);
+}
+
+.RegistryCount {
+  padding: var(--spacing-md) 0;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.ScreenTotal {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.TotalValue {
+  font-size: 1.125em;
+}
+
+.TotalValue.positive {
+  color: #0a7d0a;
+}
+
+.TotalValue.negative {
+  color: #ad1717;
+}
+
+.TimelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 3em;
+}
+
+.TimelineMonthNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.TimelineMonthInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.TimelineMonthNavButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.TimelineMonthLabel {
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.TimelineMonthPeriod {
+  font-size: 0.8em;
+}

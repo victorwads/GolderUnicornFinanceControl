@@ -1,0 +1,70 @@
+.App {
+  display: flex;
+  box-sizing: border-box;
+  justify-content: center;
+  border: 0.01px solid transparent;
+  height: 100%;
+  background-color: var(--bg-color-default);
+  color: var(--font-color-default);
+  font-size: var(--font-size);
+}
+
+.App, .App * {
+  /* border: 0.5px solid rgba(255, 65, 65, 0.5); */
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.App > div {
+  flex: 1;
+}
+
+input {
+  color: inherit;
+}
+
+.Screen {
+  display: block;
+  overflow: auto;
+  flex: 1;
+}
+
+.PopUp {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: none;
+  opacity: 0;
+  background-color: var(--bg-color-default);
+  transition: display .5s, opacity .5s;
+  z-index: 10;
+}
+
+.PopUp.active {
+  display: block;
+  opacity: 1;
+}
+
+.centerInfo {
+  color: #888;
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.FloatButton {
+  position: absolute;
+  bottom: 3em;
+  right: 2em;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  width: 4em;
+  height: 4em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow-elevation-medium);
+}

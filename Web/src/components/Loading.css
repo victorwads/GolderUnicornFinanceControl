@@ -1,0 +1,66 @@
+/* HTML: <div class="loader.wave"></div> */
+.loader.pulse {
+  width: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin: 20px;
+  background: var(--bg-color-shadow);
+  box-shadow: 0 0 0 0 var(--bg-color-shadow);
+  animation: l2 1.5s infinite linear;
+  position: relative;
+}
+.loader.pulse:before,
+.loader.pulse:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 var(--bg-color-shadow);
+  animation: inherit;
+  animation-delay: -0.5s;
+}
+.loader:after {
+  animation-delay: -1s;
+}
+@keyframes l2 {
+    100% {box-shadow: 0 0 0 15px #0000}
+}
+
+/* HTML: <div class="loader"></div> */
+.loader.rainbow {
+  width: 50px;
+  height: 25px;
+  border-radius: 50px 50px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+.loader.rainbow:before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -100%;
+  background: radial-gradient(farthest-side at top,#0000 35%,#aa47be,#039be6,#26c6dc,#459e44,#f9ec44,#f68524,#fa3536,#0000) bottom/100% 50% no-repeat;
+  animation: l8 2s infinite;
+}
+@keyframes l8 {
+  0%,20%   {transform: rotate(0)}
+  40%,60%  {transform: rotate(.5turn)}
+  80%,100% {transform: rotate(1turn)}
+}
+
+/* HTML: <div class="loader"></div> */
+.loader.wave {
+  height: 9px;
+  aspect-ratio: 6;
+  --c: var(--bg-color-shadow) 64%,var(--bg-color-shadow) 66% 98%,#0000 101%;
+  background:
+    radial-gradient(35% 146% at 50% 159%,var(--c)) 0 0,
+    radial-gradient(35% 146% at 50% -59%,var(--c)) 25% 100%;
+  background-size: calc(100%/3) 50%;
+  background-repeat: repeat-x;
+  margin: 0 5px;
+  -webkit-mask: repeating-linear-gradient(90deg,#000 0 15%,#0000 0 50%) 0 0/200%;
+  animation: l7 .8s infinite linear;
+}
+@keyframes l7{
+  to {-webkit-mask-position:-100% 0}
+}

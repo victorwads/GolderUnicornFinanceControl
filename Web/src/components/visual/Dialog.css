@@ -1,0 +1,23 @@
+/* Estilo do overlay do popup */
+.Dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Fundo escuro com transparência */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Dialog > div {
+  position: relative;
+  background-color: var(--bg-color-default); /* Fundo branco */
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* Sombra suave */
+  padding: 0 20px;
+  max-width: 900px;
+  min-width: 300px;
+  height: 80%;
+}

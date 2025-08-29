@@ -1,0 +1,30 @@
+.scrollableInvoices {
+    display: flex;
+    overflow-x: auto;
+    gap: 0;
+}
+
+.scrollableInvoices::before,
+.scrollableInvoices::after {
+    content: "";
+    flex: 0 0 50%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.scrollableInvoices > div {
+    padding: 8px 16px;
+    border-bottom: 1px solid #ccc;
+    background: transparent;
+    cursor: pointer;
+    min-width: 25%;
+    text-align: center;
+    transition: border 0.2s, background-color 0.2s;
+    font-weight: normal;
+}
+
+.scrollableInvoices > .selected {
+    border-bottom: 2px solid #007bff;
+    background: var(--bg-color-shadow);
+    font-weight: bold;
+}

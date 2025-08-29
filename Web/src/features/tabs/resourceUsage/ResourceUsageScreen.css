@@ -1,0 +1,73 @@
+.resource-use-section {
+  background: var(--bg-step-1);
+  border: 1px solid var(--divider-color-soft);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.cards-grid.quad {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+
+.card {
+  border: 1px solid var(--divider-color-default);
+  border-radius: 10px;
+  background: var(--bg-step-2);
+  padding: var(--spacing-md);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.badge {
+  background: var(--bg-color-highlight);
+  color: var(--primary-color);
+  font-size: 0.7rem;
+  padding: calc(var(--spacing-xxs)) calc(var(--spacing-xs));
+  border-radius: 999px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xs);
+}
+
+.metric {
+  background: var(--bg-step-3);
+  border: 1px dashed var(--divider-color-soft);
+  border-radius: 8px;
+  padding: var(--spacing-sm);
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.metric-value {
+  display: block;
+  font-weight: 600;
+}
+
+.back-link {
+  color: var(--font-color-link);
+}

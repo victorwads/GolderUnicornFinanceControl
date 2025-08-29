@@ -1,0 +1,1347 @@
+[
+    {
+        "nome": "American Express",
+        "razao": "American Express",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/amex.png"
+    },
+    {
+        "nome": "Mastercard",
+        "razao": "Mastercard",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/mastercard.png"
+    },
+    {
+        "nome": "Visa",
+        "razao": "Visa",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/visa.png"
+    },
+    {
+        "nome": "Credicard",
+        "razao": "Itaú Unibanco S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/credicard-1.png"
+    },
+    {
+        "nome": "Diners",
+        "razao": "Diners",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/diners.png"
+    },
+    {
+        "nome": "Elo",
+        "razao": "Elo",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/elo.png"
+    },
+    {
+        "nome": "Nubank",
+        "razao": "Nubank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nubank.png"
+    },
+    {
+        "nome": "Aura",
+        "razao": "Aura",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/aura-15.png"
+    },
+    {
+        "nome": "Banco Inter",
+        "razao": "Banco Inter",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/intermedium.png"
+    },
+    {
+        "nome": "Banco do Brasil",
+        "razao": "Banco do Brasil S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bb.png"
+    },
+    {
+        "nome": "Bradesco",
+        "razao": "Banco Bradesco S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bradesco.png"
+    },
+    {
+        "nome": "Caixa",
+        "razao": "Caixa Econômica Federal",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/caixa.png"
+    },
+    {
+        "nome": "Hipercard",
+        "razao": "Hipercard Banco Múltiplo S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/hipercard.png"
+    },
+    {
+        "nome": "Itaú",
+        "razao": "Itaú Unibanco S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/itau.png"
+    },
+    {
+        "nome": "Neon",
+        "razao": "Banco Neon",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/neon.png"
+    },
+    {
+        "nome": "Next",
+        "razao": "Next",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/next.png"
+    },
+    {
+        "nome": "Nuconta",
+        "razao": "Nu pagamentos S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nuconta.png"
+    },
+    {
+        "nome": "Santander",
+        "razao": "Banco Santander (Brasil) S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/santander.png"
+    },
+    {
+        "nome": "Agibank",
+        "razao": "Agibank SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/agibank-1.png"
+    },
+    {
+        "nome": "Amazonia",
+        "razao": "Banco da Amazonia",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/amazonia.png"
+    },
+    {
+        "nome": "Ame Digital",
+        "razao": "Ame Digital Brasil LTDA.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/ame-1.png"
+    },
+    {
+        "nome": "BMG",
+        "razao": "Banco BMG",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bmg.png"
+    },
+    {
+        "nome": "BRB",
+        "razao": "Banco de Brasília SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/brb.png"
+    },
+    {
+        "nome": "BRDE",
+        "razao": "Banco de Desenvolvimento da Região Sul",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/brde-4.png"
+    },
+    {
+        "nome": "BS2",
+        "razao": "Banco BS2 S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bs2-1.png"
+    },
+    {
+        "nome": "BTG Pactual",
+        "razao": "BTG Pactual S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/btgpactual-1.png"
+    },
+    {
+        "nome": "Banco Cacique ",
+        "razao": "Banco Cacique S/A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cacique.jpg"
+    },
+    {
+        "nome": "Banco PAN",
+        "razao": "Banco PAN",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/pan.png"
+    },
+    {
+        "nome": "Banco Votorantim",
+        "razao": "Banco Votorantim",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/votorantim.png"
+    },
+    {
+        "nome": "Banco do Nordeste",
+        "razao": "Banco do Nordeste do Brasil S.A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nordeste.png"
+    },
+    {
+        "nome": "Banese",
+        "razao": "Banco Banese",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banese.jpg"
+    },
+    {
+        "nome": "Banestes",
+        "razao": "BANESTES S.A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banestes.png"
+    },
+    {
+        "nome": "Banif",
+        "razao": "Banco Internacional do Funchal, SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banif.png"
+    },
+    {
+        "nome": "Banpara",
+        "razao": "Banco do Estado do Pará - BANPARÁ",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banpara.png"
+    },
+    {
+        "nome": "Banrisul",
+        "razao": "Banco do Estado do Rio Grande do Sul S.A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banrisul.png"
+    },
+    {
+        "nome": "Bbm",
+        "razao": "Banco BBM",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bbm.png"
+    },
+    {
+        "nome": "Cetelem",
+        "razao": "Banco Cetelem S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cetelem-1.png"
+    },
+    {
+        "nome": "Citibank",
+        "razao": "Citibank S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/citibank.png"
+    },
+    {
+        "nome": "Clear",
+        "razao": "CLEAR CTVM S/A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/clear.png"
+    },
+    {
+        "nome": "Cruzeirodosul",
+        "razao": "Banco Cruzeiro do Sul S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cruzeirodosul.jpg"
+    },
+    {
+        "nome": "Daycoval",
+        "razao": "Banco Daycoval S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/daycoval-1.png"
+    },
+    {
+        "nome": "Digi+",
+        "razao": "Banco A J Renner",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/digiplus-1.png"
+    },
+    {
+        "nome": "Digio",
+        "razao": "BANCO CBSS S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/digio.png"
+    },
+    {
+        "nome": "Diin",
+        "razao": "Diin Pagamentos E Financas Pessoais Ltda",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/diin-1.png"
+    },
+    {
+        "nome": "Nuinvest",
+        "razao": "Nu Invest Corretora de Valores S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nuinvest-1.png"
+    },
+    {
+        "nome": "Elliot",
+        "razao": "Warren Brasil Gestao e Administracao de Recursos Ltda - EPP",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/elliot-1.png"
+    },
+    {
+        "nome": "Fortbrasil",
+        "razao": "Fortbrasil Administradora de Cartoes de Credito SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/fortbrasil-1.png"
+    },
+    {
+        "nome": "Genial Investimentos",
+        "razao": "Genial Investimentos Corretora de Valores Mobiliarios S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/genial-1.png"
+    },
+    {
+        "nome": "HSBC",
+        "razao": "HSBC Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/hsbc.png"
+    },
+    {
+        "nome": "IQ Option",
+        "razao": "IQ Option",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/iqoption-1.png"
+    },
+    {
+        "nome": "Iti",
+        "razao": "Itaú Unibanco S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/iti-1.png"
+    },
+    {
+        "nome": "Magnetis",
+        "razao": "MAGNETIS GESTORA DE RECURSOS LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/magnetis-2.png"
+    },
+    {
+        "nome": "Mais!",
+        "razao": "Cred-System",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/mais-1.png"
+    },
+    {
+        "nome": "Mercadopago",
+        "razao": "Mercadopago.com representações LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/mercadopago.png"
+    },
+    {
+        "nome": "ModalMais",
+        "razao": "MODAL DTVM LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/modalmais-1.png"
+    },
+    {
+        "nome": "Moip",
+        "razao": "Moip Pagamentos S/A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/moip.png"
+    },
+    {
+        "nome": "Monetus",
+        "razao": "Monetus Investimentos Ltda",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/monetus-1.png"
+    },
+    {
+        "nome": "N26",
+        "razao": "N26 GmbH",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/n26-1.png"
+    },
+    {
+        "nome": "Nova Futura",
+        "razao": "NOVA FUTURA CORRETORA DE TITULOS E VALORES MOBILIARIOS LTDA.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/novafatura-1.png"
+    },
+    {
+        "nome": "Original",
+        "razao": "Banco Original",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/original.png"
+    },
+    {
+        "nome": "Pag!",
+        "razao": "PAG S.A. MEIOS DE PAGAMENTO,",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/pag.png"
+    },
+    {
+        "nome": "PagBank",
+        "razao": "UOL Inc.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/pagbank-1.png"
+    },
+    {
+        "nome": "Pagseguro",
+        "razao": "Pagseguro Internet LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/pagseguro.png"
+    },
+    {
+        "nome": "PayU Brasil",
+        "razao": "PAYU BRASIL INTERMEDIAÇÃO DE NEGÓCIOS LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/payu.png"
+    },
+    {
+        "nome": "Paypal",
+        "razao": "Paypal do Brasil Serviços de Pagamento LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/paypal.png"
+    },
+    {
+        "nome": "PicPay",
+        "razao": "PICPAY SERVICOS LTDA-ME",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/picpay-1.png"
+    },
+    {
+        "nome": "Recargapay",
+        "razao": "Recargapay Pagamentos LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/recargapay-1.png"
+    },
+    {
+        "nome": "Rico",
+        "razao": "Rico Corretora de Titulos e Valores Mobiliarios S.A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/rico.png"
+    },
+    {
+        "nome": "Safra",
+        "razao": "Banco Safra S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/safra.png"
+    },
+    {
+        "nome": "Sicoob",
+        "razao": "Sistema de Cooperativas de Crédito do Brasil",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sicoob.png"
+    },
+    {
+        "nome": "Sicredi",
+        "razao": "Sistema de Crédito Cooperativo",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sicredi.png"
+    },
+    {
+        "nome": "Sodexo",
+        "razao": "Sodexo Pass do Brasil S/A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sodexo-1.png"
+    },
+    {
+        "nome": "Sofisa direto",
+        "razao": "Banco Sofisa S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sofisadireto-1.png"
+    },
+    {
+        "nome": "Submarino",
+        "razao": "B2W – Companhia Digital",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/submarino-1.png"
+    },
+    {
+        "nome": "Toro Investimentos",
+        "razao": "Toro Investimentos Ltda.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/Toro-logo-app-1.png"
+    },
+    {
+        "nome": "Unicred",
+        "razao": "Unicred",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/unicred.png"
+    },
+    {
+        "nome": "Uniprime",
+        "razao": "Uniprime Norte do Paraná",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/uniprime-1.png"
+    },
+    {
+        "nome": "Urbe.Me",
+        "razao": "Urbe.Me Servicos Desenvolvimento Urbano Ltda - ME",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/urbeme.png"
+    },
+    {
+        "nome": "Viacredi",
+        "razao": "Cooperativa Central de Credito Urbano",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/viacredi-1.png"
+    },
+    {
+        "nome": "ABN AMRO",
+        "razao": "ABN AMRO Bank N.V.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/abnamro-1.png"
+    },
+    {
+        "nome": "AGBank",
+        "razao": "AGRICULTURAL BANK OF CHINA LIMITED",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/agbank-1.png"
+    },
+    {
+        "nome": "AKBank",
+        "razao": "Akbank T.A.S",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/abank-1.png"
+    },
+    {
+        "nome": "AMP Personal Banking",
+        "razao": "AMP Limited",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/amppersonalbanking-1.png"
+    },
+    {
+        "nome": "ANZ",
+        "razao": "Australia and New Zealand Banking Group Limited (ANZ)",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/anz-1.png"
+    },
+    {
+        "nome": "ASN",
+        "razao": "ASN Bank N.V.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/asn-1.png"
+    },
+    {
+        "nome": "Absolut Bank",
+        "razao": "Absolut Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/absolutbank.png"
+    },
+    {
+        "nome": "Agribank",
+        "razao": "Vietnam Bank for Agriculture and Rural Development",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/agribank-1.png"
+    },
+    {
+        "nome": "Aktia",
+        "razao": "Aktia Bank Abp",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/aktia-1.png"
+    },
+    {
+        "nome": "Alfa",
+        "razao": "Alfa Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/alfabank.png"
+    },
+    {
+        "nome": "Alpha",
+        "razao": "Alpha Bank S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/alphabank-1.png"
+    },
+    {
+        "nome": "Americanas",
+        "razao": "B2W - Companhia Global do Varejo",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/lojasamericanas-1.png"
+    },
+    {
+        "nome": "Ameriprise Financial",
+        "razao": "Ameriprise Financial, Inc.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/ameriprisefinancial-1.png"
+    },
+    {
+        "nome": "Attica",
+        "razao": "Attica Bank S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/atticabank-1.png"
+    },
+    {
+        "nome": "BBVA",
+        "razao": "Banco Bilbao Vizcaya Argentaria SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bbva-1.png"
+    },
+    {
+        "nome": "BCA",
+        "razao": "PT Bank Central Asia Tbk.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bca-1.png"
+    },
+    {
+        "nome": "BIDV",
+        "razao": "BANK FOR INVESTMENT AND DEVELOPMENT OF VIETNAM",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bidv-1.png"
+    },
+    {
+        "nome": "BMO",
+        "razao": "Bank of Montreal",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bmo-1.png"
+    },
+    {
+        "nome": "BNI",
+        "razao": "PT. BANK NEGARA INDONESIA (PERSERO) TBK.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bni-1.png"
+    },
+    {
+        "nome": "BNL",
+        "razao": "BNL",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bnl.png"
+    },
+    {
+        "nome": "BNP Paribas",
+        "razao": "BNP Paribas SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bnpparibas-1.png"
+    },
+    {
+        "nome": "BOQ",
+        "razao": "Bank of Queensland Limited",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/boq-1.png"
+    },
+    {
+        "nome": "BPER Banca",
+        "razao": "BPER Banca",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bperbanca.png"
+    },
+    {
+        "nome": "BPI",
+        "razao": "Banco BPI, S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bpi-1.png"
+    },
+    {
+        "nome": "BRI",
+        "razao": "PT. Bank Rakyat Indonesia (Persero) (BRI)",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bankmandiri-1.png"
+    },
+    {
+        "nome": "Banamex",
+        "razao": "Banco Nacional de Mexico, S.A., integrante de Grupo Financiero Banamex",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banamex-1.png"
+    },
+    {
+        "nome": "Banca Carige",
+        "razao": "Banca Carige",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancacarige.png"
+    },
+    {
+        "nome": "Banca DItalia",
+        "razao": "Banca DItalia",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancaditalia.png"
+    },
+    {
+        "nome": "Banca MPS",
+        "razao": "Banca Monte dei Paschi di Siena S.p.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancamps-1.png"
+    },
+    {
+        "nome": "Banca Mediolanum",
+        "razao": "Banca Mediolanum",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancamediolanum.png"
+    },
+    {
+        "nome": "Banca Populare di Sondrio",
+        "razao": "Banca Populare di Sondrio",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancaopopularedisondrio.png"
+    },
+    {
+        "nome": "Banco BPM",
+        "razao": "Banco BPM",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancobpm.png"
+    },
+    {
+        "nome": "Banco de Bogotá",
+        "razao": "BANCO DE BOGOTA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancodebogota-1.png"
+    },
+    {
+        "nome": "Banco de Occident",
+        "razao": "BANCO DE OCCIDENTE",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancodeoccident-1.png"
+    },
+    {
+        "nome": "Banco del Bajio",
+        "razao": "Financiera Bajío, S.A. de C.V.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancodelbajio-1.png"
+    },
+    {
+        "nome": "BancoPosta",
+        "razao": "BancoPosta",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancoposta.png"
+    },
+    {
+        "nome": "Bancolombia",
+        "razao": "Bancolombia S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancolombia-1.png"
+    },
+    {
+        "nome": "Bangkok Bank",
+        "razao": "Bangkok Bank Public Company Limited",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bangkokbank-1.png"
+    },
+    {
+        "nome": "Bank Norwegian",
+        "razao": "Bank Norwegian AS",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banknorwegian-1.png"
+    },
+    {
+        "nome": "Bank Rakyat",
+        "razao": "Bank Kerjasama Rakyat Malaysia Berhad",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bankrakyat-1.png"
+    },
+    {
+        "nome": "Bank of Aland",
+        "razao": "Alandsbanken Abp",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bankofaland-1.png"
+    },
+    {
+        "nome": "Bank of America",
+        "razao": "Bank of America",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bankofamerica.png"
+    },
+    {
+        "nome": "Bank of China",
+        "razao": "Bank of China Limited",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bankofchina-1.png"
+    },
+    {
+        "nome": "Bankia",
+        "razao": "Bankia S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bankia-1.png"
+    },
+    {
+        "nome": "Bankwest",
+        "razao": "Bank of Western Australia Ltd",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bankwest-1.png"
+    },
+    {
+        "nome": "Banorte",
+        "razao": "Grupo Financiero Banorte, S.A.B. de C.V.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banorte-1.png"
+    },
+    {
+        "nome": "Barclays",
+        "razao": "Barclays PLC",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/barclays-1.png"
+    },
+    {
+        "nome": "Ben Visa Vale",
+        "razao": "Banco Santander (Brasil) S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/benvisavale-1.png"
+    },
+    {
+        "nome": "Bendigo",
+        "razao": "Bendigo and Adelaide Bank Ltd",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bendigobank-1.png"
+    },
+    {
+        "nome": "C6 Bank",
+        "razao": "BANCO C6 S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/c6bank-2.png"
+    },
+    {
+        "nome": "CDB",
+        "razao": "China Development Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cdb-1.png"
+    },
+    {
+        "nome": "CDP",
+        "razao": "Cassa Depositi e Prestiti S.p.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cdp-1.png"
+    },
+    {
+        "nome": "CIBC",
+        "razao": "Canadian Imperial Bank of Commerce",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cibc-1.png"
+    },
+    {
+        "nome": "CIMB Bank",
+        "razao": "CIMB Bank Berhad",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cimbbank-1.png"
+    },
+    {
+        "nome": "CIMB Niaga",
+        "razao": "PT Bank CIMB Niaga Tbk",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cimbniaga-1.png"
+    },
+    {
+        "nome": "CTT",
+        "razao": "Banco CTT, S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/ctt-1.png"
+    },
+    {
+        "nome": "Caisse dEpargne",
+        "razao": "BPCE SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/caisse-1.png"
+    },
+    {
+        "nome": "Caixa Geral",
+        "razao": "Caixa Geral de Depositos, SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/caixageral-1.png"
+    },
+    {
+        "nome": "CaixaBank",
+        "razao": "Caixabank, S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/caixabank-1.png"
+    },
+    {
+        "nome": "Capital One",
+        "razao": "Capital One Financial Corp.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/capitalone.png"
+    },
+    {
+        "nome": "Carteira",
+        "razao": "Carteira",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/carteira.jpg"
+    },
+    {
+        "nome": "Cassa Depositi e Prestiti",
+        "razao": "Cassa Depositi e Prestiti",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/cassadepositieprestiti.png"
+    },
+    {
+        "nome": "Charles Schwab",
+        "razao": "Charles Schwab",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/charlesschwab.png"
+    },
+    {
+        "nome": "China Construction",
+        "razao": "China Construction Bank Inc.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/chinaconstructionbank-1.png"
+    },
+    {
+        "nome": "CommBank",
+        "razao": "Commonwealth Bank of Australia",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/commbank-1.png"
+    },
+    {
+        "nome": "Commerzbank",
+        "razao": "Commerzbank AG",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/commerzbank-1.png"
+    },
+    {
+        "nome": "Credit Bank of Moscow",
+        "razao": "Credit Bank of Moscow",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/creditbankofmoscow.png"
+    },
+    {
+        "nome": "Credit agricole",
+        "razao": "Credit agricole",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/creditagricoleitalia.png"
+    },
+    {
+        "nome": "Credito Emiliano",
+        "razao": "Credito Emiliano",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/creditoemiliano.png"
+    },
+    {
+        "nome": "Crédit Agricole",
+        "razao": "Crédit Agricole SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/creditagricole-1.png"
+    },
+    {
+        "nome": "Crédit du Nord",
+        "razao": "Credit du Nord",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/creditdunord-1.png"
+    },
+    {
+        "nome": "DNB",
+        "razao": "DNB ASA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/dnbbank-1.png"
+    },
+    {
+        "nome": "DZ Bank",
+        "razao": "DZ BANK AG",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/dzbank-1.png"
+    },
+    {
+        "nome": "Danske",
+        "razao": "Danske Bank Group",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/danskebank-1.png"
+    },
+    {
+        "nome": "Davivienda",
+        "razao": "BANCO DAVIVIENDA SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancodavivienda-1.png"
+    },
+    {
+        "nome": "Default",
+        "razao": "Default",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/default.png"
+    },
+    {
+        "nome": "Deutsche Bank",
+        "razao": "Deutsche Bank AG",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/deutschebank-1.png"
+    },
+    {
+        "nome": "Eurobank",
+        "razao": "Eurobank Ergasias SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/eurobank-1.png"
+    },
+    {
+        "nome": "Evli",
+        "razao": "Evli Bank Plc",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/evlibank-1.png"
+    },
+    {
+        "nome": "Forex",
+        "razao": "FOREX Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/forexbank-1.png"
+    },
+    {
+        "nome": "Galicia",
+        "razao": "BANCO DE GALICIA Y BUENOS AIRES S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banco galicia-1.png"
+    },
+    {
+        "nome": "Garanti",
+        "razao": "T. Garanti Bankasi A.S.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/garantibank-1.png"
+    },
+    {
+        "nome": "Gazprombank",
+        "razao": "Gazprombank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/gazprombank.png"
+    },
+    {
+        "nome": "Goldman Sachs",
+        "razao": "Goldman Sachs Group",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/goldmansachs.png"
+    },
+    {
+        "nome": "Handelsbanken",
+        "razao": "Svenska Handelsbanken AB",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/handelsbanken-1.png"
+    },
+    {
+        "nome": "Hipotecario",
+        "razao": "Banco Hipotecario S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancohipotecario-1.png"
+    },
+    {
+        "nome": "Hong Leong",
+        "razao": "Hong Leong Bank Berhad",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/hongleong-1.png"
+    },
+    {
+        "nome": "HypoVereinsbank",
+        "razao": "UniCredit Bank AG",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/hypovereinsbank-1.png"
+    },
+    {
+        "nome": "ICBC",
+        "razao": "Industrial and Commercial Bank of China",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/icbc-1.png"
+    },
+    {
+        "nome": "ICCREA Banca",
+        "razao": "ICCREA Banca",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/iccreabanca.png"
+    },
+    {
+        "nome": "ING",
+        "razao": "ING Groep NV",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/ing-1.png"
+    },
+    {
+        "nome": "Inbursa",
+        "razao": "Grupo Financiero Inbursa, SA. de CV",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/inbursa-1.png"
+    },
+    {
+        "nome": "Intesa Sanpaolo",
+        "razao": "Intesa Sanpaolo",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/intesasanpaolo.png"
+    },
+    {
+        "nome": "Isbank",
+        "razao": "Turkiye Is Bankasi A.S.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/isbank-1.png"
+    },
+    {
+        "nome": "JP",
+        "razao": "Japan Post Bank Co.,Ltd",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/jpbank-1.png"
+    },
+    {
+        "nome": "JP Morgan Chase",
+        "razao": "JPMorgan Chase & Co.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/jpmorgan.png"
+    },
+    {
+        "nome": "Jyske",
+        "razao": "Jyske Bank A/S",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/jyskebank-1.png"
+    },
+    {
+        "nome": "KB Kookmin",
+        "razao": "KB Financial Group Inc.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/kbkookminbank-1.png"
+    },
+    {
+        "nome": "KBank",
+        "razao": "KASIKORNBANK PUBLIC COMPANY LIMITED",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/kbank-1.png"
+    },
+    {
+        "nome": "KDB",
+        "razao": "The Korea Development Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/kdbbank-1.png"
+    },
+    {
+        "nome": "KEB Hana",
+        "razao": "HANA BANK",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/kebhanabank-1.png"
+    },
+    {
+        "nome": "KFW",
+        "razao": "Kreditanstalt für Wiederaufbau KfW Bankengruppe",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/kfw-1.png"
+    },
+    {
+        "nome": "Krung Thai Bank",
+        "razao": " Krungthai Bank PCL",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/krungthaibank-1.png"
+    },
+    {
+        "nome": "Lloyds Banking Group",
+        "razao": "Lloyds Bank plc",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/lloydsbanking-1.png"
+    },
+    {
+        "nome": "MUFG",
+        "razao": "MUFG Bank, Ltd.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/mufgbank-1.png"
+    },
+    {
+        "nome": "Macquarie",
+        "razao": "Macquarie Bank Limited",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/macquariebank-1.png"
+    },
+    {
+        "nome": "Macro",
+        "razao": "Banco Macro S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancomacro-1.png"
+    },
+    {
+        "nome": "Mandiri",
+        "razao": "PT Bank Mandiri (Persero) Tbk.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/mandiri-1.png"
+    },
+    {
+        "nome": "Maybank",
+        "razao": "Malayan Banking Berhad",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/maybank-1.png"
+    },
+    {
+        "nome": "MedioBanca",
+        "razao": "MedioBanca",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/mediobanca.png"
+    },
+    {
+        "nome": "Millenium BCP",
+        "razao": "Banco Comercial Portugues, SA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/milleniumbcp-1.png"
+    },
+    {
+        "nome": "Mizuho",
+        "razao": "Mizuho Bank, Ltd.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/mizuhobank-1.png"
+    },
+    {
+        "nome": "Morgan Stanley",
+        "razao": "Morgan Stanley",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/morganstanley.png"
+    },
+    {
+        "nome": "NAB",
+        "razao": "National Australia Bank Limited",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nab-1.png"
+    },
+    {
+        "nome": "NH",
+        "razao": "NongHyup Financial Group Inc.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nhbank-1.png"
+    },
+    {
+        "nome": "Nación",
+        "razao": "Banco de La Nación Argentina",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/banconacion-1.png"
+    },
+    {
+        "nome": "National Bank of Greece",
+        "razao": "National Bank of Greece S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nationalbank-1.png"
+    },
+    {
+        "nome": "Nochu",
+        "razao": "The Norinchukin Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nochubank-1.png"
+    },
+    {
+        "nome": "Nordea",
+        "razao": "Nordea Bank AB",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nordea-1.png"
+    },
+    {
+        "nome": "Nordnet",
+        "razao": "Nordnet Bank AB",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nordnet-1.png"
+    },
+    {
+        "nome": "Novo Banco",
+        "razao": "Novo Banco, S.A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/novobancopt-1.png"
+    },
+    {
+        "nome": "Nykredit",
+        "razao": "Nykredit Bank A/S",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/nykredit-1.png"
+    },
+    {
+        "nome": "OP",
+        "razao": "OP Financial Group",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/opbank-1.png"
+    },
+    {
+        "nome": "Otkritie",
+        "razao": "Otkritie",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/otkritie.png"
+    },
+    {
+        "nome": "Outros",
+        "razao": "Outros",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/default.jpg"
+    },
+    {
+        "nome": "PNC Financial Services",
+        "razao": "PNC Financial Services",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/pncfinancialservices-4.png"
+    },
+    {
+        "nome": "Patagonia",
+        "razao": "Banco Patagonia S.A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bancopatagonia-1.png"
+    },
+    {
+        "nome": "Piraeus",
+        "razao": "Piraeus Bank S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/piraeusbank-1.png"
+    },
+    {
+        "nome": "Porto Seguro",
+        "razao": "Porto Seguro S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/portoseguro-1.png"
+    },
+    {
+        "nome": "Promsvyazbank",
+        "razao": "Promsvyazbank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/promsvyazbank.png"
+    },
+    {
+        "nome": "Public Bank",
+        "razao": "Public Bank Berhad",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/publicbank-1.png"
+    },
+    {
+        "nome": "RBC Royal",
+        "razao": "Royal Bank of Canada",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/rbcroyalbank-1.png"
+    },
+    {
+        "nome": "RBS",
+        "razao": "The Royal Bank of Scotland Group, plc",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/rbs-1.png"
+    },
+    {
+        "nome": "RHB ",
+        "razao": "RHB Bank Berhad",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/rhbbank -1.png"
+    },
+    {
+        "nome": "Rabobank",
+        "razao": "Rabobank, N.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/rabobank-1.png"
+    },
+    {
+        "nome": "Raiffeisen Bank",
+        "razao": "Raiffeisen Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/raiffeisenbank.png"
+    },
+    {
+        "nome": "Revolut",
+        "razao": "Revolut Ltd",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/revolut-1.png"
+    },
+    {
+        "nome": "SCB",
+        "razao": "The Siam Commercial Bank PCL",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/scb-1.png"
+    },
+    {
+        "nome": "SEB",
+        "razao": "Skandinaviska Enskilda Banken AB",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sebbank-1.png"
+    },
+    {
+        "nome": "SMBC",
+        "razao": "Sumitomo Mitsui Banking Corporation",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/smbc-1.png"
+    },
+    {
+        "nome": "SMP Bank",
+        "razao": "SMP Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/smpbank.png"
+    },
+    {
+        "nome": "SNS",
+        "razao": "SNS REAAL",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/snsbank-1.png"
+    },
+    {
+        "nome": "Sabadell",
+        "razao": "Banco de Sabadell, S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sabadell-1.png"
+    },
+    {
+        "nome": "Santander Espanha",
+        "razao": "Banco Santander, S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/santanderesp-1.png"
+    },
+    {
+        "nome": "Santander México",
+        "razao": "BANCO SANTANDER (MEXICO) S.A., INSTITUCION DE BANCA MULTIPLE, GRUPO FINANCIERO SANTANDER",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/santandermex-1.png"
+    },
+    {
+        "nome": "Sberbank",
+        "razao": "Sberbank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sberbank.png"
+    },
+    {
+        "nome": "Scotiabank",
+        "razao": "The Bank of Nova Scotia",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/scotiabank-1.png"
+    },
+    {
+        "nome": "Senff",
+        "razao": "Senffnet LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/senff-1.png"
+    },
+    {
+        "nome": "Shinhan",
+        "razao": "SHINHAN BANK CO. LTD",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/shinhanbank-1.png"
+    },
+    {
+        "nome": "Société Générale",
+        "razao": "Société Générale S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/societegenerale-1.png"
+    },
+    {
+        "nome": "Sparebank 1 SMN",
+        "razao": "SpareBank 1",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sparebank1-1.png"
+    },
+    {
+        "nome": "Standard Chartered",
+        "razao": "Standard Chartered PLC",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/standardchartered-1.png"
+    },
+    {
+        "nome": "Storebrand ",
+        "razao": "Storebrand Bank ASA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/storebrandbank -1.png"
+    },
+    {
+        "nome": "Suncorp",
+        "razao": "Suncorp-Metway Ltd",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/suncorpbank-1.png"
+    },
+    {
+        "nome": "Superdigital",
+        "razao": "Super Pagamentos E Administracao De Meios Eletronicos Ltda",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/superdigital-1.png"
+    },
+    {
+        "nome": "Swedbank",
+        "razao": "Swedbank AB",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/swedbank-3.png"
+    },
+    {
+        "nome": "SydBank",
+        "razao": "Sydbank A/S",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/sydbank-1.png"
+    },
+    {
+        "nome": "TD Bank",
+        "razao": "TD Bank, N.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/tdbank.png"
+    },
+    {
+        "nome": "TMB Bank",
+        "razao": "Tamilnad Mercantile Bank Ltd",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/tmbbank-1.png"
+    },
+    {
+        "nome": "Techcombank",
+        "razao": "VIETNAM TECHNOLOGICAL AND COMMERCIAL JOINT STOCK BANK",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/techcombank-1.png"
+    },
+    {
+        "nome": "Tesouro Direto",
+        "razao": "Tesouro Nacional",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/tesourodireto-1.png"
+    },
+    {
+        "nome": "Tesouro Nacional",
+        "razao": "Tesouro Nacional",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/tesouronacional-1.png"
+    },
+    {
+        "nome": "Ticket",
+        "razao": "Ticket",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/ticket.png"
+    },
+    {
+        "nome": "Tinkoff",
+        "razao": "Tinkoff Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/tinkoff-1.png"
+    },
+    {
+        "nome": "TransferWise",
+        "razao": "TransferWise LTD",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/transferwise-1.png"
+    },
+    {
+        "nome": "Trigg",
+        "razao": "Trigg Tecnologia Ltda",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/trigg.png"
+    },
+    {
+        "nome": "UBI Banca",
+        "razao": "UBI Banca",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/ubibanca.png"
+    },
+    {
+        "nome": "US Bank",
+        "razao": "US Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/usbank.png"
+    },
+    {
+        "nome": "Unicredit Bank",
+        "razao": "Unicredit Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/unicreditbank.png"
+    },
+    {
+        "nome": "Unipol Banca",
+        "razao": "Unipol Banca",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/unipolbanca.png"
+    },
+    {
+        "nome": "UrPay",
+        "razao": "Urpay",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/urpay-1.png"
+    },
+    {
+        "nome": "VTB",
+        "razao": "VTB Bank",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/vtbbank.png"
+    },
+    {
+        "nome": "Vietcombank",
+        "razao": "Joint Stock Commercial Bank for Foreign Trade of Vietnam",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/vietcombank-1.png"
+    },
+    {
+        "nome": "VietinBank",
+        "razao": "Vietnam Joint Stock Commercial Bank for Industry and Trade",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/vietinbank-1.png"
+    },
+    {
+        "nome": "Warren",
+        "razao": "Warren Servicos Financeiros",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/warren.png"
+    },
+    {
+        "nome": "Wells Fargo",
+        "razao": "Wells Fargo",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/wellsfargo.png"
+    },
+    {
+        "nome": "Westpac",
+        "razao": "Westpac Banking Corporation",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/westpac-1.png"
+    },
+    {
+        "nome": "Woop",
+        "razao": "Sicredi",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/woop-1.png"
+    },
+    {
+        "nome": "Xdex",
+        "razao": "XDEX INTERMEDIACAO LTDA.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/xdex-1.png"
+    },
+    {
+        "nome": "Xp Investimentos",
+        "razao": "XP Investimentos CCTVM S/A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/xp.png"
+    },
+    {
+        "nome": "Yapi Kredi Bank",
+        "razao": "Yapi ve Kredi Bankasi A.S.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/yapikredi-1.png"
+    },
+    {
+        "nome": "Ziraat",
+        "razao": "TURKIYE CUMHURIYETI ZIRAAT BANKASI A S",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/ziraatbank-1.png"
+    },
+    {
+        "nome": "alelo",
+        "razao": "Alelo",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/alelo-5.png"
+    },
+    {
+        "nome": "bunq",
+        "razao": "bunq B.V.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/bunq-1.png"
+    },
+    {
+        "nome": "Órama",
+        "razao": "Órama DTVM S/A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/orama-1.png"
+    },
+    {
+        "nome": "Flash",
+        "razao": "Flash",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/flash.png"
+    },
+    {
+        "nome": "Cora",
+        "razao": "Cora Sociedade de Crédito Direto S.A",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/corabank-1.png"
+    },
+    {
+        "nome": "Will",
+        "razao": "Will S.A.",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/willbank-1.png"
+    },
+    {
+        "nome": "UTIL",
+        "razao": "UTIL Alimentação",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/util-1.png"
+    },
+    {
+        "nome": "Caju",
+        "razao": "Empresa Brasileira de Benefícios e Pagamentos LTDA",
+        "logoUrl": "https://portalvhdshl0fsz1rywfcp.blob.core.windows.net/instituicoes-bancarias-logo/caju-1.png"
+    }
+]

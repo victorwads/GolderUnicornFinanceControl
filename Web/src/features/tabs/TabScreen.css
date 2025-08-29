@@ -1,0 +1,21 @@
+.TabViewNav {
+    display: flex;
+    flex-direction: row;
+    border-top: 0px solid transparent;
+    border-radius: 15px 15px 0 0;
+    background-color: var(--bg-color-highlight);
+}
+
+.TabViewNav > a {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    padding: 1em 2em;
+    color: var(--font-color-default);
+    text-decoration: none;
+}
+
+.TabViewNav > a:hover {
+    background-color: var(--bg-color-default);
+}

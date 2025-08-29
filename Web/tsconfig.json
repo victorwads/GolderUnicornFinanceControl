@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@models": ["src/data/models"],
+      "@repositories": ["src/data/repositories"],
+      "@services": ["src/data/service"],
+      "@resourceUse": ["src/data/repositories/ResourcesUseRepositoryShared.ts"],
+      "@configs": ["src/data/firebase/google-services.ts"],
+      "@utils/*": ["src/data/utils/*"],
+      "@components/*": ["src/components/*"],
+      "@features/*": ["src/features/*"],
+      "@lang": ["src/i18n"]
+    }
+  },
+  "include": [
+    "src", 
+    "configs/vite-env.d.ts",
+    "configs/env.d.ts"
+  ]
+}

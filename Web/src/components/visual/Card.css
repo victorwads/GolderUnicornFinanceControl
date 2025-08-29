@@ -1,0 +1,7 @@
+.Card {
+    margin: var(--spacing-sm) 0;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    border-radius: var(--spacing-sm);
+    background-color: var(--bg-color-highlight);
+}

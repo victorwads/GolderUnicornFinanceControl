@@ -1,0 +1,16 @@
+.FeatureTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 32px;
+}
+
+.FeatureTable th,
+.FeatureTable td {
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  text-align: center;
+}
+
+.FeatureTable th {
+  background-color: #f3f4f6;
+}

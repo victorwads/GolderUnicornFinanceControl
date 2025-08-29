@@ -1,0 +1,46 @@
+.modal-screen {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 32px 32px 0 0;
+  margin: 15px 8px;
+}
+
+.modal-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+}
+
+.modal-screen-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--font-color-default);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.modal-back-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  background-color: var(--bg-color-highlight);
+}
+
+.modal-back-button:hover {
+  background-color: var(--bg-color-shadow);
+}
+
+.modal-back-button svg {
+  font-size: var(--font-size-md);
+  color: var(--font-color-default);
+}

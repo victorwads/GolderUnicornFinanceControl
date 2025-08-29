@@ -1,0 +1,86 @@
+.TimelineItem {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-radius: var(--spacing-sm);
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  column-gap: var(--spacing-md);
+  font-size: var(--font-size);
+}
+
+.TimelineItem.not-paid {
+filter: invert(var(--invert));
+}
+
+.IconBall {
+  font-size: var(--font-size);
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.TimelineContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  color: #222;
+}
+
+.TimelineDescription {
+  font-size: 1em;
+  font-weight: bold;
+  color: #333;
+}
+
+.TimelineDetails {
+  font-size: 0.9em;
+  color: #777;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.5em;
+  row-gap: 0.3em;
+  padding: 0.3em 0;
+}
+
+.TimelineDate {
+  font-style: italic;
+}
+
+.TimelineBankName {
+  font-weight: bold;
+}
+
+.TimelineValue {
+  font-size: 0.9em;
+  font-weight: bold;
+  text-align: right;
+}
+
+.TimelineList .positive {
+  color: #0a7d0a;
+}
+
+.TimelineList .negative {
+  color: #ad1717;
+}
+
+.TimelineItemTodayLine {
+  text-align: right;
+  padding: var(--spacing-sm) 0;
+  border-top: 0.15em solid #000;
+  margin-bottom: var(--spacing-md);
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.TimelineItemTodayLine.positive {
+  border-top-color: #33cc33;
+}
+
+.TimelineItemTodayLine.negative {
+  border-top-color: #ff3333;
+}

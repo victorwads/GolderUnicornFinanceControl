@@ -1,0 +1,22 @@
+# System
+.DS_Store
+.dev/
+
+# Yarn
+node_modules/
+.pnp.*
+.yarn
+yarn.lock
+
+# Project files
+dist/
+certs/
+src/google-services.js
+*.jpg
+*.png
+*.log
+
+# Env files
+.env
+.env.*
+!.env.example
