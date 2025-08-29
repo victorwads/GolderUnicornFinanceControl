@@ -1,0 +1,85 @@
+name: GoldenUnicorn
+options:
+  xcodeVersion: 15.2
+  bundleIdPrefix: br.com.victorwads
+  groupOrdering: 
+    - order: [Service, Tests, Resources, Sources]
+    - pattern: '^.*Screen$'
+      order: [View, Presenter, Interactor, Entities, Assembly]
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 10.19.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    exactVersion: 7.0.0
+targets:
+  GoldenUnicorn:
+    type: application
+    platform: iOS
+    deploymentTarget:
+      iOS: 15.0
+    dependencies:
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseInstallations
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestoreSwift
+      - package: Firebase
+        product: FirebaseRemoteConfigSwift
+      - package: GoogleSignIn
+        product: GoogleSignInSwift
+    sources:
+      - path: Sources
+      - path: Resources
+    scheme:
+      language: pt-BR
+      gatherCoverageData: true
+      coverageTargets:
+        - GoldenUnicorn
+      testTargets:
+        - GoldenUnicornTests
+        - GoldenUnicornUITests
+    settings:
+      base:
+        INFOPLIST_KEY_CFBundleDisplayName: Golden Unicorn
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
+        PRODUCT_BUNDLE_IDENTIFIER: br.com.victorwads.goldenunicorn
+        CURRENT_PROJECT_VERSION: 1
+        IPHONEOS_DEPLOYMENT_TARGET: 15.0
+        CODE_SIGNING_REQUIRED: YES
+        CODE_SIGN_ENTITLEMENTS: Resources/GoldenUnicorn.entitlements
+        DEVELOPMENT_TEAM: DU6489YN3U
+    info:
+      path: Resources/Info.plist
+      properties:
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchStoryboardName: Launch Screen.storyboard
+        CFBundleShortVersionString: "1.0.3"
+        CFBundleURLTypes:
+          - CFBundleURLName: "GoogleLogin"
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.171192137987-qs0uo8b7kac0so3un19fk7hnj0vcpc6i
+        UIRequiresFullScreen: true
+        UIStatusBarStyle: 
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+  GoldenUnicornTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: GoldenUnicorn
+  GoldenUnicornUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: GoldenUnicorn
