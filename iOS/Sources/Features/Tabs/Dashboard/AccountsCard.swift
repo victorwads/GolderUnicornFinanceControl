@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct AccountsCard: View {
-    
-    @ObservedObject var viewModel = AccountsCardViewModel()
+    @EnvironmentObject var repos: RepositoriesProvider
+    @StateObject var viewModel = AccountsCardViewModel()
 
     var body: some View {
         Text("Contas")
         Card {
             ForEach(viewModel.accounts) { account in
-                let logo = viewModel.getLogo(account: account)
+                let logo = repos.bankById(account.bankId)?.logoUrl ?? ""
                 BankInfo(bank: Bank(
                     name: account.name,
                     logoUrl: logo
@@ -27,9 +27,7 @@ struct AccountsCard: View {
             }
         }
         .accessibilityIdentifier("Dashboard.Accounts.List")
-        .onAppear {
-            viewModel.load()
-        }
+        .onAppear { viewModel.load(provider: repos) }
     }
 }
 
@@ -39,23 +37,16 @@ struct DashAccount {
 }
 
 class AccountsCardViewModel: ObservableObject {
-    
     @Published var accounts: [Account] = []
-    
-    private let banksRepository = BanksRepository()
-    private let accountsRepository = AccountsRepository()
-    
-    func load() {
-        // Ensure banks cache is warmed (fetch from server if needed)
-        banksRepository.getAll(forceCache: false) { _ in
-            self.accountsRepository.getAll { accounts in
+
+    func load(provider: RepositoriesProvider?) {
+        guard let provider else { return }
+        provider.loadBanks(forceCache: false) { _ in
+            provider.loadAccounts { accounts in
                 self.accounts = accounts
             }
         }
     }
-    
-    func getLogo(account: Account) -> String {
-        return banksRepository.getById(bankId: account.bankId)?.logoUrl ?? ""
-    }
-    
+
+    func getLogo(account: Account) -> String { "" }
 }

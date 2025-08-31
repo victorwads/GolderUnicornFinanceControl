@@ -41,8 +41,10 @@ targets:
       coverageTargets:
         - GoldenUnicorn
       testTargets:
-        - GoldenUnicornTests
         - GoldenUnicornUITests
+        - target: GoldenUnicornTests
+          parallelizable: true
+          randomExecution: false
     settings:
       base:
         INFOPLIST_KEY_CFBundleDisplayName: Golden Unicorn
@@ -87,3 +89,17 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  GoldenUnicorn-UnitTests:
+    build:
+      targets:
+        GoldenUnicorn: all
+    test:
+      gatherCoverageData: true
+      coverageTargets:
+        - GoldenUnicorn
+      targets:
+        - name: GoldenUnicornTests
+          parallelizable: true
+          randomExecution: false

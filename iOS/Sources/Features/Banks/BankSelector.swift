@@ -10,8 +10,8 @@ import SwiftUI
 
 
 struct BankSelector: View {
-    
-    @ObservedObject var viewModel = BankSelectorViewModel()
+    @EnvironmentObject var repos: RepositoriesProvider
+    @StateObject var viewModel = BankSelectorViewModel()
     @Binding var selectedBank: Bank?
     @State var serach: String = ""
     
@@ -43,17 +43,21 @@ struct BankSelector: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onAppear {
-                    viewModel.fetch()
-                }
+                .onAppear { viewModel.fetch() }
             })
+        }
+        .onAppear {
+            viewModel.setProvider(repos)
+            if viewModel.banks.isEmpty { viewModel.fetch() }
         }
     }
 }
 
 #Preview {
     BankSelector(selectedBank: .constant(nil))
+        .environmentObject(RepositoriesProvider(uid: "preview")!)
 }
 #Preview {
     BankSelector(selectedBank: .constant(Bank(name: "TesteBank", logoUrl: "")))
+        .environmentObject(RepositoriesProvider(uid: "preview")!)
 }
