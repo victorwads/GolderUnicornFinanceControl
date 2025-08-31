@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import br.com.victorwads.goldenunicorn.R
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.victorwads.goldenunicorn.features.Screens
@@ -43,13 +45,19 @@ fun TabScreen() {
         Divider()
         Row {
             tabNavController.TabButton(
-                modifier = Modifier.weight(1f), "DashBoard", Screens.Main.DashBoard
+                modifier = Modifier.weight(1f),
+                label = stringResource(id = R.string.tab_dashboard),
+                route = Screens.Main.DashBoard,
             )
             tabNavController.TabButton(
-                modifier = Modifier.weight(1f), "Timeline", Screens.Main.Timeline
+                modifier = Modifier.weight(1f),
+                label = stringResource(id = R.string.tab_timeline),
+                route = Screens.Main.Timeline,
             )
             tabNavController.TabButton(
-                modifier = Modifier.weight(1f), "Settings", Screens.Main.Settings
+                modifier = Modifier.weight(1f),
+                label = stringResource(id = R.string.tab_settings),
+                route = Screens.Main.Settings,
             )
         }
     }
