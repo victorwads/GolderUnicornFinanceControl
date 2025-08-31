@@ -10,6 +10,7 @@ data class DebitRegistry(
 
     @PropertyName("name") val name: String = "",
     @PropertyName("description") val description: String? = null,
+    @PropertyName("categoryId") val categoryId: String? = null,
     @PropertyName("type") val type: Type = Type.DEFAULT,
     @PropertyName("date") val date: Date = Date(),
     @PropertyName("paid") val paid: Any? = null,

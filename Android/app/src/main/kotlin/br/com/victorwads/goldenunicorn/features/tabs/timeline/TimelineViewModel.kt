@@ -38,20 +38,22 @@ class TimelineViewModel(
     private val _uiState = MutableStateFlow(TimelineUiState())
     val uiState: StateFlow<TimelineUiState> = _uiState.asStateFlow()
 
+    private val registriesRepo = br.com.victorwads.goldenunicorn.data.repositories.DebitRegistryRepository()
+    private var allRegistries: List<DebitRegistry> = emptyList()
+
     fun load() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val accounts = accountsRepository.getAll()
+                val accounts = accountsRepository.getAll(forceCache = true)
                 _uiState.value = _uiState.value.copy(accounts = accounts)
-                // Auto-select first account if present
-                if (_uiState.value.selectedAccountId == null && accounts.isNotEmpty()) {
-                    selectAccount(accounts.first().id)
-                } else {
-                    refresh()
-                }
+            } catch (_: Exception) { }
+
+            try {
+                allRegistries = registriesRepo.getAll(forceCache = false)
             } catch (_: Exception) {
-                refresh()
+                allRegistries = emptyList()
             }
+            refresh()
         }
     }
 
@@ -76,10 +78,14 @@ class TimelineViewModel(
     private fun refresh() {
         viewModelScope.launch(Dispatchers.IO) {
             val accountId = _uiState.value.selectedAccountId
-            val regs = if (accountId != null) loadRegistriesForAccount(accountId) else emptyList()
+            val regsSource = allRegistries
             val (start, end) = monthPeriod(_uiState.value.month)
-            val filtered = regs
+            val filtered = regsSource
+                .asSequence()
                 .filter { it.date in start..end }
+                .filter { accountId == null || it.bankId == accountId }
+                .map { it.toLite() }
+                .toList()
                 .let { list ->
                     val q = _uiState.value.search.trim()
                     if (q.isEmpty()) list else list.filter { r ->
@@ -87,15 +93,6 @@ class TimelineViewModel(
                     }
                 }
             _uiState.value = _uiState.value.copy(filtered = filtered)
-        }
-    }
-
-    private suspend fun loadRegistriesForAccount(accountId: String): List<RegistryLite> {
-        return try {
-            val repo = AccountRegistryRepository(accountId = accountId)
-            repo.getAll().map { it.toLite() }
-        } catch (_: Exception) {
-            emptyList()
         }
     }
 }
@@ -133,4 +130,3 @@ private fun DebitRegistry.toLite(): RegistryLite {
         date = this.date,
     )
 }
-

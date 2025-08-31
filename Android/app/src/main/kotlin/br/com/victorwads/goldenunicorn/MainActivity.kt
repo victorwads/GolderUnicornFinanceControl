@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = if (loggedUser) Screens.Main.DashBoard else Screens.Login,
                     ) {
                         composable(Screens.Login) { LoginScreenWithGoogle(firebaseAuth) }
-                        composable(Screens.Main.DashBoard) { TabScreen() }
+                        composable(Screens.Main.DashBoard) { TabScreen(navController) }
                         composable(Screens.Accounts) { AccountsScreen() }
                         composable(Screens.CreditCards) { CreditCardsScreen() }
                         composable(Screens.Categories) { CategoriesScreen() }

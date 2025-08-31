@@ -161,7 +161,7 @@ private class TimelineViewModel: ObservableObject {
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "pt_BR")
         fmt.dateFormat = "LLLL yyyy"
-        return fmt.string(from: startOfMonth(for: currentMonth)).capitalized
+        return fmt.string(from: startOfPeriod(for: currentMonth)).capitalized
     }
 
     var periodLabel: String {
@@ -196,22 +196,31 @@ private class TimelineViewModel: ObservableObject {
         banksRepo.getById(bankId: account.bankId)?.logoUrl ?? ""
     }
 
-    // MARK: - Date helpers
-    private func startOfMonth(for date: Date) -> Date {
-        let calendar = Calendar.current
-        let comp = calendar.dateComponents([.year, .month], from: date)
-        return calendar.date(from: comp) ?? date
-    }
-    private func endOfMonth(for date: Date) -> Date {
+    // MARK: - Date helpers with cut-off day
+    private var cutOffDay: Int { max(1, min(28, UserDefaults.standard.integer(forKey: "financeDay"))) }
+    private func startOfPeriod(for date: Date) -> Date {
         let cal = Calendar.current
-        if let start = cal.date(from: cal.dateComponents([.year, .month], from: date)),
-           let next = cal.date(byAdding: DateComponents(month: 1, day: -1), to: start) {
-            return cal.date(bySettingHour: 23, minute: 59, second: 59, of: next) ?? next
+        var comp = cal.dateComponents([.year, .month, .day], from: date)
+        // If day < cutOff, move to previous month
+        if (comp.day ?? 1) < cutOffDay {
+            if let prev = cal.date(byAdding: .month, value: -1, to: date) {
+                comp = cal.dateComponents([.year, .month], from: prev)
+            }
+        }
+        comp.day = cutOffDay; comp.hour = 0; comp.minute = 0; comp.second = 0
+        return cal.date(from: comp) ?? date
+    }
+    private func endOfPeriod(for date: Date) -> Date {
+        let cal = Calendar.current
+        let start = startOfPeriod(for: date)
+        if let nextStart = cal.date(byAdding: .month, value: 1, to: start),
+           let end = cal.date(byAdding: .second, value: -1, to: nextStart) {
+            return end
         }
         return date
     }
     private func monthPeriod(for date: Date) -> (Date, Date) {
-        (startOfMonth(for: date), endOfMonth(for: date))
+        (startOfPeriod(for: date), endOfPeriod(for: date))
     }
     private func addMonths(_ m: Int, to date: Date) -> Date {
         Calendar.current.date(byAdding: .month, value: m, to: date) ?? date

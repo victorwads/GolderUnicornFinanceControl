@@ -78,6 +78,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-perf")
+    implementation("com.google.code.gson:gson:2.10.1")
 
     implementation("com.google.android.gms:play-services-auth:21.4.0")
 

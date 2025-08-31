@@ -24,7 +24,7 @@ import br.com.victorwads.goldenunicorn.ui.extensions.composable
 
 @Preview(showSystemUi = true)
 @Composable
-fun TabScreen() {
+fun TabScreen(navController: androidx.navigation.NavController) {
     val tabNavController = rememberNavController()
     Column {
         NavHost(
@@ -39,7 +39,9 @@ fun TabScreen() {
                 TimelineScreen()
             }
             composable(Screens.Main.Settings) {
-                SettingsScreen()
+                SettingsScreen(
+                    onNavigate = { dest -> navController.navigate(dest.route) }
+                )
             }
         }
         Divider()
