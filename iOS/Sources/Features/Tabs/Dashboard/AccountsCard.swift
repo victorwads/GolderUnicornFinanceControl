@@ -15,15 +15,19 @@ struct AccountsCard: View {
         Text("Contas")
         Card {
             ForEach(viewModel.accounts) { account in
+                let logo = viewModel.getLogo(account: account)
                 BankInfo(bank: Bank(
                     name: account.name,
-                    logoUrl: viewModel.getLogo(account: account) )
-                )
+                    logoUrl: logo
+                ))
+                .accessibilityIdentifier("AccountCard.\(account.id ?? "unknown")")
             }
             if(viewModel.accounts.isEmpty) {
                 Text("Nenhuma conta")
             }
-        }.onAppear {
+        }
+        .accessibilityIdentifier("Dashboard.Accounts.List")
+        .onAppear {
             viewModel.load()
         }
     }
@@ -42,8 +46,11 @@ class AccountsCardViewModel: ObservableObject {
     private let accountsRepository = AccountsRepository()
     
     func load() {
-        accountsRepository.getAll { accounts in
-            self.accounts = accounts
+        // Ensure banks cache is warmed (fetch from server if needed)
+        banksRepository.getAll(forceCache: false) { _ in
+            self.accountsRepository.getAll { accounts in
+                self.accounts = accounts
+            }
         }
     }
     

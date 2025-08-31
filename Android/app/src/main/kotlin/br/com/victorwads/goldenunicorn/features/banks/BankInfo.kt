@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.victorwads.goldenunicorn.data.models.Bank
@@ -24,7 +25,11 @@ import coil.compose.SubcomposeAsyncImage
 const val banksResourceUrl = "https://goldenunicornfc.firebaseapp.com/resources/banks/"
 
 @Composable
-fun BankInfo(bank: Bank) {
+fun BankInfo(
+    bank: Bank,
+    balance: Double? = null,
+    loading: Boolean = false,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,6 +47,15 @@ fun BankInfo(bank: Bank) {
         }
         Spacer(modifier = Modifier.width(12.dp))
         Text(text = bank.name)
+        Spacer(modifier = Modifier.weight(1f))
+        if (loading) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp))
+        } else if (balance != null) {
+            Text(
+                text = formatCurrency(balance),
+                textAlign = TextAlign.End
+            )
+        }
     }
     Divider()
 }
@@ -55,7 +69,15 @@ fun PreviewBankInfo() {
             Bank(id = null,"Itaú", "", "itau.png"),
             Bank(id = null,"MP", "", "mercadopago.png"),
         ).forEach { bank ->
-            BankInfo(bank = bank)
+            BankInfo(bank = bank, balance = 123.45)
         }
+    }
+}
+
+private fun formatCurrency(value: Double): String {
+    return try {
+        java.text.NumberFormat.getCurrencyInstance(java.util.Locale("pt", "BR")).format(value)
+    } catch (_: Exception) {
+        value.toString()
     }
 }

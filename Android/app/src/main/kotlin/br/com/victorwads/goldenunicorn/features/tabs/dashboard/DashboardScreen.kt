@@ -1,7 +1,7 @@
 package br.com.victorwads.goldenunicorn.features.tabs.dashboard
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,10 +32,8 @@ fun DashBoardScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .scrollable(
-                orientation = Orientation.Vertical,
-                state = scrollState
-            )
+            .verticalScroll(scrollState)
+            .semantics { contentDescription = "Dashboard.Root" }
     ) {
         Text(userName)
 

@@ -3,6 +3,7 @@ package br.com.victorwads.goldenunicorn.data.repositories
 import android.content.Context
 import br.com.victorwads.goldenunicorn.GoldenApplication
 import br.com.victorwads.goldenunicorn.data.firebase.Collections
+import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -48,15 +49,22 @@ abstract class BaseRepository<Model : Any>(
         forceCache: Boolean = false,
         onLoadItem: (model: Model) -> Unit = {},
     ): List<Model> {
-        val source = if (forceCache || shouldUseCache()) Source.CACHE else Source.DEFAULT
-        if (source == Source.DEFAULT) setLastUpdate()
-        val items = ref.get(source).await().documents.mapNotNull { snapshot ->
-            snapshot.toObject(modelClass)?.also { model ->
-                addToCache(snapshot.id, model)
-                onLoadItem(model)
+        return try {
+            val source = if (forceCache || shouldUseCache()) Source.CACHE else Source.DEFAULT
+            if (source == Source.DEFAULT) setLastUpdate()
+            val snap = ref.get(source).await()
+            val items = snap.documents.mapNotNull { snapshot ->
+                snapshot.toObject(modelClass)?.also { model ->
+                    addToCache(snapshot.id, model)
+                    onLoadItem(model)
+                }
             }
+            Log.d("Repo", "Loaded ${items.size} items from ${ref.path} using ${source}")
+            items
+        } catch (e: Exception) {
+            Log.e("Repo", "Error loading from ${ref.path}: ${e.message}", e)
+            emptyList()
         }
-        return items
     }
 
     protected open fun addToCache(id: String, model: Model) {
