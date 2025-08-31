@@ -23,10 +23,6 @@ struct AccountsCard: View {
             if(viewModel.accounts.isEmpty) {
                 Text("Nenhuma conta")
             }
-            HStack {
-                Spacer()
-                NavigationLink("Adicionar Conta", destination: CreateAccountScreen())
-            }
         }.onAppear {
             viewModel.load()
         }

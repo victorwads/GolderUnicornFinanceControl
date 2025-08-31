@@ -1,4 +1,4 @@
-import FirebaseFirestoreSwift
+import FirebaseFirestore
 
 struct Bank: Codable, Identifiable {
     @DocumentID var id: String? = nil

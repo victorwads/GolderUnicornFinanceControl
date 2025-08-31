@@ -17,12 +17,6 @@ struct CreditCardsCard: View {
             BankInfo(bank: Bank(name: "Test Card", logoUrl: "amazonia.png"))
             BankInfo(bank: Bank(name: "Test Card", logoUrl: "ame-1.png"))
             BankInfo(bank: Bank(name: "Test Card", logoUrl: "neon.png"))
-            HStack {
-                Spacer()
-                Button(action: {}) {
-                    Text("Adicionar Cartão")
-                }.disabled(true)
-            }
         }
     }
 }

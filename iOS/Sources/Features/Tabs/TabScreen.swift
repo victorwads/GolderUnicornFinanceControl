@@ -10,31 +10,50 @@ import SwiftUI
 struct TabsScreen: View {
 
     let authManager: AuthenticationManager
+    @EnvironmentObject var router: Router
 
     var body: some View {
-        TabView {
-            NavigationView {
-                ScrollView {
-                    DashboardScreen(authManager: authManager)
-                }
-            }.navigationViewStyle(.stack)
+        TabView(selection: $router.selectedTab) {
+            NavigationStack(path: $router.path) {
+                DashboardScreen(authManager: authManager)
+                    .navigationDestination(for: Route.self) { route in
+                        switch route {
+                        case .accounts:
+                            AccountsScreen()
+                        case .createAccount:
+                            CreateAccountScreen()
+                        case .creditCards:
+                            CreditCardsScreen()
+                        case .createCreditCard:
+                            CreateCreditCardsScreen()
+                        }
+                    }
+            }
             .tabItem {
-                Label("Dash", systemImage: "square.on.square.dashed")
+                Label("tabs.dashboard", systemImage: "square.on.square.dashed")
             }
-            ScrollView {
+            .tag(AppTab.dashboard)
+
+            NavigationStack {
                 TimelineScreen()
-            }.tabItem {
-                Label("Timeline", systemImage: "list.dash")
             }
-            ScrollView {
+            .tabItem {
+                Label("tabs.timeline", systemImage: "list.dash")
+            }
+            .tag(AppTab.timeline)
+
+            NavigationStack {
                 SettingsScreen(authManager: authManager)
-            }.tabItem {
-                Label("Configurações", systemImage: "gearshape")
             }
+            .tabItem {
+                Label("tabs.settings", systemImage: "gearshape")
+            }
+            .tag(AppTab.settings)
         }
     }
 }
 
 #Preview {
     TabsScreen(authManager: AuthenticationManager())
+        .environmentObject(Router())
 }

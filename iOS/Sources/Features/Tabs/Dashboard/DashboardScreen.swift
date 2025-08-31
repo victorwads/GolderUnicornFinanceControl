@@ -15,12 +15,22 @@ struct DashboardScreen: View {
         VStack(alignment: .leading, spacing: 16) {
             let user = authManager.auth.currentUser
             Text("Olá, \(user?.displayName ?? "") - \(user?.email ?? "")")
-            
-            AccountsCard()
-            CreditCardsCard()
-            Text("Outras coisas")
+
+            NavigationLink(value: Route.accounts) {
+                AccountsCard()
+            }
+            NavigationLink(String(localized: "dashboard.addAccount"), value: Route.createAccount)
+                .font(.footnote)
+
+            NavigationLink(value: Route.creditCards) {
+                CreditCardsCard()
+            }
+            NavigationLink(String(localized: "dashboard.addCreditCard"), value: Route.createCreditCard)
+                .font(.footnote)
+
+            Text(String(localized: "dashboard.otherThings"))
             Card {
-                Text("ToDo Ideias")
+                Text(String(localized: "dashboard.todoIdeas"))
             }
         }
         .padding()
