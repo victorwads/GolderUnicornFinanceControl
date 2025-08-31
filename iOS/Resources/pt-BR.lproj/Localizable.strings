@@ -1,0 +1,13 @@
+"tabs.dashboard" = "Início";
+"tabs.timeline" = "Linha do tempo";
+"tabs.settings" = "Configurações";
+"dashboard.addAccount" = "Adicionar Conta";
+"dashboard.addCreditCard" = "Adicionar Cartão";
+"dashboard.otherThings" = "Outras coisas";
+"dashboard.todoIdeas" = "Ideias";
+"settings.title" = "Configurações";
+"settings.signOut" = "Sair";
+"settings.theme" = "Tema";
+"settings.theme.system" = "Sistema";
+"settings.theme.light" = "Claro";
+"settings.theme.dark" = "Escuro";

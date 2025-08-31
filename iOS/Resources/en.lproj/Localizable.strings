@@ -1,0 +1,13 @@
+"tabs.dashboard" = "Dashboard";
+"tabs.timeline" = "Timeline";
+"tabs.settings" = "Settings";
+"dashboard.addAccount" = "Add Account";
+"dashboard.addCreditCard" = "Add Credit Card";
+"dashboard.otherThings" = "Other things";
+"dashboard.todoIdeas" = "ToDo Ideas";
+"settings.title" = "Settings";
+"settings.signOut" = "Sign Out";
+"settings.theme" = "Theme";
+"settings.theme.system" = "System";
+"settings.theme.light" = "Light";
+"settings.theme.dark" = "Dark";

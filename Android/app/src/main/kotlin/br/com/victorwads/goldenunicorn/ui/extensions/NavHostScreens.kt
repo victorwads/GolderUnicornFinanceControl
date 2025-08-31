@@ -7,6 +7,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import br.com.victorwads.goldenunicorn.features.Screens
 
 @Composable
@@ -25,4 +26,8 @@ fun NavHost(
 fun NavGraphBuilder.composable(
     screen: Screens,
     content: @Composable() (AnimatedContentScope.(NavBackStackEntry) -> Unit)
-) = composable(route = screen.route, content = content)
+) = composable(
+    route = screen.route,
+    deepLinks = listOf(navDeepLink { uriPattern = screen.deepLink }),
+    content = content
+)

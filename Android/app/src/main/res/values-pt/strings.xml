@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Golden Unicorn</string>
+    <string name="tab_dashboard">Painel</string>
+    <string name="tab_timeline">Linha do tempo</string>
+    <string name="tab_settings">Configurações</string>
+    <string name="settings_accounts">Contas</string>
+    <string name="settings_categories">Categorias</string>
+    <string name="settings_credit_cards">Cartões de crédito</string>
+    <string name="settings_logout">Sair</string>
+    <string name="settings_dark_theme">Tema escuro</string>
+</resources>

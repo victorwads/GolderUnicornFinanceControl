@@ -13,17 +13,23 @@ import SwiftUI
 struct MainContentView: View {
 
     @ObservedObject var authManager = AuthenticationManager()
+    @StateObject private var router = Router()
+    @AppStorage("appTheme") private var appThemeRaw: String = AppTheme.system.rawValue
 
     var body: some View {
         VStack {
             if authManager.loggedUser {
                 TabsScreen(authManager: authManager)
+                    .environmentObject(router)
             } else {
                 LoginScreen(authManager: authManager)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(hex: 0x282C34))
+        .preferredColorScheme(AppTheme(rawValue: appThemeRaw)?.colorScheme)
+        .onOpenURL { url in
+            router.handle(url: url)
+        }
     }
 }
 

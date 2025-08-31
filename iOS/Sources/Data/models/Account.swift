@@ -1,5 +1,5 @@
 import Foundation
-import FirebaseFirestoreSwift
+import FirebaseFirestore
 
 enum AccountType: String, Codable {
     case current = "CURRENT"
@@ -8,7 +8,7 @@ enum AccountType: String, Codable {
     case investment = "INVESTMENT"
 }
 
-struct Account: Codable, Identifiable {
+struct Account: Codable, Identifiable, Hashable {
     @DocumentID var id: String? = nil
     var name: String = ""
     var initialBalance: Double = 0

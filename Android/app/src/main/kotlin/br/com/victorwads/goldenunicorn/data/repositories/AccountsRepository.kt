@@ -69,9 +69,28 @@ class AccountsRepository(
     }
 
     suspend fun getAll(forceCache: Boolean = false): List<Account> =
-        getAllItems(forceCache)
+        getAllItems(forceCache).map { decryptAccount(it) }
 
     suspend fun add(account: Account): DocumentReference? {
         return ref.add(account).await()
+    }
+
+    // Mirror Web: getCache(showArchived?: boolean)
+    fun getCache(showArchived: Boolean = false): List<Account> =
+        cache.values.filter {
+            val archived = br.com.victorwads.goldenunicorn.crypt.NumericDecryptor.decryptBoolean(it.archived) ?: false
+            showArchived || !archived
+        }.toList()
+
+    override fun addToCache(id: String, model: Account) {
+        val updated = decryptAccount(model)
+        super.addToCache(id, updated)
+    }
+
+    private fun decryptAccount(model: Account): Account {
+        val crypto = br.com.victorwads.goldenunicorn.crypt.CryptoService
+        val decryptedName = crypto.decryptIfNeeded(model.name) ?: model.name
+        val decryptedBankId = crypto.decryptIfNeeded(model.bankId)
+        return model.copy(name = decryptedName, bankId = decryptedBankId)
     }
 }

@@ -3,75 +3,63 @@ import FirebaseFirestore
 import FirebaseAuth
 import FirebaseCrashlytics
 
-class AccountsRepository {
-    
-    static private let lastUpdateKey = "lastAccountsUpdate"
-    static private let cacheDuration: CGFloat = 2592000000
-    
-    private let db: Firestore
-    private let collectionRef: CollectionReference
-    private let userDefaults = UserDefaults.standard
-    
+class AccountsRepository: RepositoryBase<Account> {
+
     init(userId: String? = nil) {
         guard let userId = userId ?? Auth.auth().currentUser?.uid else {
-            let error = NSError(domain: "Auth", code: 401, userInfo: [ NSLocalizedDescriptionKey: "Invalid userId"])
+            let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "Invalid userId"])
             Crashlytics.crashlytics().record(error: error)
             fatalError(error.localizedDescription)
         }
-        db = Firestore.firestore()
-        collectionRef = db.collection("\(Collections.Users)/\(userId)/\(Collections.Accounts)")
-    }
-    
-    private func shouldUseCache() -> Bool {
-        if let lastUpdate = userDefaults.value(forKey: AccountsRepository.lastUpdateKey) as? CGFloat {
-            return (Date().timeIntervalSince1970 - lastUpdate) < AccountsRepository.cacheDuration
-        }
-        return false
+        super.init(collectionPath: "\(Collections.Users)/\(userId)/\(Collections.Accounts)")
     }
 
-    private func setLastUpdate() {
-        userDefaults.set(CGFloat(Date().timeIntervalSince1970), forKey: AccountsRepository.lastUpdateKey)
-    }
-    
     func getAll(neededSource: FirestoreSource? = nil, _ completion: @escaping ([Account]) -> Void) {
-        let source: FirestoreSource = neededSource ?? (shouldUseCache() ? .cache : .default)
-        if source == .default {
-            setLastUpdate()
-        }
-        collectionRef.getDocuments(source: source) { (snapshot, error) in
+        let source = neededSource ?? .default
+        if source == .default { /* update cache time is inside base */ }
+        collectionRef.getDocuments(source: source) { snapshot, error in
             if let error = error {
                 Crashlytics.crashlytics().record(error: error)
                 completion([])
-            } else {
-                var accounts: [Account] = []
-                for document in snapshot!.documents {
-                    if let bank = try? document.data(as: Account.self) {
-                        accounts.append(bank)
-                    }
-                }
-                accounts.sort { $0.name < $1.name }
-                completion(accounts)
+                return
             }
+            var items: [Account] = []
+            snapshot?.documents.forEach { doc in
+                let raw = doc.data()
+                // Decrypt string fields
+                let name = CryptoService.shared.decryptStringIfNeeded(raw["name"] as? String ?? "")
+                let bankId = CryptoService.shared.decryptStringIfNeeded(raw["bankId"] as? String ?? "")
+                // Numeric/boolean fields may be encrypted
+                let initialBalanceAny = NumericDecryptorHelper.shared.decryptNumber(raw["initialBalance"] as? NSNumber ?? 0) ?? 0
+                let initialBalance = (initialBalanceAny as? NSNumber)?.doubleValue ?? (initialBalanceAny as? Double) ?? 0
+                var account = Account()
+                account.id = doc.documentID
+                account.name = name
+                account.bankId = bankId.isEmpty ? nil : bankId
+                account.initialBalance = initialBalance
+                items.append(account)
+            }
+            completion(items)
         }
     }
-    
+
     func add(account: Account, completion: @escaping (Bool) -> Void) {
         do {
-            try collectionRef.addDocument(from: account, completion: { e in
+            try collectionRef.addDocument(from: account) { e in
                 completion(e == nil)
-            })
+            }
         } catch {
             Crashlytics.crashlytics().record(error: error)
             completion(false)
         }
     }
-    
+
     func update(account: Account) {
         var account = account
         account.updatedAt = Date()
         // TODO
     }
-    
+
     func arquive(account: Account) {
         // TODO
     }

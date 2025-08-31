@@ -4,7 +4,7 @@ import android.app.Application
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.firestoreSettings
-import com.google.firebase.firestore.ktx.persistentCacheSettings
+import com.google.firebase.firestore.persistentCacheSettings
 
 class GoldenApplication : Application() {
     override fun onCreate() {

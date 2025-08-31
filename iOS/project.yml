@@ -9,16 +9,16 @@ options:
 packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 10.19.0
+    from: 11.0.0
   GoogleSignIn:
     url: https://github.com/google/GoogleSignIn-iOS
-    exactVersion: 7.0.0
+    from: 7.0.0
 targets:
   GoldenUnicorn:
     type: application
     platform: iOS
     deploymentTarget:
-      iOS: 15.0
+      iOS: 16.0
     dependencies:
       - package: Firebase
         product: FirebaseAnalytics
@@ -29,9 +29,7 @@ targets:
       - package: Firebase
         product: FirebaseAuth
       - package: Firebase
-        product: FirebaseFirestoreSwift
-      - package: Firebase
-        product: FirebaseRemoteConfigSwift
+        product: FirebaseFirestore
       - package: GoogleSignIn
         product: GoogleSignInSwift
     sources:
@@ -51,7 +49,7 @@ targets:
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
         PRODUCT_BUNDLE_IDENTIFIER: br.com.victorwads.goldenunicorn
         CURRENT_PROJECT_VERSION: 1
-        IPHONEOS_DEPLOYMENT_TARGET: 15.0
+        IPHONEOS_DEPLOYMENT_TARGET: 16.0
         CODE_SIGNING_REQUIRED: YES
         CODE_SIGN_ENTITLEMENTS: Resources/GoldenUnicorn.entitlements
         DEVELOPMENT_TEAM: DU6489YN3U
@@ -76,6 +74,9 @@ targets:
       - path: Tests
     dependencies:
       - target: GoldenUnicorn
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
   GoldenUnicornUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -83,3 +84,6 @@ targets:
       - path: UITests
     dependencies:
       - target: GoldenUnicorn
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
