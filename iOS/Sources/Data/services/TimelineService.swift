@@ -19,25 +19,22 @@ struct TimelineDetailsItem {
 }
 
 class TimelineService {
-    private let accounts = AccountsRepository()
-    private let categories = CategoriesRepository()
-    private let accountRegistries = AccountsRegistryRepository()
+    private let provider: RepositoriesProvider
+    init(provider: RepositoriesProvider) { self.provider = provider }
 
     func getFirstRegistryDate(completion: @escaping (Date) -> Void) {
-        accountRegistries.getAll { regs in
+        provider.loadAccountsRegistries { regs in
             let first = regs.min(by: { $0.date < $1.date })?.date ?? Date()
             completion(first)
         }
     }
 
     func getAccountItems(params: TimelineFilterParams = TimelineFilterParams(), completion: @escaping ([TimelineDetailsItem]) -> Void) {
-        // Load accounts and categories to allow local lookups
-        accounts.getAll { accs in
-            self.categories.getAll { _ in
-                self.accountRegistries.getAll { regs in
-                    let result = self.filterAndMap(regs: regs, accounts: accs, params: params)
-                    completion(result)
-                }
+        // Load accounts (categories not needed for this mapping because we only show name)
+        provider.loadAccounts { accs in
+            self.provider.loadAccountsRegistries { regs in
+                let result = self.filterAndMap(regs: regs, accounts: accs, params: params)
+                completion(result)
             }
         }
     }
@@ -65,7 +62,7 @@ class TimelineService {
             return TimelineDetailsItem(
                 sourceName: accName,
                 registry: reg,
-                category: categories.getById(reg.categoryId)
+                category: nil
             )
         }
 

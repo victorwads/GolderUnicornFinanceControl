@@ -25,7 +25,7 @@ data class RegistryWithDetails(
     val category: Category? = null,
 )
 
-class TimelineService(
+internal class TimelineService(
     private val accounts: AccountsRepository,
     private val categories: CategoriesRepository,
     private val accountRegistries: DebitRegistryRepository,

@@ -32,24 +32,22 @@ data class RegistryLite(
     val date: Date,
 )
 
-class TimelineViewModel(
-    private val accountsRepository: AccountsRepository = AccountsRepository()
-) : ViewModel() {
+class TimelineViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(TimelineUiState())
     val uiState: StateFlow<TimelineUiState> = _uiState.asStateFlow()
 
-    private val registriesRepo = br.com.victorwads.goldenunicorn.data.repositories.DebitRegistryRepository()
+    private val repos by lazy { br.com.victorwads.goldenunicorn.data.repositories.RepositoriesProvider.ensureFromCurrentUser() }
     private var allRegistries: List<DebitRegistry> = emptyList()
 
     fun load() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val accounts = accountsRepository.getAll(forceCache = true)
+                val accounts = repos.getAllAccounts(forceCache = true)
                 _uiState.value = _uiState.value.copy(accounts = accounts)
             } catch (_: Exception) { }
 
             try {
-                allRegistries = registriesRepo.getAll(forceCache = false)
+                allRegistries = repos.getAllDebitRegistries(forceCache = false)
             } catch (_: Exception) {
                 allRegistries = emptyList()
             }
