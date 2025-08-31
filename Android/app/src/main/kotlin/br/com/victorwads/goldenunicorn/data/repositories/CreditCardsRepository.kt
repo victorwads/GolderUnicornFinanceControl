@@ -8,9 +8,10 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.tasks.await
 
-class CreditCardsRepository(
-    userId: String? = FirebaseAuth.getInstance().currentUser?.uid
-) : BaseRepository<CreditCard>(CreditCard::class.java) {
+internal class CreditCardsRepository(
+    userId: String? = FirebaseAuth.getInstance().currentUser?.uid,
+    encryptor: br.com.victorwads.goldenunicorn.data.crypt.Encryptor,
+) : RepositoryWithCrypt<CreditCard>(CreditCard::class.java, encryptor) {
 
     override val cacheDuration: Long = 0
     override val ref: CollectionReference
@@ -39,11 +40,10 @@ class CreditCardsRepository(
         }
 
     override fun addToCache(id: String, model: CreditCard) {
-        val crypto = br.com.victorwads.goldenunicorn.crypt.CryptoService
         val updated = model.copy(
-            name = crypto.decryptIfNeeded(model.name) ?: model.name,
-            brand = crypto.decryptIfNeeded(model.brand) ?: model.brand,
-            accountId = crypto.decryptIfNeeded(model.accountId) ?: model.accountId,
+            name = encryptor.decryptIfNeeded(model.name) ?: model.name,
+            brand = encryptor.decryptIfNeeded(model.brand) ?: model.brand,
+            accountId = encryptor.decryptIfNeeded(model.accountId) ?: model.accountId,
         )
         super.addToCache(id, updated)
     }

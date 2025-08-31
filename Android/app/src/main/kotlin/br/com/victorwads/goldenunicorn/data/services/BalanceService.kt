@@ -2,7 +2,7 @@ package br.com.victorwads.goldenunicorn.data.services
 
 import java.util.Date
 
-class BalanceService(
+internal class BalanceService(
     private val timeline: TimelineService,
     val period: FinancialMonthPeriod = FinancialMonthPeriod(1)
 ) {

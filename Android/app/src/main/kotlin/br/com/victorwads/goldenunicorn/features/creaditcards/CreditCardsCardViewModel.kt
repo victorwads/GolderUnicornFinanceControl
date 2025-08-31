@@ -11,10 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class CreditCardsCardViewModel(
-    private val banksRepository: BanksRepository = BanksRepository(),
-    private val creditCardsRepository: CreditCardsRepository = CreditCardsRepository()
-): ViewModel() {
+class CreditCardsCardViewModel: ViewModel() {
+    private val repos by lazy { br.com.victorwads.goldenunicorn.data.repositories.RepositoriesProvider.ensureFromCurrentUser() }
 
     private val _cards = MutableStateFlow<List<CreditCardWithInfos>>(emptyList())
     val cards: StateFlow<List<CreditCardWithInfos>> = _cards.asStateFlow()
@@ -26,8 +24,8 @@ class CreditCardsCardViewModel(
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                banksRepository.getAll(forceCache = false)
-                creditCardsRepository.getAll(forceCache = false)
+                repos.getAllBanks(forceCache = false)
+                repos.getAllCreditCards(forceCache = false)
             } catch (_: Exception) {
             } finally {
                 assemble()
@@ -37,8 +35,7 @@ class CreditCardsCardViewModel(
 
     private fun assemble() {
         viewModelScope.launch(Dispatchers.Default) {
-            _cards.value = creditCardsRepository.getCacheWithBank()
+            _cards.value = repos.getCreditCardsCacheWithBank()
         }
     }
 }
-

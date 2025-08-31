@@ -17,10 +17,8 @@ data class WithInfoAccount(
     val bank: Bank,
 )
 
-class AccountsCardViewModel(
-    private val banksRepository: BanksRepository = BanksRepository(),
-    private val accountsRepository: AccountsRepository = AccountsRepository()
-) : ViewModel() {
+class AccountsCardViewModel : ViewModel() {
+    private val repos by lazy { br.com.victorwads.goldenunicorn.data.repositories.RepositoriesProvider.ensureFromCurrentUser() }
 
     private val _accounts = MutableStateFlow<List<WithInfoAccount>>(emptyList())
     val accounts: StateFlow<List<WithInfoAccount>> = _accounts.asStateFlow()
@@ -41,8 +39,8 @@ class AccountsCardViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Load banks (fills static local cache) and accounts
-                banksRepository.getAll(forceCache = false)
-                accountsRepository.getAll(forceCache = false)
+                repos.getAllBanks(forceCache = false)
+                repos.getAllAccounts(forceCache = false)
             } catch (_: Exception) {
                 // ignore errors here; fallback to cache
             } finally {
@@ -53,7 +51,7 @@ class AccountsCardViewModel(
 
     private fun assemble() {
         viewModelScope.launch(Dispatchers.Default) {
-            val items = accountsRepository.getCache(showArchived = _showArchived.value)
+            val items = repos.getAccountsCache(showArchived = _showArchived.value)
             .map { acc ->
                 val bank = acc.bankId?.let { BanksRepository.localCache[it] }
                     ?: Bank(id = null, name = acc.name, fullName = acc.name, logoUrl = "carteira.jpg")
@@ -61,7 +59,7 @@ class AccountsCardViewModel(
             }
             android.util.Log.d(
                 "AccountsVM",
-                "Assembled ${items.size} accounts (showArchived=${_showArchived.value}); total cached=${accountsRepository.getCache(true).size}"
+                "Assembled ${items.size} accounts (showArchived=${_showArchived.value}); total cached=${repos.getAccountsCache(true).size}"
             )
             _accounts.value = items
         }

@@ -4,8 +4,8 @@ import java.text.DateFormatSymbols
 import java.util.Calendar
 import java.util.Date
 
-class TimelineRepository(
-    private val accountsRepository: AccountsRepository = AccountsRepository(),
+internal class TimelineRepository(
+    private val accountsRepository: AccountsRepository,
 ) {
     suspend fun getTimeline() {
         val accounts = accountsRepository.getAll()
