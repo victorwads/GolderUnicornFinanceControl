@@ -15,6 +15,13 @@ export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
 
 interface ProcessingTask { id: number; text: string; startedAt: number; }
 
+export const startListening = () => SpeechRecognition.startListening({
+  continuous: true,
+  language: CurrentLangInfo.short,
+});
+
+export const stopListening = () => SpeechRecognition.stopListening();
+
 export default function AIMicrophone<T extends AIItemData, A extends string>(
   { parser, onAction }: AIMicrophoneProps<T, A>
 ) {
@@ -64,11 +71,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
   if (!browserSupportsSpeechRecognition) {
     return <span>{Lang.speech.browserNotSupported}</span>;
   }
-
-  const startListening = () => SpeechRecognition.startListening({
-    continuous: true,
-    language: CurrentLangInfo.short,
-  });
 
   const placeholder = transcript || (
     listening

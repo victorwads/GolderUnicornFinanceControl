@@ -28,8 +28,9 @@ import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
+import AssistantPage from '@features/assistant';
 
-import getRepositories, { clearRepositories, resetRepositories } from '@repositories';
+import { clearRepositories, resetRepositories } from '@repositories';
 import { getCurrentUser, saveUser } from '@configs';
 import { clearServices, resetServices } from '@services';
 
@@ -69,6 +70,7 @@ const privateRouter = createBrowserRouter([
   { path: '/groceries/create', element: <GroceryItemForm /> },
   { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
   { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
+  { path: '/ai', element: withRepos(<AssistantPage />) },
   { path: '*', element: <EmptyScreen title='Not Found' /> },
 ])
 

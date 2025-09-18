@@ -1,0 +1,137 @@
+.assistant-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  overflow: auto;
+}
+
+.assistant-page__microphone {
+  display: flex;
+  justify-content: center;
+}
+
+.assistant-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.assistant-section {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.assistant-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.assistant-log-empty {
+  opacity: 0.6;
+}
+
+.assistant-log-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.assistant-log-item {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.assistant-log-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.assistant-log-item__name {
+  text-transform: none;
+}
+
+.assistant-log-item__status {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.assistant-log-item__status--acknowledged {
+  border: 1px solid rgba(0, 200, 83, 0.4);
+  color: #5dd17d;
+}
+
+.assistant-log-item__status--failed {
+  border: 1px solid rgba(229, 57, 53, 0.4);
+  color: #f38b8b;
+}
+
+.assistant-log-item__timestamp {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+}
+
+.assistant-log-item__section {
+  margin-bottom: 0.5rem;
+}
+
+.assistant-log-item__section:last-child {
+  margin-bottom: 0;
+}
+
+.assistant-log-item__label {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.assistant-log-item__pre {
+  margin: 0.25rem 0 0;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0.4rem;
+  overflow-x: auto;
+  font-size: 0.75rem;
+}
+
+.assistant-log-item__section--error .assistant-log-item__pre {
+  color: #ffcdd2;
+}
+
+.assistant-section--highlight {
+  border-color: rgba(255, 214, 0, 0.4);
+}
+
+.assistant-ask-user__message {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.assistant-ask-user__options {
+  margin: 0 0 0.5rem;
+  padding-left: 1rem;
+}
+
+.assistant-ask-user__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.assistant-section--warnings {
+  border-color: rgba(255, 82, 82, 0.4);
+}
+
+.assistant-section--warnings ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
