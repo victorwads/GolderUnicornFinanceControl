@@ -33,7 +33,6 @@ export default function AssistantPage() {
         pendingAskResolver.current = null;
         setAskUserPrompt(null);
         resolve(answer);
-        stopListening();
       };
     });
   }, []);
@@ -50,6 +49,7 @@ export default function AssistantPage() {
 
   const processText = useCallback(
     async (text: string, userLanguage: string) => {
+      stopListening();
       if (pendingAskResolver.current) {
         pendingAskResolver.current(text);
         return;
@@ -60,7 +60,6 @@ export default function AssistantPage() {
           setWarnings((previous) => [...previous, ...result.warnings]);
         }
       });
-      stopListening();
     },
     [controller]
   );

@@ -20,7 +20,10 @@ export const startListening = () => SpeechRecognition.startListening({
   language: CurrentLangInfo.short,
 });
 
-export const stopListening = () => SpeechRecognition.stopListening();
+export const stopListening = () => {
+  console.log('Stopping listening');
+  setTimeout(() => SpeechRecognition.stopListening(), 100);
+};
 
 export default function AIMicrophone<T extends AIItemData, A extends string>(
   { parser, onAction }: AIMicrophoneProps<T, A>
@@ -35,7 +38,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
   useEffect(() => {
     parser.onAction = (action, changes) => {
       if (action.action === 'stop') {
-        SpeechRecognition.stopListening();
+        stopListening();
       }
       onAction?.(action, changes);
     };
@@ -64,7 +67,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
 
   useEffect(() => {
     return () => {
-      SpeechRecognition.stopListening();
+      stopListening();
     };
   }, []);
 
@@ -112,7 +115,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>(
         </span> */}
         <button
           className={`microphone-toggle${listening ? ' listening' : ''}`}
-          onClick={listening ? SpeechRecognition.stopListening : startListening}
+          onClick={listening ? stopListening : startListening}
           aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
         >
           <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
