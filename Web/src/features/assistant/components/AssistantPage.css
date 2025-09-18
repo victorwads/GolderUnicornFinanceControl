@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 1.5rem;
   padding: 1.5rem;
+  overflow: auto;
 }
 
 .assistant-page__microphone {

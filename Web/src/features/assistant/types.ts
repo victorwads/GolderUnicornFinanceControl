@@ -1,3 +1,5 @@
+import { FunctionDefinition } from "openai/resources/shared";
+
 export type AssistantToolName =
   | 'list_available_actions'
   | 'search_accounts'
@@ -10,12 +12,8 @@ export type AssistantToolName =
 
 export type AssistantToolStatus = 'acknowledged' | 'failed';
 
-export interface AssistantToolDefinition<Args extends object = Record<string, unknown>, Result = unknown> {
-  name: AssistantToolName;
-  description: string;
-  /** JSON schema understood by OpenAI tool calling. */
-  parameters: Record<string, unknown>;
-  execute: (args: Args) => Promise<Result> | Result;
+export type AssistantToolDefinition = FunctionDefinition & {
+  execute: (...args: any[]) => Promise<any>;
 }
 
 export interface AssistantToolCallLog {
