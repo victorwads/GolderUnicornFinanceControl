@@ -17,7 +17,7 @@ import type {
 import { addResourceUse, type AiModel } from "@resourceUse";
 import getRepositories, { Repositories } from "@repositories";
 
-const MODEL: AiModel = "gpt-5-nano";
+const MODEL: AiModel = "gpt-4.1-mini"
 const HISTORY_LIMIT = 15;
 
 const SYSTEM_PROMPT = `
