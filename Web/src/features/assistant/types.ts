@@ -8,21 +8,19 @@ export type AssistantToolName =
   | 'create_transfer'
   | 'create_account_entry'
   | 'create_creditcard_entry'
-  | 'ask_user';
+  | 'ask_aditional_info';
 
 export type AssistantToolStatus = 'acknowledged' | 'failed';
 
 export type AssistantToolDefinition = FunctionDefinition & {
-  execute: (...args: any[]) => Promise<any>;
+  execute?: (...args: any[]) => Promise<any>;
 }
 
 export interface AssistantToolCallLog {
   id: string;
-  name: AssistantToolName;
+  name: AssistantToolName | 'user_message';
   arguments: Record<string, unknown>;
-  status: AssistantToolStatus;
-  result?: unknown;
-  error?: string;
+  result: unknown;
   executedAt: number;
 }
 
@@ -37,7 +35,5 @@ export interface AskUserPayload {
 }
 
 export interface AssistantRunResult {
-  toolCalls: AssistantToolCallLog[];
-  askUserPrompt: AskUserPayload | null;
   warnings: string[];
 }

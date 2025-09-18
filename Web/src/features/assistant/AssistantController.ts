@@ -2,102 +2,110 @@ import {
   ChatCompletionAssistantMessageParam,
   ChatCompletionFunctionTool,
   ChatCompletionMessage,
+  ChatCompletionMessageFunctionToolCall,
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
-  ChatCompletionToolMessageParam,
-} from 'openai/resources/index';
+} from "openai/resources/index";
 
-import { createOpenAIClient } from './createOpenAIClient';
-import { AssistantTools } from './tools';
+import { createOpenAIClient } from "./createOpenAIClient";
+import { AssistantTools } from "./AssistantTools";
 import type {
   AssistantRunResult,
   AssistantToolCallLog,
   AssistantToolName,
-  AskUserPayload,
-} from './types';
-import { addResourceUse, type AiModel } from '@resourceUse';
-import getRepositories, { Repositories } from '@repositories';
+} from "./types";
+import { addResourceUse, type AiModel } from "@resourceUse";
+import getRepositories, { Repositories } from "@repositories";
 
-const MODEL: AiModel = 'gpt-4.1-mini';
-const MAX_ITERATIONS = 4;
-const HISTORY_LIMIT = 14;
+const MODEL: AiModel = "gpt-5-nano";
+const HISTORY_LIMIT = 15;
 
 const SYSTEM_PROMPT = `
 Você é o orquestrador do Golden Unicorn.
 Siga exatamente estas regras:
 - Nunca produza texto livre; responda sempre usando tool calls registradas.
 - Utilize as tools disponíveis para obter ou registrar dados.
-- Antes de qualquer transferência, execute search_accounts para origem e destino; se faltar dado, use ask_user.
-- Lançamento em conta: search_accounts e opcionalmente search_categories antes de create_account_entry.
-- Lançamento em cartão: search_credit_cards e opcionalmente search_categories antes de create_creditcard_entry.
-- Converta datas relativas como "hoje" para YYYY-MM-DD nos argumentos enviados às tools.
+- As tools search_* podem ser chamadas múltiplas vezes para obter identificados ou refinar dados.
+- As tools create_* finalizarão a conversa, então só as utilize quando estiver pronto para finalizar.
+- Converta datas relativas como "hoje, amanhã, semana passada, etc." para YYYY-MM-DD nos argumentos enviados às tools.
 - Campos não informados devem ser omitidos se opcionais.
-- Confirmações e solicitações de dados devem usar ask_user somente se estritamente necessário prefira sempre finalizar a conversa.
+- Confirmações e solicitações de dados devem usar ask_aditional_info somente se estritamente necessário prefira sempre finalizar a conversa.
 `.trim();
+
+export type ToolEventListener = (event: AssistantToolCallLog) => void;
+export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
 
 export default class AssistantController {
   private readonly openai = createOpenAIClient();
-  private readonly toolRegistry = new AssistantTools(this.repositories);
-  private history: ChatCompletionMessageParam[] = [];
+  private readonly toolRegistry: AssistantTools = new AssistantTools(
+    this.repositories
+  );
 
   constructor(
-    private readonly repositories: Repositories = getRepositories()
+    private readonly repositories: Repositories = getRepositories(),
+    public onAskAnditionalInfo?: AskAnditionalInfoCallback,
+    public onToolCalled?: ToolEventListener
   ) {}
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
     const context = this.createRunContext(text, userLanguage);
     const toolSchema = this.toolRegistry.buildToolSchema();
 
-    for (let iteration = 0; iteration < MAX_ITERATIONS; iteration += 1) {
-      const messages = this.buildMessages(context.history);
+    let messages = this.buildMessages(context.history);
+
+    this.onToolCalled?.({
+      id: "user-message",
+      name: "user_message",
+      arguments: { text },
+      result: null,
+      executedAt: Date.now(),
+    });
+
+    let run = true;
+    while (run) {
       const completion = await this.requestCompletion(messages, toolSchema);
-      const choice = completion.choices[0];
-
-      if (!choice?.message) {
-        context.warnings.push('Resposta vazia do modelo.');
-        break;
-      }
-
-      const toolCalls = this.appendAssistantResponse(choice.message, context);
       this.recordUsage(completion);
+
+      const choice = completion.choices[0];
+      const toolCalls = this.appendAssistantResponse(choice.message, context);
 
       if (!toolCalls.length) {
         break;
       }
 
-      await this.processToolCalls(toolCalls, context);
-      if (context.shouldStop) {
-        break;
+      for (const call of toolCalls) {
+        if ("function" in call) {
+          await this.executeToolCall(call, context);
+          if (call.function.name.startsWith("create_")) {
+            run = false;
+          }
+        }
       }
+      messages = this.buildMessages(context.history);
+      context.history = limitHistory(context.history);
     }
 
-    this.history = limitHistory(context.history);
-
     return {
-      toolCalls: context.toolExecutions,
-      askUserPrompt: context.askUserPrompt,
       warnings: context.warnings,
     };
   }
 
   private createRunContext(text: string, userLanguage: string): RunContext {
-    const history: ChatCompletionMessageParam[] = [...this.history];
-    history.push({
-      role: 'user',
-      content: `Idioma: ${userLanguage}\n${text}`,
-    });
-
     return {
-      history,
+      history: [
+        {
+          role: "user",
+          content: `Idioma: ${userLanguage}\n${text} Data: ${new Date().toISOString()}`,
+        },
+      ],
       warnings: [],
-      toolExecutions: [],
-      askUserPrompt: null,
-      shouldStop: false,
     };
   }
 
-  private buildMessages(history: ChatCompletionMessageParam[]): ChatCompletionMessageParam[] {
-    return [{ role: 'system', content: SYSTEM_PROMPT }, ...history];
+  private buildMessages(
+    history: ChatCompletionMessageParam[]
+  ): ChatCompletionMessageParam[] {
+    return [{ role: "system", content: SYSTEM_PROMPT }, ...history];
   }
 
   private async requestCompletion(
@@ -109,10 +117,11 @@ export default class AssistantController {
       model: MODEL,
       messages,
       tools,
-      tool_choice: 'required',
+      tool_choice: "required",
       parallel_tool_calls: true,
-      temperature: 0.1,
-      // reasoning_effort: 'low',
+      ...(MODEL.includes("gpt-5")
+        ? { reasoning_effort: "minimal" }
+        : { temperature: 0.1 }),
     });
   }
 
@@ -121,21 +130,24 @@ export default class AssistantController {
     context: RunContext
   ): ChatCompletionMessageToolCall[] {
     const assistantMessage: ChatCompletionAssistantMessageParam = {
-      role: 'assistant',
+      role: "assistant",
       content: message.content,
       tool_calls: message.tool_calls,
     };
     context.history.push(assistantMessage);
 
     if (message.content && message.content.trim().length > 0) {
-      context.warnings.push('O modelo tentou responder com texto livre.');
+      context.warnings.push("O modelo tentou responder com texto livre.");
     }
 
     return message.tool_calls || [];
   }
 
-  private recordUsage(completion: { usage?: { prompt_tokens?: number; completion_tokens?: number } }) {
-    const { prompt_tokens: input, completion_tokens: output } = completion.usage ?? {};
+  private recordUsage(completion: {
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
+  }) {
+    const { prompt_tokens: input, completion_tokens: output } =
+      completion.usage ?? {};
     if (!input && !output) return;
 
     addResourceUse({
@@ -148,111 +160,49 @@ export default class AssistantController {
     });
   }
 
-  private async processToolCalls(
-    toolCalls: ChatCompletionMessageToolCall[],
-    context: RunContext
-  ): Promise<void> {
-    for (const toolCall of toolCalls) {
-      const { id, function: fn } = toolCall;
-      const name = fn?.name as AssistantToolName | undefined;
-      if (!id || !name) {
-        context.warnings.push('Tool call sem identificação ou nome.');
-        continue;
-      }
-
-      const args = this.parseToolArguments(id, name, fn?.arguments, context);
-      if (!args) {
-        continue;
-      }
-
-      await this.executeToolCall(id, name, args, context);
-      if (context.shouldStop) {
-        return;
-      }
-    }
-  }
-
-  private parseToolArguments(
-    id: string,
-    name: AssistantToolName,
-    rawArguments: string | undefined,
-    context: RunContext
-  ): Record<string, unknown> | null {
-    try {
-      return rawArguments ? JSON.parse(rawArguments) : {};
-    } catch (error) {
-      context.warnings.push(`Falha ao interpretar argumentos de ${name}.`);
-      context.toolExecutions.push({
-        id,
-        name,
-        arguments: {},
-        status: 'failed',
-        error: error instanceof Error ? error.message : String(error),
-        executedAt: Date.now(),
-      });
-      return null;
-    }
-  }
-
   private async executeToolCall(
-    id: string,
-    name: AssistantToolName,
-    args: Record<string, unknown>,
+    call: ChatCompletionMessageFunctionToolCall,
     context: RunContext
   ): Promise<void> {
-    try {
-      const result = await this.toolRegistry.execute(name, args);
-      context.toolExecutions.push({
-        id,
-        name,
-        arguments: args,
-        status: 'acknowledged',
-        result,
-        executedAt: Date.now(),
-      });
+    const args = call.function.arguments
+      ? JSON.parse(call.function.arguments)
+      : {};
 
-      const toolMessage: ChatCompletionToolMessageParam = {
-        role: 'tool',
-        tool_call_id: id,
-        content: JSON.stringify(result ?? {}),
-      };
-      context.history.push(toolMessage);
-
-      if (name === 'ask_user') {
-        context.askUserPrompt = (result as AskUserPayload) ?? null;
-        context.shouldStop = true;
-      }
-    } catch (error) {
-      const messageError = error instanceof Error ? error.message : String(error);
-      context.toolExecutions.push({
-        id,
-        name,
-        arguments: args,
-        status: 'failed',
-        error: messageError,
-        executedAt: Date.now(),
-      });
-
-      const toolMessage: ChatCompletionToolMessageParam = {
-        role: 'tool',
-        tool_call_id: id,
-        content: JSON.stringify({ acknowledged: false, error: messageError }),
-      };
-      context.history.push(toolMessage);
-      context.warnings.push(`Falha ao executar ${name}: ${messageError}`);
+    let result: any;
+    if (call.function.name === "ask_aditional_info") {
+      result = await this.onAskAnditionalInfo?.(args.message);
+    } else {
+      result = await this.toolRegistry.execute(
+        call.function.name as AssistantToolName,
+        args,
+        { id: call.id }
+      );
     }
+
+    this.onToolCalled?.({
+      id: call.id,
+      name: call.function.name as AssistantToolName,
+      arguments: args,
+      result,
+      executedAt: Date.now(),
+    });
+
+    context.history.push({
+      role: "tool",
+      tool_call_id: call.id,
+      content: JSON.stringify(result ?? null),
+    });
   }
 }
 
 type RunContext = {
   history: ChatCompletionMessageParam[];
   warnings: string[];
-  toolExecutions: AssistantToolCallLog[];
-  askUserPrompt: AskUserPayload | null;
-  shouldStop: boolean;
 };
 
-function limitHistory(history: ChatCompletionMessageParam[]): ChatCompletionMessageParam[] {
+function limitHistory(
+  history: ChatCompletionMessageParam[]
+): ChatCompletionMessageParam[] {
   if (history.length <= HISTORY_LIMIT) return history;
   return history.slice(history.length - HISTORY_LIMIT);
 }

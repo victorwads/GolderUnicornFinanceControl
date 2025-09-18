@@ -30,7 +30,7 @@ import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 import AssistantPage from '@features/assistant';
 
-import getRepositories, { clearRepositories, resetRepositories } from '@repositories';
+import { clearRepositories, resetRepositories } from '@repositories';
 import { getCurrentUser, saveUser } from '@configs';
 import { clearServices, resetServices } from '@services';
 
