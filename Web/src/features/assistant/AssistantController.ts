@@ -5,7 +5,7 @@ import {
 } from 'openai/resources/index';
 
 import { createOpenAIClient } from './createOpenAIClient';
-import { executeTool, getToolDefinitions } from './tools';
+import { AssistantTools } from './tools';
 import type {
   AssistantRunResult,
   AssistantToolCallLog,
@@ -31,20 +31,21 @@ Siga exatamente estas regras:
 - Confirmações e solicitações de dados devem usar ask_user.
 `.trim();
 
-function toToolSchema() {
-  return getToolDefinitions().map((tool) => ({
-    type: 'function' as const,
-    function: {
-      name: tool.name,
-      description: tool.description,
-      parameters: tool.parameters,
-    },
-  }));
-}
-
 export default class AssistantController {
   private readonly openai = createOpenAIClient();
+  private readonly toolRegistry = new AssistantTools();
   private history: ChatCompletionMessageParam[] = [];
+
+  private buildToolSchema() {
+    return this.toolRegistry.getDefinitions().map((tool) => ({
+      type: 'function' as const,
+      function: {
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.parameters,
+      },
+    }));
+  }
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
     const warnings: string[] = [];
@@ -57,7 +58,7 @@ export default class AssistantController {
       content: `Idioma: ${userLanguage}\n${text}`,
     });
 
-    const tools = toToolSchema();
+    const toolSchema = this.buildToolSchema();
     let shouldStop = false;
 
     for (let iteration = 0; iteration < MAX_ITERATIONS; iteration += 1) {
@@ -69,7 +70,7 @@ export default class AssistantController {
       const completion = await this.openai.chat.completions.create({
         model: MODEL,
         messages,
-        tools,
+        tools: toolSchema,
         tool_choice: 'auto',
         parallel_tool_calls: false,
         temperature: 0.1,
@@ -123,7 +124,7 @@ export default class AssistantController {
         }
 
         try {
-          const result = await executeTool(name, parsedArgs);
+          const result = await this.toolRegistry.execute(name, parsedArgs);
           const execution: AssistantToolCallLog = {
             id,
             name,
