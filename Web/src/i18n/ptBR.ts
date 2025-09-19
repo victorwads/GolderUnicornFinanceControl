@@ -157,6 +157,61 @@ const ptBR: Translation = {
     changeLangTooltip: 'Clique para mudar o idioma',
     tokensUsed: (tokens: number, price: string) => `Usados: ${tokens} Tokens, R$ ${price}`
   },
+  aiMic: {
+    onboarding: {
+      info: {
+        title: 'Teste de reconhecimento de voz',
+        p1: 'O reconhecimento de voz usado no app é nativo e depende da compatibilidade do seu dispositivo.',
+        p2: 'Vamos fazer um teste rápido para verificar se tudo está funcionando.',
+      },
+      lang: {
+        title: 'Confirme o idioma',
+        p1: 'Confirme que o idioma do app está correto e que o idioma falado é o mesmo configurado no seu dispositivo.',
+      },
+      verification: {
+        title: 'Repita a frase',
+        instructions: 'Fale a frase exibida abaixo para testarmos o reconhecimento de voz.',
+        retry: 'Não foi suficiente, tente novamente.',
+        success: 'Perfeito! Vamos continuar.',
+        waiting: 'Aguardando sua fala...',
+        targetLabel: 'Frase esperada',
+        transcriptLabel: 'Transcrição',
+        scoreLabel: 'Pontuação',
+      },
+      progress: (passed: number, target: number) => `${passed} de ${target}`,
+      success: {
+        title: 'Tudo certo!',
+        p1: 'Seu dispositivo é compatível com o reconhecimento de voz.',
+      },
+      fail: {
+        title: 'Não foi possível validar',
+        p1: 'Não conseguimos confirmar a compatibilidade do reconhecimento de voz no momento.',
+      },
+      actions: {
+        start: 'Iniciar teste',
+        confirm: 'Confirmar idioma',
+        back: 'Voltar',
+        tryAgain: 'Tente novamente',
+      },
+    },
+    onboardingCases: () => [
+      'Testando transferir 12 reais da conta salario para a poupanca.',
+      'Teste de reconhecimento do valor falado R$ 20,00 como despesa rapida.',
+      'Outro teste dizendo apenas vinte reais para verificar se funciona sem simbolo.',
+      'Diga transferir doze BRL para a conta reserva para conferir o codigo da moeda.',
+      'Peca mover cinquenta USD da conta corrente para o fundo de viagem e confirme o termo USD.',
+      'Tente lancar um debito de 30 euros na categoria mercado para notar suporte multimoeda.',
+      'Fale registrar saque de 75 dolares com anotacao caixa ATM B3 para checar valor e nota.',
+      'Fale pagar a assinatura USB e veja se confunde com USD.',
+      'Solicite registrar reembolso de 120 pesos mexicanos para testar moedas estrangeiras.',
+      'Fale buscar contas da cliente Maria da Silva para revisar reconhecimento de nome completo.',
+      'Peca mostrar limite do cartao corporativo Visa em BRL misturando idiomas.',
+      'Comande gerar relatorio comparando total de credito e debito de abril para testar relatorios.',
+      'Diga marcar a fatura 2045 como paga em dolares para validar numeros falados.',
+      'Informe capturar pagamento recorrente de R$ 99,90 do Spotify para validar decimais.',
+      'Experimente converter 200 BRL em USD e lancar a diferenca para estressar conversoes.',
+    ],
+  },
   subscriptions,
 };
 

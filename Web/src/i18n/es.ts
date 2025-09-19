@@ -145,6 +145,61 @@ const es: Translation = {
     changeLangTooltip: 'Haga clic para cambiar el idioma',
     tokensUsed: (tokens: number, price: string) => `Usados: ${tokens} Tokens, R$ ${price}`
   },
+  aiMic: {
+    onboarding: {
+      info: {
+        title: 'Prueba de reconocimiento de voz',
+        p1: 'El reconocimiento de voz usado en la app es nativo y depende de la compatibilidad de tu dispositivo.',
+        p2: 'Hagamos una prueba rápida para comprobar que todo funciona.',
+      },
+      lang: {
+        title: 'Confirme el idioma',
+        p1: 'Confirme que el idioma de la app es correcto y que el idioma que hablas coincide con el configurado en tu dispositivo.',
+      },
+      verification: {
+        title: 'Repite la frase',
+        instructions: 'Di la frase mostrada abajo para validar el reconocimiento de voz.',
+        retry: 'No coincidió, inténtalo de nuevo.',
+        success: '¡Perfecto! Sigamos con la siguiente frase.',
+        waiting: 'Esperando que hables...',
+        targetLabel: 'Frase esperada',
+        transcriptLabel: 'Transcripción',
+        scoreLabel: 'Puntuación',
+      },
+      progress: (passed: number, target: number) => `${passed} de ${target}`,
+      success: {
+        title: '¡Todo listo!',
+        p1: 'Tu dispositivo es compatible con el reconocimiento de voz.',
+      },
+      fail: {
+        title: 'No fue posible validar',
+        p1: 'No pudimos confirmar la compatibilidad del reconocimiento de voz en este momento.',
+      },
+      actions: {
+        start: 'Iniciar prueba',
+        confirm: 'Confirmar idioma',
+        back: 'Volver',
+        tryAgain: 'Intentar de nuevo',
+      },
+    },
+    onboardingCases: () => [
+      'Probando una transferencia de doce reales desde la cuenta salario hacia los ahorros.',
+      'Prueba de voz para el importe R$ 20,00 registrado como gasto rápido.',
+      'Segunda prueba diciendo solo veinte reales para ver si funciona sin el símbolo.',
+      'Di transferir doce BRL a la cuenta de reserva para confirmar el manejo del código de moneda.',
+      'Pide mover cincuenta USD de la cuenta corriente al fondo de viajes y confirma la palabra USD.',
+      'Intenta agregar un débito de treinta euros a la categoría supermercado para observar el soporte multimoneda.',
+      'Dicta registrar un retiro de efectivo de setenta y cinco dólares con nota ATM B3 para revisar importe y nota.',
+      'Pronuncia pagar la suscripción USB y mira si se confunde con USD.',
+      'Di registrar un reembolso de ciento veinte pesos mexicanos para probar monedas extranjeras.',
+      'Habla buscar cuentas de la clienta María da Silva para poner a prueba el reconocimiento de nombre completo.',
+      'Pide mostrar el límite de la tarjeta corporativa Visa en BRL mezclando idiomas a propósito.',
+      'Ordena generar un informe que compare los totales de crédito y débito de abril para probar los reportes.',
+      'Intenta marcar la factura dos cero cuatro cinco como pagada en dólares para validar los dígitos hablados.',
+      'Di capturar el pago recurrente de R$ 99,90 para Spotify y verificar decimales.',
+      'Experimenta convirtiendo doscientos BRL a USD y registrando la diferencia para estresar las conversiones.',
+    ],
+  },
   registry: {
     title: 'Registro',
     description: 'Descripción',

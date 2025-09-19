@@ -146,5 +146,44 @@ export default interface Translation {
     changeLangTooltip: string;
     tokensUsed: (tokens: number, price: string) => string; // e.g. "Used: 123 tokens,"
   };
+  aiMic: {
+    onboarding: {
+      info: {
+        title: string;
+        p1: string;
+        p2: string;
+      };
+      lang: {
+        title: string;
+        p1: string;
+      };
+      verification: {
+        title: string;
+        instructions: string;
+        retry: string;
+        success: string;
+        waiting: string;
+        targetLabel: string;
+        transcriptLabel: string;
+        scoreLabel: string;
+      };
+      progress: (passed: number, target: number) => string;
+      success: {
+        title: string;
+        p1: string;
+      };
+      fail: {
+        title: string;
+        p1: string;
+      };
+      actions: {
+        start: string;
+        confirm: string;
+        back: string;
+        tryAgain: string;
+      };
+    };
+    onboardingCases: () => string[];
+  };
   subscriptions?: import("@features/subscriptions/i18n/base").default;
 }

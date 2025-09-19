@@ -145,6 +145,61 @@ const zh: Translation = {
     changeLangTooltip: '点击更改语言',
     tokensUsed: (tokens: number, price: string) => `已用: ${tokens} 令牌, R$ ${price}`
   },
+  aiMic: {
+    onboarding: {
+      info: {
+        title: '语音识别测试',
+        p1: '应用使用的语音识别依赖系统支持，需要确认你的设备是否兼容。',
+        p2: '让我们快速测试一下，确认一切正常。',
+      },
+      lang: {
+        title: '确认语言',
+        p1: '请确认应用语言正确，并确保你说话使用的语言与设备上配置的语言一致。',
+      },
+      verification: {
+        title: '重复短语',
+        instructions: '请说出下面显示的句子，我们将验证语音识别功能。',
+        retry: '匹配度不够，请再试一次。',
+        success: '很好！继续下一句话。',
+        waiting: '等待你的语音...',
+        targetLabel: '目标短语',
+        transcriptLabel: '识别文本',
+        scoreLabel: '得分',
+      },
+      progress: (passed: number, target: number) => `完成 ${passed}/${target}`,
+      success: {
+        title: '一切就绪！',
+        p1: '你的设备兼容语音识别。',
+      },
+      fail: {
+        title: '暂时无法验证',
+        p1: '目前无法确认语音识别兼容性。',
+      },
+      actions: {
+        start: '开始测试',
+        confirm: '确认语言',
+        back: '返回',
+        tryAgain: '重试',
+      },
+    },
+    onboardingCases: () => [
+      '测试将工资账户的十二雷亚尔转入储蓄账户的语音指令。',
+      '进行一次语音测试，把金额 R$ 20,00 记录为一笔快速支出。',
+      '再次测试，只说二十雷亚尔，看看没有符号是否仍然识别。',
+      '说转账十二 BRL 到备用账户，用来确认货币代码的处理。',
+      '请求把五十 USD 从支票账户转到旅行基金，并确认是否听出 USD 关键字。',
+      '尝试添加三十欧元到杂货类别的借方记录，观察多币种支持。',
+      '口述记录一笔七十五美元的现金取款并添加备注 ATM B3，验证金额和备注解析。',
+      '说支付 USB 订阅，查看是否会与 USD 混淆。',
+      '说登记一笔一百二十墨西哥比索的报销，测试外币名称。',
+      '说搜索客户 Maria da Silva 的账户，检验全名识别。',
+      '请求显示 BRL 单位的 Visa 企业卡额度，特意混合语言。',
+      '命令生成一份比较四月信用与借记总额的报告，测试报表动作。',
+      '尝试把发票二零四五标记为以美元支付，验证口述数字。',
+      '说捕捉 R$ 99,90 的 Spotify 循环付款，校验小数金额。',
+      '试着把二百 BRL 转成 USD 并记录差额，用于压力测试换汇流程。',
+    ],
+  },
   registry: {
     title: '记录',
     description: '描述',
