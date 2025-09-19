@@ -1,4 +1,5 @@
 import { FunctionDefinition } from "openai/resources/shared";
+import { Result } from "src/data/models/metadata";
 
 export type AssistantToolName =
   | 'list_available_actions'
@@ -12,8 +13,10 @@ export type AssistantToolName =
 
 export type AssistantToolStatus = 'acknowledged' | 'failed';
 
-export type AssistantToolDefinition = FunctionDefinition & {
-  execute?: (...args: any[]) => Promise<any>;
+export type AssistantToolExecution<T> = (...args: any[]) => Promise<T>;
+
+export type AssistantToolDefinition<T> = FunctionDefinition & {
+  execute?: AssistantToolExecution<T>;
 }
 
 export interface AssistantToolCallLog {

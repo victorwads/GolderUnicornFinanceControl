@@ -16,8 +16,9 @@ import type {
 } from "./types";
 import { addResourceUse, type AiModel } from "@resourceUse";
 import getRepositories, { Repositories } from "@repositories";
+import { Result } from "src/data/models/metadata";
 
-const MODEL: AiModel = "gpt-4.1-mini"
+const MODEL: AiModel = "gpt-4.1-mini";
 const HISTORY_LIMIT = 15;
 
 const SYSTEM_PROMPT = `
@@ -28,7 +29,8 @@ Siga exatamente estas regras:
 - As tools search_* podem ser chamadas múltiplas vezes para obter identificados ou refinar dados.
 - As tools create_* finalizarão a conversa, então só as utilize quando estiver pronto para finalizar.
 - Nunca produza valores que o usuário não disse explicitamente ou foram obtidos via search_*.
-- Converta datas relativas como "hoje, amanhã, semana passada, etc." para YYYY-MM-DD nos argumentos enviados às tools.
+- Converta datas relativas como "hoje, amanhã, semana passada, etc. para datas absolutas.
+- Qualquer data deve ser retornada no formato YYYY-MM-DDTHH:mm.
 - Campos não informados devem ser omitidos se opcionais.
 - Confirmações e solicitações de dados devem usar ask_aditional_info somente se estritamente necessário prefira sempre finalizar a conversa.
 `.trim();
@@ -76,8 +78,16 @@ export default class AssistantController {
 
       for (const call of toolCalls) {
         if ("function" in call) {
-          await this.executeToolCall(call, context);
-          if (call.function.name.startsWith("create_")) {
+          const result = (await this.executeToolCall(
+            call,
+            context
+          )) as Result<unknown>;
+          if (
+            call.function.name.startsWith("create_") &&
+            "success" in result &&
+            result.success === true &&
+            result.result
+          ) {
             run = false;
           }
         }
@@ -164,7 +174,7 @@ export default class AssistantController {
   private async executeToolCall(
     call: ChatCompletionMessageFunctionToolCall,
     context: RunContext
-  ): Promise<void> {
+  ): Promise<unknown> {
     const args = call.function.arguments
       ? JSON.parse(call.function.arguments)
       : {};
@@ -193,6 +203,8 @@ export default class AssistantController {
       tool_call_id: call.id,
       content: JSON.stringify(result ?? null),
     });
+
+    return result;
   }
 }
 

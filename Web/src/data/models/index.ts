@@ -8,3 +8,4 @@ export * from './DocumentModel';
 export * from './Registry';
 export * from './ProductModel';
 export * from './GroceryItemModel';
+export * from './metadata';

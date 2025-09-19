@@ -1,30 +1,30 @@
 import type { ChatCompletionFunctionTool } from "openai/resources/index";
 
-import { resolveDateInput } from "./utils/dateHelpers";
 import { Similarity } from "./utils/stringSimilarity";
 import type {
   AssistantToolDefinition,
   AssistantToolName,
   AskUserPayload,
+  AssistantToolExecution,
 } from "./types";
 import { waitUntilReady, type Repositories } from "@repositories";
-import { Account, CreditCard, Category } from "@models";
+import {
+  Account,
+  CreditCard,
+  Category,
+  TransferRegistry,
+  AccountsRegistry,
+  CreditCardRegistry,
+  ModelMetadata,
+  Result,
+} from "@models";
+import { validateRequiredFields } from "@models";
 
 const MAX_RESULTS = 5;
 
-const AVAILABLE_ACTIONS = [
-  "transfer",
-  "account_entry",
-  "creditcard_entry",
-  "search_accounts",
-  "search_credit_cards",
-  "search_categories",
-  "ask_aditional_info",
-] as const;
-
 export class AssistantTools {
-  private readonly definitions: AssistantToolDefinition[];
-  private readonly toolMap: Map<AssistantToolName, AssistantToolDefinition>;
+  private readonly definitions: AssistantToolDefinition<unknown>[];
+  private readonly toolMap: Map<AssistantToolName, AssistantToolDefinition<unknown>>;
 
   constructor(private readonly repositories: Repositories) {
     this.definitions = this.createDefinitions();
@@ -44,7 +44,7 @@ export class AssistantTools {
     }));
   }
 
-  getDefinitions(): AssistantToolDefinition[] {
+  getDefinitions(): AssistantToolDefinition<unknown>[] {
     return this.definitions;
   }
 
@@ -60,7 +60,28 @@ export class AssistantTools {
     return result;
   }
 
-  private createDefinitions(): AssistantToolDefinition[] {
+  private createFromMetadata<T>(
+    {aiToolCreator, from}: ModelMetadata<T>
+  ): AssistantToolDefinition<Result<T>> {
+    return {
+      name: aiToolCreator.name,
+      description: aiToolCreator.description,
+      parameters: {
+        type: "object",
+        properties: aiToolCreator.properties,
+        required: aiToolCreator.required,
+        additionalProperties: false,
+      },
+      execute: async (args) => {
+        const validatedFields = validateRequiredFields(args, aiToolCreator.required);
+        if (!validatedFields.success) return validatedFields;
+
+        return from(args)
+      },
+    };
+  }
+
+  private createDefinitions(): AssistantToolDefinition<unknown>[] {
     return [
       {
         name: "list_available_actions",
@@ -71,7 +92,7 @@ export class AssistantTools {
           properties: {},
           additionalProperties: false,
         },
-        execute: this.listAvailableActions,
+        execute: async () => this.definitions.map(def => def.name),
       },
       {
         name: "search_accounts",
@@ -98,65 +119,9 @@ export class AssistantTools {
         ),
         execute: this.searchCategories,
       },
-      {
-        name: "create_transfer",
-        description: "Cria uma pré-ação de transferência entre contas.",
-        parameters: {
-          type: "object",
-          properties: {
-            from_account_id: { type: "string" },
-            to_account_id: { type: "string" },
-            amount: { type: "number" },
-            currency: { type: "string", default: "BRL" },
-            date: {
-              type: "string",
-              description: "Data da transferência (YYYY-MM-DD).",
-            },
-            category_id: { type: "string" },
-            note: { type: "string" },
-          },
-          required: ["from_account_id", "to_account_id", "amount"],
-          additionalProperties: false,
-        },
-        execute: this.createTransfer,
-      },
-      {
-        name: "create_account_entry",
-        description: "Cria uma pré-ação de lançamento em conta.",
-        parameters: {
-          type: "object",
-          properties: {
-            account_id: { type: "string" },
-            entry_type: { type: "string", enum: ["debit", "credit"] },
-            amount: { type: "number" },
-            currency: { type: "string", default: "BRL" },
-            date: { type: "string" },
-            category_id: { type: "string" },
-            note: { type: "string" },
-          },
-          required: ["account_id", "entry_type", "amount"],
-          additionalProperties: false,
-        },
-        execute: this.createAccountEntry,
-      },
-      {
-        name: "create_creditcard_entry",
-        description: "Cria uma pré-ação de lançamento em cartão de crédito.",
-        parameters: {
-          type: "object",
-          properties: {
-            card_id: { type: "string" },
-            amount: { type: "number" },
-            currency: { type: "string", default: "BRL" },
-            date: { type: "string" },
-            category_id: { type: "string" },
-            note: { type: "string" },
-          },
-          required: ["card_id", "amount"],
-          additionalProperties: false,
-        },
-        execute: this.createCreditCardEntry,
-      },
+      this.createFromMetadata(TransferRegistry.metadataTransfer),
+      this.createFromMetadata(AccountsRegistry.metadata),
+      this.createFromMetadata(CreditCardRegistry.metadata),
       {
         name: "ask_aditional_info",
         description:
@@ -170,8 +135,6 @@ export class AssistantTools {
       },
     ];
   }
-
-  private listAvailableActions = () => ({ actions: [...AVAILABLE_ACTIONS] });
 
   private searchAccounts = async ({
     query,
@@ -243,59 +206,6 @@ export class AssistantTools {
     };
   };
 
-  private createTransfer = async (args: {
-    from_account_id: string;
-    to_account_id: string;
-    amount: number;
-    currency?: string;
-    date?: string;
-    category_id?: string;
-    note?: string;
-  }) => {
-    const payload = {
-      ...args,
-      currency: args.currency || "BRL",
-      date: resolveDateInput(args.date),
-    };
-    console.log("create_transfer", payload);
-    return { acknowledged: true, preview: payload };
-  };
-
-  private createAccountEntry = async (args: {
-    account_id: string;
-    entry_type: "debit" | "credit";
-    amount: number;
-    currency?: string;
-    date?: string;
-    category_id?: string;
-    note?: string;
-  }) => {
-    const payload = {
-      ...args,
-      currency: args.currency || "BRL",
-      date: resolveDateInput(args.date),
-    };
-    console.log("create_account_entry", payload);
-    return { acknowledged: true, preview: payload };
-  };
-
-  private createCreditCardEntry = async (args: {
-    card_id: string;
-    amount: number;
-    currency?: string;
-    date?: string;
-    category_id?: string;
-    note?: string;
-  }) => {
-    const payload = {
-      ...args,
-      currency: args.currency || "BRL",
-      date: resolveDateInput(args.date),
-    };
-    console.log("create_creditcard_entry", payload);
-    return { acknowledged: true, preview: payload };
-  };
-
   private createSearchParamsSchemema(description: string) {
     return {
       type: "object",
@@ -306,13 +216,6 @@ export class AssistantTools {
       additionalProperties: false,
     };
   }
-
-  private askUser = async (args: AskUserPayload) => ({
-    acknowledged: true,
-    answer:
-      (await this.onAskAnditionalInfo?.(args.message)) ||
-      "erro, usuário indisponível",
-  });
 
   private capLimit(limit?: number) {
     return Math.min(MAX_RESULTS, Math.max(1, Math.round(limit ?? MAX_RESULTS)));
