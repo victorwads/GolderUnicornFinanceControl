@@ -1,5 +1,5 @@
-import { Category } from "./Category";
-import { DocumentModel } from "./DocumentModel";
+import { Category } from "../Category";
+import { DocumentModel } from "../DocumentModel";
 
 export enum RegistryType {
   ACCOUNT,
@@ -39,4 +39,8 @@ export abstract class Registry extends DocumentModel {
       currency: "BRL",
     });
   };
+
+  static ai = {
+    observation: "Additional notes or observations about the transfer besides the description and accounts involved or other structured parameters",
+  }
 }

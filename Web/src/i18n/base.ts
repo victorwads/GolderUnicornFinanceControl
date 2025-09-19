@@ -119,6 +119,7 @@ export default interface Translation {
     timelineModeStart: string;
     timelineModeNext: string;
     timelineCutoffDay: string;
+    resetOnboarding: string;
   };
   dashboard: {
     title: string;
@@ -181,6 +182,7 @@ export default interface Translation {
         confirm: string;
         back: string;
         tryAgain: string;
+        close: string;
       };
     };
     onboardingCases: () => string[];

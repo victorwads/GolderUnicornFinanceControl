@@ -3,7 +3,7 @@ import {
   Result,
   validateDate,
 } from "../metadata";
-import { RegistryType } from "../Registry";
+import { RegistryType } from "./Registry";
 import { AccountsRegistry } from "./AccountRegistry";
 
 interface TransferInfo {
@@ -86,7 +86,7 @@ export class TransferRegistry extends AccountsRegistry {
         },
         description: {
           type: "string",
-          description: "Brief description about what is the transfer besides the accounts involved",
+          description: "Brief description about what/whys is the transfer besides the accounts involved",
         },
         observation: {
           type: "string",

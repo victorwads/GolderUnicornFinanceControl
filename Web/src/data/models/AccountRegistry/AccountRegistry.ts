@@ -1,8 +1,8 @@
+import { Category } from "../Category";
 import { ModelMetadata, Result, validateDate } from "../metadata";
-import { Registry, RegistryType } from "../Registry";
+import { Registry, RegistryType } from "./Registry";
 
 export class AccountsRegistry extends Registry {
-
   constructor(
     id: string,
     public type: RegistryType = RegistryType.ACCOUNT,
@@ -16,25 +16,39 @@ export class AccountsRegistry extends Registry {
     observation?: string,
     relatedInfo?: string
   ) {
-    super(id, RegistryType.ACCOUNT, paid, value, description, date, tags, categoryId, observation, relatedInfo);
+    super(
+      id,
+      RegistryType.ACCOUNT,
+      paid,
+      value,
+      description,
+      date,
+      tags,
+      categoryId,
+      observation,
+      relatedInfo
+    );
   }
 
   static metadata: ModelMetadata<AccountsRegistry> = {
     aiToolCreator: {
       name: "create_checking_account_entry",
-      description: "Registra uma movimentação em conta corrente ou equivalente.",
+      description:
+        "Registra uma movimentação em conta corrente ou equivalente. sempre valide se o usuário comprou mesmo no debito ou se comrou no crédito e use a ferramenta adequada.",
       properties: {
         accountId: {
           type: "string",
-          description: "Identificador da conta onde o lançamento será aplicado.",
+          description:
+            "Identificador da conta onde o lançamento será aplicado.",
         },
         value: {
           type: "number",
-          description: "Valor numérico do lançamento; use negativo para despesas e positivo para receitas.",
+          description:
+            "Valor numérico do lançamento; use negativo para despesas e positivo para receitas.",
         },
         description: {
           type: "string",
-          description: "Breve descrição do lançamento.",
+          description: "Breve descrição do que foi comprado ou recebido.",
         },
         date: {
           type: "string",
@@ -42,16 +56,14 @@ export class AccountsRegistry extends Registry {
         },
         paid: {
           type: "boolean",
-          description: "Indica se o lançamento já está pago/compensado ou é previsão. O padrão é falso (previsão).",
+          description:
+            "Indica se o lançamento já está pago/compensado ou é previsão. O padrão é falso (previsão).",
         },
         categoryId: {
           type: "string",
-          description: "Identificador da categoria associada ao lançamento, se houver. você pode procurar por categorias existentes para obter IDs válidos.",
+          description: Category.idAiExtractor,
         },
-        observation: {
-          type: "string",
-          description: "Observações opicionais sobre o lançamento que não cabem na descrição.",
-        },
+        observation: { type: "string", description: Registry.ai.observation },
       },
       required: ["accountId", "value", "description", "date"],
     },
@@ -69,18 +81,21 @@ export class AccountsRegistry extends Registry {
       const parsedDate = validateDate(date as string);
       if (!parsedDate.success) return parsedDate;
 
-      return { success: true, result: new AccountsRegistry(
-        "",
-        RegistryType.ACCOUNT,
-        String(accountId),
-        Number(value),
-        String(description),
-        parsedDate.result,
-        Boolean(paid),
-        [],
-        categoryId ? String(categoryId) : undefined,
-        observation ? String(observation) : undefined
-      ) };
+      return {
+        success: true,
+        result: new AccountsRegistry(
+          "",
+          RegistryType.ACCOUNT,
+          String(accountId),
+          Number(value),
+          String(description),
+          parsedDate.result,
+          Boolean(paid),
+          [],
+          categoryId ? String(categoryId) : undefined,
+          observation ? String(observation) : undefined
+        ),
+      };
     },
   };
 }

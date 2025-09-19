@@ -1,5 +1,6 @@
+import { Category } from "../Category";
 import { ModelMetadata, Result, validateDate } from "../metadata";
-import { Registry, RegistryType } from "../Registry";
+import { Registry, RegistryType } from "./Registry";
 
 export interface WithInvoiceTime {
   month: number;
@@ -24,7 +25,7 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
   static metadata: ModelMetadata<CreditCardRegistry> = {
     aiToolCreator: {
       name: "create_creditcard_entry",
-      description: "Registra um lançamento vinculado a um cartão de crédito.",
+      description: "Registra um lançamento vinculado a um cartão de crédito. sempre valide se o usuário comprou mesmo no crédito ou para débito a ferramenta adequada.",
       properties: {
         cardId: {
           type: "string",
@@ -32,7 +33,7 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
         },
         value: {
           type: "number",
-          description: "Valor do lançamento; use negativo para despesas e positivo para ajustes/estornos.",
+          description: "Valor positivo do lançamento; use negativo somente para reembolsos ou estornos.",
         },
         description: {
           type: "string",
@@ -52,7 +53,7 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
         },
         categoryId: {
           type: "string",
-          description: "Identificador da categoria associada ao lançamento.",
+          description: Category.idAiExtractor,
         },
         observation: {
           type: "string",

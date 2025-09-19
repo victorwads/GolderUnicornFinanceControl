@@ -106,7 +106,7 @@ export default class AssistantController {
       history: [
         {
           role: "user",
-          content: `Idioma: ${userLanguage}\n${text} Data: ${new Date().toISOString()}`,
+          content: `Idioma: ${userLanguage}\n${text} Data Hora Atual: ${new Date().toISOString()}`,
         },
       ],
       warnings: [],

@@ -15,12 +15,15 @@ import {
 
 const SCORE_THRESHOLD = 70;
 const ONBOARDING_TARGET = 4;
-const FAILURE_LIMIT = 10;
-const EVALUATION_DELAY = 5000;
+const FAILURE_LIMIT = 5;
+const EVALUATION_DELAY = 800;
+const SUCESS_DISPLAY_TIME = 8000;
 
 const getOnboardingStorageKey = () => `ai-mic-onboarding-${CurrentLang}`;
 
-const hasCompletedOnboarding = () => Boolean(localStorage.getItem(getOnboardingStorageKey()));
+const hasCompletedOnboarding = () => localStorage.getItem(getOnboardingStorageKey()) === 'true';
+
+export const setCompletedOnboarding = (completed: boolean) => localStorage.setItem(getOnboardingStorageKey(), String(completed));
 
 const selectRandomItems = (source: string[], count: number) => {
   const copy = [...source];
@@ -119,8 +122,7 @@ export const useAIMicrophoneOnboarding = ({
   }, []);
 
   const markOnboardingSuccess = useCallback(() => {
-    const key = getOnboardingStorageKey();
-    localStorage.setItem(key, 'true');
+    setCompletedOnboarding(true);
     setHasOnboarded(true);
   }, []);
 
@@ -336,7 +338,7 @@ export const useAIMicrophoneOnboarding = ({
         setOnboardingVisible(false);
         setOnboardingStep('idle');
       }
-    }, 1000);
+    }, SUCESS_DISPLAY_TIME);
 
     return () => {
       clearCompletionTimeout();
@@ -381,10 +383,6 @@ export const useAIMicrophoneOnboarding = ({
     return Langs[key] ?? Langs['en'];
   }, [languageSelection, currentAppLang]);
 
-  let verificationStatus = Lang.aiMic.onboarding.verification.waiting;
-  if (lastEvaluation === 'success') verificationStatus = Lang.aiMic.onboarding.verification.success;
-  if (lastEvaluation === 'retry') verificationStatus = Lang.aiMic.onboarding.verification.retry;
-
   const statusModifier = lastEvaluation === 'idle' ? 'waiting' : lastEvaluation;
   const currentPhrase = onboardingPhrases[Math.min(successfulPhrases, onboardingPhrases.length - 1)] || onboardingPhrases[successfulPhrases] || '';
   const progressLabel = Lang.aiMic.onboarding.progress(successfulPhrases, targetCount);
@@ -403,9 +401,8 @@ export const useAIMicrophoneOnboarding = ({
     transcript: liveTranscript,
     score: liveScore,
     statusModifier,
-    statusLabel: verificationStatus,
     hasTranscript: Boolean(liveTranscript),
-  }), [currentPhrase, liveScore, liveTranscript, progressLabel, statusModifier, verificationStatus]);
+  }), [currentPhrase, liveScore, liveTranscript, progressLabel, statusModifier]);
 
   const resultStatus: 'success' | 'fail' = onboardingStep === 'fail' ? 'fail' : 'success';
 
@@ -419,6 +416,7 @@ export const useAIMicrophoneOnboarding = ({
     onBackToInfo: handleBackToInfo,
     onConfirmLanguage: handleConfirmLanguage,
     onTryAgain: handleTryAgain,
+    onClose: requestStop,
     resultStatus,
   }), [
     handleBackToInfo,
@@ -429,6 +427,7 @@ export const useAIMicrophoneOnboarding = ({
     modalTitleId,
     onboardingStep,
     onboardingVisible,
+    requestStop,
     resultStatus,
     verificationSection,
   ]);

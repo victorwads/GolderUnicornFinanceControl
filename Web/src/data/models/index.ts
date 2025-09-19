@@ -5,7 +5,6 @@ export * from './Category';
 export * from './CreditCard';
 export * from './CreditCardInvoice';
 export * from './DocumentModel';
-export * from './Registry';
 export * from './ProductModel';
 export * from './GroceryItemModel';
 export * from './metadata';

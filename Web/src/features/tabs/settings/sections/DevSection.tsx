@@ -3,6 +3,7 @@ import { clearFirestore } from '../../../../data/firebase/google-services';
 import getRepositories from '@repositories';
 import RepositoryWithCrypt from '../../../../data/repositories/RepositoryWithCrypt';
 import React from 'react';
+import { setCompletedOnboarding } from '@components/voice/AIMicrophoneOnboarding.model';
 
 const CHUNK_SIZE = 100;
 
@@ -40,6 +41,7 @@ const DevContent = () => {
   return <>
     <div className='list'>
       <a onClick={clearFirestore}>{Lang.settings.clearLocalCaches}</a>
+      <a onClick={() => setCompletedOnboarding(false)}>{Lang.settings.resetOnboarding}</a>
       <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
     </div>
     {progress && <div className="progress-box">

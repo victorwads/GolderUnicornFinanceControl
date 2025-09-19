@@ -101,6 +101,7 @@ const zh: Translation = {
     auth: '认证',
     logout: '登出',
     clearLocalCaches: '清除本地缓存',
+    resetOnboarding: '重置引导',
     theme: '主题',
     density: '密度',
     loadingDatabaseUsage: '正在加载数据库使用情况...',
@@ -180,6 +181,7 @@ const zh: Translation = {
         confirm: '确认语言',
         back: '返回',
         tryAgain: '重试',
+        close: '关闭',
       },
     },
     onboardingCases: () => [

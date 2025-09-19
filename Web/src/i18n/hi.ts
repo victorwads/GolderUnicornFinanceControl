@@ -111,6 +111,7 @@ const hi: Translation = {
     auth: 'प्रमाणीकरण',
     logout: 'लॉगआउट',
     clearLocalCaches: 'स्थानीय कैश साफ़ करें',
+    resetOnboarding: 'ऑनबोर्डिंग रीसेट करें',
     theme: 'थीम',
     density: 'घनत्व',
     loadingDatabaseUsage: 'डेटाबेस उपयोग लोड हो रहा है...',
@@ -190,6 +191,7 @@ const hi: Translation = {
         confirm: 'भाषा की पुष्टि करें',
         back: 'वापस जाएँ',
         tryAgain: 'फिर से प्रयास करें',
+        close: 'बंद करें',
       },
     },
     onboardingCases: () => [

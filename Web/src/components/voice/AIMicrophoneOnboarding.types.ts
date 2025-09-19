@@ -23,7 +23,6 @@ export interface VerificationSectionProps {
   transcript: string;
   score: number;
   statusModifier: 'waiting' | 'success' | 'retry';
-  statusLabel: string;
   hasTranscript: boolean;
 }
 
@@ -37,6 +36,7 @@ export interface OnboardingViewProps {
   onBackToInfo: () => void;
   onConfirmLanguage: () => void;
   onTryAgain: () => void;
+  onClose: () => void;
   resultStatus: 'success' | 'fail';
 }
 

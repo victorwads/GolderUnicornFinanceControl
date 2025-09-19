@@ -112,6 +112,7 @@ const en: Translation = {
     auth: 'Auth',
     logout: 'Logout',
     clearLocalCaches: 'Clear local caches',
+    resetOnboarding: 'Reset onboarding',
     theme: 'Theme',
     density: 'Density',
     loadingDatabaseUsage: 'Loading database usage...',
@@ -191,6 +192,7 @@ const en: Translation = {
         confirm: 'Confirm language',
         back: 'Back',
         tryAgain: 'Try again',
+        close: 'Close',
       },
     },
     onboardingCases: () => [

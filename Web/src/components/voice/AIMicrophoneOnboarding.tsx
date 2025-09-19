@@ -6,7 +6,7 @@ import AIMicrophoneOnboardingPhrasesStep from './AIMicrophoneOnboardingPhrasesSt
 import AIMicrophoneOnboardingResultStep from './AIMicrophoneOnboardingResultStep';
 import { OnboardingViewProps } from './AIMicrophoneOnboarding.types';
 
-const AIMicrophoneOnboarding = memo(({ visible, modalTitleId, step, language, verification, onStartTest, onBackToInfo, onConfirmLanguage, onTryAgain, resultStatus }: OnboardingViewProps) => {
+const AIMicrophoneOnboarding = memo(({ visible, modalTitleId, step, language, verification, onStartTest, onBackToInfo, onConfirmLanguage, onTryAgain, onClose, resultStatus }: OnboardingViewProps) => {
   if (!visible) {
     return null;
   }
@@ -45,6 +45,14 @@ const AIMicrophoneOnboarding = memo(({ visible, modalTitleId, step, language, ve
     <div className="ai-mic-onboarding">
       <div className="ai-mic-onboarding__backdrop" />
       <div className="ai-mic-onboarding__modal" role="dialog" aria-modal="true" aria-labelledby={modalTitleId}>
+        <button
+          type="button"
+          className="ai-mic-onboarding__close"
+          onClick={onClose}
+          aria-label={Lang.aiMic.onboarding.actions.close}
+        >
+          {Lang.aiMic.onboarding.actions.close}
+        </button>
         {content}
       </div>
     </div>

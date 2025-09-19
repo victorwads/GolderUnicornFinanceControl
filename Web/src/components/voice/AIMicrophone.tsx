@@ -8,7 +8,7 @@ import AIActionsParser, { AIActionHandler, AIItemData } from '@features/speech/A
 import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
 import { StartListeningOptions, useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
 
-const COMMAND_EVALUATION_DELAY = 1200;
+const COMMAND_EVALUATION_DELAY = 3000;
 
 export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
   parser: AIActionsParser<T, A>;
@@ -186,8 +186,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       : ''
   );
 
-  const displayedTranscript = transcript.trim();
-
   return (
     <>
       <div className="speech-marquee glass-container speech-marquee--with-controls">
@@ -227,10 +225,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
             <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
           </button>
         </div>
-      </div>
-
-      <div className="speech-transcript">
-        <span className="speech-transcript-text">{displayedTranscript}</span>
       </div>
 
       <AIMicrophoneOnboarding {...onboardingViewProps} />

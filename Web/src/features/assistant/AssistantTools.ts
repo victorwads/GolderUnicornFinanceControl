@@ -20,7 +20,7 @@ import {
 } from "@models";
 import { validateRequiredFields } from "@models";
 
-const MAX_RESULTS = 5;
+const MAX_RESULTS = 10;
 
 export class AssistantTools {
   private readonly definitions: AssistantToolDefinition<unknown>[];
@@ -188,10 +188,20 @@ export class AssistantTools {
     query: string;
     limit?: number;
   }) => {
+    const repository = this.repositories.categories;
+
     await waitUntilReady("categories");
 
-    const categories = this.repositories.categories.getCache();
-    const similarity = new Similarity<Category>(
+    const categories = repository.getCache()
+      .map(({id, name, parentId}) => {
+        if(parentId) {
+          name = `${repository.getLocalById(parentId)?.name ?? "??"} -> ${name}`;
+        } else {
+          name = `${name} ->`;
+        }
+        return { id, name}
+      })
+    const similarity = new Similarity<typeof categories[number]>(
       (category) => `${category.name}`
     );
 

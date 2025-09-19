@@ -113,6 +113,7 @@ const ptBR: Translation = {
     auth: 'Autenticação',
     logout: 'Sair',
     clearLocalCaches: 'Limpar caches locais',
+    resetOnboarding: 'Reiniciar onboarding',
     theme: 'Tema',
     density: 'Densidade',
     loadingDatabaseUsage: 'Carregando uso do banco de dados...',
@@ -192,6 +193,7 @@ const ptBR: Translation = {
         confirm: 'Confirmar idioma',
         back: 'Voltar',
         tryAgain: 'Tente novamente',
+        close: 'Fechar',
       },
     },
     onboardingCases: () => [

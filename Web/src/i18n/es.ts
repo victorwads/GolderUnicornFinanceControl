@@ -101,6 +101,7 @@ const es: Translation = {
     auth: 'Autenticación',
     logout: 'Cerrar sesión',
     clearLocalCaches: 'Borrar cachés locales',
+    resetOnboarding: 'Reiniciar onboarding',
     theme: 'Tema',
     density: 'Densidad',
     loadingDatabaseUsage: 'Cargando uso de la base de datos...',
@@ -180,6 +181,7 @@ const es: Translation = {
         confirm: 'Confirmar idioma',
         back: 'Volver',
         tryAgain: 'Intentar de nuevo',
+        close: 'Cerrar',
       },
     },
     onboardingCases: () => [
