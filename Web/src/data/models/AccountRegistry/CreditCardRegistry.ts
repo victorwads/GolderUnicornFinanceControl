@@ -1,4 +1,4 @@
-import { Registry, RegistryType } from "./Registry";
+import { Registry, RegistryType } from "../Registry";
 
 export interface WithInvoiceTime {
   month: number;

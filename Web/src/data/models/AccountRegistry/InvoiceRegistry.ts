@@ -1,6 +1,6 @@
-import { CreditCard } from "./CreditCard";
-import { CreditCardInvoice } from "./CreditCardInvoice";
-import { Registry, RegistryType } from "./Registry";
+import { CreditCard } from "../CreditCard";
+import { CreditCardInvoice } from "../CreditCardInvoice";
+import { Registry, RegistryType } from "../Registry";
 
 export class InvoiceRegistry extends Registry {
 
