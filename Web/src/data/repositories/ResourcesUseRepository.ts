@@ -21,6 +21,7 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
   private lastSent: Date = new Date();
   private totalCache: ResourceUsage = {};
   private toSendCache: ResourceUsage = {};
+  private sessionCache: ResourceUsage = {};
 
   constructor() {
     super(Collections.ResourcesUse, ResourcesUseModel);
@@ -30,10 +31,19 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
     return this.totalCache;
   }
 
+  public get sessionUse() {
+    return this.sessionCache;
+  }
+
+  public clearSessionUse() {
+    this.sessionCache = {};
+  }
+
   public add(additions: ResourceUsage): void {
     this._add(additions);
     this.saveSendCache();
     this.checkShouldSendToDB();
+    sumValues(this.sessionCache, additions, false);
     ResourceUseChannel.publish('addition', additions);
   }
 

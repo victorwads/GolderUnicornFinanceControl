@@ -1,15 +1,11 @@
-import {
-  ModelMetadata,
-  Result,
-  validateDate,
-} from "../metadata";
-import { RegistryType } from "./Registry";
+import { ModelMetadata, Result, validateDate } from "../metadata";
+import { Registry, RegistryType } from "./Registry";
 import { AccountsRegistry } from "./AccountRegistry";
 
 interface TransferInfo {
-  transferId: string,
-  sourceAccountId: string,
-  targetAccountId: string,
+  transferId: string;
+  sourceAccountId: string;
+  targetAccountId: string;
 }
 
 export class TransferRegistry extends AccountsRegistry {
@@ -21,7 +17,7 @@ export class TransferRegistry extends AccountsRegistry {
     description: string,
     value: number,
     tags: string[] = [],
-    observation?: string,
+    observation?: string
   ) {
     super(
       id,
@@ -33,11 +29,11 @@ export class TransferRegistry extends AccountsRegistry {
       true,
       tags,
       undefined,
-      observation,
+      observation
     );
   }
 
-  public toTuple(): { source: TransferRegistry, target: TransferRegistry} {
+  public toTuple(): { source: TransferRegistry; target: TransferRegistry } {
     const source = new TransferRegistry(
       "",
       { ...this.transfer },
@@ -46,7 +42,7 @@ export class TransferRegistry extends AccountsRegistry {
       this.description,
       this.value * -1,
       this.tags,
-      this.observation,
+      this.observation
     );
     const target = new TransferRegistry(
       "",
@@ -56,12 +52,14 @@ export class TransferRegistry extends AccountsRegistry {
       this.description,
       this.value,
       this.tags,
-      this.observation,
+      this.observation
     );
     return { source, target };
   }
 
-  static metadataTransfer: ModelMetadata<Partial<TransferRegistry & TransferInfo>> = {
+  static metadataTransfer: ModelMetadata<
+    Partial<TransferRegistry & TransferInfo>
+  > = {
     aiToolCreator: {
       name: "create_transfer_between_accounts",
       description: "Cria uma transferência entre contas.",
@@ -86,12 +84,10 @@ export class TransferRegistry extends AccountsRegistry {
         },
         description: {
           type: "string",
-          description: "Brief description about what/whys is the transfer besides the accounts involved",
+          description:
+            "Brief description about what/whys is the transfer besides the accounts involved",
         },
-        observation: {
-          type: "string",
-          description: "Additional notes or observations about the transfer besides the description and accounts involved",
-        },
+        observation: { type: "string", description: Registry.ai.observation },
       },
       required: ["sourceAccountId", "targetAccountId", "value", "description"],
     },

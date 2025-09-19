@@ -111,9 +111,54 @@
   border-color: rgba(255, 214, 0, 0.4);
 }
 
+.assistant-section--usage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.assistant-usage__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.assistant-usage__model {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.assistant-usage__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.assistant-usage__metrics .metric {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.assistant-usage__metrics .metric-label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-bottom: 0.25rem;
+}
+
+.assistant-usage__metrics .metric-value {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .assistant-ask-user__message {
   margin: 0 0 0.5rem;
   font-size: 1rem;
+  white-space: normal;
 }
 
 .assistant-ask-user__options {

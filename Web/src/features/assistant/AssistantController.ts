@@ -18,7 +18,7 @@ import { addResourceUse, type AiModel } from "@resourceUse";
 import getRepositories, { Repositories } from "@repositories";
 import { Result } from "src/data/models/metadata";
 
-const MODEL: AiModel = "gpt-4.1-mini";
+export const ASSISTANT_MODEL: AiModel = "gpt-4.1-nano";
 const HISTORY_LIMIT = 15;
 
 const SYSTEM_PROMPT = `
@@ -123,15 +123,15 @@ export default class AssistantController {
     messages: ChatCompletionMessageParam[],
     tools: ChatCompletionFunctionTool[]
   ) {
-    addResourceUse({ ai: { [MODEL]: { requests: 1 } } });
+    addResourceUse({ ai: { [ASSISTANT_MODEL]: { requests: 1 } } });
     return this.openai.chat.completions.create({
-      model: MODEL,
+      model: ASSISTANT_MODEL,
       messages,
       tools,
       tool_choice: "required",
       parallel_tool_calls: true,
-      ...(MODEL.includes("gpt-5")
-        ? { reasoning_effort: "minimal" }
+      ...(ASSISTANT_MODEL.includes("gpt-5")
+        ? { reasoning_effort: "low" }
         : { temperature: 0.1 }),
     });
   }
@@ -163,7 +163,7 @@ export default class AssistantController {
 
     addResourceUse({
       ai: {
-        [MODEL]: {
+        [ASSISTANT_MODEL]: {
           input,
           output,
         },

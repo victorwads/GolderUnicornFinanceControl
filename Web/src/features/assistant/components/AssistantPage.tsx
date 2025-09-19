@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AIMicrophone, {
   startListening,
@@ -6,8 +6,15 @@ import AIMicrophone, {
   type AIMicrophoneProps,
 } from "@components/voice/AIMicrophone";
 import type { AIItemData } from "@features/speech/AIParserManager";
+import Metric from "@features/tabs/resourceUsage/Metric";
+import {
+  getCurrentCosts,
+  ResourceUseChannel,
+  type AIUse,
+} from "@resourceUse";
+import getRepositories from "@repositories";
 
-import AssistantController from "../AssistantController";
+import AssistantController, { ASSISTANT_MODEL } from "../AssistantController";
 import { AssistantMicrophoneAdapter } from "../microphoneAdapter";
 import type { AssistantToolCallLog } from "../types";
 import ToolCallLogList from "./ToolCallLogList";
@@ -19,6 +26,20 @@ export default function AssistantPage() {
   const [askUserPrompt, setAskUserPrompt] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const pendingAskResolver = useRef<((answer: string) => void) | null>(null);
+  const resourcesUse = useMemo(() => getRepositories().resourcesUse, []);
+
+  const normalizeUsage = useCallback(
+    (usage?: AIUse<number> | null) => ({
+      requests: usage?.requests ?? 0,
+      input: usage?.input ?? 0,
+      output: usage?.output ?? 0,
+    }),
+    []
+  );
+
+  useEffect(() => {
+    resourcesUse.clearSessionUse();
+  }, [normalizeUsage, resourcesUse]);
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
     setCalls((previous) => [...previous, event]);
@@ -73,16 +94,44 @@ export default function AssistantPage() {
     string
   >["parser"];
 
+  const formattedCalls = useMemo(() => [...calls].reverse(), [calls]);
+
+  const modelUsage = normalizeUsage(resourcesUse.sessionUse.ai?.[ASSISTANT_MODEL]);
+  const totalTokens = modelUsage.input + modelUsage.output;
+  const assistantCosts = useMemo(
+    () =>
+      getCurrentCosts({
+        [ASSISTANT_MODEL]: modelUsage as AIUse<number>,
+      }),
+    [modelUsage]
+  );
+
   return (
     <div className="assistant-page">
       <div className="assistant-page__microphone">
         <AIMicrophone parser={microphoneParser} />
       </div>
       <div className="assistant-page__content">
+        <section className="assistant-section assistant-section--usage">
+          <div className="assistant-usage__header">
+            <h2>Uso de Tokens</h2>
+            <span className="assistant-usage__model">Modelo {ASSISTANT_MODEL}</span>
+          </div>
+          <div className="assistant-usage__metrics">
+            <Metric label="Requisições" value={modelUsage.requests} />
+            <Metric label="Tokens de Entrada" value={modelUsage.input} />
+            <Metric label="Tokens de Saída" value={modelUsage.output} />
+            <Metric label="Tokens Totais" value={totalTokens} />
+            <Metric
+              label="Custo Estimado (USD)"
+              value={`US$ ${assistantCosts.dolars.toFixed(4)}`}
+            />
+          </div>
+        </section>
         {askUserPrompt && (
           <section className="assistant-section assistant-section--highlight">
             <h2>Pergunta para o usuário</h2>
-            <p className="assistant-ask-user__message">{askUserPrompt}</p>
+            <pre className="assistant-ask-user__message">{askUserPrompt}</pre>
             <p className="assistant-ask-user__hint">
               Responda pelo microfone para continuar.
             </p>
@@ -102,7 +151,7 @@ export default function AssistantPage() {
         )}
         <section className="assistant-section">
           <h2>Calls History</h2>
-          <ToolCallLogList calls={calls.reverse()} />
+          <ToolCallLogList calls={formattedCalls} />
         </section>
       </div>
     </div>

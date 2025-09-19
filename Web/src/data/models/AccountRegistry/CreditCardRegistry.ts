@@ -41,7 +41,7 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
         },
         date: {
           type: "string",
-          description: "Data da compra ou lançamento no formato YYYY-MM-DDTHH:mm.",
+          description: "Data da compra.",
         },
         invoiceMonth: {
           type: "number",

@@ -84,11 +84,9 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     requestStart: requestStartWithOnboarding,
     requestStop: requestStopWithOnboarding,
     isActive: onboardingActive,
-    handleTranscript: handleOnboardingTranscript,
-    viewProps: onboardingViewProps,
+    componentProps: onboardingComponentProps,
   } = useAIMicrophoneOnboarding({
     skipOnboarding,
-    isListening: listening,
     startNativeListening: startSpeechRecognition,
     stopNativeListening: stopSpeechRecognition,
     resetTranscript,
@@ -129,7 +127,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     }
 
     if (onboardingActive) {
-      handleOnboardingTranscript(trimmedTranscript);
+      clearSendTimeout();
       return () => {
         clearSendTimeout();
       };
@@ -154,7 +152,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     return () => {
       clearSendTimeout();
     };
-  }, [transcript, onboardingActive, handleOnboardingTranscript, parser, recognitionLanguage, resetTranscript, clearSendTimeout]);
+  }, [transcript, onboardingActive, parser, recognitionLanguage, resetTranscript, clearSendTimeout]);
 
   useEffect(() => {
     const handlers: ControlHandlers = {
@@ -227,7 +225,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
         </div>
       </div>
 
-      <AIMicrophoneOnboarding {...onboardingViewProps} />
+      <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />
     </>
   );
 }
