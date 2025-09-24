@@ -5,7 +5,7 @@ import "./global";
 import "./data/firebase/google-services";
 import { VarsProvider } from "@components/Vars";
 import App from "./App";
-// import { registerSW } from "virtual:pwa-register";
+import { registerSW } from "virtual:pwa-register";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <VarsProvider>
@@ -20,11 +20,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   </VarsProvider>
 );
 
-// if (import.meta.env.PROD) {
-//   registerSW({
-//     immediate: true,
-//     onRegisterError(error) {
-//       console.error("Service worker registration failed", error);
-//     },
-//   });
-// }
+if (import.meta.env.PROD) {
+  registerSW({
+    immediate: true,
+    onRegisterError(error) {
+      console.error("Service worker registration failed", error);
+    },
+  });
+}
