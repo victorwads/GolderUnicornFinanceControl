@@ -59,7 +59,7 @@ const SpeechScreen = () => {
       <ContainerFixedContent>
         <div className="GroceryHeader">
           <h2>{Lang.groceries.title}</h2>
-          <Link to="/main/groceries/removed" className="TrashButton">
+          <Link to="/groceries/removed" className="TrashButton">
             <Icon icon={Icon.all.faTrash} />
             {removedCount > 0 && <span className="TrashCount">{removedCount}</span>}
           </Link>
@@ -86,7 +86,7 @@ const SpeechScreen = () => {
           </div>}
         </div>
         <div style={{ height: 120 }}></div>
-        <AIMicrophone parser={aiParser} onAction={handleAiAction} />
+        {/* <AIMicrophone parser={aiParser} onAction={handleAiAction} /> */}
       </ContainerScrollContent>
     </Container>
   );

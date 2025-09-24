@@ -180,3 +180,31 @@
   margin: 0;
   padding-left: 1.2rem;
 }
+
+.assistant-toasts {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.assistant-toasts > div {
+  display: block;
+  border-radius: 1rem;
+  padding: var(--spacing-xs);
+  animation: toastIn 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

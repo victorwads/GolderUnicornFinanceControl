@@ -1,18 +1,24 @@
 import './AIMicrophone.css';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { use, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Icon from '@components/Icons';
 import AIActionsParser, { AIActionHandler, AIItemData } from '@features/speech/AIParserManager';
 import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
 import { StartListeningOptions, useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
+import GlassContainer from '@components/GlassContainer';
+import { Loading } from '@components/Loading';
+import { on } from 'events';
 
-const COMMAND_EVALUATION_DELAY = 3000;
+const COMMAND_EVALUATION_DELAY = 1200;
 
 export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
+  compact?: boolean;
+  withLoading?: boolean;
   parser: AIActionsParser<T, A>;
   onAction?: AIActionHandler<T, A>;
+  onPartialResult?: (text: string) => void;
   skipOnboarding?: boolean;
 }
 
@@ -30,7 +36,7 @@ const startSpeechRecognition = () => SpeechRecognition.startListening({
 
 const stopSpeechRecognition = () => {
   console.log('Stopping listening');
-  setTimeout(() => SpeechRecognition.stopListening(), 100);
+  setTimeout(() => SpeechRecognition.stopListening(), 50);
 };
 
 let activeHandlers: ControlHandlers | null = null;
@@ -54,7 +60,10 @@ export const stopListening = () => {
 export default function AIMicrophone<T extends AIItemData, A extends string>({
   parser,
   onAction,
+  onPartialResult,
   skipOnboarding = false,
+  compact = false,
+  withLoading = false,
 }: AIMicrophoneProps<T, A>) {
   const navigate = useNavigate();
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
@@ -178,54 +187,45 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     return <span>{Lang.speech.browserNotSupported}</span>;
   }
 
+  useEffect(() => {
+    onPartialResult?.(transcript);
+  }, [transcript]);
+
   const placeholder = transcript || (
     listening
       ? (parser.items?.length ? Lang.speech.placeholderListeningHasItems : Lang.speech.placeholderListeningNoItems)
       : ''
   );
-
+  
+  console.log('AI Comp render:');
   return (
-    <>
-      <div className="speech-marquee glass-container speech-marquee--with-controls">
-        <div className="glass-filter"></div>
-        <div className="glass-overlay"></div>
-        <div className="glass-specular"></div>
-        <div className="glass-content glass-content--inline">
-          {!listening && (
-            <div
-              className="speech-marquee-lang"
-              title={Lang.speech.changeLangTooltip}
-              onClick={() => navigate('/main/settings')}
-            >
-              <span className="speech-marquee-lang-short">{CurrentLangInfo.short}</span>
-            </div>
-          )}
-          <div>
-            {listening && (
-              <div className="speech-marquee-content">
-                <span className="speech-marquee-text">{placeholder}</span>
-              </div>
-            )}
-            <div className="speech-processing-list">
-              {processingQueue.map(task => (
-                <div key={task.id} className="speech-processing-item" title={task.text}>
-                  <span className="loading-spinner loading-spinner--sm" />
-                  <span className="speech-processing-text">{task.text}</span>
-                </div>
-              ))}
-            </div>
+    <GlassContainer className={"speech-marquee" + (compact ? ' compact' : '')}>
+      {processingQueue.length > 0 && <div>
+        {listening && (
+          <div className="speech-marquee-content">
+            <span className="speech-marquee-text">{placeholder}</span>
           </div>
-          <button
-            className={`microphone-toggle${listening ? ' listening' : ''}`}
-            onClick={listening ? requestStop : () => requestStart()}
-            aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
-          >
-            <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
-          </button>
+        )}
+        <div className="speech-processing-list">
+          {processingQueue.map(task => (
+            <div key={task.id} className="speech-processing-item" title={task.text}>
+              <span className="loading-spinner loading-spinner--sm" />
+              <span className="speech-processing-text">{task.text}</span>
+            </div>
+          ))}
         </div>
-      </div>
-
+      </div>}
+      <button
+        className={`microphone-toggle${listening ? ' listening' : ''}`}
+        onClick={listening ? requestStop : () => requestStart()}
+        aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
+      >
+        {withLoading
+          ? <Loading show />
+          : <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
+        }
+      </button>
       <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />
-    </>
+    </GlassContainer>
   );
 }

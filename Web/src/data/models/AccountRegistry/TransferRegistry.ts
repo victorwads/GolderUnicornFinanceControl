@@ -61,7 +61,7 @@ export class TransferRegistry extends AccountsRegistry {
     Partial<TransferRegistry & TransferInfo>
   > = {
     aiToolCreator: {
-      name: "create_transfer_between_accounts",
+      name: "transfer_between_accounts",
       description: "Cria uma transferência entre contas.",
       properties: {
         sourceAccountId: {

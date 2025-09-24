@@ -15,6 +15,29 @@ declare global {
   }
 }
 
+const readNavigatorOnline = () => {
+  if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
+    return navigator.onLine;
+  }
+
+  return true;
+};
+
+const dispatchConnectionEvent = (isOnline: boolean) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  if (typeof window.CustomEvent === 'function') {
+    window.dispatchEvent(new CustomEvent('app:connection-change', { detail: { isOnline } }));
+    return;
+  }
+
+  const fallbackEvent = new Event('app:connection-change');
+  Object.assign(fallbackEvent, { detail: { isOnline } });
+  window.dispatchEvent(fallbackEvent);
+};
+
 export type Theme = 'theme-light' | 'theme-dark';
 export type Density = 'density-1' | 'density-2' | 'density-3' | 'density-4';
 
@@ -27,6 +50,7 @@ interface ThemeSettings {
 interface VarsContextProps extends ThemeSettings {
   setTheme: (theme: Theme) => void;
   setDensity: (density: Density) => void;
+  isOnline: boolean;
 }
 
 const VarsContext = createContext<VarsContextProps | undefined>(undefined);
@@ -37,6 +61,7 @@ export function VarsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => localStorage.getItem('theme') as Theme || 'theme-dark');
   const [density, setDensityState] = useState<Density>(() => localStorage.getItem('density') as Density || 'density-2');
   const [lang, setLang] = useState<string>(CurrentLang);
+  const [isOnline, setIsOnline] = useState<boolean>(() => readNavigatorOnline());
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
@@ -51,6 +76,28 @@ export function VarsProvider({ children }: { children: ReactNode }) {
     })
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const updateNetworkState = () => {
+      const online = readNavigatorOnline();
+      setIsOnline(online);
+      dispatchConnectionEvent(online);
+    };
+
+    updateNetworkState();
+
+    window.addEventListener('online', updateNetworkState);
+    window.addEventListener('offline', updateNetworkState);
+
+    return () => {
+      window.removeEventListener('online', updateNetworkState);
+      window.removeEventListener('offline', updateNetworkState);
+    };
+  }, []);
+
   const setTheme = (theme: Theme) => {
     setThemeState(theme);
     VarsChannel.publish('change', { theme }, true);
@@ -60,14 +107,14 @@ export function VarsProvider({ children }: { children: ReactNode }) {
     VarsChannel.publish('change', { density: newDensity }, true);
   };
 
-  window.ThemeSettings = { 
-    theme, density, 
+  window.ThemeSettings = {
+    theme, density,
     setDark: (dark: boolean) => setTheme(dark ? 'theme-dark' : 'theme-light'),
     setLang
   };
 
   return (
-    <VarsContext.Provider key={lang} value={{ theme, density, setTheme, setDensity, lang }}>
+    <VarsContext.Provider key={lang} value={{ theme, density, setTheme, setDensity, lang, isOnline }}>
       {children}
     </VarsContext.Provider>
   );
@@ -77,4 +124,11 @@ export function useCssVars() {
   const context = useContext(VarsContext);
   if (!context) throw new Error('useTheme must be used within a VarsProvider');
   return context;
+}
+
+export function useNetworkState() {
+  const context = useContext(VarsContext);
+  if (!context) throw new Error('useNetworkState must be used within a VarsProvider');
+
+  return { isOnline: context.isOnline, isOffline: !context.isOnline };
 }

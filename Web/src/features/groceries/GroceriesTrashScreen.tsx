@@ -44,7 +44,7 @@ const GroceriesTrashScreen = () => {
       <ContainerFixedContent>
         <div className="GroceryHeader">
           <h2>Groceries Trash - {items.length}</h2>
-          <Link to="/main/groceries" className="TrashButton">
+          <Link to="/groceries" className="TrashButton">
             <Icon icon={Icon.all.faArrowLeft} />
           </Link>
         </div>

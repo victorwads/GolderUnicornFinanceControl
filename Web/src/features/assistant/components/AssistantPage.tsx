@@ -9,19 +9,25 @@ import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
 import {
   getCurrentCosts,
-  ResourceUseChannel,
   type AIUse,
 } from "@resourceUse";
 import getRepositories from "@repositories";
 
 import AssistantController, { ASSISTANT_MODEL } from "../AssistantController";
 import { AssistantMicrophoneAdapter } from "../microphoneAdapter";
-import type { AssistantToolCallLog } from "../types";
+import type { AssistantToolCallLog } from "../tools/types";
 import ToolCallLogList from "./ToolCallLogList";
 
 import "./AssistantPage.css";
+import GlassContainer from "@components/GlassContainer";
+import { useNavigate } from "react-router-dom";
 
-export default function AssistantPage() {
+export default function AssistantPage({
+  compact = false,
+}: { compact?: boolean }) {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [partial, setPartial] = useState('');
   const [calls, setCalls] = useState<AssistantToolCallLog[]>([]);
   const [askUserPrompt, setAskUserPrompt] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -42,12 +48,18 @@ export default function AssistantPage() {
   }, [normalizeUsage, resourcesUse]);
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
+    if (compact) {
+      setTimeout(() => setCalls(
+        previous => previous.filter(c => c.id !== event.id)
+      ), 4000)
+    };
     setCalls((previous) => [...previous, event]);
-  }, []);
+  }, [compact]);
 
   const handleAskAdditionalInfo = useCallback((message: string) => {
     setAskUserPrompt(message);
     startListening();
+    setLoading(false);
 
     return new Promise<string>((resolve) => {
       pendingAskResolver.current = (answer: string) => {
@@ -63,7 +75,15 @@ export default function AssistantPage() {
       new AssistantController(
         undefined,
         handleAskAdditionalInfo,
-        handleToolCall
+        handleToolCall,
+        (route: string, queryParams?: Record<string, string>) => {
+          const queryString = queryParams
+            ? `?${new URLSearchParams(queryParams).toString()}`
+            : undefined;
+          navigate({
+            pathname: route, search: queryString
+          });
+        }
       ),
     [handleAskAdditionalInfo, handleToolCall]
   );
@@ -71,6 +91,7 @@ export default function AssistantPage() {
   const processText = useCallback(
     async (text: string, userLanguage: string) => {
       stopListening();
+      setLoading(true);
       if (pendingAskResolver.current) {
         pendingAskResolver.current(text);
         return;
@@ -80,6 +101,7 @@ export default function AssistantPage() {
         if (result.warnings.length) {
           setWarnings((previous) => [...previous, ...result.warnings]);
         }
+        setLoading(false);
       });
     },
     [controller]
@@ -93,6 +115,38 @@ export default function AssistantPage() {
     AIItemData,
     string
   >["parser"];
+
+  if (compact) {
+    return <div className="assistant-icon">
+      <AIMicrophone parser={microphoneParser} compact withLoading={loading} onPartialResult={setPartial} />
+      <div className="assistant-toasts">
+        {askUserPrompt && (
+          <GlassContainer className="assistant-toast assistant-toast--ask-user">
+            <strong>Pergunta do assistente:</strong>
+            <pre className="assistant-ask-user__message">{askUserPrompt}</pre>
+            <p className="assistant-ask-user__hint">
+              Responda pelo microfone para continuar.
+            </p>
+          </GlassContainer>
+        )}
+        {calls.length > 0 && loading && calls.filter(call => Boolean(call.userInfo)).map((call) => (
+          <GlassContainer key={call.id} className="assistant-toast assistant-toast--call">
+            <pre className="assistant-ask-user__message">{call.userInfo}</pre>
+          </GlassContainer>
+        ))}
+        {partial && (
+          <GlassContainer className="assistant-toast assistant-toast--partial">
+            <pre className="assistant-ask-user__message">{partial}</pre>
+          </GlassContainer>
+        )}
+        {warnings.map((warning, index) => (
+          <GlassContainer key={`${warning}-${index}`}>
+            <strong>Aviso:</strong> {warning}
+          </GlassContainer>
+        ))}
+      </div>
+    </div>;
+  }
 
   const formattedCalls = useMemo(() => [...calls].reverse(), [calls]);
 

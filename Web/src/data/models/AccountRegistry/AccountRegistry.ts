@@ -32,7 +32,7 @@ export class AccountsRegistry extends Registry {
 
   static metadata: ModelMetadata<AccountsRegistry> = {
     aiToolCreator: {
-      name: "create_checking_account_entry",
+      name: "checking_account_entry",
       description:
         "Registra uma movimentação em conta corrente ou equivalente. sempre valide se o usuário comprou mesmo no debito ou se comrou no crédito e use a ferramenta adequada.",
       properties: {

@@ -24,7 +24,7 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
 
   static metadata: ModelMetadata<CreditCardRegistry> = {
     aiToolCreator: {
-      name: "create_creditcard_entry",
+      name: "creditcard_entry",
       description: "Registra um lançamento vinculado a um cartão de crédito. sempre valide se o usuário comprou mesmo no crédito ou para débito a ferramenta adequada.",
       properties: {
         cardId: {

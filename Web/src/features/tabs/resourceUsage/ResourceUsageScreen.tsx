@@ -39,7 +39,7 @@ const ResourceUsageScreen: React.FC = () => {
           <ResourceUsageView usage={userUsage.use} title={"User " + getInfo(userUsage.id)} hide />
         )}
         <p>
-          <Link to="/main/settings" className="back-link">
+          <Link to="/settings" className="back-link">
             Voltar
           </Link>
         </p>

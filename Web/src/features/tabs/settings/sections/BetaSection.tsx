@@ -3,7 +3,6 @@ import { SettingsSection } from './types';
 
 const BetaContent = () => <div className='list'>
   <Link to={'/subscriptions'}>Subscriptions <small>(Only Informative)</small></Link>
-  <Link to={'/ai'}>Assistente de IA</Link>
 </div>;
 
 const section: SettingsSection = {

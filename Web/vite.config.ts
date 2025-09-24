@@ -4,12 +4,25 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { alias } from './configs/aliases';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { VitePWA } from 'vite-plugin-pwa';
+import manifest from './assets/manifest.json';
 
 const rootDir = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
     react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['assets/logo.png'],
+      manifest,
+      manifestFilename: 'manifest.json',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,webp,woff,woff2}'],
+        cleanupOutdatedCaches: true,
+        navigateFallback: 'index.html',
+      },
+    }),
     viteStaticCopy({
       targets: [
         { src: resolve(rootDir, '../Site/resources'), dest: './' },

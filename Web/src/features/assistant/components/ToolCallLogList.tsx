@@ -1,4 +1,4 @@
-import type { AssistantToolCallLog } from '../types';
+import type { AssistantToolCallLog } from '../tools/types';
 
 interface ToolCallLogListProps {
   calls: AssistantToolCallLog[];

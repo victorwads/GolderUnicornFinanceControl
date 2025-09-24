@@ -13,7 +13,7 @@ const routes = {
         return `/accounts/${id}`;
     },
     timeline: (accountId?: string, categories?: string[]): string => {
-        return `/main/timeline${accountId ? `/${accountId}` : ''}`
+        return `/timeline${accountId ? `/${accountId}` : ''}`
             + `${categories?.length ? `?categories=${categories.join(',')}` : ''}`;
     },
 };

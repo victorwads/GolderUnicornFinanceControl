@@ -35,7 +35,7 @@ const AccountContent = () => {
 
   return <>
     <div className='list'>
-      <Link to="/main/resource-usage">Ver uso de recursos</Link>
+      <Link to="/resource-usage">Ver uso de recursos</Link>
       <a onClick={exportData}>{Lang.settings.exportData}</a>
       <a onClick={() => signOut(getAuth())}>{Lang.settings.logout}</a>
     </div>

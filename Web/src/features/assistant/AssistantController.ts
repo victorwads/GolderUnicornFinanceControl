@@ -8,26 +8,28 @@ import {
 } from "openai/resources/index";
 
 import { createOpenAIClient } from "./createOpenAIClient";
-import { AssistantTools } from "./AssistantTools";
+import { AssistantTools } from "./tools/AssistantTools";
 import type {
   AssistantRunResult,
   AssistantToolCallLog,
   AssistantToolName,
-} from "./types";
+} from "./tools/types";
 import { addResourceUse, type AiModel } from "@resourceUse";
 import getRepositories, { Repositories } from "@repositories";
 import { Result } from "src/data/models/metadata";
+import { userInfo } from "os";
 
-export const ASSISTANT_MODEL: AiModel = "gpt-4.1-nano";
+export const ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
 const HISTORY_LIMIT = 15;
 
 const SYSTEM_PROMPT = `
-Você é o orquestrador do Golden Unicorn.
+Você é o orquestrador do Golden Unicorn, um app de gestão financeira pessoal.
+Sua função é ajudar o usuário a gerenciar suas finanças pessoais, utilizando as ferramentas (tools) disponíveis.
 Siga exatamente estas regras:
 - Responda sempre usando tools calls registradas.
 - Utilize as tools disponíveis para obter ou registrar dados.
 - As tools search_* podem ser chamadas múltiplas vezes para obter identificados ou refinar dados.
-- As tools create_* finalizarão a conversa, então só as utilize quando estiver pronto para finalizar.
+- As tools action_* finalizarão a conversa, então só as utilize quando estiver pronto para finalizar.
 - Nunca produza valores que o usuário não disse explicitamente ou foram obtidos via search_*.
 - Converta datas relativas como "hoje, amanhã, semana passada, etc. para datas absolutas.
 - Qualquer data deve ser retornada no formato YYYY-MM-DDTHH:mm.
@@ -47,7 +49,8 @@ export default class AssistantController {
   constructor(
     private readonly repositories: Repositories = getRepositories(),
     public onAskAnditionalInfo?: AskAnditionalInfoCallback,
-    public onToolCalled?: ToolEventListener
+    public onToolCalled?: ToolEventListener,
+    public onNavigate?: (route: string, queryParams?: Record<string, string>) => void
   ) {}
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
@@ -83,7 +86,7 @@ export default class AssistantController {
             context
           )) as Result<unknown>;
           if (
-            call.function.name.startsWith("create_") &&
+            call.function.name.startsWith("action_") &&
             "success" in result &&
             result.success === true &&
             result.result
@@ -179,22 +182,45 @@ export default class AssistantController {
       ? JSON.parse(call.function.arguments)
       : {};
 
-    let result: any;
+    const name = call.function.name as AssistantToolName;
+    const userInfo = this.toolRegistry.getToolUserInfo(name, args);
+
+    this.onToolCalled?.({
+      id: call.id,
+      name,
+      arguments: args,
+      result: null,
+      userInfo,
+      executedAt: Date.now(),
+    });
+
+    let result;
     if (call.function.name === "ask_aditional_info") {
       result = await this.onAskAnditionalInfo?.(args.message);
     } else {
       result = await this.toolRegistry.execute(
-        call.function.name as AssistantToolName,
+        name,
         args,
         { id: call.id }
-      );
+      ) as Result<unknown>;
+
+      if(name === "action_navigate_to_screen" && result.success === true) {
+        const { route, queryParams } = args as { route: string, queryParams?: Record<string, string> };
+        this.onNavigate?.(route, queryParams);
+      }
+    }
+
+    let resultInfo = undefined;
+    if(name.startsWith("action_create_") && result.success === true) {
+      resultInfo = this.toolRegistry.getToolUserInfo(name, args, result.result);
     }
 
     this.onToolCalled?.({
       id: call.id,
-      name: call.function.name as AssistantToolName,
+      name,
       arguments: args,
       result,
+      userInfo: resultInfo,
       executedAt: Date.now(),
     });
 

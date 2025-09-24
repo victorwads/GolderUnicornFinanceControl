@@ -39,7 +39,7 @@ const TimelineFilterScreen = () => {
     if (from) params.set(PARAM_FROM, from.toISOString().substring(0,10));
     if (to) params.set(PARAM_TO, to.toISOString().substring(0,10));
     const search = params.toString();
-    navigate(`/main/timeline${accountId ? `/${accountId}` : ''}${search ? `?${search}` : ''}`);
+    navigate(`/timeline${accountId ? `/${accountId}` : ''}${search ? `?${search}` : ''}`);
   };
 
   return (

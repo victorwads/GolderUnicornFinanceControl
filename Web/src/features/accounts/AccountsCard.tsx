@@ -68,7 +68,7 @@ const AccountItem = ({ account }: AccountItemParams) => {
     });
   }, [account.id]);
 
-  return <Link to={'/main/timeline/' + account.id} key={account.id}>
+  return <Link to={'/timeline/' + account.id} key={account.id}>
     <BankInfo bank={account.bank} balance={balance} />
   </Link>
 }

@@ -137,7 +137,7 @@ const TimelineScreen = () => {
         {(() => {
           const filterParams = new URLSearchParams(searchParams);
           if (selectedAccount) filterParams.set('account', selectedAccount.id);
-          const filterLink = `/main/timeline/filters${filterParams.toString() ? `?${filterParams.toString()}` : ''}`;
+          const filterLink = `/timeline/filters${filterParams.toString() ? `?${filterParams.toString()}` : ''}`;
           return <Link to={filterLink} className="FilterButton"><Icon icon={Icon.all.faFilter} /></Link>;
         })()}
       </div>
