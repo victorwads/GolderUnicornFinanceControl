@@ -6,6 +6,7 @@
 	box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
 	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 	z-index: 40;
+    max-width: 90vw;
 }
 
 .glass-filter {
@@ -21,7 +22,7 @@
 	position: absolute;
 	inset: 0;
 	z-index: 51;
-	background: rgba(100, 100, 255, 0.05);
+	background: rgba(21, 21, 50, 0.8);
 }
 
 .glass-specular {
@@ -41,6 +42,5 @@
 	align-items: center;
 	gap: var(--spacing-sm);
 	padding: var(--spacing-md);
+    color: white;
 }
-
-

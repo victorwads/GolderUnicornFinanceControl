@@ -21,6 +21,7 @@ import ToolCallLogList from "./ToolCallLogList";
 import "./AssistantPage.css";
 import GlassContainer from "@components/GlassContainer";
 import { useNavigate } from "react-router-dom";
+import Icon from "@components/Icons";
 
 export default function AssistantPage({
   compact = false,
@@ -48,10 +49,12 @@ export default function AssistantPage({
   }, [normalizeUsage, resourcesUse]);
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
+    console.log("Tool call event", event);
     if (compact) {
-      setTimeout(() => setCalls(
+      if (!event.userInfo) return;
+      if (!event.userInfo.includes("_create_")) setTimeout(() => setCalls(
         previous => previous.filter(c => c.id !== event.id)
-      ), 4000)
+      ), 2500)
     };
     setCalls((previous) => [...previous, event]);
   }, [compact]);
@@ -77,11 +80,13 @@ export default function AssistantPage({
         handleAskAdditionalInfo,
         handleToolCall,
         (route: string, queryParams?: Record<string, string>) => {
-          const queryString = queryParams
-            ? `?${new URLSearchParams(queryParams).toString()}`
-            : undefined;
+          const url = new URL(route);
+          Object.entries(queryParams || {}).forEach(([key, value]) => {
+            url.searchParams.set(key, value);
+          });
+
           navigate({
-            pathname: route, search: queryString
+            pathname: url.pathname, search: url.search
           });
         }
       ),
@@ -123,20 +128,25 @@ export default function AssistantPage({
         {askUserPrompt && (
           <GlassContainer className="assistant-toast assistant-toast--ask-user">
             <strong>Pergunta do assistente:</strong>
-            <pre className="assistant-ask-user__message">{askUserPrompt}</pre>
+            <pre>{askUserPrompt}</pre>
             <p className="assistant-ask-user__hint">
               Responda pelo microfone para continuar.
             </p>
           </GlassContainer>
         )}
-        {calls.length > 0 && loading && calls.filter(call => Boolean(call.userInfo)).map((call) => (
+        {calls.length > 0 && calls.filter(call => Boolean(call.userInfo)).map((call) => (
           <GlassContainer key={call.id} className="assistant-toast assistant-toast--call">
-            <pre className="assistant-ask-user__message">{call.userInfo}</pre>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setCalls(previous => previous.filter(c => c.id !== call.id))}>
+                <Icon icon="trash" />
+              </button>
+            </div>
+            <pre>{call.userInfo}</pre>
           </GlassContainer>
         ))}
         {partial && (
           <GlassContainer className="assistant-toast assistant-toast--partial">
-            <pre className="assistant-ask-user__message">{partial}</pre>
+            <pre>{partial}</pre>
           </GlassContainer>
         )}
         {warnings.map((warning, index) => (

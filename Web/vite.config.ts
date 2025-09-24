@@ -12,17 +12,17 @@ const rootDir = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [
     react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['assets/logo.png'],
-      manifest,
-      manifestFilename: 'manifest.json',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,webp,woff,woff2}'],
-        cleanupOutdatedCaches: true,
-        navigateFallback: 'index.html',
-      },
-    }),
+    // VitePWA({
+    //   registerType: 'autoUpdate',
+    //   includeAssets: ['assets/logo.png'],
+    //   manifest,
+    //   manifestFilename: 'manifest.json',
+    //   workbox: {
+    //     globPatterns: ['**/*.{js,css,html,ico,png,svg,json,webp,woff,woff2}'],
+    //     cleanupOutdatedCaches: true,
+    //     navigateFallback: 'index.html',
+    //   },
+    // }),
     viteStaticCopy({
       targets: [
         { src: resolve(rootDir, '../Site/resources'), dest: './' },

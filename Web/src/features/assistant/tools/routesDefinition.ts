@@ -26,11 +26,11 @@ export type RoutesDefinition = {
 export const routesDefinition: RoutesDefinition[] = [
   {
     name: '/dashboard',
-    description: 'Home with balances by account, listing cards for invoice access',
+    description: 'Home with balances by account, listing cards for invoice access. main place to view sumarized information',
   },
   {
     name: '/timeline/:id?',
-    description: 'Timeline of financial records, here you can list and filter records.',
+    description: 'Timeline of financial records, main place to view and manage your account transactions, with filtering by category, account, date range and month key.',
     pathParams: {
       id: { description: ' account ID to filter', type: 'path_param_string', required: false},
     },
@@ -74,10 +74,10 @@ export const routesDefinition: RoutesDefinition[] = [
   //   description: 'Edit a especific bank account info manually',
   //   pathParams: { id: { description: 'ID da conta bancária', type: 'path_param_string', required: true } },
   // },
-  {
-    name: '/accounts/registry/add',
-    description: 'Add a spend record to the account manually',
-  },
+  // {
+  //   name: '/accounts/registry/add',
+  //   description: 'Add a spend record to the account manually',
+  // },
   {
     name: '/accounts/registry/:id/edit',
     description: 'Edit bank account info manually',
@@ -85,7 +85,7 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     name: '/creditcards',
-    description: 'Credit cards listing',
+    description: 'View credit cards to view, listi and manage infos like limits, due dates and etc...',
   },
   // {
   //   name: '/creditcards/create',
@@ -96,34 +96,34 @@ export const routesDefinition: RoutesDefinition[] = [
     description: 'View credit card info details',
     pathParams: { id: { description: 'ID do cartão de crédito', type: 'path_param_string', required: true } },
   },
-  {
-    name: '/creditcards/:id/edit',
-    description: 'Edit credit card info manually',
-  },
+  // {
+  //   name: '/creditcards/:id/edit',
+  //   description: 'Edit credit card info manually',
+  // },
   {
     name: '/creditcards/:id/invoices/:selected?',
-    description: 'View Credit Card Invoices',
+    description: 'View credit card invoices, list all invoices and details or the selected one',
     pathParams: {
       id: { description: 'ID do cartão de crédito', type: 'path_param_string', required: true },
       selected: { description: 'ID da fatura selecionada as Month key (e.g., 2025-09)', type: 'path_param_string', required: false },
     }
   },
-  {
-    name: '/creditcards/registry/add',
-    description: 'Adicionar registro de cartão de crédito',
-  },
+  // {
+  //   name: '/creditcards/registry/add',
+  //   description: 'Adicionar registro de cartão de crédito',
+  // },
   // {
   //   name: '/creditcards/registry/:id/edit',
   //   description: 'Editar registro de cartão de crédito',
   // },
   {
     name: '/categories',
-    description: 'Listagem de Categorias',
+    description: 'View the categories listing and manage categories manually',
   },
-  {
-    name: '/categories/create',
-    description: 'Criar nova categoria manualmente',
-  },
+  // {
+  //   name: '/categories/create',
+  //   description: 'Criar nova categoria manualmente',
+  // },
   // {
   //   name: '/groceries/create',
   //   description: 'Adicionar item à lista de compras',
@@ -134,8 +134,8 @@ export const routesDefinition: RoutesDefinition[] = [
   //   pathParams: { id: { description: 'ID do item de compra', type: 'path_param_string' } },
   // },
   {
-    name: '/subscriptions/*',
-    description: 'Tela para visualizar planos de assinaturas disponíveis',
+    name: '/subscriptions/',
+    description: 'See avalilable subscriptions plans and manage your current plan',
   }
 ];
 

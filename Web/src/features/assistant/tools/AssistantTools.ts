@@ -84,7 +84,9 @@ export class AssistantTools {
 
         return from(args)
       },
-      userInfo: (_, result) => result ? `Criado ${aiToolCreator.name}\n${JSON.stringify(result)}` : undefined
+      userInfo: (_, result) => result ? `(Beta) Criado ${aiToolCreator.name}\n${
+        Object.entries(result).map(([key, value]) => `- ${key}: ${JSON.stringify(value, null, 2)}`).join("\n")
+      }` : undefined
     };
   }
 
@@ -135,7 +137,7 @@ export class AssistantTools {
       this.createFromMetadata(CreditCardRegistry.metadata),
       {
         name: 'action_navigate_to_screen',
-        description: 'Navega para uma tela especificada opicionalmente com parâmetros que podem filtrar ou direcionar para edições/criações manualmente. Use search_navigation_options para obter a lista de telas disponíveis.',
+        description: 'Navega para visualização especificada, normalment utilizada quando o usuário quer ver alguma informação. Use search_navigation_options para obter mais informações sobre as telas e seus parâmetros.',
         parameters: {
           type: "object",
           properties: {
@@ -151,7 +153,11 @@ export class AssistantTools {
         execute: async ({ route, queryParams }): Promise<Result<void>> => {
           if(!route) return { success: false, error: "Rota é obrigatória. use search_navigation_options para obter a lista de telas disponíveis." };
           const routes = (await import("./routesDefinition")).routesDefinition;
-          const match = routes.find(r => r.name === route);
+          const match = routes.find(r => {
+            let sanitizedName = route.split("?")[0];
+            
+            return r.name.startsWith(sanitizedName);
+          });
           if(!match) {
             return { success: false, error: `Rota '${route}' não encontrada. use search_navigation_options para obter a lista de telas disponíveis.` };
           }

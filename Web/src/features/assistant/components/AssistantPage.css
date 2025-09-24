@@ -158,7 +158,6 @@
 .assistant-ask-user__message {
   margin: 0 0 0.5rem;
   font-size: 1rem;
-  white-space: normal;
 }
 
 .assistant-ask-user__options {
@@ -197,6 +196,14 @@
   padding: var(--spacing-xs);
   animation: toastIn 0.8s cubic-bezier(0.4,0,0.2,1);
 }
+
+.assistant-toasts pre {
+  margin: 0;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 
 @keyframes toastIn {
   from {
