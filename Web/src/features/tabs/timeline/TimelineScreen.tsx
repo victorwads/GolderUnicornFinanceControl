@@ -73,14 +73,16 @@ const TimelineScreen = () => {
     setAccountIds(accountId ? [accountId] : []);
 
     if (fromParam && toParam) {
+      const start = new Date(fromParam);
       setPeriod({
-        start: new Date(fromParam),
+        start,
         end: new Date(toParam)
       });
+      setCurrentMonth(Month.fromDate(start));
     } else if (monthParam) {
-      setPeriod(balance.period.getMonthPeriod(
-        Month.fromKey(monthParam as MonthKey)
-      ));
+      const currentMonth = Month.fromKey(monthParam as MonthKey);
+      setPeriod(balance.period.getMonthPeriod(currentMonth));
+      setCurrentMonth(currentMonth);
     }
   }, [categoriaParam, accountId, fromParam, toParam, monthParam]);
 

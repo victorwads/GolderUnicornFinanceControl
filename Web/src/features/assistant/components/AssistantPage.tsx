@@ -80,7 +80,7 @@ export default function AssistantPage({
         handleAskAdditionalInfo,
         handleToolCall,
         (route: string, queryParams?: Record<string, string>) => {
-          const url = new URL(route);
+          const url = new URL("u:" + route);
           Object.entries(queryParams || {}).forEach(([key, value]) => {
             url.searchParams.set(key, value);
           });

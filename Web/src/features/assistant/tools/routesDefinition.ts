@@ -30,7 +30,7 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     name: '/timeline/:id?',
-    description: 'Timeline of financial records, main place to view and manage your account transactions, with filtering by category, account, date range and month key.',
+    description: 'See transactions history of financial records, main place to view and manage account transactions. filtering by category, account, date range and month key, etc...',
     pathParams: {
       id: { description: ' account ID to filter', type: 'path_param_string', required: false},
     },
@@ -81,7 +81,7 @@ export const routesDefinition: RoutesDefinition[] = [
   {
     name: '/accounts/registry/:id/edit',
     description: 'Edit bank account info manually',
-    pathParams: { id: { description: 'ID do registro do registro', type: 'path_param_string', required: true } }
+    pathParams: { id: { description: 'ID of the account registry', type: 'path_param_string', required: true } }
   },
   {
     name: '/creditcards',
@@ -94,7 +94,7 @@ export const routesDefinition: RoutesDefinition[] = [
   {
     name: '/creditcards/:id',
     description: 'View credit card info details',
-    pathParams: { id: { description: 'ID do cartão de crédito', type: 'path_param_string', required: true } },
+    pathParams: { id: { description: 'credit card ID', type: 'path_param_string', required: true } },
   },
   // {
   //   name: '/creditcards/:id/edit',
@@ -104,8 +104,8 @@ export const routesDefinition: RoutesDefinition[] = [
     name: '/creditcards/:id/invoices/:selected?',
     description: 'View credit card invoices, list all invoices and details or the selected one',
     pathParams: {
-      id: { description: 'ID do cartão de crédito', type: 'path_param_string', required: true },
-      selected: { description: 'ID da fatura selecionada as Month key (e.g., 2025-09)', type: 'path_param_string', required: false },
+      id: { description: 'credit card ID', type: 'path_param_string', required: true },
+      selected: { description: 'ID of the selected invoice as Month key (e.g., 2025-09)', type: 'path_param_string', required: false },
     }
   },
   // {
@@ -141,9 +141,11 @@ export const routesDefinition: RoutesDefinition[] = [
 
 export const stringRoutesDefinition = routesDefinition.map(route => JSON.stringify(route));
 
-// Função utilitária para listar os parâmetros possíveis da rota TimeLine
-export function listTimelineFilterParams() {
-  const timelineRoute = routesDefinition.find(r => r.name.startsWith('/timeline'));
-  if (!timelineRoute || !timelineRoute.params) return [];
-  return Object.entries(timelineRoute.params).map(([key, info]) => `${key}: ${info.description}`);
+export function routeMatch(knownRoute: string, aiRoute: string): boolean {
+  const goRoute = aiRoute.split('?')[0];
+  const configRoute = knownRoute
+    .replace(/\/:[\w]+\?/g, '(\/[^\]*)*')
+    .replace(/\/:[\w]+/g, '(\/[^\/]+)+');
+  const regex = new RegExp(`^${configRoute}$`);
+  return regex.test(goRoute);
 }

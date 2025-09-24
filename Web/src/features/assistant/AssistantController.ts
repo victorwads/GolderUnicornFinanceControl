@@ -88,8 +88,7 @@ export default class AssistantController {
           if (
             call.function.name.startsWith("action_") &&
             "success" in result &&
-            result.success === true &&
-            result.result
+            result.success === true
           ) {
             run = false;
           }

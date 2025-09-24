@@ -11,7 +11,7 @@ import GlassContainer from '@components/GlassContainer';
 import { Loading } from '@components/Loading';
 import { on } from 'events';
 
-const COMMAND_EVALUATION_DELAY = 1200;
+const COMMAND_EVALUATION_DELAY = 1800;
 
 export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
   compact?: boolean;

@@ -16,7 +16,7 @@ import {
   Result,
 } from "@models";
 import { validateRequiredFields } from "@models";
-import type { RoutesDefinition } from "./routesDefinition";
+import { routeMatch, type RoutesDefinition } from "./routesDefinition";
 
 const MAX_RESULTS = 10;
 
@@ -137,7 +137,7 @@ export class AssistantTools {
       this.createFromMetadata(CreditCardRegistry.metadata),
       {
         name: 'action_navigate_to_screen',
-        description: 'Navega para visualização especificada, normalment utilizada quando o usuário quer ver alguma informação. Use search_navigation_options para obter mais informações sobre as telas e seus parâmetros.',
+        description: 'Utilizar quando o usuário quer "ir para" ou "ver alguma informação". Sempre use search_navigation_options antes para obter a listagem de telas e seus parâmetros.',
         parameters: {
           type: "object",
           properties: {
@@ -153,11 +153,7 @@ export class AssistantTools {
         execute: async ({ route, queryParams }): Promise<Result<void>> => {
           if(!route) return { success: false, error: "Rota é obrigatória. use search_navigation_options para obter a lista de telas disponíveis." };
           const routes = (await import("./routesDefinition")).routesDefinition;
-          const match = routes.find(r => {
-            let sanitizedName = route.split("?")[0];
-            
-            return r.name.startsWith(sanitizedName);
-          });
+          const match = routes.find(r => routeMatch(r.name, route));
           if(!match) {
             return { success: false, error: `Rota '${route}' não encontrada. use search_navigation_options para obter a lista de telas disponíveis.` };
           }
@@ -172,9 +168,9 @@ export class AssistantTools {
       },
       {
         name: "search_navigation_options",
-        description: "Lista as telas disponíveis para navegação.",
+        description: "Lista telas e visualizações disponíveis e seus parâmetros para navegação.",
         parameters: this.createSearchParamsSchemema(
-          "Termo para buscar alguma telas. sempre em inglês.",
+          "Termo para buscar alguma rota. sempre em inglês.",
           "O Termo porem no idioma do usuário."
         ),
         execute: async ({ query }) => {
