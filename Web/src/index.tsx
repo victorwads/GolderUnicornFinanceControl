@@ -6,8 +6,10 @@ import "./data/firebase/google-services";
 import { VarsProvider } from "@components/Vars";
 import App from "./App";
 import { registerSW } from "virtual:pwa-register";
+import { StrictMode } from "react";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <StrictMode>
   <VarsProvider>
     <App />
     <svg style={{ display: "none" }}>
@@ -18,6 +20,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       </filter>
     </svg>
   </VarsProvider>
+  </StrictMode>
 );
 
 if (import.meta.env.PROD) {

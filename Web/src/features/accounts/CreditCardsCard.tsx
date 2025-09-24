@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { Link } from "react-router-dom"
 
 import Card from "@components/visual/Card"
@@ -12,12 +12,12 @@ const CreditCardsCard: React.FC<{}> = () => {
 
   let [creditCards, setCreditCards] = useState<CreditCardWithInfos[]>([])
 
-  const fetchCreditCards = () => {
+  const fetchCreditCards = useCallback(() => {
     const { creditCards } = getRepositories();
     const cards = creditCards.getCacheWithBank();
     setCreditCards(cards)
-  }
-
+  }, [])
+  
   return <>
     <Link to={'/creditcards'}>{Lang.creditcards.title}</Link>
     <Card>

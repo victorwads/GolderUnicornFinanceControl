@@ -1,6 +1,6 @@
 import './AIMicrophone.css';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { use, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Icon from '@components/Icons';
@@ -9,7 +9,6 @@ import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
 import { StartListeningOptions, useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
 import GlassContainer from '@components/GlassContainer';
 import { Loading } from '@components/Loading';
-import { on } from 'events';
 
 const COMMAND_EVALUATION_DELAY = 1800;
 

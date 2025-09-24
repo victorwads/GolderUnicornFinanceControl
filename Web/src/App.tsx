@@ -37,7 +37,7 @@ import { clearServices, resetServices } from '@services';
 const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
   {
-    path: '/', element: <TabScreen />, children: [
+    path: '/', element: withRepos(<TabScreen />), children: [
       { path: 'dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: withRepos(<TimelineFilterScreen />, 'banks', 'creditCards', 'accounts', 'categories') },
       { path: 'timeline/:id?', element: withRepos(
@@ -46,7 +46,7 @@ const privateRouter = createBrowserRouter([
       ) },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
-      { path: 'settings', element: withRepos(<SettingsScreen />) },
+      { path: 'settings', element: <SettingsScreen /> },
       { path: 'resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
       { path: '/accounts', element: withRepos(<AccountsScreen />, 'accounts', 'banks') },
       { path: '/accounts/create', element: withRepos(<AccountScreenForm />, 'banks') },

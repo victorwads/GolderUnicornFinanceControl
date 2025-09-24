@@ -5,7 +5,6 @@ import AccountsCard from '../../accounts/AccountsCard'
 import CreditCardsCard from '../../accounts/CreditCardsCard'
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners'
 import { getCurrentUser } from '@configs'
-import { WithRepo } from '@components/WithRepo'
 
 const DashboardScreen = () => {
 

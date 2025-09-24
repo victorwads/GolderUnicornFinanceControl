@@ -16,7 +16,7 @@ export const WithRepo: React.FC<WithRepoProps> = ({ names, children, onReady }) 
         setLoading(false);
         onReady?.();
     });
-  }, [names]);
+  }, [names.join(','), onReady]);
 
   if (loading) {
     return (
