@@ -1,6 +1,7 @@
 import NumericEncryptor from "./NumericEncryptor";
 
-type Map = { [key: string]: any;};
+type Map = { [key: string]: any };
+export type Hash = { buffer: ArrayBuffer; hex: string; }
 
 export default class Encryptor {
   private static ENCRYPTED_PREFIX = '$O';
@@ -8,11 +9,16 @@ export default class Encryptor {
   private secretKey: CryptoKey | null = null;
   private numberHandler: NumericEncryptor | null = null;
 
-  async init(secretKey: string) {
-    if (!secretKey) throw new Error('A secret key is required for encryption.');
+  async initWithPass(pass: string) {
+    if (!pass) throw new Error('A password is required for encryption.');
 
     this.secretKey = null;
-    const hash = await sha256(secretKey);
+    const hash = await Encryptor.createHash(pass);
+    this.initWithHash(hash);
+  }
+
+  async initWithHash(hash: Hash) {
+    this.secretKey = null;
     this.numberHandler = new NumericEncryptor(hash.hex);
     this.secretKey = await this.generateKey(hash.buffer).then((key) => this.secretKey = key);
   }
@@ -143,16 +149,26 @@ export default class Encryptor {
   }
 
   private invalidKey = new Error('Secret key is not initialized.');
-}
 
-async function sha256(data: string): Promise<{buffer: ArrayBuffer; hex: string;}> {
-  const encoder = new TextEncoder();
-  const keyData = encoder.encode(data);
-  const buffer = await crypto.subtle.digest('SHA-256', keyData);
-  return {
-    buffer,
-    hex: Array.from(new Uint8Array(buffer))
-      .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join(''),
+  public static hashFromHex(hexHash: string): Hash {
+    const { buffer} = Uint8Array
+      .from(hexHash.match(/.{1,2}/g)!
+      .map(byte => parseInt(byte, 16)))
+    return { 
+      hex: hexHash,
+      buffer
+    }
+  }
+
+  public static async createHash(password: string): Promise<Hash> {
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(password);
+    const buffer = await crypto.subtle.digest('SHA-256', keyData);
+    return {
+      buffer,
+      hex: Array.from(new Uint8Array(buffer))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join(''),
+    }
   }
 }

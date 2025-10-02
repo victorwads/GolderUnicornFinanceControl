@@ -18,17 +18,28 @@
     ]
   },
   "emulators": {
-    "auth": {
-      "port": 8006
-    },
-    "firestore": {
-      "port": 8008,
-      "host": "0.0.0.0"
-    },
-    "ui": {
-      "enabled": true,
-      "host": "0.0.0.0"
-    },
+    "functions":  { "host": "0.0.0.0", "port": 8006 },
+    "firestore":  { "host": "0.0.0.0", "port": 8008 },
+    "ui":         { "host": "0.0.0.0", "port": 4000, "enabled": true },
+    "storage":    { "enabled": false },
+    "host":       { "enabled": false },
     "singleProjectMode": true
-  }
+  },
+  "functions": [
+    {
+      "source": "Backend",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
 }

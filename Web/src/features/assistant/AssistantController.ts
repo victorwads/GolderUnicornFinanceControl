@@ -19,11 +19,11 @@ import getRepositories, { Repositories } from "@repositories";
 import { Result } from "src/data/models/metadata";
 import { userInfo } from "os";
 
-export const ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+export const ASSISTANT_MODEL: AiModel = "gpt-4.1-nano";
 const HISTORY_LIMIT = 15;
 
 const SYSTEM_PROMPT = `
-Você é o orquestrador do Golden Unicorn, um app de gestão financeira pessoal.
+Você é o orquestrador do Golden Unicorn, um app de ge3stão financeira pessoal.
 Sua função é ajudar o usuário a gerenciar suas finanças pessoais, utilizando as ferramentas (tools) disponíveis.
 Siga exatamente estas regras:
 - Responda sempre usando tools calls registradas.
