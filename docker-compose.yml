@@ -30,17 +30,17 @@ services:
       - yarn install && yarn proxy
   firebase:
     build:
-      context: ./emulators
+      context: ./Firebase
     volumes:
       - ./Firebase:/app/emulators
       - ./.firebaserc:/app/.firebaserc
+      - ./Backend:/app/Backend
       - ./firebase.json:/app/firebase.json
     ports:
-      - "8006:8006"   # Auth
+      - "8006:8006"   # Functions
       - "8008:8008"   # Firestore
       - "4000:4000"   # Emulator UI
-      - "9150:9150"   # ?
-    command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data
+    command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data --only firestore,functions,ui
 
 volumes:
   proxy_node_modules:

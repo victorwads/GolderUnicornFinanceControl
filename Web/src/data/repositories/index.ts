@@ -8,13 +8,15 @@ import CreditCardsRegistryRepository from "./CreditCardsRegistryRepository";
 import GroceriesProductsRepository from './GroceriesProductsRepository';
 import GroceriesRepository from './GroceriesRepository';
 
-import Encryptor from '../crypt/Encryptor';
+import Encryptor, { Hash } from '../crypt/Encryptor';
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import ResourcesUseRepository from './ResourcesUseRepository';
 import CreditcardsRepository from "./CreditcardsRepository";
 import { getCurrentUser } from "@configs";
 
-export  { User } from "./UserRepository";
+export type { Hash } from '../crypt/Encryptor';
+export { default as CryptoPassRepository } from './CryptoPassRepository';
+export { User } from "./UserRepository";
 
 export type Repositories = {
   user: UserRepository;
@@ -42,7 +44,7 @@ export type RepositoriesInstance = {
 }
 let repositorieInstances: RepositoriesInstance | null = null;
 
-export async function resetRepositories(uid: string): Promise<Repositories> {
+export async function resetRepositories(uid: string, secretHash?: Hash): Promise<Repositories> {
   if (repositorieInstances?.uid === uid) return repositorieInstances.instances;
 
   const instances: Repositories = {
@@ -60,11 +62,11 @@ export async function resetRepositories(uid: string): Promise<Repositories> {
     resourcesUse: new ResourcesUseRepository(),
   }
 
-  debugTimestamp('Modules Initialization', initTime);
-  const initEncryption = Date.now();
   const encryptorInstance = new Encryptor();
-  await encryptorInstance.init(uid);
-  debugTimestamp('Encryptor initialized', initEncryption);
+  if(secretHash)
+    await encryptorInstance.initWithHash(secretHash);
+  else
+    await encryptorInstance.initWithPass(uid);
 
   const toWait = Object.entries(instances).map(([key, repo]) => {
     if (repo instanceof RepositoryWithCrypt) repo.config(encryptorInstance);
@@ -109,13 +111,6 @@ export async function waitUntilReady(...names: RepoName[]): Promise<void> {
   if (toWait.length === 0) return;
 
   await Promise.all(toWait.map(name => repos[name].waitUntilReady()));
-}
-
-const initTime = Date.now();
-function debugTimestamp(message: string, init: number): number {
-  const time = Date.now() - init;
-  console.log(`[${time/1000}s] ${message}`);
-  return time;
 }
 
 const user = getCurrentUser()

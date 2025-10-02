@@ -11,7 +11,6 @@ import {
 
 import { DocumentModel } from "@models";
 import { addResourceUse } from "./ResourcesUseRepositoryShared";
-import { initializeApp } from 'firebase/app';
 
 const queryField: keyof DocumentModel = "_updatedAt";
 

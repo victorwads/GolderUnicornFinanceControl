@@ -6,7 +6,14 @@ import { getCurrentUser } from '@configs';
 import { Collections } from "../firebase/Collections";
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 
-export class User extends DocumentModel {}
+export class User extends DocumentModel {
+  constructor(
+    id: string = '',
+    public hasMigrated: boolean = false,
+  ) {
+    super(id);
+  }
+}
 
 export default class UserRepository extends RepositoryWithCrypt<User> {
   constructor() {
@@ -29,6 +36,6 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
 
   public async getUserData(): Promise<User> {
     const user = await getDoc(doc(this.ref, this.safeUserId));
-    return await this.fromFirestore(user.id, user.data());;
+    return await this.fromFirestore(user.id, user.data());
   }
 }

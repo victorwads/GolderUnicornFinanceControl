@@ -12,7 +12,7 @@ describe('FirebaseEncryptor', () => {
     let encryptor = new Encryptor();
 
     beforeAll(async () => {
-        await encryptor.init(secretKey);
+        await encryptor.initWithPass(secretKey);
     });
 
     test('encrypt and decrypt simple object', async () => {

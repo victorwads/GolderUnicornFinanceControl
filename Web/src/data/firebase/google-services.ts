@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, User } from "firebase/auth";
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { clearIndexedDbPersistence, getFirestore, terminate } from "firebase/firestore";
 import { CACHE_SIZE_UNLIMITED, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 
@@ -20,6 +21,7 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
+export const functions = getFunctions(app);
 
 let firestoreAddConfig = {};
 if (window.isDevelopment) {
@@ -28,7 +30,18 @@ if (window.isDevelopment) {
     ssl: window.isSsl,
   };
   console.log('Connected to Firestore Emulator at', firestoreAddConfig);
+
+  connectFunctionsEmulator(functions, window.location.hostname, window.port);
 }
+
+
+if (typeof window !== 'undefined' && window.isDevelopment) {
+  try {
+  } catch (error) {
+    console.warn('Failed to connect to Functions emulator', error);
+  }
+}
+
 
 initializeFirestore(app, {
   localCache: persistentLocalCache({ cacheSizeBytes: CACHE_SIZE_UNLIMITED, tabManager: persistentMultipleTabManager() }),
