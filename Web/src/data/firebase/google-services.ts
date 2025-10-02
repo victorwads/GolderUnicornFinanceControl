@@ -32,6 +32,9 @@ if (window.isDevelopment) {
   console.log('Connected to Firestore Emulator at', firestoreAddConfig);
 
   connectFunctionsEmulator(functions, window.location.hostname, window.port);
+
+  const { protocol, hostname, port } = window.location;
+  (functions as any).emulatorOrigin = `${protocol}//${hostname}`;
 }
 
 

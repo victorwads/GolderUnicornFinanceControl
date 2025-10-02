@@ -49,6 +49,7 @@ class ProxyManager {
 
   private static readonly serviceRules: Record<string, (pathname: string) => boolean> = {
     firestore: (pathname) => pathname.includes('google.firestore.v1.Firestore/'),
+    functions: (pathname) => pathname.includes('goldenunicornfc/us-central1/'),
   };
 
   getTargetName(pathname: string): string {

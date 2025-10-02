@@ -20,21 +20,8 @@ import {
 
 setGlobalOptions({maxInstances: 10});
 
-type EncryptData = {
-  password?: string;
-};
-
-type EncryptResponse = {
-  token: string;
-};
-
-type DecryptData = {
-  token?: string;
-};
-
-type DecryptResponse = {
-  password: string;
-};
+type EncryptPayload = { secretHash: string };
+type DecryptPayload = { token: string };
 
 type JwtPayload = {
   c: string;
@@ -136,7 +123,7 @@ function verifyToken(token: string): JwtPayload {
   return payload;
 }
 
-function ensureAuth(request: CallableRequest<DecryptData | EncryptData>): string {
+function ensureAuth(request: CallableRequest<any>): string {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Usuário não autenticado.");
@@ -185,38 +172,38 @@ function buildPayload(uid: string, password: string): JwtPayload {
 
 function assertPayloadForUid(uid: string, payload: JwtPayload): void {
   if (payload.v !== PAYLOAD_VERSION) {
-    throw new HttpsError("failed-precondition", "Versão do token inválida.");
+    throw new HttpsError("failed-precondition", "invalid token");
   }
 
   const iv = base64UrlDecode(payload.i);
   if (iv.length !== 12) {
-    throw new HttpsError("invalid-argument", "IV inválido no token.");
+    throw new HttpsError("invalid-argument", "invalid token");
   }
 }
 
-export const cryptoPassEncrypt = onCall<EncryptData, EncryptResponse>((request) => {
+export const cryptoPassEncrypt = onCall<EncryptPayload, DecryptPayload>((request) => {
   const uid = ensureAuth(request);
-  const password = request.data?.password ?? "";
+  const secretHash = request.data?.secretHash ?? "";
 
-  if (!password) {
-    throw new HttpsError("invalid-argument", "password é obrigatório.");
+  if (!secretHash) {
+    throw new HttpsError("invalid-argument", "secretHash is required.");
   }
 
-  const payload = buildPayload(uid, password);
+  const payload = buildPayload(uid, secretHash);
   const token = signPayload(payload);
-  return {token};
+  return { token };
 });
 
-export const cryptoPassDecrypt = onCall<DecryptData, DecryptResponse>((request) => {
+export const cryptoPassDecrypt = onCall<DecryptPayload, EncryptPayload>((request) => {
   const uid = ensureAuth(request);
   const token = request.data?.token ?? "";
 
   if (!token) {
-    throw new HttpsError("invalid-argument", "token é obrigatório.");
+    throw new HttpsError("invalid-argument", "token is required.");
   }
 
   const payload = verifyToken(token);
   assertPayloadForUid(uid, payload);
-  const password = decryptPassword(uid, payload);
-  return {password};
+  const secretHash = decryptPassword(uid, payload);
+  return { secretHash };
 });
