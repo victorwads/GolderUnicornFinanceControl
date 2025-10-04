@@ -106,7 +106,7 @@ function App() {
   }, [])
 
   return <div className={`App theme ${theme} ${density}`}>
-    {needPass
+    {needPass && user
       ? <CryptoPassSetupScreen uid={user?.uid} onCompleted={() => setNeedPass(false)} />
       : <RouterProvider router={user ? privateRouter : publicRouter} />
     }

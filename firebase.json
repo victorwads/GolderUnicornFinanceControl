@@ -18,6 +18,7 @@
     ]
   },
   "emulators": {
+    "auth":       { "host": "0.0.0.0", "port": 8084 },
     "functions":  { "host": "0.0.0.0", "port": 8006 },
     "firestore":  { "host": "0.0.0.0", "port": 8008 },
     "ui":         { "host": "0.0.0.0", "port": 4000, "enabled": true },

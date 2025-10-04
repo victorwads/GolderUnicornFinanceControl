@@ -9,7 +9,7 @@
 
 import {setGlobalOptions} from "firebase-functions";
 import {onCall, CallableRequest, HttpsError} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import {bootstrapDevelopmentAuthUser} from "./boot.dev";
 import {
   createCipheriv,
   createDecipheriv,
@@ -34,6 +34,8 @@ type JwtPayload = {
 const JWT_ALG = "HS256";
 const JWT_TYP = "JWT";
 const PAYLOAD_VERSION = 1;
+
+void bootstrapDevelopmentAuthUser();
 
 function getSignSecret(): string {
   const secret = process.env.CRYPTO_JWT_SIGN_SECRET;

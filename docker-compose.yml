@@ -48,12 +48,14 @@ services:
       - ./Firebase:/app/emulators
       - ./.firebaserc:/app/.firebaserc
       - ./Backend:/app/Backend
+      - ./Backend/.env.local:/app/.env.local
       - ./firebase.json:/app/firebase.json
     ports:
-      - "8006:8006"   # Functions
-      - "8008:8008"   # Firestore
-      - "4000:4000"   # Emulator UI
-    command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data --only firestore,functions,ui
+      - "8084:8084" # Auth
+      - "8006:8006" # Functions
+      - "8008:8008" # Firestore
+      - "4000:4000" # Emulator UI
+    command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data --only firestore,functions,ui,auth
 
 volumes:
   proxy_node_modules:
