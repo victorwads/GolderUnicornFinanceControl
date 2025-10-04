@@ -44,7 +44,7 @@ export type RepositoriesInstance = {
 }
 let repositorieInstances: RepositoriesInstance | null = null;
 
-export async function resetRepositories(uid: string, secretHash?: Hash): Promise<Repositories> {
+export async function resetRepositories(uid: string, secretHash?: Hash | null): Promise<Repositories> {
   if (repositorieInstances?.uid === uid) return repositorieInstances.instances;
 
   const instances: Repositories = {

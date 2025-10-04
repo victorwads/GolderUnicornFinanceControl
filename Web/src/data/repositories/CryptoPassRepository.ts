@@ -10,9 +10,8 @@ import getRepositories, { RepoName, waitUntilReady } from './';
 const encryptCallable = httpsCallable<EncryptPayload, DecryptPayload>(functions, 'cryptoPassEncrypt');
 const decryptCallable = httpsCallable<DecryptPayload, EncryptPayload>(functions, 'cryptoPassDecrypt');
 
-const STORAGE_TOKEN_KEY = 'crypto.token';
-const SESSION_SECRET_KEY = 'crypto.secretHash';
 const CHUNK_SIZE = 100;
+const SESSION_SECRET_KEY = 'crypto.secretHash.'
 
 type EncryptPayload = { secretHash: string };
 type DecryptPayload = { token: string };
@@ -23,59 +22,53 @@ type SaveOptions = {
 
 export default class CryptoPassRepository {
 
-  public static hasLocalSaved(): boolean {
-    return !!CryptoPassRepository.getStoredToken() || !!sessionStorage.getItem(SESSION_SECRET_KEY);
+  constructor(
+    public uid: string = getCurrentUser()?.uid || ''
+  ) {}
+
+  private get STORAGE_TOKEN_KEY() {
+    return 'crypto.token.' + this.uid;
   }
 
-  public async hasMigrated(): Promise<boolean> {
-    if (CryptoPassRepository.hasLocalSaved()) {
-      return true;
-    }
-
-    const user = getCurrentUser();
-    if (!user) throw new Error('Usuário não autenticado.');
-
-    const { user: userRepository } = getRepositories();
-    await waitUntilReady('user');
-
-    const { hasMigrated } = await userRepository.getUserData();
-    return hasMigrated || false;
+  private get SESSION_SECRET_KEY() {
+    return SESSION_SECRET_KEY + this.uid;
   }
 
-  public async getHash(): Promise<Hash> {
-    const sessionHashHex = sessionStorage.getItem(SESSION_SECRET_KEY);
+  public static isAvailable(uid: string): boolean {
+    return sessionStorage.getItem(SESSION_SECRET_KEY + uid) !== null;
+  }
+
+  public async getHash(): Promise<Hash | null> {
+    const sessionHashHex = sessionStorage.getItem(this.SESSION_SECRET_KEY);
     if (sessionHashHex) {
       return Encryptor.hashFromHex(sessionHashHex);
     }
 
-    const token = CryptoPassRepository.getStoredToken();
-    if (!token) throw new Error('Nenhum token encontrada.');
+    const token = localStorage.getItem(this.STORAGE_TOKEN_KEY);
+    if (!token) return null;
 
     return await this.decryptHash(token);
   }
 
   public async initSession(pass: string, options?: SaveOptions): Promise<void> {
     if (!pass) throw new Error('Informe uma senha de criptografia.');
-    const user = getCurrentUser();
-    if (!user) throw new Error('Usuário não autenticado.');
 
     const secretHash = await Encryptor.createHash(pass);
     const token = await this.encryptPassword(secretHash.hex);
-    localStorage.setItem(STORAGE_TOKEN_KEY, token);
-    sessionStorage.setItem(SESSION_SECRET_KEY, secretHash.hex);
+    localStorage.setItem(this.STORAGE_TOKEN_KEY, token);
+    sessionStorage.setItem(this.SESSION_SECRET_KEY, secretHash.hex);
 
-    if (!(await this.hasMigrated())) {
+    const { privateHash } = await getRepositories().user.getUserData();
+    if (!privateHash) {
       await this.updateEncryption(secretHash, options?.onProgress);
+    } else if (privateHash !== secretHash.hex) {
+      throw new Error('Senha de criptografia inválida.');
     }
   }
 
   public clear(): void {
-    localStorage.removeItem(STORAGE_TOKEN_KEY);
-    sessionStorage.removeItem(SESSION_SECRET_KEY);
-  }
-
-  private static getStoredToken(): string | null {
-    return localStorage.getItem(STORAGE_TOKEN_KEY);
+    localStorage.removeItem(this.STORAGE_TOKEN_KEY);
+    sessionStorage.removeItem(this.SESSION_SECRET_KEY);
   }
 
   private async encryptPassword(secretHash: string): Promise<string> {
@@ -90,7 +83,7 @@ export default class CryptoPassRepository {
     const secretHash = response.data?.secretHash;
     if (!secretHash) throw new Error('Função de descriptografia não retornou o hash secreto.');
 
-    sessionStorage.setItem(SESSION_SECRET_KEY, secretHash);
+    sessionStorage.setItem(this.SESSION_SECRET_KEY, secretHash);
 
     return Encryptor.hashFromHex(secretHash);
   }
@@ -123,5 +116,7 @@ export default class CryptoPassRepository {
       onProgress?.({ ...prog });
     }
     onProgress?.(null);
-  };
+
+    await getRepositories().user.updateUserData({ privateHash: secretHash.hex });
+  }
 }

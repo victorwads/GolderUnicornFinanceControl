@@ -36,11 +36,9 @@ const JWT_TYP = "JWT";
 const PAYLOAD_VERSION = 1;
 
 function getSignSecret(): string {
-  const secret = process.env.CRYPTO_JWT_SIGN_SECRET || process.env.JWT_SECRET;
+  const secret = process.env.CRYPTO_JWT_SIGN_SECRET;
   if (!secret) {
-    const fallback = "dev-sign-secret-change-me";
-    logger.warn("CRYPTO_JWT_SIGN_SECRET not set. Using insecure fallback secret.");
-    return fallback;
+    throw new Error("CRYPTO_JWT_SIGN_SECRET not set.");
   }
   return secret;
 }
@@ -48,9 +46,7 @@ function getSignSecret(): string {
 function getEncryptSecret(): string {
   const secret = process.env.CRYPTO_JWT_ENCRYPT_SECRET;
   if (!secret) {
-    const fallback = "dev-encrypt-secret-change-me";
-    logger.warn("CRYPTO_JWT_ENCRYPT_SECRET not set. Using insecure fallback secret.");
-    return fallback;
+    throw new Error("CRYPTO_JWT_ENCRYPT_SECRET not set.");
   }
   return secret;
 }
@@ -191,7 +187,7 @@ export const cryptoPassEncrypt = onCall<EncryptPayload, DecryptPayload>((request
 
   const payload = buildPayload(uid, secretHash);
   const token = signPayload(payload);
-  return { token };
+  return {token};
 });
 
 export const cryptoPassDecrypt = onCall<DecryptPayload, EncryptPayload>((request) => {
@@ -205,5 +201,5 @@ export const cryptoPassDecrypt = onCall<DecryptPayload, EncryptPayload>((request
   const payload = verifyToken(token);
   assertPayloadForUid(uid, payload);
   const secretHash = decryptPassword(uid, payload);
-  return { secretHash };
+  return {secretHash};
 });

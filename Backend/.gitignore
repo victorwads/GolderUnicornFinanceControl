@@ -9,3 +9,6 @@ typings/
 node_modules/
 package-lock.json
 *.local
+
+.env*
+!.env.exemple

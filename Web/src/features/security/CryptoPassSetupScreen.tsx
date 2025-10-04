@@ -8,26 +8,23 @@ import { Progress } from '../../data/crypt/progress';
 import './CryptoPassSetupScreen.css';
 
 type Props = {
-  onCompleted: (password: string) => void;
-  initialError?: string | null;
+  uid: string;
+  onCompleted: () => void;
 };
 
-export default function CryptoPassSetupScreen({ onCompleted, initialError }: Props) {
-  const repository = useMemo(() => new CryptoPassRepository(), []);
+export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
 
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
-  const [error, setError] = useState<string | null>(initialError ?? null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
-
-  useEffect(() => {
-    if (initialError) setError(initialError);
-  }, [initialError]);
 
   const isMigrating = progress !== null;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    const repository = new CryptoPassRepository(uid);
+
     event.preventDefault();
     if (loading) return;
 
@@ -40,14 +37,15 @@ export default function CryptoPassSetupScreen({ onCompleted, initialError }: Pro
       return;
     }
 
+    setError(null);
+    setLoading(true);
+    setProgress(null);
+
     try {
-      setError(null);
-      setLoading(true);
-      await repository.save(password, {
+      await repository.initSession(password, {
         onProgress: (value) => setProgress(value),
       });
-      setProgress(null);
-      onCompleted(password);
+      onCompleted();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Não foi possível salvar a senha.';
       setError(message);
@@ -67,22 +65,19 @@ export default function CryptoPassSetupScreen({ onCompleted, initialError }: Pro
           </p>
           <p>
             <strong>Atenção:</strong> Não há como recuperar essa senha se você esquecê-la.
-            Certifique-se de anotá-la em um local seguro.
+            Certifique-se de anotá-la em um local seguro. Não será possível muda-la depois.
           </p>
         </div>
 
         <label className="crypto-pass-field">
           <span>Senha de criptografia</span>
           <input
-            className="crypto-pass-input"
-            type="password"
-            value={password}
+            className="crypto-pass-input" autoFocus
+            disabled={loading} type="password" value={password}
             onChange={(event) => {
               setPassword(event.target.value);
               if (error) setError(null);
             }}
-            disabled={loading}
-            autoFocus
           />
         </label>
 
@@ -90,13 +85,11 @@ export default function CryptoPassSetupScreen({ onCompleted, initialError }: Pro
           <span>Confirme a senha</span>
           <input
             className="crypto-pass-input"
-            type="password"
-            value={confirmation}
+            disabled={loading} type="password" value={confirmation}
             onChange={(event) => {
               setConfirmation(event.target.value);
               if (error) setError(null);
             }}
-            disabled={loading}
           />
         </label>
 

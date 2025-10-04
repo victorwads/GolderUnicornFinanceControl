@@ -28,11 +28,11 @@ import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
-import AssistantPage from '@features/assistant';
 
-import { clearRepositories, resetRepositories } from '@repositories';
+import { clearRepositories, CryptoPassRepository, resetRepositories } from '@repositories';
 import { getCurrentUser, saveUser } from '@configs';
 import { clearServices, resetServices } from '@services';
+import CryptoPassSetupScreen from '@features/security/CryptoPassSetupScreen';
 
 const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -82,14 +82,18 @@ const publicRouter = createBrowserRouter([
 function App() {
 
   const [user, setUser] = useState(() => getCurrentUser())
-  const [loading, setLoading] = useState(true)
+  const [needPass, setNeedPass] = useState(!CryptoPassRepository.isAvailable(user?.uid))
   const { theme, density } = useCssVars();
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (currentUser) => {
-      setLoading(true)
       if(currentUser) {
-        const repos = await resetRepositories(currentUser.uid);
+        const passRepository = new CryptoPassRepository(currentUser.uid);
+        const savedHash = await passRepository.getHash();
+
+        if(!savedHash) setNeedPass(true);
+
+        const repos = await resetRepositories(currentUser.uid, savedHash);
         resetServices(currentUser.uid, repos);
       } else {
         clearRepositories();
@@ -98,19 +102,15 @@ function App() {
 
       saveUser(currentUser);
       setUser(currentUser)
-      setLoading(false)
     })
   }, [])
 
   return <div className={`App theme ${theme} ${density}`}>
-    {/* {!user ? (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Loading show={loading} />
-        {Lang.commons.loading}
-      </div>
-    ) : ( */}
-      <RouterProvider router={user ? privateRouter : publicRouter} />
-    {/* )} */}
+    {needPass
+      ? <CryptoPassSetupScreen uid={user?.uid} onCompleted={() => setNeedPass(false)} />
+      : <RouterProvider router={user ? privateRouter : publicRouter} />
+    }
+    
   </div>;
 }
 
