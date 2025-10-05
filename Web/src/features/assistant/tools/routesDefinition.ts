@@ -58,6 +58,10 @@ export const routesDefinition: RoutesDefinition[] = [
     description: 'Settings and application configuration',
   },
   {
+    name: '/settings/ai-calls',
+    description: 'Review AI assistant conversations and inspect saved call logs',
+  },
+  {
     name: '/resource-usage',
     description: 'Resource usage statistics',
   },

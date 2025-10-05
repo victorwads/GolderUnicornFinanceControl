@@ -9,6 +9,7 @@ import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
 import TimelineFilterScreen from '@features/tabs/timeline/TimelineFilterScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
+import AiCallsScreen from '@features/assistant/AiCallsScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CategoriesScreen from '@features/categories/CategoriesScreen';
 import AddCategoriesScreen from '@features/categories/AddCategoriesScreen';
@@ -38,6 +39,7 @@ export const privateRouter = createBrowserRouter([
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
       { path: 'settings', element: <SettingsScreen /> },
+      { path: 'settings/ai-calls', element: withRepos(<AiCallsScreen />, 'aiCalls') },
       { path: 'resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
       { path: '/accounts', element: withRepos(<AccountsScreen />, 'accounts', 'banks') },
       { path: '/accounts/create', element: withRepos(<AccountScreenForm />, 'banks') },

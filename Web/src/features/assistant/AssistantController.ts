@@ -240,14 +240,6 @@ export default class AssistantController {
 
   private async persistAiCall(context: RunContext): Promise<void> {
     try {
-      const finalSnapshot = this.createLogEntry("system", {
-        type: "final_state",
-        history: this.buildMessages(context.history),
-        warnings: [...context.warnings],
-      });
-
-      this.trackLog(context, finalSnapshot);
-
       const aiCall = new AiCall(
         new Date().toISOString().replace(/:/g, ""),
         context.log as object[]

@@ -2,6 +2,7 @@ import { SettingsSection, Progress } from './types';
 import getRepositories from '@repositories';
 import RepositoryWithCrypt from '../../../../data/repositories/RepositoryWithCrypt';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { setCompletedOnboarding } from '@components/voice/AIMicrophoneOnboarding.model';
 
 const CHUNK_SIZE = 100;
@@ -39,6 +40,7 @@ const DevContent = () => {
 
   return <>
     <div className='list'>
+      <Link to="/settings/ai-calls">AI Calls</Link>
       <a onClick={() => setCompletedOnboarding(false)}>{Lang.settings.resetOnboarding}</a>
       <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
     </div>
