@@ -3,7 +3,7 @@ import CardsImporter from './CardsImporter';
 import CategoriesImporter from './CategoriesImporter';
 
 import { Collections } from '../data/firebase/Collections';
-import { CreditCardRegistry } from '../data/models/CreditCardRegistry';
+import { CreditCardRegistry } from '../data/models/AccountRegistry/CreditCardRegistry';
 
 import {DespesasDeCartao, DespesasDeCartaoFile} from '../converter/result/xlsx/despesas_de_cartao';
 import Encryptor from '../data/crypt/Encryptor';

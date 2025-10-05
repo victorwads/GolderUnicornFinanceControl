@@ -10,6 +10,7 @@ export class User extends DocumentModel {
   constructor(
     id: string = '',
     public privateHash?: string,
+    public fullyMigrated: boolean = false,
   ) {
     super(id);
   }

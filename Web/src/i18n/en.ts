@@ -123,6 +123,13 @@ const en: Translation = {
     timelineModeStart: 'Start',
     timelineModeNext: 'Next',
     timelineCutoffDay: 'Cut-off day',
+    appVersion: 'App version',
+    checkUpdates: 'Check for updates',
+    checkingUpdates: 'Checking for updates...',
+    newUpdateAvailable: 'A new version is available',
+    installUpdate: 'Reload to update',
+    upToDate: 'You are on the latest version',
+    offlineReady: 'Available offline',
   },
   dashboard: {
     title: 'Dashboard',

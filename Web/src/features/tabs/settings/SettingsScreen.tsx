@@ -10,6 +10,7 @@ import BetaSection from './sections/BetaSection';
 import DevSection from './sections/DevSection';
 import PreferencesSection from './sections/PreferencesSection';
 import { SettingsSection } from './sections/types';
+import AppInfoSection from './sections/AppInfoSection';
 
 const SettingsScreen = () => {
 
@@ -17,6 +18,7 @@ const SettingsScreen = () => {
     FinancesSection,
     AccountSection,
     PreferencesSection,
+    AppInfoSection,
     AppSection,
     BetaSection,
     DevSection,

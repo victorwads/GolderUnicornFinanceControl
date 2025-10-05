@@ -1,0 +1,46 @@
+import { useAppUpdates } from '@components/AppUpdatesProvider';
+import { SettingsSection } from './types';
+
+const AppInfoContent = () => {
+  const { version, updateAvailable, checkingForUpdate, offlineReady, checkForUpdates, applyUpdate } = useAppUpdates();
+
+  return (
+    <div className="AppVersionSection">
+      <div>
+        <strong>{Lang.settings.appVersion}</strong>
+        <span>{version}</span>
+      </div>
+      <div className="AppVersionSection__status">
+        <span>
+          {updateAvailable
+            ? Lang.settings.newUpdateAvailable
+            : offlineReady
+              ? Lang.settings.offlineReady
+              : Lang.settings.upToDate}
+        </span>
+        {updateAvailable && (
+          <button type="button" onClick={applyUpdate}>
+            {Lang.settings.installUpdate}
+          </button>
+        )}
+      </div>
+      <button
+        type="button"
+        className="AppVersionSection__check"
+        disabled={checkingForUpdate}
+        onClick={checkForUpdates}
+      >
+        {checkingForUpdate ? Lang.settings.checkingUpdates : Lang.settings.checkUpdates}
+      </button>
+    </div>
+  );
+};
+
+const section: SettingsSection = {
+  id: 'app-info',
+  title: Lang.settings.appVersion,
+  content: <AppInfoContent />,
+};
+
+export default section;
+

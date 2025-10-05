@@ -122,6 +122,13 @@ const hi: Translation = {
     timelineModeStart: 'प्रारंभ',
     timelineModeNext: 'अगला',
     timelineCutoffDay: 'कट-ऑफ दिन',
+    appVersion: 'ऐप संस्करण',
+    checkUpdates: 'अपडेट जांचें',
+    checkingUpdates: 'अपडेट जांचे जा रहे हैं...',
+    newUpdateAvailable: 'नया संस्करण उपलब्ध है',
+    installUpdate: 'अभी अपडेट करें',
+    upToDate: 'आप नवीनतम संस्करण पर हैं',
+    offlineReady: 'ऑफ़लाइन उपलब्ध',
   },
   dashboard: {
     title: 'डैशबोर्ड',

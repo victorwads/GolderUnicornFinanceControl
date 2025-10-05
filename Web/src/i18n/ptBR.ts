@@ -124,6 +124,13 @@ const ptBR: Translation = {
     timelineModeStart: 'Início',
     timelineModeNext: 'Próximo',
     timelineCutoffDay: 'Dia de corte',
+    appVersion: 'Versão do app',
+    checkUpdates: 'Buscar atualização',
+    checkingUpdates: 'Buscando atualização... ',
+    newUpdateAvailable: 'Nova versão disponível',
+    installUpdate: 'Atualizar agora',
+    upToDate: 'Você está usando a versão mais recente',
+    offlineReady: 'Disponível offline',
   },
   dashboard: {
     title: 'Visão Geral',

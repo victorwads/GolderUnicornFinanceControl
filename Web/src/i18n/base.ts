@@ -120,6 +120,13 @@ export default interface Translation {
     timelineModeNext: string;
     timelineCutoffDay: string;
     resetOnboarding: string;
+    appVersion: string;
+    checkUpdates: string;
+    checkingUpdates: string;
+    newUpdateAvailable: string;
+    installUpdate: string;
+    upToDate: string;
+    offlineReady: string;
   };
   dashboard: {
     title: string;

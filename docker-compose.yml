@@ -5,6 +5,7 @@ services:
       context: ./Web/configs
     volumes:
       - ./Web:/app
+      - .git:/app/.git
       - web_node_modules:/app/node_modules
     command:
       - sh
@@ -51,7 +52,7 @@ services:
       - ./Backend/.env.local:/app/.env.local
       - ./firebase.json:/app/firebase.json
     ports:
-      - "8084:8084" # Auth
+      - "8004:8004" # Auth
       - "8006:8006" # Functions
       - "8008:8008" # Firestore
       - "8010:8010" # Hosting

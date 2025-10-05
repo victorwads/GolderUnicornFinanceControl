@@ -47,7 +47,8 @@ class ProxyManager {
     this.addMultiplexedProxy();
   }
 
-  private static readonly serviceRules: Record<string, (pathname: string) => boolean> = {
+  private static readonly serviceRules: Record<string, (pathname: string, host: string) => boolean> = {
+    ui: (_, host) => host.includes('firebase.local'),
     firestore: (pathname) => pathname.includes('google.firestore.v1.Firestore/'),
     functions: (pathname) => pathname.includes('goldenunicornfc/us-central1/'),
     auth: (pathname) => 
@@ -56,9 +57,9 @@ class ProxyManager {
       pathname.includes('emulator/auth/'),
   };
 
-  getTargetName(pathname: string): string {
+  getTargetName(pathname: string, host: string): string {
     for (const [key, rule] of Object.entries(ProxyManager.serviceRules)) {
-      if (rule(pathname)) return key;
+      if (rule(pathname, host)) return key;
     }
     return 'default';
   }
@@ -81,8 +82,9 @@ class ProxyManager {
     return sourceDomain;
   }
 
-  getOrCreateProxy(path: string): { name: string; target: string; proxy: ProxyServer } {
-    const targetName = this.getTargetName(path);
+  getOrCreateProxy(path: string, host: string = ''): { name: string; target: string; proxy: ProxyServer } {
+    console.log(`🔍 Resolving target for path: ${path} and host: ${host}`);
+    const targetName = this.getTargetName(path, host);
     const target = this.routeTable[targetName];
     if (!this.routeProxies[targetName]) {
       const proxy = ProxyServer.createProxyServer({
@@ -135,7 +137,7 @@ class ProxyManager {
   addMultiplexedProxy(port = 443): void {
     const { cert, key } = this.certInfo;
     const server = https.createServer({ key, cert }, (req, res) => {
-      const { proxy } = this.getOrCreateProxy(req.url || '');
+      const { proxy } = this.getOrCreateProxy(req.url || '', req.headers.host || '');
       proxy.web(req, res);
     });
 
