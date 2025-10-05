@@ -105,7 +105,7 @@ export default function AssistantPage({
         }
         setLoading(false);
       }).catch((error) => {
-        console.error("Erro ao processar comando do assistente", error);
+        console.log("Erro ao processar comando do assistente", error);
         setWarnings((previous) => [...previous, "Erro ao processar comando do assistente"]);
         setLoading(false);
       });

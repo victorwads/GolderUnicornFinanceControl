@@ -88,7 +88,13 @@ export class AssistantTools {
             type: "boolean",
             description: "used to delete the item with the given ID",
           },
-          ...aiToolCreator.properties,
+          ...Object.entries(aiToolCreator.properties).reduce((acc: object, [key, prop]: [string, { [K in R]?: Properties }]) => {
+            acc[key] = {
+              ...prop,
+              description: prop.description + `only if informed by the user ou tool.`,
+            }
+            return acc;
+          }, {} as object),
         },
         required: aiToolCreator.required,
         additionalProperties: false,
