@@ -47,7 +47,7 @@ export const routesDefinition: RoutesDefinition[] = [
   // },
   {
     name: '/groceries',
-    description: 'Grocery list/pantry, here you can manage your shopping items',
+    description: 'Grocery list/pantry, here you can manage your shopping items market',
   },
   {
     name: '/groceries/removed',

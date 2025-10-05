@@ -176,7 +176,7 @@ export class AssistantTools {
           if(missingParams.length) {
             return { success: false, error: `Parâmetros obrigatórios faltando: ${missingParams.join(", ")}.` };
           }
-          return { success: true, result: undefined };
+          return { success: true, result: route };
         }
       },
       {
@@ -190,7 +190,7 @@ export class AssistantTools {
             result: similarity.rank(query, routes, 5)
           }
         },
-        userInfo: (args) => `Procurando telas sobre '${args.userInfo}'`
+        userInfo: (args) => `Procurando telas sobre '${args.query}'`
       },
       {
         name: "ask_aditional_info",
