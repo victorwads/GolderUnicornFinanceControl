@@ -29,7 +29,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
     ];
   }
 
-  public async updateUserData(data: { [key in keyof User]?: string }): Promise<void> {
+  public async updateUserData(data: { [key in keyof User]?: typeof User.prototype[key] }): Promise<void> {
     data.id = this.userId;
     await this.set(data as any, true, false);
   }

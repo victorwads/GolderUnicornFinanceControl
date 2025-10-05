@@ -17,6 +17,7 @@ import {
 } from "@models";
 import { validateRequiredFields } from "@models";
 import { routeMatch, type RoutesDefinition } from "./routesDefinition";
+import BaseRepository from "src/data/repositories/RepositoryBase";
 
 const MAX_RESULTS = 10;
 
@@ -67,7 +68,8 @@ export class AssistantTools {
   }
 
   private createFromMetadata<T>(
-    {aiToolCreator, from}: ModelMetadata<T>
+    {aiToolCreator, from}: ModelMetadata<T>,
+    repository: BaseRepository<any>
   ): AssistantToolDefinition<Result<T>> {
     return {
       name: 'action_create_' + aiToolCreator.name,
@@ -80,9 +82,17 @@ export class AssistantTools {
       },
       execute: async (args) => {
         const validatedFields = validateRequiredFields(args, aiToolCreator.required);
-        if (!validatedFields.success) return validatedFields;
+        if (!validatedFields.success) {
+          return validatedFields
+        }
+        const item = from(args);
+        const updates = Array.isArray(item) ? item : [item];
+        updates.forEach(item => {
+          repository.set(item)
+          console.log("Saved item from repo" + repository.constructor.name, item)
+        });
 
-        return from(args)
+        return item
       },
       userInfo: (_, result) => result ? `(Beta) Criado ${aiToolCreator.name}\n${
         Object.entries(result).map(([key, value]) => `- ${key}: ${JSON.stringify(value, null, 2)}`).join("\n")
@@ -132,9 +142,10 @@ export class AssistantTools {
         execute: this.searchCategories,
         userInfo: (args) => `Procurando categoria '${args.query}'`
       },
-      this.createFromMetadata(TransferRegistry.metadataTransfer),
-      this.createFromMetadata(AccountsRegistry.metadata),
-      this.createFromMetadata(CreditCardRegistry.metadata),
+      this.createFromMetadata(Account.metadata, this.repositories.accounts),
+      this.createFromMetadata(TransferRegistry.metadataTransfer, this.repositories.accountRegistries),
+      this.createFromMetadata(AccountsRegistry.metadata, this.repositories.accountRegistries),
+      this.createFromMetadata(CreditCardRegistry.metadata, this.repositories.creditCardsRegistries),
       {
         name: 'action_navigate_to_screen',
         description: 'Utilizar quando o usuário quer "ir para" ou "ver alguma informação". Sempre use search_navigation_options antes para obter a listagem de telas e seus parâmetros.',

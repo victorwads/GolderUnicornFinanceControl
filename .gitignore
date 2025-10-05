@@ -65,7 +65,8 @@ node_modules/
 *.tgz
 
 # Yarn Integrity file
-.yarn-integrity
+*yarn*
+.pnp*
 
 # dotenv environment variables file
 .env

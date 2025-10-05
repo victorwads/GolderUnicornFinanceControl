@@ -14,6 +14,8 @@ import { addResourceUse } from "./ResourcesUseRepositoryShared";
 
 const queryField: keyof DocumentModel = "_updatedAt";
 
+type RepositoryUpdatedEventListenner<T> = (cache: T[]) => void;
+
 export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
   protected ref: CollectionReference<any>;
@@ -22,6 +24,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   private minimumCacheSize = 0;
   private waitRef: Promise<any> | null = null;
   private inited: boolean = false;
+  private listenners: RepositoryUpdatedEventListenner<Model>[] = [];
   protected waitFinished: boolean = false;
 
   constructor(
@@ -31,6 +34,15 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.collectionName = this.parseCollectionName();
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
+  }
+
+  public addUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
+    this.listenners.push(listenner);
+    return () => this.removeUpdatedEventListenner(listenner);
+  }
+
+  public removeUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
+    this.listenners = this.listenners.filter(l => l !== listenner);
   }
 
   protected get safeUserId(): string {
@@ -140,6 +152,11 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
         local: { writes: 1 },
       }
     });
+
+    this.listenners.forEach(l => {try {
+      l(this.getCache());
+    } catch {}});
+
     return result;
   }
 

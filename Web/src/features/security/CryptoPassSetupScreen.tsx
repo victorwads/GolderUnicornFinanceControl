@@ -19,9 +19,6 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
   const [confirmation, setConfirmation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState<Progress | null>(null);
-
-  const isMigrating = progress !== null;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     const repository = new CryptoPassRepository(uid, onProgress);
@@ -40,7 +37,6 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
 
     setError(null);
     setLoading(true);
-    setProgress(null);
 
     try {
       await repository.initSession(password);
@@ -108,7 +104,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
         </label>
 
         <div className='crypto-pass-buttons'>
-          <button onClick={clearSession} className='cancel'>Sair</button>
+          <button type='reset' onClick={() => clearSession()} className='cancel'>Sair</button>
           <button type="submit" disabled={loading}>
             {loading ? 'Salvando…' : 'Salvar senha'}
           </button>

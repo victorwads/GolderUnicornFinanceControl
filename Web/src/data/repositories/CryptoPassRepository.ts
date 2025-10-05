@@ -130,6 +130,8 @@ export default class CryptoPassRepository {
       delete prog.sub;
       progress({ ...prog });
     }
+
+    await getRepositories().user.updateUserData({ fullyMigrated: true });
     progress(null);
   }
 }
