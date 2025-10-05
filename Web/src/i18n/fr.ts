@@ -209,6 +209,13 @@ const fr: Translation = {
       'Expérimenter la conversion de deux cents BRL en USD et l\'enregistrement de l\'écart pour éprouver les conversions.',
     ],
   },
+  recurrent: {
+    title: 'Récurrences',
+    empty: 'Aucune récurrence trouvée.',
+    day: 'Jour du mois',
+    next: 'Prochaine exécution',
+    typeMonthly: 'Mensuel',
+  },
   registry: {
     title: 'Enregistrement',
     description: 'Description',

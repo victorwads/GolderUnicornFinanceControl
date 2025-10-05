@@ -221,6 +221,13 @@ const ptBR: Translation = {
       'Experimente converter 200 BRL em USD e lancar a diferenca para estressar conversoes.',
     ],
   },
+  recurrent: {
+    title: 'Recorrências',
+    empty: 'Nenhuma recorrência encontrada.',
+    day: 'Dia do mês',
+    next: 'Próxima execução',
+    typeMonthly: 'Mensal',
+  },
   subscriptions,
 };
 

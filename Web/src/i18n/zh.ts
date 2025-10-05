@@ -209,6 +209,13 @@ const zh: Translation = {
       '试着把二百 BRL 转成 USD 并记录差额，用于压力测试换汇流程。',
     ],
   },
+  recurrent: {
+    title: '循环记录',
+    empty: '暂无循环记录。',
+    day: '每月日',
+    next: '下次执行',
+    typeMonthly: '每月',
+  },
   registry: {
     title: '记录',
     description: '描述',

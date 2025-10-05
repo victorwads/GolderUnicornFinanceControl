@@ -41,6 +41,10 @@ export const routesDefinition: RoutesDefinition[] = [
       m: { description: 'view Month key (e.g., 2025-09)', type: 'query_param_string', required: false },
     },
   },
+  {
+    name: '/recurrent',
+    description: 'View the list of recurring registries with their schedule information',
+  },
   // {
   //   name: '/timeline/filters',
   //   description: 'Timeline filter screen for manual adjustment of filters',

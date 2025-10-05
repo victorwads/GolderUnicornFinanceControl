@@ -9,6 +9,7 @@ import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
 import TimelineFilterScreen from '@features/tabs/timeline/TimelineFilterScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
+import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
 import AiCallsScreen from '@features/assistant/AiCallsScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CategoriesScreen from '@features/categories/CategoriesScreen';
@@ -36,6 +37,7 @@ export const privateRouter = createBrowserRouter([
         <TimelineScreen />,
         'accountRegistries', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
       ) },
+      { path: 'recurrent', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentRegistries', 'accounts', 'creditCards', 'categories') },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
       { path: 'settings', element: <SettingsScreen /> },

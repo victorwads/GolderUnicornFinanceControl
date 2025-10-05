@@ -28,7 +28,8 @@ service cloud.firestore {
           'CreditCardInvoices',
           'GroceriesItems',
           'GroceriesProducts',
-          'AiCalls'
+          'AiCalls',
+          'RecurrentRegistries'
           ];
       }
 

@@ -37,7 +37,7 @@ export class CreditCard extends DocumentModel {
         closingDay: { type: "number", description: "Dia do fechamento da fatura do cartão de crédito." },
         dueDay: { type: "number", description: "Dia do vencimento da fatura do cartão de crédito." },
       },
-      required: ["name", "limit", "brand", "accountId", "closingDay", "dueDay"],
+      required: ["name", "limit", "brand", "closingDay", "dueDay"],
     },
     from: (data, repositories) => {
       if (data.id )
@@ -47,9 +47,11 @@ export class CreditCard extends DocumentModel {
         return { success: false, error: `Bandeira do cartão de crédito ${data.brand} não é válida.` };
       }
 
-      const accountId = repositories.accounts.getLocalById(String(data.accountId));
-      if (!accountId) {
-        return { success: false, error: `Conta com ID ${data.accountId} não encontrada.` };
+      if (data.accountId) {
+        const account = repositories.accounts.getLocalById(String(data.accountId));
+        if (!account) {
+          return { success: false, error: `Conta com ID ${data.accountId} não encontrada.` };
+        }
       }
       
       return {

@@ -209,6 +209,13 @@ const es: Translation = {
       'Experimenta convirtiendo doscientos BRL a USD y registrando la diferencia para estresar las conversiones.',
     ],
   },
+  recurrent: {
+    title: 'Recurrencias',
+    empty: 'No se encontraron recurrencias.',
+    day: 'Día del mes',
+    next: 'Próxima ejecución',
+    typeMonthly: 'Mensual',
+  },
   registry: {
     title: 'Registro',
     description: 'Descripción',
