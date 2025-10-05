@@ -19,7 +19,7 @@ import getRepositories, { Repositories } from "@repositories";
 import { Result } from "src/data/models/metadata";
 import { userInfo } from "os";
 
-export const ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+export const ASSISTANT_MODEL: AiModel = "gpt-4.1-nano";
 const HISTORY_LIMIT = 15;
 
 const SYSTEM_PROMPT = `

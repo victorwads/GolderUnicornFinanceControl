@@ -33,7 +33,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
   protected override async fromFirestore(id: string, data: DocumentData): Promise<Model> {
     if (!this.encryptor) throw new Error('Encryptor not initialized');
 
-    if (data && data.encrypted === true) {
+    if (data && data.encrypted) {
       const newData = await this.encryptor.decrypt(data);
       return await super.fromFirestore(id, newData);
     }

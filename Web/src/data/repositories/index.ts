@@ -1,3 +1,8 @@
+import { getCurrentUser } from "@configs";
+import Encryptor, { Hash } from '../crypt/Encryptor';
+export type { Hash } from '../crypt/Encryptor';
+
+export { User } from "./UserRepository";
 import UserRepository from "./UserRepository";
 import BanksRepository from "./BanksRepository";
 import AccountsRepository from './AccountsRepository';
@@ -7,14 +12,11 @@ import CreditCardInvoicesRepository from "./CreditCardsInvoicesRepository";
 import CreditCardsRegistryRepository from "./CreditCardsRegistryRepository";
 import GroceriesProductsRepository from './GroceriesProductsRepository';
 import GroceriesRepository from './GroceriesRepository';
-
-import Encryptor from '../crypt/Encryptor';
-import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import ResourcesUseRepository from './ResourcesUseRepository';
 import CreditcardsRepository from "./CreditcardsRepository";
-import { getCurrentUser } from "@configs";
-
-export  { User } from "./UserRepository";
+import RepositoryWithCrypt from "./RepositoryWithCrypt";
+import CryptoPassRepository from "./CryptoPassRepository";
+export { default as CryptoPassRepository } from './CryptoPassRepository';
 
 export type Repositories = {
   user: UserRepository;
@@ -25,7 +27,6 @@ export type Repositories = {
   creditCards: CreditcardsRepository;
   creditCardsRegistries: CreditCardsRegistryRepository;
   creditCardsInvoices: CreditCardInvoicesRepository;
-  cardsInvoices: CreditCardInvoicesRepository;
   products: GroceriesProductsRepository;
   groceries: GroceriesRepository;
   resourcesUse: ResourcesUseRepository;
@@ -42,7 +43,12 @@ export type RepositoriesInstance = {
 }
 let repositorieInstances: RepositoriesInstance | null = null;
 
-export async function resetRepositories(uid: string): Promise<Repositories> {
+export const getCurrentRepositoryUserId = (): string | null => {
+  if (!repositorieInstances) return null;
+  return repositorieInstances.uid;
+}
+
+export async function resetRepositories(uid: string, secretHash?: Hash | null): Promise<Repositories> {
   if (repositorieInstances?.uid === uid) return repositorieInstances.instances;
 
   const instances: Repositories = {
@@ -54,17 +60,19 @@ export async function resetRepositories(uid: string): Promise<Repositories> {
     creditCards: new CreditcardsRepository(),
     creditCardsRegistries: new CreditCardsRegistryRepository(),
     creditCardsInvoices: new CreditCardInvoicesRepository(),
-    cardsInvoices: new CreditCardInvoicesRepository(),
     products: new GroceriesProductsRepository(),
     groceries: new GroceriesRepository(),
     resourcesUse: new ResourcesUseRepository(),
   }
+  repositorieInstances = { uid, instances }
 
-  debugTimestamp('Modules Initialization', initTime);
-  const initEncryption = Date.now();
-  const encryptorInstance = new Encryptor();
-  await encryptorInstance.init(uid);
-  debugTimestamp('Encryptor initialized', initEncryption);
+  const encryptorInstance = new Encryptor(
+    secretHash ? CryptoPassRepository.ENCRYPTION_VERSION : true
+  );
+  if(secretHash)
+    await encryptorInstance.initWithHash(secretHash);
+  else
+    await encryptorInstance.initWithPass(uid);
 
   const toWait = Object.entries(instances).map(([key, repo]) => {
     if (repo instanceof RepositoryWithCrypt) repo.config(encryptorInstance);
@@ -72,16 +80,15 @@ export async function resetRepositories(uid: string): Promise<Repositories> {
     return repo.reset(uid);
   });
   
-  repositorieInstances = {
-    uid,
-    instances: instances
-  }
   await Promise.all(toWait);
 
   return instances;
 }
 
 export function clearRepositories(): void {
+  if (repositorieInstances) {
+    new CryptoPassRepository(repositorieInstances.uid).clear();
+  }
   repositorieInstances = null;
 }
 
@@ -111,14 +118,8 @@ export async function waitUntilReady(...names: RepoName[]): Promise<void> {
   await Promise.all(toWait.map(name => repos[name].waitUntilReady()));
 }
 
-const initTime = Date.now();
-function debugTimestamp(message: string, init: number): number {
-  const time = Date.now() - init;
-  console.log(`[${time/1000}s] ${message}`);
-  return time;
-}
-
 const user = getCurrentUser()
 if (user) {
-  resetRepositories(user.uid);
+  const sessionHash = CryptoPassRepository.getSyncHash(user.uid);
+  if (sessionHash) resetRepositories(user.uid, sessionHash);
 }

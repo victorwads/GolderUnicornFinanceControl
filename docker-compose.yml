@@ -1,5 +1,6 @@
 services:
   web:
+    restart: always
     build:
       context: ./Web/configs
     volumes:
@@ -13,6 +14,7 @@ services:
       - firebase
 
   proxy:
+    restart: always
     build:
       context: ./Web/configs
     volumes:
@@ -28,20 +30,39 @@ services:
       - sh
       - -c
       - yarn install && yarn proxy
+
+  backend-builder:
+    restart: always
+    image: node:22
+    working_dir: /app
+    volumes:
+      - ./Backend:/app
+      - backend_node_modules:/app/node_modules
+    command: yarn docker
+
   firebase:
+    restart: always
     build:
-      context: ./emulators
+      context: ./Firebase
     volumes:
       - ./Firebase:/app/emulators
       - ./.firebaserc:/app/.firebaserc
+      - ./Backend:/app/Backend
+      - ./Backend/.env.local:/app/.env.local
       - ./firebase.json:/app/firebase.json
     ports:
-      - "8006:8006"   # Auth
-      - "8008:8008"   # Firestore
-      - "4000:4000"   # Emulator UI
-      - "9150:9150"   # ?
+      - "8084:8084" # Auth
+      - "8006:8006" # Functions
+      - "8008:8008" # Firestore
+      - "8010:8010" # Hosting
+      - "4000:4000" # Emulator UI
+      - "4400:4400" # Hub
+      - "4500:4500" # Other reserved ports
+      - "9150:9150" # Other reserved ports
+      - "9299:9299" # ???
     command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data
 
 volumes:
   proxy_node_modules:
   web_node_modules:
+  backend_node_modules:

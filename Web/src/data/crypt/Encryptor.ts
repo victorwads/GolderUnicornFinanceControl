@@ -1,18 +1,29 @@
 import NumericEncryptor from "./NumericEncryptor";
 
-type Map = { [key: string]: any;};
+type Map = { [key: string]: any };
+export type Hash = { buffer: ArrayBuffer; hex: string; }
 
 export default class Encryptor {
+
+  constructor(
+    private readonly version: boolean | number = true
+  ) {}
+
   private static ENCRYPTED_PREFIX = '$O';
 
   private secretKey: CryptoKey | null = null;
   private numberHandler: NumericEncryptor | null = null;
 
-  async init(secretKey: string) {
-    if (!secretKey) throw new Error('A secret key is required for encryption.');
+  async initWithPass(pass: string) {
+    if (!pass) throw new Error('A password is required for encryption.');
 
     this.secretKey = null;
-    const hash = await sha256(secretKey);
+    const hash = await Encryptor.createHash(pass);
+    this.initWithHash(hash);
+  }
+
+  async initWithHash(hash: Hash) {
+    this.secretKey = null;
     this.numberHandler = new NumericEncryptor(hash.hex);
     this.secretKey = await this.generateKey(hash.buffer).then((key) => this.secretKey = key);
   }
@@ -70,7 +81,7 @@ export default class Encryptor {
           if (result === undefined) continue;
           encryptedData[key] = result;
         }
-        encryptedData.encrypted = true;
+        encryptedData.encrypted = this.version;
         return encryptedData;  
     }
     throw new Error(`Invalid crypt value of type: ${typeof data}`);
@@ -91,7 +102,7 @@ export default class Encryptor {
           result = await this.decryptString(data.substring(Encryptor.ENCRYPTED_PREFIX.length));
         break;
       case 'object':
-        if (data.encrypted !== true) break;
+        if (data.encrypted !== this.version) break;
         result = await this.decryptObject(data, customValueDecoder);
         break;
       default:
@@ -126,15 +137,20 @@ export default class Encryptor {
   }
 
   private async decryptString(value: string): Promise<string> {
-    const [ivBase64, encryptedBase64] = value.split(':');
-    const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
-    const encrypted = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv }, this.secretKey!, encrypted
-    );
-    const decoder = new TextDecoder();
-    return decoder.decode(decrypted);
-  };
+    try {
+      const [ivBase64, encryptedBase64] = value.split(':');
+      const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
+      const encrypted = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv }, this.secretKey!, encrypted
+      );
+      const decoder = new TextDecoder();
+      return decoder.decode(decrypted);
+    } catch(err) {
+      console.error("Error decrypting string", err);
+      return value;
+    }
+  }
 
   private async generateKey(hashBuffer: ArrayBuffer): Promise<CryptoKey> {
     return await crypto.subtle.importKey(
@@ -143,16 +159,26 @@ export default class Encryptor {
   }
 
   private invalidKey = new Error('Secret key is not initialized.');
-}
 
-async function sha256(data: string): Promise<{buffer: ArrayBuffer; hex: string;}> {
-  const encoder = new TextEncoder();
-  const keyData = encoder.encode(data);
-  const buffer = await crypto.subtle.digest('SHA-256', keyData);
-  return {
-    buffer,
-    hex: Array.from(new Uint8Array(buffer))
-      .map((byte) => byte.toString(16).padStart(2, '0'))
-      .join(''),
+  public static hashFromHex(hexHash: string): Hash {
+    const { buffer} = Uint8Array
+      .from(hexHash.match(/.{1,2}/g)!
+      .map(byte => parseInt(byte, 16)))
+    return { 
+      hex: hexHash,
+      buffer
+    }
+  }
+
+  public static async createHash(password: string): Promise<Hash> {
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(password);
+    const buffer = await crypto.subtle.digest('SHA-256', keyData);
+    return {
+      buffer,
+      hex: Array.from(new Uint8Array(buffer))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join(''),
+    }
   }
 }

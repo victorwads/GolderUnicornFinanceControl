@@ -73,7 +73,6 @@ export class BalanceService {
       period,
       accountId
     );
-    console.log("Calculating balance for accounts registries:", month, accountId, monthRegistries);
 
     if (this.isFirstMonth(period)) {
       return snapshot;
