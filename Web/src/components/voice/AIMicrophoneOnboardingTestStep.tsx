@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import SpeechRecognition from 'react-speech-recognition';
+import { startListening, stopListening } from './microfone';
 
 const SCORE_THRESHOLD = 70;
 const FAILURE_LIMIT = 5;
@@ -57,8 +59,6 @@ const computeSimilarityScore = (spoken: string, target: string) => {
 interface AIMicrophoneOnboardingTestStepProps {
   titleId: string;
   transcript: string;
-  startNativeListening: () => void;
-  stopNativeListening: () => void;
   resetTranscript: () => void;
   onSuccess: () => void;
   onError: () => void;
@@ -67,8 +67,6 @@ interface AIMicrophoneOnboardingTestStepProps {
 export default function AIMicrophoneOnboardingTestStep({
   titleId,
   transcript,
-  startNativeListening,
-  stopNativeListening,
   resetTranscript,
   onSuccess,
   onError,
@@ -164,16 +162,16 @@ export default function AIMicrophoneOnboardingTestStep({
   }, [onSuccess, phrases, registerFailure, registerSuccess, resetTranscript]);
 
   useEffect(() => {
-    startNativeListening();
+    startListening();
     resetTranscript();
 
     return () => {
       clearEvaluationTimeout();
       clearFeedbackTimeout();
-      stopNativeListening();
+      stopListening();
       resetTranscript();
     };
-  }, [clearEvaluationTimeout, clearFeedbackTimeout, resetTranscript, startNativeListening, stopNativeListening]);
+  }, []);
 
   useEffect(() => {
     if (targetCount === 0) {
