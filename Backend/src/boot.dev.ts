@@ -1,88 +1,96 @@
+
 import {getApps, initializeApp} from "firebase-admin/app";
 import {getAuth, type UserRecord} from "firebase-admin/auth";
 
-const DEV_BOOT_USER_UID = "fUztrRAGqQZ3lzT5AmvIki5x0443";
-const DEV_BOOT_USER_EMAIL = "test@wads.dev";
-const DEV_BOOT_GOOGLE_PROVIDER_ID = "google.com";
-const DEV_BOOT_GOOGLE_PROVIDER_UID = `${DEV_BOOT_USER_UID}-google`;
+const DEV_BOOT_USERS = [
+  {
+    uid: "fUztrRAGqQZ3lzT5AmvIki5x0443",
+    email: "filled@wads.dev",
+    googleProviderId: "google.com",
+    googleProviderUid: "fUztrRAGqQZ3lzT5AmvIki5x0443-google",
+  },
+  {
+    uid: "vdtrRfdsdgdsgT5AmvfeFSSGVSD",
+    email: "empty@wads.dev",
+    googleProviderId: "google.com",
+    googleProviderUid: "vdtrRfdsdgdsgT5AmvfeFSSGVSD-google",
+  },
+];
 
-async function ensureGoogleProviderLink(auth = getAuth(), userRecord?: UserRecord): Promise<void> {
-  const record = userRecord ?? (await auth.getUser(DEV_BOOT_USER_UID));
-
+async function ensureGoogleProviderLink(auth = getAuth(), userRecord: UserRecord, user: typeof DEV_BOOT_USERS[number]): Promise<void> {
+  const record = userRecord;
   const hasGoogleProvider = record.providerData.some(
-    (provider) => provider?.providerId === DEV_BOOT_GOOGLE_PROVIDER_ID,
+    (provider) => provider?.providerId === user.googleProviderId,
   );
-
   if (hasGoogleProvider) {
     return;
   }
-
   try {
-    await auth.updateUser(DEV_BOOT_USER_UID, {
+    await auth.updateUser(user.uid, {
       providerToLink: {
-        providerId: DEV_BOOT_GOOGLE_PROVIDER_ID,
-        uid: DEV_BOOT_GOOGLE_PROVIDER_UID,
-        email: DEV_BOOT_USER_EMAIL,
-        displayName: record.displayName ?? DEV_BOOT_USER_EMAIL,
+        providerId: user.googleProviderId,
+        uid: user.googleProviderUid,
+        email: user.email,
+        displayName: record.displayName ?? user.email,
       },
     });
     console.info(
-      "[dev] Linked Google OAuth provider to Firebase Auth emulator user",
-      DEV_BOOT_USER_EMAIL,
+      `[dev] Linked Google OAuth provider to Firebase Auth emulator user`,
+      user.email,
     );
   } catch (error) {
     const code = (error as {code?: string}).code;
     if (code !== "auth/credential-already-in-use" && code !== "auth/provider-already-linked") {
-      console.error("[dev] Failed to link Google OAuth provider", error);
+      console.error(`[dev] Failed to link Google OAuth provider for ${user.email}`, error);
     }
   }
 }
 
+
 export async function bootstrapDevelopmentAuthUser(): Promise<void> {
   const isDevelopmentRuntime =
     process.env.NODE_ENV === "development" || process.env.FUNCTIONS_EMULATOR === "true";
-
   if (!isDevelopmentRuntime) {
     return;
   }
-
   if (!process.env.FIREBASE_AUTH_EMULATOR_HOST) {
     return;
   }
-
   if (!getApps().length) {
     initializeApp();
   }
-
   const auth = getAuth();
-
-  try {
-    const userRecord = await auth.getUser(DEV_BOOT_USER_UID);
-    if (userRecord.email !== DEV_BOOT_USER_EMAIL) {
-      await auth.updateUser(DEV_BOOT_USER_UID, {email: DEV_BOOT_USER_EMAIL});
+  for (const user of DEV_BOOT_USERS) {
+    let userRecord: UserRecord | undefined;
+    try {
+      userRecord = await auth.getUser(user.uid);
+      if (userRecord.email !== user.email) {
+        await auth.updateUser(user.uid, {email: user.email});
+      }
+      await ensureGoogleProviderLink(auth, userRecord, user);
+      continue;
+    } catch (error) {
+      const code = (error as {code?: string}).code;
+      if (code !== "auth/user-not-found") {
+        console.error(`[dev] Failed to verify bootstrap auth user ${user.email}`, error);
+        continue;
+      }
     }
-    await ensureGoogleProviderLink(auth, userRecord);
-    return;
-  } catch (error) {
-    const code = (error as {code?: string}).code;
-    if (code !== "auth/user-not-found") {
-      console.error("[dev] Failed to verify bootstrap auth user", error);
-      return;
-    }
-  }
-
-  try {
-    await auth.createUser({
-      uid: DEV_BOOT_USER_UID,
-      email: DEV_BOOT_USER_EMAIL,
-      emailVerified: true,
-    });
-    console.info("[dev] Created Firebase Auth emulator user", DEV_BOOT_USER_EMAIL);
-    await ensureGoogleProviderLink();
-  } catch (error) {
-    const code = (error as {code?: string}).code;
-    if (code !== "auth/uid-already-exists" && code !== "auth/email-already-exists") {
-      console.error("[dev] Failed to create bootstrap auth user", error);
+    try {
+      await auth.createUser({
+        uid: user.uid,
+        email: user.email,
+        emailVerified: true,
+      });
+      console.info(`[dev] Created Firebase Auth emulator user`, user.email);
+      // Buscar o registro recém-criado para garantir o link
+      userRecord = await auth.getUser(user.uid);
+      await ensureGoogleProviderLink(auth, userRecord, user);
+    } catch (error) {
+      const code = (error as {code?: string}).code;
+      if (code !== "auth/uid-already-exists" && code !== "auth/email-already-exists") {
+        console.error(`[dev] Failed to create bootstrap auth user ${user.email}`, error);
+      }
     }
   }
 }
