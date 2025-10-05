@@ -1,5 +1,5 @@
 import './CategoriesScreen.css';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { RootCategory } from '@models';
@@ -13,10 +13,10 @@ import { WithRepo } from '@components/WithRepo';
 const CategoriesScreen: React.FC = () => {
   const [categories, setCategories] = useState<RootCategory[]>([]);
 
-  const fetchCategories = () => {
+  const fetchCategories = useCallback(() => {
     const { categories } = getRepositories();
     setCategories(categories.getAllRoots());
-  };
+  }, []);
 
   return <ModalScreen title={Lang.categories.title}><WithRepo names={['categories']} onReady={fetchCategories}>
       <ul className="categories-list">

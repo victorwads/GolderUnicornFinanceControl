@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getAuth, signOut } from 'firebase/auth';
 import JSZip from 'jszip';
 
 import getRepositories, { Repositories } from '@repositories';
 import { DocumentModel } from '@models';
 import { Progress, SettingsSection } from './types';
+import { clearSession } from '@utils/clearSession';
 
 const AccountContent = () => {
   const [progress, setProgress] = React.useState<Progress | null>(null);
@@ -37,7 +37,7 @@ const AccountContent = () => {
     <div className='list'>
       <Link to="/resource-usage">Ver uso de recursos</Link>
       <a onClick={exportData}>{Lang.settings.exportData}</a>
-      <a onClick={() => signOut(getAuth())}>{Lang.settings.logout}</a>
+      <a onClick={() => clearSession()}>{Lang.settings.logout}</a>
     </div>
     {progress && <div className="progress-box">
       <div className="progress-label">

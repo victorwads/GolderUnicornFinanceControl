@@ -22,6 +22,8 @@ type SaveOptions = {
 
 export default class CryptoPassRepository {
 
+  public static readonly ENCRYPTION_VERSION = 1;
+
   constructor(
     public uid: string = getCurrentUser()?.uid || ''
   ) {}
@@ -34,19 +36,30 @@ export default class CryptoPassRepository {
     return SESSION_SECRET_KEY + this.uid;
   }
 
-  public static isAvailable(uid: string): boolean {
+  private async getUserPrivateHash(): Promise<string|undefined> {
+    return (await getRepositories().user.getUserData()).privateHash;
+  }
+
+  public static isAvailable(uid?: string): boolean {
+    if(!uid) return false;
     return sessionStorage.getItem(SESSION_SECRET_KEY + uid) !== null;
   }
 
-  public async getHash(): Promise<Hash | null> {
-    const sessionHashHex = sessionStorage.getItem(this.SESSION_SECRET_KEY);
-    if (sessionHashHex) {
+  public static getSyncHash(uid: string): Hash | null {
+    let sessionHashHex = sessionStorage.getItem(SESSION_SECRET_KEY + uid);
+    if (sessionHashHex)
       return Encryptor.hashFromHex(sessionHashHex);
+    return null;
+  }
+
+  public async getHash(): Promise<Hash | null> {
+    let sessionHashHex = CryptoPassRepository.getSyncHash(this.uid);
+    if (sessionHashHex) { 
+      return sessionHashHex;
     }
 
     const token = localStorage.getItem(this.STORAGE_TOKEN_KEY);
     if (!token) return null;
-
     return await this.decryptHash(token);
   }
 
@@ -54,16 +67,25 @@ export default class CryptoPassRepository {
     if (!pass) throw new Error('Informe uma senha de criptografia.');
 
     const secretHash = await Encryptor.createHash(pass);
-    const token = await this.encryptPassword(secretHash.hex);
-    localStorage.setItem(this.STORAGE_TOKEN_KEY, token);
-    sessionStorage.setItem(this.SESSION_SECRET_KEY, secretHash.hex);
+    const { user } = getRepositories();
 
-    const { privateHash } = await getRepositories().user.getUserData();
+    const newEncryptor = new Encryptor(CryptoPassRepository.ENCRYPTION_VERSION);
+    await newEncryptor.initWithHash(secretHash);
+
+    user.config(newEncryptor);
+
+    const { privateHash } = await user.getUserData();
     if (!privateHash) {
-      await this.updateEncryption(secretHash, options?.onProgress);
+      await this.updateEncryption(secretHash, newEncryptor, options?.onProgress);
     } else if (privateHash !== secretHash.hex) {
       throw new Error('Senha de criptografia inválida.');
     }
+
+    this.setEncryptor(newEncryptor);
+
+    const token = await this.encryptPassword(secretHash.hex);
+    localStorage.setItem(this.STORAGE_TOKEN_KEY, token);
+    sessionStorage.setItem(this.SESSION_SECRET_KEY, secretHash.hex);
   }
 
   public clear(): void {
@@ -88,34 +110,45 @@ export default class CryptoPassRepository {
     return Encryptor.hashFromHex(secretHash);
   }
 
-  async updateEncryption(secretHash: Hash, onProgress?: ProgressHandler) {
-    const allRepos = getRepositories();
-    await waitUntilReady(...Object.keys(allRepos) as RepoName[]);
+  async setEncryptor(newEncryptor: Encryptor) {
+    const repos = Object
+      .values(getRepositories())
+      .filter((repo) => repo instanceof RepositoryWithCrypt)
+      .forEach((repo) => repo.config(newEncryptor));
+  }
 
-    const newEncryptor = new Encryptor();
-    await newEncryptor.initWithHash(secretHash);
+  async updateEncryption(secretHash: Hash, newEncryptor: Encryptor, onProgress?: ProgressHandler) {
+    const repos = Object
+      .entries(getRepositories())
+      .filter(([, repo]) => repo instanceof RepositoryWithCrypt);
 
+    let prog: Progress = { current: 0, max: repos.length, filename: 'Carregando...', type: 'resave' };
+    const progress = (p: Progress | null) => 
+      onProgress?.(p ? { ...p } : null);
+    progress(prog);
+  
 
-    const repos = Object.entries(allRepos).filter(([, repo]) => repo instanceof RepositoryWithCrypt);
-    let prog: Progress = { current: 0, max: repos.length, filename: '', type: 'resave' };
-    onProgress?.(prog);
     for (const [key, repo] of repos) {
-      const all: unknown[] = (repo as any).getCache();
-      (repo as RepositoryWithCrypt<any>).config(newEncryptor);
       prog.filename = key;
+      progress({ ...prog });
+
+      console.log('Re-encrypting', key);
+      await waitUntilReady(key as RepoName);
+
+      const all: unknown[] = (repo as any).getCache();
       prog.sub = { current: 0, max: all.length };
-      onProgress?.({ ...prog });
+      (repo as RepositoryWithCrypt<any>).config(newEncryptor);
       
       while (prog.sub.current < all.length) {
         const chunk = all.slice(prog.sub.current, prog.sub.current + CHUNK_SIZE);
         await (repo as RepositoryWithCrypt<any>).saveAll(chunk);
         prog.sub.current += chunk.length;
-        onProgress?.({ ...prog });
+        progress({ ...prog });
       }
       prog.current += 1;
-      onProgress?.({ ...prog });
+      progress({ ...prog });
     }
-    onProgress?.(null);
+    progress(null);
 
     await getRepositories().user.updateUserData({ privateHash: secretHash.hex });
   }

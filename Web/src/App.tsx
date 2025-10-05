@@ -1,5 +1,5 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
@@ -28,11 +28,11 @@ import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
-
-import { clearRepositories, CryptoPassRepository, resetRepositories } from '@repositories';
-import { getCurrentUser, saveUser } from '@configs';
-import { clearServices, resetServices } from '@services';
 import CryptoPassSetupScreen from '@features/security/CryptoPassSetupScreen';
+
+import { getCurrentUser, saveUser } from '@configs';
+import { clearRepositories, CryptoPassRepository, getCurrentRepositoryUserId, resetRepositories } from '@repositories';
+import { clearServices, resetServices } from '@services';
 
 const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -79,6 +79,8 @@ const publicRouter = createBrowserRouter([
   { path: '*', element: <LoginScreen /> },
 ])
 
+let userID = getCurrentRepositoryUserId();
+
 function App() {
 
   const [user, setUser] = useState(() => getCurrentUser())
@@ -87,21 +89,27 @@ function App() {
 
   useEffect(() => {
     onAuthStateChanged(getAuth(), async (currentUser) => {
-      if(currentUser) {
-        const passRepository = new CryptoPassRepository(currentUser.uid);
-        const savedHash = await passRepository.getHash();
+      if (currentUser) {
+        if (currentUser.uid !== userID) {
+          userID = currentUser.uid;
+          const passRepository = new CryptoPassRepository(currentUser.uid);
+          const savedHash = await passRepository.getHash();
 
-        if(!savedHash) setNeedPass(true);
+          const repos =   await resetRepositories(currentUser.uid, savedHash);
+          resetServices(currentUser.uid, repos);
 
-        const repos = await resetRepositories(currentUser.uid, savedHash);
-        resetServices(currentUser.uid, repos);
+          setNeedPass(!savedHash);
+        }
       } else {
+        userID = null;
+        setNeedPass(false);
         clearRepositories();
         clearServices();
       }
 
       saveUser(currentUser);
       setUser(currentUser)
+      
     })
   }, [])
 

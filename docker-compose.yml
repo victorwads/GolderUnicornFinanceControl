@@ -54,8 +54,13 @@ services:
       - "8084:8084" # Auth
       - "8006:8006" # Functions
       - "8008:8008" # Firestore
+      - "8010:8010" # Hosting
       - "4000:4000" # Emulator UI
-    command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data --only firestore,functions,ui,auth
+      - "4400:4400" # Hub
+      - "4500:4500" # Other reserved ports
+      - "9150:9150" # Other reserved ports
+      - "9299:9299" # ???
+    command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data
 
 volumes:
   proxy_node_modules:

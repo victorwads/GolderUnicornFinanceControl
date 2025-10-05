@@ -6,6 +6,7 @@ import { CryptoPassRepository } from '@repositories';
 import { Progress } from '../../data/crypt/progress';
 
 import './CryptoPassSetupScreen.css';
+import { clearFirestore } from '@configs';
 
 type Props = {
   uid: string;
@@ -28,8 +29,8 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
     event.preventDefault();
     if (loading) return;
 
-    if (!password) {
-      setError('Informe uma senha para proteger seus dados.');
+    if (!password || password.length < 8) {
+      setError('Informe uma senha de pelo menos 8 caracteres para proteger seus dados.');
       return;
     }
     if (password !== confirmation) {
@@ -47,12 +48,45 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
       });
       onCompleted();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Não foi possível salvar a senha.';
-      setError(message);
+      if (err instanceof Error) {
+        setError(err.message || err.name);
+      } else {
+        setError('Erro desconhecido.');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return <div className="crypto-pass-screen">
+      <div className="crypto-pass-card">
+        {error && <div className="crypto-pass-error">{error}</div>}
+
+        <div className="crypto-pass-status">
+          <Loading show />
+          {isMigrating ? 'Migrando dados existentes…' : 'Configurando criptografia…'}
+        </div>
+
+        {progress && (
+          <div className="crypto-pass-progress">
+            <strong>Processando {progress.filename}</strong>
+            <div className="crypto-pass-progress-sub">
+              {`${progress.current} / ${progress.max}`}
+            </div>
+            <progress value={progress.current} max={progress.max} />
+            <div className="crypto-pass-progress-sub">
+              { progress.sub
+                ? `Criptografando ${progress.sub.current} / ${progress.sub.max}`
+                : 'Carregando dados...'
+              }
+            </div>
+            {progress.sub && <progress value={progress.sub.current || 0} max={progress.sub.max || 0} />}
+          </div>
+        )}
+      </div>
+    </div>
+  }
 
   return (
     <div className="crypto-pass-screen">
@@ -97,29 +131,9 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
           {loading ? 'Salvando…' : 'Salvar senha e continuar'}
         </button>
 
+        <button onClick={clearFirestore}>Sair</button>
+
         {error && <div className="crypto-pass-error">{error}</div>}
-
-        {(loading || isMigrating) && (
-          <div className="crypto-pass-status">
-            <Loading show />
-            {isMigrating ? 'Migrando dados existentes…' : 'Configurando criptografia…'}
-          </div>
-        )}
-
-        {progress && (
-          <div className="crypto-pass-progress">
-            <strong>{progress.filename}</strong>
-            <progress value={progress.current} max={progress.max} />
-            {progress.sub && (
-              <>
-                <div className="crypto-pass-progress-sub">
-                  {progress.sub.current}/{progress.sub.max}
-                </div>
-                <progress value={progress.sub.current} max={progress.sub.max} />
-              </>
-            )}
-          </div>
-        )}
       </form>
     </div>
   );

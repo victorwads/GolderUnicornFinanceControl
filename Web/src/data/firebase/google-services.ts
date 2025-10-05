@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { connectAuthEmulator, getAuth, User } from "firebase/auth";
+import { connectAuthEmulator, getAuth, signOut, User } from "firebase/auth";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { clearIndexedDbPersistence, getFirestore, terminate } from "firebase/firestore";
 import { CACHE_SIZE_UNLIMITED, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
@@ -22,19 +22,20 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
 export const functions = getFunctions(app);
-const auth = getAuth();
+export const auth = getAuth();
 
 let firestoreAddConfig = {};
 if (window.isDevelopment) {
-  const { protocol, hostname, port } = window.location;
+  const port = window.port;
+  const { protocol, hostname } = window.location;
 
   firestoreAddConfig = {
     host: `${hostname}:${port}`,
     ssl: window.isSsl,
   };
 
-  connectFunctionsEmulator(functions, hostname, Number(port));
-  connectAuthEmulator(auth, `https://${hostname}:${port}`);
+  connectFunctionsEmulator(functions, hostname, port);
+  connectAuthEmulator(auth, `https://${hostname}:${port}`, { disableWarnings: true });
   (functions as any).emulatorOrigin = `${protocol}//${hostname}`;
 }
 
@@ -56,7 +57,6 @@ export async function clearFirestore() {
   const db = getFirestore(app);
   await terminate(db)
   await clearIndexedDbPersistence(db);
-  window.location.reload();
 }
 
 auth.useDeviceLanguage();

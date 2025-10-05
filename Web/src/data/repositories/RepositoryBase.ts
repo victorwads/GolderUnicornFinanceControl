@@ -59,7 +59,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected async waitInit(): Promise<void> {
     if (Object.keys(this.cache || {}).length === this.minimumCacheSize) {
       await this.handleWait(this.getAll());
-      console.warn(`Repository ${this.collectionName} initialized`);
+      console.warn(`Repository ${this.collectionName} initialized with ${Object.keys(this.cache).length} items`);
       // const length = Object.keys(this.cache).length;
       // console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
     }

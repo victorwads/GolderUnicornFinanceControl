@@ -4,6 +4,11 @@ type Map = { [key: string]: any };
 export type Hash = { buffer: ArrayBuffer; hex: string; }
 
 export default class Encryptor {
+
+  constructor(
+    private readonly version: boolean | number = true
+  ) {}
+
   private static ENCRYPTED_PREFIX = '$O';
 
   private secretKey: CryptoKey | null = null;
@@ -76,7 +81,7 @@ export default class Encryptor {
           if (result === undefined) continue;
           encryptedData[key] = result;
         }
-        encryptedData.encrypted = true;
+        encryptedData.encrypted = this.version;
         return encryptedData;  
     }
     throw new Error(`Invalid crypt value of type: ${typeof data}`);
@@ -97,7 +102,7 @@ export default class Encryptor {
           result = await this.decryptString(data.substring(Encryptor.ENCRYPTED_PREFIX.length));
         break;
       case 'object':
-        if (data.encrypted !== true) break;
+        if (data.encrypted !== this.version) break;
         result = await this.decryptObject(data, customValueDecoder);
         break;
       default:
@@ -132,15 +137,20 @@ export default class Encryptor {
   }
 
   private async decryptString(value: string): Promise<string> {
-    const [ivBase64, encryptedBase64] = value.split(':');
-    const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
-    const encrypted = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv }, this.secretKey!, encrypted
-    );
-    const decoder = new TextDecoder();
-    return decoder.decode(decrypted);
-  };
+    try {
+      const [ivBase64, encryptedBase64] = value.split(':');
+      const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
+      const encrypted = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv }, this.secretKey!, encrypted
+      );
+      const decoder = new TextDecoder();
+      return decoder.decode(decrypted);
+    } catch(err) {
+      console.error("Error decrypting string", err);
+      return value;
+    }
+  }
 
   private async generateKey(hashBuffer: ArrayBuffer): Promise<CryptoKey> {
     return await crypto.subtle.importKey(
