@@ -36,34 +36,17 @@ export class AccountsRegistry extends Registry {
       description:
         "Registra uma movimentação em conta corrente ou equivalente. sempre valide se o usuário comprou mesmo no debito ou se comrou no crédito e use a ferramenta adequada.",
       properties: {
+        ...Registry.metadataBase.aiToolCreator.properties,
         accountId: {
           type: "string",
           description:
             "Identificador da conta onde o lançamento será aplicado.",
-        },
-        value: {
-          type: "number",
-          description:
-            "Valor numérico do lançamento; use negativo para despesas e positivo para receitas.",
-        },
-        description: {
-          type: "string",
-          description: "Breve descrição do que foi comprado ou recebido.",
-        },
-        date: {
-          type: "string",
-          description: "Data do lançamento",
         },
         paid: {
           type: "boolean",
           description:
             "Indica se o lançamento já está pago/compensado ou é previsão. O padrão é falso (previsão).",
         },
-        categoryId: {
-          type: "string",
-          description: Category.idAiExtractor,
-        },
-        observation: { type: "string", description: Registry.ai.observation },
       },
       required: ["accountId", "value", "description", "date"],
     },

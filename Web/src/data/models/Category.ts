@@ -1,4 +1,4 @@
-import CategoriesRepository from '../repositories/CategoriesRepository';
+import { iconNamesList } from '@components/Icons';
 import { DocumentModel } from './DocumentModel';
 import { ModelMetadata } from './metadata';
 
@@ -13,18 +13,53 @@ export class Category extends DocumentModel {
     super(id);
   }
 
-  static idAiExtractor = "Identificador da categoria associada ao lançamento. você pode testar varios termos no search_categories para ver se tem uma categoria que faça sentido e usar o ID dela. se não encontrar, deixe em branco.";
-
   static metadata: ModelMetadata<Category> = {
     aiToolCreator: {
-      description: "Cria ou atualiza uma categoria do usuário.",
       name: "categories",
-      properties: {},
-      required: [],
+      description: "Cria ou atualiza uma categoria do usuário para organizar lançamentos financeiros. Cada categoria pode ter nome, ícone, cor e categoria pai.",
+      properties: {
+        name: {
+          type: "string",
+          description: "Nome da categoria, como 'Alimentação', 'Transporte', etc."
+        },
+        icon: {
+          type: "string",
+          description: "Ícone representativo da categoria, deve ser o nome de um ícone da font awesome somente o suffixo (sem o 'fa-' ou 'fas fa-'). exemplo: 'burger', 'money-bill'..."
+        },
+        color: {
+          type: "string",
+          description: "Cor associada à categoria, em formato hexadecimal ou nome."
+        },
+        parentId: {
+          type: "string",
+          description: "Identificador da categoria pai, caso esta seja uma subcategoria."
+        },
+      },
+      required: ["name", "icon", "color"],
     },
-    from: (data: any) => 
-      ({ success: false, error: "Category manipulation not implemented" }
-    ),
+    from: (data, repositories) => {
+      const { name, icon, color, parentId } = data;
+      if (icon && !iconNamesList.includes(String(icon))) {
+        return { success: false, error: `Ícone inválido. Use um dos nomes válidos da font awesome.` };
+      }
+      if (color && !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(String(color))) {
+        return { success: false, error: "Cor inválida. Use formato hexadecimal, exemplo: #FFAA00." };
+      }
+      if (parentId) {
+        const parent = repositories.categories.getLocalById(String(parentId));
+        if (!parent) {
+          return { success: false, error: `Categoria pai com id ${parentId} não encontrada.` };
+        }
+      }
+
+      return {
+        success: true,
+        result: new Category(
+          "", String(name), 
+          String(icon), String(color)  , String(parent)
+        )
+      };
+    },
   }
 }
 

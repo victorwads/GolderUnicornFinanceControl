@@ -17,6 +17,7 @@ import CreditcardsRepository from "./CreditcardsRepository";
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import CryptoPassRepository from "./CryptoPassRepository";
 import AiCallsRepository from "./AiCallsRepository";
+import RecurrentRegistryRepository from "./RecurrentRegistryRepository";
 export { default as CryptoPassRepository } from './CryptoPassRepository';
 
 export type Repositories = {
@@ -25,6 +26,7 @@ export type Repositories = {
   categories: CategoriesRepository;
   accounts: AccountsRepository;
   accountRegistries: AccountsRegistryRepository;
+  recurrentRegistries: RecurrentRegistryRepository;
   creditCards: CreditcardsRepository;
   creditCardsRegistries: CreditCardsRegistryRepository;
   creditCardsInvoices: CreditCardInvoicesRepository;
@@ -60,6 +62,7 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
     categories: new CategoriesRepository(),
     accounts: new AccountsRepository(),
     accountRegistries: new AccountsRegistryRepository(),
+    recurrentRegistries: new RecurrentRegistryRepository(),
     creditCards: new CreditcardsRepository(),
     creditCardsRegistries: new CreditCardsRegistryRepository(),
     creditCardsInvoices: new CreditCardInvoicesRepository(),

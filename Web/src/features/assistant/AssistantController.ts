@@ -248,7 +248,10 @@ export default class AssistantController {
 
       this.trackLog(context, finalSnapshot);
 
-      const aiCall = new AiCall("", context.log as object[]);
+      const aiCall = new AiCall(
+        new Date().toISOString().replace(/:/g, ""),
+        context.log as object[]
+      );
       await this.repositories.aiCalls.set(aiCall);
     } catch (error) {
       console.error("Failed to persist AI call log", error);

@@ -17,10 +17,12 @@ import {
   DocumentModel,
   Category,
   Bank,
+  AccountRecurrentRegistry as RecurrentRegistry,
 } from "@models";
 import { validateRequiredFields } from "@models";
 import { routeMatch, type RoutesDefinition } from "./routesDefinition";
 import BaseRepository from "src/data/repositories/RepositoryBase";
+import { iconNamesList } from "@components/Icons";
 
 const MAX_RESULTS = 10;
 
@@ -201,6 +203,19 @@ export class AssistantTools {
           additionalProperties: false,
         },
       },
+      {
+        name: `search_icon_name`,
+        description: `Search for font awesome icons by term based on textual similarity.`,
+        parameters: this.createSearchParamsSchemema(),
+        execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => {
+          return {
+            result: new Similarity<string>(n => n)
+              .rank(query, iconNamesList, this.capLimit(limit))
+              .map(rank => rank.item),
+          };
+        },
+        userInfo: (args) => `Procurando Ícone '${args.query}'`
+      },
       this.createSearchMetadata(
         Account.metadata, "Conta", this.repositories.accounts,
         (item) => `${item.name} - ${item.type}`,
@@ -225,9 +240,11 @@ export class AssistantTools {
         (item) => item.name,
         ({ id, name }) => ({ id, name }),
       ),
+      this.createFromMetadata(Category.metadata, this.repositories.categories),
       this.createFromMetadata(Account.metadata, this.repositories.accounts),
-      this.createFromMetadata(TransferRegistry.metadata2, this.repositories.accountRegistries),
       this.createFromMetadata(AccountsRegistry.metadata, this.repositories.accountRegistries),
+      this.createFromMetadata(TransferRegistry.metadata2, this.repositories.accountRegistries),
+      this.createFromMetadata(RecurrentRegistry.metadata2, this.repositories.recurrentRegistries),
       this.createFromMetadata(CreditCard.metadata, this.repositories.creditCards),
       this.createFromMetadata(CreditCardRegistry.metadata, this.repositories.creditCardsRegistries),
     ];
