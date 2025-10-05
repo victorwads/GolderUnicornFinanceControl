@@ -18,13 +18,13 @@ console.log(`User ID: ${userId}`);
 async function main() {
 
   const encryptor = new Encryptor();
-  await encryptor.init(userId);
+  await encryptor.initWithPass(userId);
 
   const banks = new BanksImporter(current);
   await banks.loadFrom(prod);
   await banks.process();
 
-  const userPath = 'Users/' + userId;
+  const userPath = `Users/${userId}/`;
   const categorias = new CategoriesImporter(current, userPath, encryptor);  
   await categorias.process();
 
