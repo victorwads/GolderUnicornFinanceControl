@@ -1,4 +1,5 @@
 import { DocumentModel } from "./DocumentModel";
+import { ModelMetadata } from "./metadata";
 
 export class CreditCard extends DocumentModel {
   constructor(
@@ -13,5 +14,17 @@ export class CreditCard extends DocumentModel {
     public importInfo?: any
   ) { 
     super(id);
+  }
+
+  static metadata: ModelMetadata<CreditCard> = {
+    aiToolCreator: {
+      description: "Cria ou atualiza um cartão de crédito.",
+      name: "credit_card",
+      properties: {},
+      required: [],
+    },
+    from: (data: any) => 
+      ({ success: false, error: "CreditCard manipulation not implemented" }
+    ),
   }
 }

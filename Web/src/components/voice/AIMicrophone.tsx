@@ -127,7 +127,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       : ''
   );
   
-  console.log('AI Comp render:');
   return (
     <GlassContainer className={"speech-marquee" + (compact ? ' compact' : '')}>
       {processingQueue.length > 0 && <div>

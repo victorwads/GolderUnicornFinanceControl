@@ -25,7 +25,7 @@ export class Account extends DocumentModel {
   static metadata: ModelMetadata<Account> = {
     aiToolCreator: {
       name: "account",
-      description: "Cria uma conta bancária.",
+      description: "Cria, atualiza ou remove uma conta bancária",
       properties: {
         name: {
           type: "string",
@@ -47,15 +47,36 @@ export class Account extends DocumentModel {
       },
       required: ["name", "bankId", "type"],
     },
-    from: (data: Record<string, unknown>) => {
+    from: (data, repositories) => {
+      const { id, bankId, name, initialBalance, type } = data;
+
+      const bank = repositories.banks.getLocalById(String(bankId));
+      if (!bank) return { success: false, error: `Banco com ID ${bankId} não encontrado.` };
+
+      if (id) {
+        const existing = repositories.accounts.getLocalById(String(id));
+        if (existing) {
+          return { 
+            success: true,
+            result: {
+              id,
+              name: String(name || existing.name),
+              initialBalance: Number(initialBalance || existing.initialBalance) || 0,
+              bankId: String(bankId || existing.bankId),
+              type: String(type || existing.type) as AccountType,
+            }
+          };
+        }
+      }
+
       return {
         success: true,
         result: new Account(
           "",
-          String(data.name),
-          Number(data.initialBalance) || 0,
-          String(data.bankId),
-          String(data.type) as AccountType
+          String(name),
+          Number(initialBalance) || 0,
+          String(bankId),
+          String(type) as AccountType
         ),
       };
     },

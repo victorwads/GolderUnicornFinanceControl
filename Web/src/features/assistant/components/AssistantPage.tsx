@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import AIMicrophone, {
-  startListening,
-  stopListening,
-  type AIMicrophoneProps,
-} from "@components/voice/AIMicrophone";
+import AIMicrophone, { type AIMicrophoneProps } from "@components/voice/AIMicrophone";
 import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
 import {
@@ -19,9 +16,9 @@ import type { AssistantToolCallLog } from "../tools/types";
 import ToolCallLogList from "./ToolCallLogList";
 
 import "./AssistantPage.css";
-import GlassContainer from "@components/GlassContainer";
-import { useNavigate } from "react-router-dom";
 import Icon from "@components/Icons";
+import GlassContainer from "@components/GlassContainer";
+import { startListening, stopListening } from "@components/voice/microfone";
 
 export default function AssistantPage({
   compact = false,

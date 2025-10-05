@@ -1,11 +1,11 @@
 import type { ChatCompletionFunctionTool } from "openai/resources/index";
 
-import { Similarity } from "../utils/stringSimilarity";
+import { Similarity, RankedResult } from '../utils/stringSimilarity';
 import type {
   AssistantToolDefinition,
   AssistantToolName,
 } from "./types";
-import { waitUntilReady, type Repositories } from "@repositories";
+import { RepoName, waitUntilReady, type Repositories } from "@repositories";
 import {
   Account,
   CreditCard,
@@ -14,6 +14,9 @@ import {
   CreditCardRegistry,
   ModelMetadata,
   Result,
+  DocumentModel,
+  Category,
+  Bank,
 } from "@models";
 import { validateRequiredFields } from "@models";
 import { routeMatch, type RoutesDefinition } from "./routesDefinition";
@@ -76,27 +79,50 @@ export class AssistantTools {
       description: aiToolCreator.description,
       parameters: {
         type: "object",
-        properties: aiToolCreator.properties,
+        properties: {
+          id: {
+            type: "string",
+            description: `ID to manipulate an existing item. Use search_${aiToolCreator.name} to obtain the ID.`,
+          },
+          remove: {
+            type: "boolean",
+            description: "used to delete the item with the given ID",
+          },
+          ...aiToolCreator.properties,
+        },
         required: aiToolCreator.required,
         additionalProperties: false,
       },
       execute: async (args) => {
+        if (args.remove && args.id) {
+          await repository.delete(String(args.id));
+          return { success: true, result: "Registro excluído" }
+        }
+
         const validatedFields = validateRequiredFields(args, aiToolCreator.required);
         if (!validatedFields.success) {
           return validatedFields
         }
-        const item = from(args);
-        const updates = Array.isArray(item) ? item : [item];
+
+        const result = from(args, this.repositories);
+        if (!result.success) return result
+
+        const updates = Array.isArray(result.result) ? result.result : [result.result];
         updates.forEach(item => {
-          repository.set(item)
+          repository.set(item, true)
           console.log("Saved item from repo" + repository.constructor.name, item)
         });
 
-        return item
+        return result
       },
-      userInfo: (_, result) => result ? `(Beta) Criado ${aiToolCreator.name}\n${
-        Object.entries(result).map(([key, value]) => `- ${key}: ${JSON.stringify(value, null, 2)}`).join("\n")
-      }` : undefined
+      userInfo: (_, result) => result ? 
+        typeof result === "string" ? result :
+        `(Beta) Criado ${aiToolCreator.name}\n${Object
+          .entries(result)
+          .map(([key, value]) => 
+            `- ${key}: ${JSON.stringify(value, null, 2)}`
+          ).join("\n")
+        }` : undefined
     };
   }
 
@@ -114,38 +140,6 @@ export class AssistantTools {
         execute: async () => this.definitions.map(def => def.name),
         userInfo: (args) => `Procurando ações disponíveis.`
       },
-      {
-        name: "search_accounts",
-        description: "Busca possíveis contas bancárias pelo termo informado.",
-        parameters: this.createSearchParamsSchemema(
-          "Termo de busca (nome, banco, apelido etc.)"
-        ),
-        execute: this.searchAccounts,
-        userInfo: (args) => `Procurando conta '${args.query}'`
-      },
-      {
-        name: "search_credit_cards",
-        description: "Busca possíveis cartões de crédito pelo termo informado.",
-        parameters: this.createSearchParamsSchemema(
-          "Termo de busca (banco, final do cartão, apelido etc.)"
-        ),
-        execute: this.searchCreditCards,
-        userInfo: (args) => `Procurando cartão '${args.query}'`
-      },
-      {
-        name: "search_categories",
-        description:
-          "Sugere possíveis categorias com base em similaridade textual.",
-        parameters: this.createSearchParamsSchemema(
-          "Termo para buscar categorias."
-        ),
-        execute: this.searchCategories,
-        userInfo: (args) => `Procurando categoria '${args.query}'`
-      },
-      this.createFromMetadata(Account.metadata, this.repositories.accounts),
-      this.createFromMetadata(TransferRegistry.metadataTransfer, this.repositories.accountRegistries),
-      this.createFromMetadata(AccountsRegistry.metadata, this.repositories.accountRegistries),
-      this.createFromMetadata(CreditCardRegistry.metadata, this.repositories.creditCardsRegistries),
       {
         name: 'action_navigate_to_screen',
         description: 'Utilizar quando o usuário quer "ir para" ou "ver alguma informação". Sempre use search_navigation_options antes para obter a listagem de telas e seus parâmetros.',
@@ -180,10 +174,7 @@ export class AssistantTools {
       {
         name: "search_navigation_options",
         description: "Lista telas e visualizações disponíveis e seus parâmetros para navegação.",
-        parameters: this.createSearchParamsSchemema(
-          "Termo para buscar alguma rota. sempre em inglês.",
-          "O Termo porem no idioma do usuário."
-        ),
+        parameters: this.createSearchParamsSchemema(),
         execute: async ({ query }) => {
           const routes = (await import("./routesDefinition")).stringRoutesDefinition;
           const similarity = new Similarity<string>(route => route);
@@ -204,94 +195,73 @@ export class AssistantTools {
           additionalProperties: false,
         },
       },
+      this.createSearchMetadata(
+        Account.metadata, "Conta", this.repositories.accounts,
+        (item) => `${item.name} - ${item.type}`,
+        ({ id, name, type }) => ({ id, name, type }),
+        { filter: (item) => !item.archived },
+      ),
+      this.createSearchMetadata(
+        CreditCard.metadata, "Cartão de Crédito", this.repositories.creditCards,
+        (item) => `${item.name} - ${item.brand}`,
+        ({ id, name, brand }) => ({ id, name, brand }),
+        { filter: (item) => !item.archived },
+      ),
+      this.createSearchMetadata(
+        Category.metadata, "Categoria", this.repositories.categories,
+        ({name, parentId}) => {
+          return parentId ? `${this.repositories.categories.getLocalById(parentId)?.name ?? "??"} -> ${name}` : name;
+        },
+        ({ id, name, parentId }) => ({ id, name, isSubcategory: !!parentId }),
+      ),
+      this.createSearchMetadata(
+        Bank.metadata, "Banco", this.repositories.banks,
+        (item) => item.name,
+        ({ id, name }) => ({ id, name }),
+      ),
+      this.createFromMetadata(Account.metadata, this.repositories.accounts),
+      this.createFromMetadata(TransferRegistry.metadata2, this.repositories.accountRegistries),
+      this.createFromMetadata(AccountsRegistry.metadata, this.repositories.accountRegistries),
+      this.createFromMetadata(CreditCardRegistry.metadata, this.repositories.creditCardsRegistries),
     ];
   }
 
-  private searchAccounts = async ({
-    query,
-    limit = MAX_RESULTS,
-  }: {
-    query: string;
-    limit?: number;
-  }) => {
-    await waitUntilReady("accounts", "banks");
-    const similarity = new Similarity<Account>(
-      (item) => `${item.name} - ${item.type}`
-    );
-    const accounts = this.repositories.accounts
-      .getCache()
-      .filter((acc) => !acc.archived);
-
+  private createSearchMetadata<M extends DocumentModel>(
+    metadata: ModelMetadata<M>, itemName: string, repository: BaseRepository<M>,
+    selector: (item: M) => string, mapper: (item: M) => object,
+    params?: {
+      filter?: (item: M) => boolean
+      repos?: RepoName[]
+    }
+  ): AssistantToolDefinition<unknown> {
+    const { filter = () => true, repos = [] } = params ?? {};
     return {
-      result: similarity
-        .rank(query, accounts, this.capLimit(limit))
-        .map(({ item: { id, name, type } }) => ({ id, name, type })),
-    };
-  };
+      name: `search_${metadata.aiToolCreator.name}`,
+      description: `Search for ${itemName}s by term based on textual similarity.`,
+      parameters: this.createSearchParamsSchemema(),
+      execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => {
+        await repository.waitUntilReady();
+        await waitUntilReady(...repos);
 
-  private searchCreditCards = async ({
-    query,
-    limit = MAX_RESULTS,
-  }: {
-    query: string;
-    limit?: number;
-  }) => {
-    await waitUntilReady("creditCards", "accounts", "banks");
+        const items = repository.getCache().filter(filter);
 
-    const similarity = new Similarity<CreditCard>(
-      (card) => `${card.name} - ${card.brand ?? ""}`
-    );
-    const cards = this.repositories.creditCards
-      .getCache()
-      .filter((card) => !card.archived);
+        const similarity = new Similarity<M>(selector);
 
-    return {
-      result: similarity
-        .rank(query, cards, this.capLimit(limit))
-        .map(({ item: { id, name, brand } }) => ({ id, name, brand })),
-    };
-  };
+        return {
+          result: similarity
+            .rank(query, items, this.capLimit(limit))
+            .map(rank => mapper(rank.item)),
+        };
+      },
+      userInfo: (args) => `Procurando ${itemName} '${args.query}'`
+    }
+  }
 
-  private searchCategories = async ({
-    query,
-    limit = MAX_RESULTS,
-  }: {
-    query: string;
-    limit?: number;
-  }) => {
-    const repository = this.repositories.categories;
-
-    await waitUntilReady("categories");
-
-    const categories = repository.getCache()
-      .map(({id, name, parentId}) => {
-        if(parentId) {
-          name = `${repository.getLocalById(parentId)?.name ?? "??"} -> ${name}`;
-        } else {
-          name = `${name} ->`;
-        }
-        return { id, name}
-      })
-    const similarity = new Similarity<typeof categories[number]>(
-      (category) => `${category.name}`
-    );
-
-    return {
-      result: similarity
-        .rank(query, categories, this.capLimit(limit))
-        .map(({ item: { id, name, parentId } }) => ({
-          id,
-          name,
-          isSubcategory: !!parentId,
-        })),
-    };
-  };
-
-  private createSearchParamsSchemema(description: string, userInfoDescription?: string) {
+  private createSearchParamsSchemema(userInfoDescription?: string) {
     return {
       type: "object",
       properties: {
-        query: { type: "string", description },
+        query: { type: "string", description: "Termo de busca nome ou características" },
         ...(userInfoDescription ? { userInfo: { type: "string", description: userInfoDescription } } : {})
       },
       required: ["query", ...(userInfoDescription ? ["userInfo"] : [])],

@@ -67,7 +67,7 @@ export class AccountsRegistry extends Registry {
       },
       required: ["accountId", "value", "description", "date"],
     },
-    from: (params): Result<AccountsRegistry> => {
+    from: (params, repositories): Result<AccountsRegistry> => {
       const {
         accountId,
         value,
@@ -77,6 +77,11 @@ export class AccountsRegistry extends Registry {
         categoryId,
         observation,
       } = params as Record<string, unknown>;
+
+      if (categoryId) {
+        const category = repositories.categories.getLocalById(String(categoryId));
+        if (!category) return { success: false, error: `Categoria com id ${categoryId} não encontrada.`}
+      }
 
       const parsedDate = validateDate(date as string);
       if (!parsedDate.success) return parsedDate;

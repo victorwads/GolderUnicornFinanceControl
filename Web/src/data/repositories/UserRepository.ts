@@ -1,7 +1,6 @@
-import { doc, DocumentData, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 import { DocumentModel } from '@models';
-import { getCurrentUser } from '@configs';
 
 import { Collections } from "../firebase/Collections";
 import RepositoryWithCrypt from './RepositoryWithCrypt';

@@ -57,7 +57,7 @@ export class TransferRegistry extends AccountsRegistry {
     return { source, target };
   }
 
-  static metadataTransfer: ModelMetadata<
+  static metadata2: ModelMetadata<
     Partial<TransferRegistry & TransferInfo>
   > = {
     aiToolCreator: {

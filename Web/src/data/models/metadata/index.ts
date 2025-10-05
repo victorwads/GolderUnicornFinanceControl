@@ -1,3 +1,5 @@
+import { Repositories } from "@repositories";
+
 export type Result<T> =
   | { success: true; result: T }
   | { success: false; error?: string };
@@ -40,7 +42,7 @@ export interface ModelMetadata<M, R extends string = Extract<keyof M, string>, D
     properties: { [K in R]?: Properties };
     required: R[];
   };
-  from: (data: D) => Result<unknown>;
+  from: (data: D, repositories: Repositories) => Result<unknown>;
 }
 
 export function validateDate(input: string): Result<Date> {

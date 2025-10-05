@@ -13,10 +13,12 @@ type Props = {
   onProgress?: (progress: Progress | null) => void;
 };
 
+const initPassword = window.isDevelopment ? '12345678' : '';
+
 export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: Props) {
 
-  const [password, setPassword] = useState('');
-  const [confirmation, setConfirmation] = useState('');
+  const [password, setPassword] = useState(initPassword);
+  const [confirmation, setConfirmation] = useState(initPassword);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
