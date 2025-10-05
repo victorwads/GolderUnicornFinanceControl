@@ -6,7 +6,7 @@ import { CryptoPassRepository } from '@repositories';
 import { Progress } from '../../data/crypt/progress';
 
 import './CryptoPassSetupScreen.css';
-import { clearFirestore } from '@configs';
+import { clearSession } from '@utils/clearSession';
 
 type Props = {
   uid: string;
@@ -131,7 +131,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
           {loading ? 'Salvando…' : 'Salvar senha e continuar'}
         </button>
 
-        <button onClick={clearFirestore}>Sair</button>
+        <button onClick={clearSession}>Sair</button>
 
         {error && <div className="crypto-pass-error">{error}</div>}
       </form>

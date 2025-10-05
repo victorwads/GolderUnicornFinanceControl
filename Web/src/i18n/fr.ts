@@ -112,6 +112,13 @@ const fr: Translation = {
     timelineModeStart: 'Début',
     timelineModeNext: 'Suivant',
     timelineCutoffDay: 'Jour de coupure',
+    appVersion: 'Version de l’application',
+    checkUpdates: 'Rechercher des mises à jour',
+    checkingUpdates: 'Recherche de mises à jour...',
+    newUpdateAvailable: 'Une nouvelle version est disponible',
+    installUpdate: 'Mettre à jour maintenant',
+    upToDate: 'Vous utilisez la dernière version',
+    offlineReady: 'Disponible hors ligne',
   },
   dashboard: {
     title: 'Tableau de Bord',

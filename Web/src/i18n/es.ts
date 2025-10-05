@@ -112,6 +112,13 @@ const es: Translation = {
     timelineModeStart: 'Inicio',
     timelineModeNext: 'Siguiente',
     timelineCutoffDay: 'Día de corte',
+    appVersion: 'Versión de la app',
+    checkUpdates: 'Buscar actualizaciones',
+    checkingUpdates: 'Buscando actualizaciones...',
+    newUpdateAvailable: 'Nueva versión disponible',
+    installUpdate: 'Actualizar ahora',
+    upToDate: 'Ya usas la última versión',
+    offlineReady: 'Disponible sin conexión',
   },
   dashboard: {
     title: 'Tablero',

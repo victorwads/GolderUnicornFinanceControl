@@ -112,6 +112,13 @@ const zh: Translation = {
     timelineModeStart: '起始',
     timelineModeNext: '下一个',
     timelineCutoffDay: '截断日',
+    appVersion: '应用版本',
+    checkUpdates: '检查更新',
+    checkingUpdates: '正在检查更新...',
+    newUpdateAvailable: '发现新版本',
+    installUpdate: '立即更新',
+    upToDate: '当前已是最新版本',
+    offlineReady: '可离线使用',
   },
   dashboard: {
     title: '仪表板',

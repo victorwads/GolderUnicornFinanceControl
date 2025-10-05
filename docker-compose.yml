@@ -5,6 +5,7 @@ services:
       context: ./Web/configs
     volumes:
       - ./Web:/app
+      - .git:/app/.git
       - web_node_modules:/app/node_modules
     command:
       - sh
