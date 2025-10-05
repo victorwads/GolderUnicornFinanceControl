@@ -1,6 +1,8 @@
 import { Category } from "../Category";
 import { ModelMetadata, Result, validateDate } from "../metadata";
 import { Registry, RegistryType } from "./Registry";
+import { Repositories } from '../../repositories/index';
+import { CreditCard } from "../CreditCard";
 
 export interface WithInvoiceTime {
   month: number;
@@ -22,9 +24,9 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
     super(id, RegistryType.CREDIT, true, value, description, date, tags, categoryId, observation, importInfo);
   }
 
-  static metadata: ModelMetadata<CreditCardRegistry> = {
+  static metadata: ModelMetadata<CreditCardRegistry & { invoiceMonth: any, invoiceYear: any }> = {
     aiToolCreator: {
-      name: "creditcard_entry",
+      name: "creditcard_invoice_item",
       description: "Registra um lançamento vinculado a um cartão de crédito. sempre valide se o usuário comprou mesmo no crédito ou para débito a ferramenta adequada.",
       properties: {
         cardId: {
@@ -62,7 +64,7 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
       },
       required: ["cardId", "value", "description", "date"],
     },
-    from: (params): Result<CreditCardRegistry> => {
+    from: (params, repositories): Result<CreditCardRegistry> => {
       const {
         cardId,
         value,
@@ -74,8 +76,9 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
         observation,
       } = params as Record<string, unknown>;
 
-      if (typeof description !== "string" || description.trim().length === 0) {
-        return { success: false, error: "Description is required." };
+      const creditCard = repositories.creditCards.getLocalById(String(cardId));
+      if (!creditCard) {
+        return { success: false, error: `Credit card not found, use ${CreditCard.metadata.aiToolCreator.name} to find it.` };
       }
 
       const numericValue = Number(value);
@@ -86,10 +89,6 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
       const parsedDate = validateDate(String(date));
       if (!parsedDate.success) {
         return { success: false, error: parsedDate.error };
-      }
-
-      if (!cardId) {
-        return { success: false, error: "Card identifier is required." };
       }
 
       const baseDate = parsedDate.result;
@@ -111,7 +110,7 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
         month,
         year,
         baseDate,
-        description.trim(),
+        String(description),
         numericValue,
         [],
         categoryId ? String(categoryId) : undefined,

@@ -12,4 +12,5 @@ export const Collections = {
     Products: "GroceriesProducts",
     Groceries: "GroceriesItems",
     ResourcesUse: "ResourcesUse",
+    AiCalls: "AiCalls",
 };

@@ -16,6 +16,7 @@ import ResourcesUseRepository from './ResourcesUseRepository';
 import CreditcardsRepository from "./CreditcardsRepository";
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import CryptoPassRepository from "./CryptoPassRepository";
+import AiCallsRepository from "./AiCallsRepository";
 export { default as CryptoPassRepository } from './CryptoPassRepository';
 
 export type Repositories = {
@@ -30,6 +31,7 @@ export type Repositories = {
   products: GroceriesProductsRepository;
   groceries: GroceriesRepository;
   resourcesUse: ResourcesUseRepository;
+  aiCalls: AiCallsRepository;
 }
 
 export type RepoName = keyof Repositories;
@@ -64,6 +66,7 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
     products: new GroceriesProductsRepository(),
     groceries: new GroceriesRepository(),
     resourcesUse: new ResourcesUseRepository(),
+    aiCalls: new AiCallsRepository(),
   }
 
   const encryptor = new Encryptor(CryptoPassRepository.ENCRYPTION_VERSION);

@@ -104,6 +104,10 @@ export default function AssistantPage({
           setWarnings((previous) => [...previous, ...result.warnings]);
         }
         setLoading(false);
+      }).catch((error) => {
+        console.error("Erro ao processar comando do assistente", error);
+        setWarnings((previous) => [...previous, "Erro ao processar comando do assistente"]);
+        setLoading(false);
       });
     },
     [controller]

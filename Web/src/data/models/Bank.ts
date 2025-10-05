@@ -1,4 +1,3 @@
-import BanksRepository from "../repositories/BanksRepository";
 import { DocumentModel } from "./DocumentModel";
 import { ModelMetadata } from "./metadata";
 

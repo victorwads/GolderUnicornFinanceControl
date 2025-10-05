@@ -222,6 +222,7 @@ export class AssistantTools {
       this.createFromMetadata(Account.metadata, this.repositories.accounts),
       this.createFromMetadata(TransferRegistry.metadata2, this.repositories.accountRegistries),
       this.createFromMetadata(AccountsRegistry.metadata, this.repositories.accountRegistries),
+      this.createFromMetadata(CreditCard.metadata, this.repositories.creditCards),
       this.createFromMetadata(CreditCardRegistry.metadata, this.repositories.creditCardsRegistries),
     ];
   }
