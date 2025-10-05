@@ -40,6 +40,7 @@ export type InitedRepositories = {
 export type RepositoriesInstance = {
   uid: string;
   instances: Repositories
+  encryptor: Encryptor;
 }
 let repositorieInstances: RepositoriesInstance | null = null;
 
@@ -64,18 +65,17 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
     groceries: new GroceriesRepository(),
     resourcesUse: new ResourcesUseRepository(),
   }
-  repositorieInstances = { uid, instances }
 
-  const encryptorInstance = new Encryptor(
-    secretHash ? CryptoPassRepository.ENCRYPTION_VERSION : true
-  );
+  const encryptor = new Encryptor(CryptoPassRepository.ENCRYPTION_VERSION);
+  repositorieInstances = { uid, instances, encryptor };
+
   if(secretHash)
-    await encryptorInstance.initWithHash(secretHash);
+    await encryptor.initWithHash(secretHash);
   else
-    await encryptorInstance.initWithPass(uid);
+    await encryptor.initWithPass(uid, true);
 
-  const toWait = Object.entries(instances).map(([key, repo]) => {
-    if (repo instanceof RepositoryWithCrypt) repo.config(encryptorInstance);
+  const toWait = Object.entries(instances).map(([, repo]) => {
+    if (repo instanceof RepositoryWithCrypt) repo.config(encryptor);
     const init = Date.now();
     return repo.reset(uid);
   });
@@ -83,6 +83,11 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
   await Promise.all(toWait);
 
   return instances;
+}
+
+export function getEncryptor(): Encryptor {
+  if (!repositorieInstances) throw new Error('Repositories not initialized. Call resetRepositories() first.');
+  return repositorieInstances?.encryptor;
 }
 
 export function clearRepositories(): void {
