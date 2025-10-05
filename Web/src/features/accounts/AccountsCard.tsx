@@ -9,6 +9,7 @@ import getRepositories from "@repositories"
 import { waitUntilReady } from '@repositories';
 import { WithRepo } from "@components/WithRepo"
 import { getServices } from "@services"
+import { a } from "vitest/dist/chunks/suite.d.FvehnV49"
 
 export interface WithInfoAccount extends Account {
   bank: Bank
@@ -18,12 +19,9 @@ const AccountsCard: React.FC<{}> = () => {
   const [accounts, setAccounts] = useState<WithInfoAccount[]>([])
   const [showArchived, setShowArchived] = useState<boolean|null>(null)
 
-  useEffect(() => {
-    if (showArchived === null) return
-    const { accounts: accountsRepo, banks } = getRepositories();
-
-    setAccounts(
-      accountsRepo.getCache(showArchived).map(account => {
+  function setAccountsWithBank(accounts: Account[]) {
+    const { banks } = getRepositories();
+    setAccounts(accounts.map(account => {
         return {
           ...account,
           bank: new Bank(
@@ -31,8 +29,16 @@ const AccountsCard: React.FC<{}> = () => {
             banks.getLocalById(account.bankId)?.logoUrl
           )
         }
-      })
-    )
+      }))
+  }
+
+  useEffect(() => {
+    if (showArchived === null) return
+    const { accounts: accountsRepo } = getRepositories();
+
+    setAccountsWithBank(accountsRepo.getCache(showArchived))
+
+    return accountsRepo.addUpdatedEventListenner(setAccountsWithBank)
   }, [showArchived])
 
   return <>

@@ -9,6 +9,8 @@ interface TransferInfo {
 }
 
 export class TransferRegistry extends AccountsRegistry {
+  static categoryId = "transfer";
+
   constructor(
     id: string,
     public transfer: TransferInfo,
@@ -28,12 +30,12 @@ export class TransferRegistry extends AccountsRegistry {
       date,
       true,
       tags,
-      undefined,
+      TransferRegistry.categoryId,
       observation
     );
   }
 
-  public toTuple(): { source: TransferRegistry; target: TransferRegistry } {
+  public toTuple(): [TransferRegistry, TransferRegistry] {
     const source = new TransferRegistry(
       "",
       { ...this.transfer },
@@ -54,10 +56,10 @@ export class TransferRegistry extends AccountsRegistry {
       this.tags,
       this.observation
     );
-    return { source, target };
+    return [source, target];
   }
 
-  static metadataTransfer: ModelMetadata<
+  static metadata2: ModelMetadata<
     Partial<TransferRegistry & TransferInfo>
   > = {
     aiToolCreator: {

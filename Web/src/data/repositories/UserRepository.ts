@@ -1,7 +1,6 @@
-import { doc, DocumentData, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 import { DocumentModel } from '@models';
-import { getCurrentUser } from '@configs';
 
 import { Collections } from "../firebase/Collections";
 import RepositoryWithCrypt from './RepositoryWithCrypt';
@@ -29,7 +28,7 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
     ];
   }
 
-  public async updateUserData(data: { [key in keyof User]?: string }): Promise<void> {
+  public async updateUserData(data: { [key in keyof User]?: typeof User.prototype[key] }): Promise<void> {
     data.id = this.userId;
     await this.set(data as any, true, false);
   }

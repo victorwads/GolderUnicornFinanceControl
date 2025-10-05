@@ -55,12 +55,7 @@ export function AppUpdatesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const applyUpdate = useCallback(async () => {
-    if (!import.meta.env.PROD || typeof window === 'undefined') {
-      window.location.reload();
-      return;
-    }
-
-    if (!updateSWRef.current) {
+    if (!import.meta.env.PROD || typeof window === 'undefined' || !updateSWRef.current) {
       window.location.reload();
       return;
     }

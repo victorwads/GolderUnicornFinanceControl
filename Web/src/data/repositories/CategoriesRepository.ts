@@ -1,6 +1,6 @@
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 
-import { InvoiceRegistry, Category, RootCategory } from '@models';
+import { InvoiceRegistry, Category, RootCategory, TransferRegistry } from '@models';
 import { Collections } from "../../data/firebase/Collections";
 
 export default class CategoriesRepository extends RepositoryWithCrypt<Category> {
@@ -12,6 +12,7 @@ export default class CategoriesRepository extends RepositoryWithCrypt<Category> 
 	public async reset(userId?: string): Promise<void> {
 		await super.reset(userId);
 		this.addToCache(new Category(InvoiceRegistry.categoryId, "Fatura Cartão de Crédito", "creditcard", "#000000"));
+		this.addToCache(new Category(TransferRegistry.categoryId, "Transferência", "money-bill-transfer", "#44012cff"));
 	}
 
 	public getAllRoots(): RootCategory[] {

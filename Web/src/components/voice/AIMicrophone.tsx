@@ -1,12 +1,13 @@
 import './AIMicrophone.css';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useSpeechRecognition } from 'react-speech-recognition';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import { useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
+import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
+import { startListening, stopListening } from './microfone';
 
 import Icon from '@components/Icons';
 import AIActionsParser, { AIActionHandler, AIItemData } from '@features/speech/AIParserManager';
-import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
-import { StartListeningOptions, useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
 import GlassContainer from '@components/GlassContainer';
 import { Loading } from '@components/Loading';
 
@@ -23,39 +24,6 @@ export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
 
 interface ProcessingTask { id: number; text: string; startedAt: number; }
 
-interface ControlHandlers {
-  start: (options?: StartListeningOptions) => void;
-  stop: () => void;
-}
-
-const startSpeechRecognition = () => SpeechRecognition.startListening({
-  continuous: true,
-  language: CurrentLangInfo.short,
-});
-
-const stopSpeechRecognition = () => {
-  console.log('Stopping listening');
-  setTimeout(() => SpeechRecognition.stopListening(), 50);
-};
-
-let activeHandlers: ControlHandlers | null = null;
-
-export const startListening = (options?: StartListeningOptions) => {
-  if (activeHandlers) {
-    activeHandlers.start(options);
-    return;
-  }
-  startSpeechRecognition();
-};
-
-export const stopListening = () => {
-  if (activeHandlers) {
-    activeHandlers.stop();
-    return;
-  }
-  stopSpeechRecognition();
-};
-
 export default function AIMicrophone<T extends AIItemData, A extends string>({
   parser,
   onAction,
@@ -64,7 +32,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
   compact = false,
   withLoading = false,
 }: AIMicrophoneProps<T, A>) {
-  const navigate = useNavigate();
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
   const recognitionLanguage = CurrentLangInfo.short;
 
@@ -83,48 +50,32 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     clearSendTimeout();
     setProcessingQueue([]);
     if (!listening) {
-      startSpeechRecognition();
+      startListening();
     }
     resetTranscript();
   }, [clearSendTimeout, listening, resetTranscript]);
 
   const {
-    requestStart: requestStartWithOnboarding,
-    requestStop: requestStopWithOnboarding,
     isActive: onboardingActive,
     componentProps: onboardingComponentProps,
+    requestStart,
   } = useAIMicrophoneOnboarding({
     skipOnboarding,
-    startNativeListening: startSpeechRecognition,
-    stopNativeListening: stopSpeechRecognition,
     resetTranscript,
     onBeginCommandListening: beginCommandListening,
   });
 
-  const requestStart = useCallback((options?: StartListeningOptions) => {
-    if (listening) return;
-    requestStartWithOnboarding(options);
-  }, [listening, requestStartWithOnboarding]);
-
-  const requestStop = useCallback(() => {
-    requestStopWithOnboarding();
-    setProcessingQueue([]);
-    clearSendTimeout();
-    stopSpeechRecognition();
-    resetTranscript();
-  }, [clearSendTimeout, requestStopWithOnboarding, resetTranscript]);
-
   useEffect(() => {
     parser.onAction = (action, changes) => {
       if (action.action === 'stop') {
-        requestStop();
+        // requestStop();
       }
       onAction?.(action, changes);
     };
     return () => {
       parser.onAction = () => {};
     };
-  }, [parser, onAction, requestStop]);
+  }, [parser, onAction]);
 
   useEffect(() => {
     clearSendTimeout();
@@ -162,26 +113,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     };
   }, [transcript, onboardingActive, parser, recognitionLanguage, resetTranscript, clearSendTimeout]);
 
-  useEffect(() => {
-    const handlers: ControlHandlers = {
-      start: requestStart,
-      stop: requestStop,
-    };
-    activeHandlers = handlers;
-    return () => {
-      if (activeHandlers === handlers) {
-        activeHandlers = null;
-      }
-    };
-  }, [requestStart, requestStop]);
-
-  useEffect(() => {
-    return () => {
-      clearSendTimeout();
-      stopSpeechRecognition();
-    };
-  }, [clearSendTimeout]);
-
   if (!browserSupportsSpeechRecognition) {
     return <span>{Lang.speech.browserNotSupported}</span>;
   }
@@ -196,7 +127,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       : ''
   );
   
-  console.log('AI Comp render:');
   return (
     <GlassContainer className={"speech-marquee" + (compact ? ' compact' : '')}>
       {processingQueue.length > 0 && <div>
@@ -216,7 +146,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       </div>}
       <button
         className={`microphone-toggle${listening ? ' listening' : ''}`}
-        onClick={listening ? requestStop : () => requestStart()}
+        onClick={() => listening ? stopListening() : requestStart()}
         aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
       >
         {withLoading

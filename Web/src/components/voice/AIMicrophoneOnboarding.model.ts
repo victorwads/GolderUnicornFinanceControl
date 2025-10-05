@@ -8,6 +8,7 @@ import {
   StartListeningOptions,
   UseOnboardingOptions,
 } from './AIMicrophoneOnboarding.types';
+import { stopListening } from './microfone';
 
 const getOnboardingStorageKey = () => `ai-mic-onboarding-${CurrentLang}`;
 
@@ -19,11 +20,9 @@ export const setCompletedOnboarding = (completed: boolean) => {
 
 export const useAIMicrophoneOnboarding = ({
   skipOnboarding,
-  startNativeListening,
-  stopNativeListening,
   resetTranscript,
   onBeginCommandListening,
-}: UseOnboardingOptions): AIMicrophoneOnboardingController => {
+}: UseOnboardingOptions) => {
   let currentCssLang: string | null = null;
   try {
     currentCssLang = useCssVars().lang;
@@ -50,17 +49,8 @@ export const useAIMicrophoneOnboarding = ({
     setPendingStart(true);
     setShouldStartAfterClose(false);
     setIsOpen(true);
-    stopNativeListening();
     resetTranscript();
-  }, [hasCompleted, onBeginCommandListening, resetTranscript, skipOnboarding, stopNativeListening]);
-
-  const requestStop = useCallback(() => {
-    setIsOpen(false);
-    setPendingStart(false);
-    setShouldStartAfterClose(false);
-    stopNativeListening();
-    resetTranscript();
-  }, [resetTranscript, stopNativeListening]);
+  }, [hasCompleted, onBeginCommandListening, resetTranscript, skipOnboarding]);
 
   const handleClose = useCallback(() => {
     const shouldStart = pendingStart && shouldStartAfterClose;
@@ -68,13 +58,13 @@ export const useAIMicrophoneOnboarding = ({
     setIsOpen(false);
     setPendingStart(false);
     setShouldStartAfterClose(false);
-    stopNativeListening();
+    stopListening();
     resetTranscript();
 
     if (shouldStart) {
       onBeginCommandListening();
     }
-  }, [onBeginCommandListening, pendingStart, resetTranscript, shouldStartAfterClose, stopNativeListening]);
+  }, [onBeginCommandListening, pendingStart, resetTranscript, shouldStartAfterClose]);
 
   const handleComplete = useCallback(() => {
     setCompletedOnboarding(true);
@@ -84,16 +74,13 @@ export const useAIMicrophoneOnboarding = ({
 
   const componentProps = useMemo<AIMicrophoneOnboardingComponentProps>(() => ({
     open: isOpen,
-    startNativeListening,
-    stopNativeListening,
     resetTranscript,
     onClose: handleClose,
     onComplete: handleComplete,
-  }), [handleClose, handleComplete, isOpen, resetTranscript, startNativeListening, stopNativeListening]);
+  }), [handleClose, handleComplete, isOpen, resetTranscript]);
 
   return {
     requestStart,
-    requestStop,
     isActive: isOpen,
     componentProps,
   };

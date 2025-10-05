@@ -6,6 +6,7 @@ import AIMicrophoneOnboardingLanguageStep from './AIMicrophoneOnboardingLanguage
 import AIMicrophoneOnboardingSuccessStep from './AIMicrophoneOnboardingSuccessStep';
 import AIMicrophoneOnboardingTestStep from './AIMicrophoneOnboardingTestStep';
 import { AIMicrophoneOnboardingComponentProps, OnboardingStepKey } from './AIMicrophoneOnboarding.types';
+import { startListening } from './AIMicrophone';
 
 const SUCCESS_DISPLAY_TIME = 8000;
 
@@ -16,8 +17,6 @@ interface AIMicrophoneOnboardingProps extends AIMicrophoneOnboardingComponentPro
 export default function AIMicrophoneOnboarding({
   open,
   transcript,
-  startNativeListening,
-  stopNativeListening,
   resetTranscript,
   onClose,
   onComplete,
@@ -75,25 +74,6 @@ export default function AIMicrophoneOnboarding({
   }, [goToStep, resetTranscript]);
 
   useEffect(() => {
-    if (!open) {
-      setStep('info');
-      clearSuccessTimeout();
-      return;
-    }
-
-    resetTranscript();
-    stopNativeListening();
-  }, [clearSuccessTimeout, open, resetTranscript, stopNativeListening]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (step === 'test') return;
-
-    stopNativeListening();
-    resetTranscript();
-  }, [open, resetTranscript, step, stopNativeListening]);
-
-  useEffect(() => {
     if (!open || step !== 'success') {
       clearSuccessTimeout();
       return;
@@ -136,8 +116,6 @@ export default function AIMicrophoneOnboarding({
       <AIMicrophoneOnboardingTestStep
         titleId={modalTitleId}
         transcript={transcript}
-        startNativeListening={startNativeListening}
-        stopNativeListening={stopNativeListening}
         resetTranscript={resetTranscript}
         onSuccess={handleTestSuccess}
         onError={handleTestError}

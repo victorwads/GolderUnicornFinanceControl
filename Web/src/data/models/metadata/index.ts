@@ -1,3 +1,5 @@
+import { Repositories } from "@repositories";
+
 export type Result<T> =
   | { success: true; result: T }
   | { success: false; error?: string };
@@ -40,15 +42,15 @@ export interface ModelMetadata<M, R extends string = Extract<keyof M, string>, D
     properties: { [K in R]?: Properties };
     required: R[];
   };
-  from: (data: D) => Result<unknown>;
+  from: (data: D, repositories: Repositories) => Result<unknown>;
 }
 
 export function validateDate(input: string): Result<Date> {
-  const regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/
+  const regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(:\d{2}){0,1}$/
   const match = regex.exec(input)
   if (!match) return { success: false, error: "Invalid date format use YYYY-MM-DDTHH:mm:ss" }
-
-  return { success: true, result: new Date(input + ".000Z") }
+  const append = input.length < 17 ? ":00.000Z" : ".000Z"
+  return { success: true, result: new Date(input + append) }
 }
 
 export function validateOptionalDate(input: string): Result<Date|undefined> {

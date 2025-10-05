@@ -14,6 +14,8 @@ import { addResourceUse } from "./ResourcesUseRepositoryShared";
 
 const queryField: keyof DocumentModel = "_updatedAt";
 
+type RepositoryUpdatedEventListenner<T> = (cache: T[]) => void;
+
 export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
   protected ref: CollectionReference<any>;
@@ -22,6 +24,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   private minimumCacheSize = 0;
   private waitRef: Promise<any> | null = null;
   private inited: boolean = false;
+  private listenners: RepositoryUpdatedEventListenner<Model>[] = [];
   protected waitFinished: boolean = false;
 
   constructor(
@@ -31,6 +34,21 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.collectionName = this.parseCollectionName();
     this.db = getFirestore();
     this.ref = collection(this.db, this.collectionName);
+  }
+
+  public addUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
+    this.listenners.push(listenner);
+    return () => this.removeUpdatedEventListenner(listenner);
+  }
+
+  public removeUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
+    this.listenners = this.listenners.filter(l => l !== listenner);
+  }
+
+  private callEventListenners() {
+    this.listenners.forEach(l => {try {
+      l(this.getCache());
+    } catch {}});
   }
 
   protected get safeUserId(): string {
@@ -107,7 +125,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     };
     this.postQueryProcess(items);
 
-    return items;
+    return items.filter(item => !item.isDeleted);
   }
 
   protected addToCache(model: Model): void {
@@ -117,6 +135,15 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
 
   public getLocalById(id?: string): Model | undefined {
     return this.cache[id ?? ""] as Model;
+  }
+
+  public async delete(id: string): Promise<void> {
+    await setDoc(
+      doc(this.ref, id),
+      { _deletedAt: new Date() }, { merge: true }
+    )
+    delete this.cache[id];
+    this.callEventListenners();
   }
 
   public async set(model: Model, merge: boolean = false, update: boolean = true): Promise<DocumentReference<Model>> {
@@ -140,6 +167,8 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
         local: { writes: 1 },
       }
     });
+
+    this.callEventListenners();
     return result;
   }
 
@@ -160,11 +189,12 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
         local: { writes: models.length },
       }
     });
+    this.callEventListenners();
   }
 
-  public getCache(): Model[] {
+  public getCache(showDeleted: boolean = false): Model[] {
     const result = Object.values(this.cache || {}) as Model[];
-    return result;
+    return result.filter(item => showDeleted || !item.isDeleted);
   }
 
   protected async getLastUpdatedValue(): Promise<any> {

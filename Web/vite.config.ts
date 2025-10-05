@@ -12,7 +12,10 @@ const rootDir = dirname(fileURLToPath(import.meta.url));
 
 const appVersion = (() => {
   try {
-    return execSync('git rev-parse --short HEAD', { cwd: rootDir }).toString().trim();
+    return (
+      new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + '-' + 
+      execSync('git rev-parse --short HEAD', { cwd: rootDir }).toString().trim()
+    );
   } catch (error) {
     console.warn('Unable to read git commit hash for version:', error);
     return process.env.npm_package_version ?? '0.0.0';
