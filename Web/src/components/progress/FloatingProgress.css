@@ -1,0 +1,23 @@
+.floating-progress {
+  position: fixed;
+  top: var(--spacing-lg);
+  left: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border-radius: 16px;
+  background: rgba(25, 17, 46, 0.93);
+  color: var(--font-color-default);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  width: min(400px, calc(100vw - 48px));
+  line-height: 1.4;
+}
+
+.floating-progress div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.floating-progress progress {
+  width: 100%;
+  accent-color: var(--primary-color, #6c5ce7);
+}

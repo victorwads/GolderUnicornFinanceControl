@@ -15,7 +15,7 @@
   border: 1px solid var(--divider-color-soft);
   border-radius: 16px;
   padding: calc(var(--spacing-xl) * 1.4) calc(var(--spacing-xl));
-  box-shadow: 0 18px 36px var(--bg-color-shadow);
+  box-shadow: 0 9px 18px var(--bg-color-shadow);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
@@ -54,7 +54,14 @@
   border-color: transparent;
 }
 
-.crypto-pass-submit {
+.crypto-pass-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.crypto-pass-buttons > button {
+  flex: 1;
   margin-top: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 12px;
@@ -67,48 +74,25 @@
   transition: filter 0.2s ease;
 }
 
-.crypto-pass-submit:disabled {
+.crypto-pass-buttons > button:disabled {
   cursor: not-allowed;
   filter: grayscale(0.35);
   opacity: 0.85;
 }
 
-.crypto-pass-submit:not(:disabled):hover {
+.crypto-pass-buttons > button:not(:disabled):hover {
   filter: brightness(1.05);
+}
+
+.crypto-pass-buttons > .cancel {
+  flex: 0.5;
+  background: var(--bg-step-2);
+  color: var(--font-color-default);
 }
 
 .crypto-pass-error {
   color: var(--color-danger);
   font-size: 0.9rem;
-}
-
-.crypto-pass-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-  color: var(--font-color-default);
-}
-
-.crypto-pass-progress {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md);
-  border-radius: 12px;
-  background-color: var(--bg-step-2);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.crypto-pass-progress progress {
-  width: 100%;
-  accent-color: var(--primary-color);
-}
-
-.crypto-pass-progress-sub {
-  font-size: 0.85rem;
-  color: var(--font-color-link);
-  text-align: right;
 }
 
 @media (max-width: 520px) {

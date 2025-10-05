@@ -59,7 +59,7 @@ export default class Encryptor {
         if (data instanceof Date) return this.numberHandler?.encrypt(data);
         if (data.constructor !== Object) return data;
         if (data.encrypted === false) {
-          delete data.encrypted;
+          // delete data.encrypted;
           return data
         };
         if(Object.keys(data).includes('encrypted'))

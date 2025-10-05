@@ -16,16 +16,14 @@ const SESSION_SECRET_KEY = 'crypto.secretHash.'
 type EncryptPayload = { secretHash: string };
 type DecryptPayload = { token: string };
 type ProgressHandler = (progress: Progress | null) => void;
-type SaveOptions = {
-  onProgress?: ProgressHandler;
-};
 
 export default class CryptoPassRepository {
 
   public static readonly ENCRYPTION_VERSION = 1;
 
   constructor(
-    public uid: string = getCurrentUser()?.uid || ''
+    public uid: string = getCurrentUser()?.uid || '',
+    public onProgress?: ProgressHandler
   ) {}
 
   private get STORAGE_TOKEN_KEY() {
@@ -59,7 +57,7 @@ export default class CryptoPassRepository {
     return await this.decryptHash(token);
   }
 
-  public async initSession(pass: string, options?: SaveOptions): Promise<void> {
+  public async initSession(pass: string): Promise<void> {
     if (!pass) throw new Error('Informe uma senha de criptografia.');
 
     const secretHash = await Encryptor.createHash(pass);
@@ -67,9 +65,9 @@ export default class CryptoPassRepository {
     
     await getEncryptor().initWithHash(secretHash);
 
-    const { privateHash } = await user.getUserData();
-    if (!privateHash) {
-      await this.updateEncryption(secretHash, options?.onProgress);
+    const { privateHash, fullyMigrated } = await user.getUserData();
+    if (!privateHash || !fullyMigrated) {
+      this.updateEncryption(secretHash);
     } else if (privateHash !== secretHash.hex) {
       throw new Error('Senha de criptografia inválida.');
     }
@@ -101,17 +99,17 @@ export default class CryptoPassRepository {
     return Encryptor.hashFromHex(secretHash);
   }
 
-  async updateEncryption(secretHash: Hash, onProgress?: ProgressHandler) {
+  async updateEncryption(secretHash: Hash) {
     const repos = Object
       .entries(getRepositories())
       .filter(([, repo]) => repo instanceof RepositoryWithCrypt);
 
     let prog: Progress = { current: 0, max: repos.length, filename: 'Carregando...', type: 'resave' };
     const progress = (p: Progress | null) => 
-      onProgress?.(p ? { ...p } : null);
+      this.onProgress?.(p ? { ...p } : null);
     progress(prog);
-  
 
+    await getRepositories().user.updateUserData({ privateHash: secretHash.hex });
     for (const [key, repo] of repos) {
       prog.filename = key;
       progress({ ...prog });
@@ -129,10 +127,9 @@ export default class CryptoPassRepository {
         progress({ ...prog });
       }
       prog.current += 1;
+      delete prog.sub;
       progress({ ...prog });
     }
     progress(null);
-
-    await getRepositories().user.updateUserData({ privateHash: secretHash.hex });
   }
 }

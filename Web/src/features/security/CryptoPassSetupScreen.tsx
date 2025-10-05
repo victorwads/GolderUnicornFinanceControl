@@ -1,19 +1,19 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
-
-import { Loading } from '@components/Loading';
-
-import { CryptoPassRepository } from '@repositories';
-import { Progress } from '../../data/crypt/progress';
+import { FormEvent, useState } from 'react';
 
 import './CryptoPassSetupScreen.css';
+import { Loading } from '@components/Loading';
+
 import { clearSession } from '@utils/clearSession';
+import { CryptoPassRepository } from '@repositories';
+import { Progress } from '../../data/crypt/progress';
 
 type Props = {
   uid: string;
   onCompleted: () => void;
+  onProgress?: (progress: Progress | null) => void;
 };
 
-export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
+export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: Props) {
 
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -24,7 +24,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
   const isMigrating = progress !== null;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    const repository = new CryptoPassRepository(uid);
+    const repository = new CryptoPassRepository(uid, onProgress);
 
     event.preventDefault();
     if (loading) return;
@@ -43,9 +43,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
     setProgress(null);
 
     try {
-      await repository.initSession(password, {
-        onProgress: (value) => setProgress(value),
-      });
+      await repository.initSession(password);
       onCompleted();
     } catch (err) {
       if (err instanceof Error) {
@@ -65,25 +63,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
 
         <div className="crypto-pass-status">
           <Loading show />
-          {isMigrating ? 'Migrando dados existentes…' : 'Configurando criptografia…'}
         </div>
-
-        {progress && (
-          <div className="crypto-pass-progress">
-            <strong>Processando {progress.filename}</strong>
-            <div className="crypto-pass-progress-sub">
-              {`${progress.current} / ${progress.max}`}
-            </div>
-            <progress value={progress.current} max={progress.max} />
-            <div className="crypto-pass-progress-sub">
-              { progress.sub
-                ? `Criptografando ${progress.sub.current} / ${progress.sub.max}`
-                : 'Carregando dados...'
-              }
-            </div>
-            {progress.sub && <progress value={progress.sub.current || 0} max={progress.sub.max || 0} />}
-          </div>
-        )}
       </div>
     </div>
   }
@@ -127,11 +107,12 @@ export default function CryptoPassSetupScreen({ onCompleted, uid }: Props) {
           />
         </label>
 
-        <button type="submit" className="crypto-pass-submit" disabled={loading}>
-          {loading ? 'Salvando…' : 'Salvar senha e continuar'}
-        </button>
-
-        <button onClick={clearSession}>Sair</button>
+        <div className='crypto-pass-buttons'>
+          <button onClick={clearSession} className='cancel'>Sair</button>
+          <button type="submit" disabled={loading}>
+            {loading ? 'Salvando…' : 'Salvar senha'}
+          </button>
+        </div>
 
         {error && <div className="crypto-pass-error">{error}</div>}
       </form>
