@@ -34,9 +34,9 @@ if (window.isDevelopment) {
     ssl: window.isSsl,
   };
 
-  connectFunctionsEmulator(functions, hostname, port);
   connectAuthEmulator(auth, `https://${hostname}:${port}`, { disableWarnings: true });
-  (functions as any).emulatorOrigin = `${protocol}//${hostname}`;
+  connectFunctionsEmulator(functions, hostname, port);
+  (functions as any).emulatorOrigin = `${protocol}//${hostname}:${port}`;
 }
 
 

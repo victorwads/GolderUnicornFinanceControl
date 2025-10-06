@@ -23,8 +23,8 @@ services:
       - ./firebase.json:/app/firebase.json
       - proxy_node_modules:/app/node_modules
     ports:
-      - "443:443"
-      - "80:80"
+      - "443:4433"
+      - "80:8080"
     depends_on:
       - web
     command:

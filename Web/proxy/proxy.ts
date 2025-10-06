@@ -2,8 +2,10 @@ import http, { IncomingMessage } from 'http';
 import https from 'https';
 import ProxyServer from 'http-proxy';
 
-import { getRouterFromFirebaseConfig, addDomainsToConfigFile, getCerts } from './commons.js';
+import { getRouterFromFirebaseConfig, addDomainsToConfigFile, getCerts, isDocker } from './commons.js';
 import type { CertResult, Domain, RouteTable } from './commons.js';
+
+const WEB_DEFAULT_HOST = isDocker ? 'web' : 'localhost';
 
 type ProxyInstance = {
   server: http.Server | https.Server;
@@ -120,8 +122,8 @@ class ProxyManager {
 
       proxy.on('error', (err, req, res) => {
         this.logDomainChange(req);
-        console.error(`❌ Proxy error: ${err.message}`);
-        res?.end(`Proxy error: ${err.message}`);
+        console.error(`❌ Proxy error: ${err.message}`, err, err.errors);
+        res?.end(`Proxy error: ${err.message} ${err} ${err.errors}`);
       });
 
       this.routeProxies[targetName] = proxy;
@@ -134,7 +136,7 @@ class ProxyManager {
     };
   }
 
-  addMultiplexedProxy(port = 443): void {
+  addMultiplexedProxy(port = 4433): void {
     const { cert, key } = this.certInfo;
     const server = https.createServer({ key, cert }, (req, res) => {
       const { proxy } = this.getOrCreateProxy(req.url || '', req.headers.host || '');
@@ -161,16 +163,17 @@ class ProxyManager {
     this.proxies.push({ server, port });
   }
 
-  addRedirect(port = 80): void {
+  addRedirect(port = 8080): void {
+    const redirectPort = isDocker ? '' : ':4433';
     const server = http.createServer((req, res) => {
       const host = req.headers.host?.split(':')[0] || 'localhost';
-      const location = `https://${host}${req.url}`;
+      const location = `https://${host}${req.url}${redirectPort}`;
       res.writeHead(301, { Location: location });
       res.end();
     });
 
     server.listen(port, () => {
-      console.log(`🔁 HTTP → HTTPS redirect on http://0.0.0.0:${port}`);
+      console.log(`🔁 HTTP → HTTPS redirect on http://*:${port}/* to https://*${redirectPort}/*`);
     });
 
     this.proxies.push({ server, port });
@@ -303,7 +306,7 @@ async function start(): Promise<void> {
 
   const routeTable: RouteTable = {
     ...getRouterFromFirebaseConfig(args.firebaseConfigPath),
-    default: args.reactServer || 'http://web:3000',
+    default: args.reactServer || `http://${WEB_DEFAULT_HOST}:3000`,
   };
   for (const [key, value] of Object.entries(routeTable)) {
     console.log(`  🔧 URLs with '${key}' will be proxied to ${value}`);

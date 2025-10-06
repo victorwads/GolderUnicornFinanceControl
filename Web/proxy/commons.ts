@@ -183,9 +183,12 @@ export function getRouterFromFirebaseConfig(fileName: string): RouteTable {
 
   for (const [key, value] of Object.entries(emulators)) {
     if (value.port) {
-      routeTable[key] = `http://firebase:${value.port}`;
+      routeTable[key] = `http://${FIREBASE_DEFAULT_HOST}:${value.port}`;
     }
   }
 
   return routeTable;
 }
+
+export const isDocker = !process.argv.includes('--local');
+const FIREBASE_DEFAULT_HOST = isDocker ? 'firebase' : 'localhost';
