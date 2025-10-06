@@ -20,7 +20,7 @@
     "react-speech-recognition": "^4.0.1"
   },
   "scripts": {
-    "proxy": "nodemon --watch proxy --ext ts --exec \"yarn tsx proxy/proxy.ts\"",
+    "proxy": "nodemon --watch proxy --ext ts --exec \"yarn tsx proxy/index.ts\"",
     "start": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",

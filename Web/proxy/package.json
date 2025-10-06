@@ -1,0 +1,20 @@
+{
+  "name": "custom-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "http-proxy": "^1.18.1",
+    "mkcert": "^3.2.0"
+  },
+  "scripts": {
+    "proxy": "yarn tsx index.ts",
+    "proxy:debug": "yarn tsx --inspect=0.0.0.0:9230 index.ts",
+    "trust": "bash trust-rootCA.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "folders": [
+    { "path": "Web/", "name": "Web" },
+    { "path": "Web/proxy", "name": "Proxy" },
+    { "path": "Backend/", "name": "Backend - Firebase Functions" },
+    { "path": "Firebase/", "name": "Firebase Emulators" },
+    { "path": ".", "name": "Root" },
+  ],
+  "settings": {}
+}

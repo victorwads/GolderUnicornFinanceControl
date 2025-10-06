@@ -13,7 +13,7 @@ trap cleanup SIGINT SIGTERM EXIT
 
 # Emulators
 cd Backend
-yarn
+yarn install
 yarn build
 cd -
 cd Firebase
@@ -29,7 +29,7 @@ cd -
 
 # Proxy
 cd Web
-yarn
+yarn install
 yarn proxy --local &
 PROXY_PID=$!
 cd -

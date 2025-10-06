@@ -1,0 +1,6 @@
+certs/*
+!certs/.domains
+
+*.lock
+
+*.override.*
