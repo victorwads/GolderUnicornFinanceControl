@@ -152,8 +152,9 @@ export class ProxyManager {
           }
         } else {
           if (this.shouldLogRequest(req)) {
-          const from = `https://${req?.headers?.host}/${req?.url}`.replace('//', '/');
-          console.log(`🦉 Proxying ${targetName}:${req?.method} ${from} -> ${target}/*`);
+          const { method, headers, url } = req || {};
+          const from = `${headers?.host}/${url}`.replace('//', '/');
+          console.log(`🦉 Proxying ${targetName}:${method} https://${from} -> ${target}/*`);
         }
         }
       });
