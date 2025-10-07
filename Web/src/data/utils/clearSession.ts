@@ -1,4 +1,4 @@
-import { app, auth, clearFirestore } from "@configs";
+import { app, auth, AUTH_CACHE_KEY, clearFirestore } from "@configs";
 import { clearRepositories } from "@repositories";
 import { clearServices } from "@services";
 import { signOut } from "firebase/auth";
@@ -12,5 +12,6 @@ export async function clearSession() {
   clearRepositories();
   clearServices();
   signOut(auth);
+  localStorage.removeItem(AUTH_CACHE_KEY)
   window.location.reload();
 }

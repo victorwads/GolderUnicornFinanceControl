@@ -12,6 +12,7 @@ const decryptCallable = httpsCallable<DecryptPayload, EncryptPayload>(functions,
 
 const CHUNK_SIZE = 100;
 const SESSION_SECRET_KEY = 'crypto.secretHash.'
+const TOKEN_KEY = 'crypto.token.';
 
 type EncryptPayload = { secretHash: string };
 type DecryptPayload = { token: string };
@@ -27,7 +28,7 @@ export default class CryptoPassRepository {
   ) {}
 
   private get STORAGE_TOKEN_KEY() {
-    return 'crypto.token.' + this.uid;
+    return TOKEN_KEY + this.uid;
   }
 
   private get SESSION_SECRET_KEY() {
@@ -37,6 +38,11 @@ export default class CryptoPassRepository {
   public static isAvailable(uid?: string): boolean {
     if(!uid) return false;
     return sessionStorage.getItem(SESSION_SECRET_KEY + uid) !== null;
+  }
+
+  public static hasToken(uid?: string): boolean {
+    if(!uid) return false;
+    return localStorage.getItem(TOKEN_KEY + uid) !== null;
   }
 
   public static getSyncHash(uid: string): Hash | null {
@@ -67,7 +73,6 @@ export default class CryptoPassRepository {
 
     const { privateHash, fullyMigrated } = await user.getUserData();
     if (!privateHash || !fullyMigrated) {
-      alert(`Fully migrating value is ${fullyMigrated} and privateHash is ${privateHash}.`);
       this.updateEncryption(secretHash);
     } else if (privateHash !== secretHash.hex) {
       throw new Error('Senha de criptografia inválida.');

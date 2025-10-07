@@ -4,18 +4,18 @@ import './CryptoPassSetupScreen.css';
 import { Loading } from '@components/Loading';
 
 import { clearSession } from '@utils/clearSession';
-import { CryptoPassRepository } from '@repositories';
+import { CryptoPassRepository, User } from '@repositories';
 import { Progress } from '../../data/crypt/progress';
 
 type Props = {
-  uid: string;
+  user: User;
   onCompleted: () => void;
   onProgress?: (progress: Progress | null) => void;
 };
 
 const initPassword = window.isDevelopment ? '12345678' : '';
 
-export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: Props) {
+export default function CryptoPassSetupScreen({ onCompleted, user, onProgress }: Props) {
 
   const [password, setPassword] = useState(initPassword);
   const [confirmation, setConfirmation] = useState(initPassword);
@@ -23,7 +23,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    const repository = new CryptoPassRepository(uid, onProgress);
+    const repository = new CryptoPassRepository(user.id, onProgress);
 
     event.preventDefault();
     if (loading) return;
@@ -57,11 +57,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
   if (loading) {
     return <div className="crypto-pass-screen">
       <div className="crypto-pass-card">
-        {error && <div className="crypto-pass-error">{error}</div>}
-
-        <div className="crypto-pass-status">
-          <Loading show />
-        </div>
+        <Loading show />
       </div>
     </div>
   }
@@ -69,7 +65,11 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
   return (
     <div className="crypto-pass-screen">
       <form onSubmit={handleSubmit} className="crypto-pass-card">
-        <div>
+        {user.privateHash
+        ? <div>
+          <h1>Insira sua senha de criptografia</h1>
+        </div>
+        : <div>
           <h1>Proteja seus dados</h1>
           <p>
             Defina uma senha para criptografar seus dados antes de abrir o aplicativo.
@@ -79,7 +79,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
             <strong>Atenção:</strong> Não há como recuperar essa senha se você esquecê-la.
             Certifique-se de anotá-la em um local seguro. Não será possível muda-la depois.
           </p>
-        </div>
+        </div>}
 
         <label className="crypto-pass-field">
           <span>Senha de criptografia</span>
@@ -93,7 +93,7 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
           />
         </label>
 
-        <label className="crypto-pass-field">
+        {!user.privateHash && <label className="crypto-pass-field">
           <span>Confirme a senha</span>
           <input
             className="crypto-pass-input"
@@ -103,12 +103,12 @@ export default function CryptoPassSetupScreen({ onCompleted, uid, onProgress }: 
               if (error) setError(null);
             }}
           />
-        </label>
+        </label>}
 
         <div className='crypto-pass-buttons'>
           <button type='reset' onClick={() => clearSession()} className='cancel'>Sair</button>
           <button type="submit" disabled={loading}>
-            {loading ? 'Salvando…' : 'Salvar senha'}
+            {loading ? 'Salvando…' : 'Entrar'}
           </button>
         </div>
 
