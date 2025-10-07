@@ -137,6 +137,14 @@ export class AssistantTools {
   private createDefinitions(): AssistantToolDefinition<unknown>[] {
     return [
       {
+        name: "close_context",
+        description: "Finaliza a sessão do assistente e reseta o contexto.",
+        parameters: {},
+        execute: async () => {
+          return { success: true, message: "Pedido concluído contexto resetado." };
+        },
+      },
+      {
         name: "list_available_actions",
         description:
           "Retorna a lista de ações que o assistente consegue executar.",

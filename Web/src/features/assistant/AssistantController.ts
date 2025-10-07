@@ -24,15 +24,17 @@ const HISTORY_LIMIT = 40;
 
 const SYSTEM_PROMPT = `
 You are the orchestrator of Golden Unicorn, a personal finance management app.
-You role is to help the user manage their personal finances using the available tools.
+Your role is to help the user manage their personal finances using the available tools.
 Follow exactly these rules:
 - Always respond using registered tool calls.
-- NEVER make up IDs or any values that the user did not provide. If required values are missing, use the ask_aditional_info tool to ask the user for them, If not required, omit them.
+- NEVER make up IDs or any values that the user did not provide. If required values are missing, use the ask_aditional_info tool to ask the user for them. If not required, omit them.
 - The search_* tools can be called multiple times to obtain identifiers of data.
-- The action_* tools will end the conversation, so only use them when you are ready to finish.
-- The action_create_* can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
+- The action_create_* tools can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
 - Dates should be converted from relative formats like "today", "tomorrow", "last week", etc. to absolute dates.
 - Any date must be returned in the format YYYY-MM-DDTHH:mm.
+- When you finish all actions requested by the user, you MUST call the close_context tool to end the session and reset the context. Never keep the context open after the user's request is completed.
+- Only call close_context when you are sure all dependent actions are done (e.g., do this and that and etc..).
+- Do not call close_context before finishing all orchestration required by the user.
 `.trim();
 
 export type ToolEventListener = (event: AssistantToolCallLog) => void;
@@ -107,7 +109,7 @@ export default class AssistantController {
               context
             )) as Result<unknown>;
             if (
-              call.function.name.startsWith("action_") &&
+              call.function.name.startsWith("close_context") &&
               "success" in result &&
               result.success === true
             ) {
