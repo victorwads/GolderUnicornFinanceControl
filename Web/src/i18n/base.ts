@@ -206,5 +206,12 @@ export default interface Translation {
     };
     onboardingCases: () => string[];
   };
+  recurrent: {
+    title: string;
+    empty: string;
+    day: string;
+    next: string;
+    typeMonthly: string;
+  };
   subscriptions?: import("@features/subscriptions/i18n/base").default;
 }

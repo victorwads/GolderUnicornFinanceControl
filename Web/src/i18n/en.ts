@@ -231,6 +231,13 @@ const en: Translation = {
       'Say capture recurring payment of R$ 99,90 for Spotify to verify decimal amounts.',
       'Experiment with convert two hundred BRL to USD and log the difference to stress conversions.',
     ],
+  },
+  recurrent: {
+    title: 'Recurring entries',
+    empty: 'No recurring entries found.',
+    day: 'Day of month',
+    next: 'Next run',
+    typeMonthly: 'Monthly',
   }
 };
 

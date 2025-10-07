@@ -9,6 +9,9 @@ const Icon = FontAwesomeIcon as (typeof FontAwesomeIcon & {all: typeof Icons});
 Icon.all = Icons;
 export default Icon;
 
+export const iconNamesList: string[] = Object.values(Icons)
+  .map(definition => definition.iconName);
+
 export type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 type IconList = typeof solid | typeof brands | typeof regular;

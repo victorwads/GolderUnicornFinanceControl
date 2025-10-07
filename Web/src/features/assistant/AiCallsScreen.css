@@ -1,0 +1,186 @@
+.AiCallsScreen__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+}
+
+.AiCallsScreen__header h2 {
+  margin: 0;
+}
+
+.AiCallsScreen__subtitle {
+  margin: 0;
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.AiCallsLayout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: 60vh;
+}
+
+@media (min-width: 880px) {
+  .AiCallsLayout {
+    flex-direction: row;
+  }
+}
+
+.AiCallsList {
+  flex: 0 0 280px;
+  max-width: 320px;
+  background: var(--bg-step-1);
+  border: 1px solid var(--bg-step-2);
+  border-radius: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  overflow: auto;
+  max-height: calc(100vh - 220px);
+}
+
+.AiCallsList ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.AiCallsList li {
+  padding: var(--spacing-sm);
+  border-radius: var(--spacing-xs);
+  cursor: pointer;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xxs);
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.AiCallsList li:hover {
+  background: var(--bg-step-2);
+}
+
+.AiCallsList li.is-selected {
+  background: var(--bg-step-3);
+  border-color: var(--bg-step-2);
+}
+
+.AiCallsList__title {
+  font-size: 0.95em;
+  line-height: 1.3;
+}
+
+.AiCallsList__time {
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+.AiCallsList__empty {
+  text-align: center;
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.AiCallsThread {
+  flex: 1;
+  min-height: 320px;
+  border-radius: var(--spacing-xs);
+  border: 1px solid var(--bg-step-2);
+  background: rgba(0, 0, 0, 0.05);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.AiCallsThread__empty {
+  margin: auto;
+  opacity: 0.6;
+  text-align: center;
+}
+
+.AiCallsMessages {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: var(--spacing-md);
+}
+
+.AiCallsMessages__header h3 {
+  margin: 0;
+}
+
+.AiCallsMessages__header span {
+  font-size: 0.85em;
+  opacity: 0.6;
+}
+
+.AiCallsMessages__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
+}
+
+.AiCallsMessage {
+  border-radius: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  max-width: 100%;
+}
+
+.AiCallsMessage--user {
+  align-self: flex-start;
+  background: rgba(30, 120, 255, 0.08);
+}
+
+.AiCallsMessage--assistant {
+  align-self: flex-end;
+  background: rgba(128, 90, 200, 0.1);
+}
+
+.AiCallsMessage--tool {
+  background: rgba(255, 193, 7, 0.12);
+}
+
+.AiCallsMessage__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xxs);
+  font-size: 0.8em;
+  opacity: 0.75;
+}
+
+.AiCallsMessage__role {
+  text-transform: uppercase;
+}
+
+.AiCallsMessage pre {
+  margin: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--spacing-xxs);
+  padding: var(--spacing-xs);
+  overflow-x: auto;
+  font-size: 0.8em;
+}
+
+@media (prefers-color-scheme: light) {
+  .AiCallsThread {
+    background: rgba(255, 255, 255, 0.75);
+  }
+
+  .AiCallsMessage {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .AiCallsMessage pre {
+    background: rgba(0, 0, 0, 0.08);
+  }
+}

@@ -26,6 +26,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   private inited: boolean = false;
   private listenners: RepositoryUpdatedEventListenner<Model>[] = [];
   protected waitFinished: boolean = false;
+  private unsubscribeSnapshot?: () => void;
 
   constructor(
     private collectionNamePattern: string,
@@ -38,17 +39,28 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
 
   public addUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
     this.listenners.push(listenner);
+    if (this.listenners.length === 1) {
+      // Registra o snapshot listener na coleção
+      this.unsubscribeSnapshot = this.registerCollectionSnapshotListener();
+    }
     return () => this.removeUpdatedEventListenner(listenner);
   }
 
   public removeUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
     this.listenners = this.listenners.filter(l => l !== listenner);
+    if (this.listenners.length === 0 && this.unsubscribeSnapshot) {
+      // Remove o snapshot listener
+      this.unsubscribeSnapshot();
+      this.unsubscribeSnapshot = undefined;
+    }
   }
 
   private callEventListenners() {
-    this.listenners.forEach(l => {try {
-      l(this.getCache());
-    } catch {}});
+    this.listenners.forEach(l => {
+      try {
+        l(this.getCache());
+      } catch {}
+    });
   }
 
   protected get safeUserId(): string {
@@ -300,5 +312,28 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       console.error(`Error ${name} document: `, e, ...args, this);
       throw e;
     };
+  }
+
+  /**
+   * Registra o listener onSnapshot na coleção para detectar mudanças em tempo real.
+   * Só é chamado quando há pelo menos um listener registrado.
+   */
+  private registerCollectionSnapshotListener(): () => void {
+    // Importação dinâmica para evitar dependência circular
+    const { onSnapshot } = require("firebase/firestore");
+    // Mantém conexão ativa, mas só enquanto houver listeners
+    const unsubscribe = onSnapshot(this.ref, (snapshot: any) => {
+      // Atualiza cache local com os dados mais recentes
+      const docs = snapshot.docs || [];
+      // Limpa cache e atualiza
+      this.cache = {};
+      docs.forEach((docSnap: any) => {
+        this.fromFirestore(docSnap.id, docSnap.data()).then((model) => {
+          this.addToCache(model);
+        });
+      });
+      this.callEventListenners();
+    });
+    return unsubscribe;
   }
 }

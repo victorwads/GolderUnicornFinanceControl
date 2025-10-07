@@ -29,21 +29,10 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
       name: "creditcard_invoice_item",
       description: "Registra um lançamento vinculado a um cartão de crédito. sempre valide se o usuário comprou mesmo no crédito ou para débito a ferramenta adequada.",
       properties: {
+        ...Registry.metadataBase.aiToolCreator.properties,
         cardId: {
           type: "string",
           description: "Identificador do cartão responsável pelo lançamento.",
-        },
-        value: {
-          type: "number",
-          description: "Valor positivo do lançamento; use negativo somente para reembolsos ou estornos.",
-        },
-        description: {
-          type: "string",
-          description: "Descrição do lançamento na fatura.",
-        },
-        date: {
-          type: "string",
-          description: "Data da compra.",
         },
         invoiceMonth: {
           type: "number",
@@ -52,14 +41,6 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
         invoiceYear: {
           type: "number",
           description: "Ano de referência da fatura. Se omitido, será derivado da data.",
-        },
-        categoryId: {
-          type: "string",
-          description: Category.idAiExtractor,
-        },
-        observation: {
-          type: "string",
-          description: "Observações adicionais sobre o lançamento.",
         },
       },
       required: ["cardId", "value", "description", "date"],
