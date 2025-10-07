@@ -1,0 +1,139 @@
+.TimelineOfxImport {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  height: 100%;
+  padding: var(--spacing-lg) 0;
+}
+
+.TimelineOfxImport__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.TimelineOfxImport__title {
+  font-size: 1.4em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.TimelineOfxImport__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+}
+
+.TimelineOfxImport__type {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.TimelineOfxImport__form {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.TimelineOfxImport__form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  font-weight: bold;
+}
+
+.TimelineOfxImport__form select,
+.TimelineOfxImport__form input[type="file"] {
+  background-color: var(--bg-color-default);
+  border: 1px solid var(--divider-color-soft);
+  border-radius: 6px;
+  padding: var(--spacing-xs);
+  color: inherit;
+}
+
+.TimelineOfxImport__status {
+  min-height: 1.4em;
+  font-size: 0.9em;
+}
+
+.TimelineOfxImport__status--error {
+  color: var(--color-danger);
+}
+
+.TimelineOfxImport__status--info {
+  color: var(--color-info);
+}
+
+.TimelineOfxImport__status--success {
+  color: var(--color-success);
+}
+
+.TimelineOfxImport__summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+.TimelineOfxImport__preview {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.TimelineOfxImport__tableWrapper {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--divider-color-soft);
+  border-radius: 6px;
+}
+
+.TimelineOfxImport__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+.TimelineOfxImport__table th,
+.TimelineOfxImport__table td {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-bottom: 1px solid var(--divider-color-soft);
+  text-align: left;
+}
+
+.TimelineOfxImport__table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-color-default);
+  z-index: 1;
+}
+
+.TimelineOfxImport__amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.TimelineOfxImport__amount.positive {
+  color: var(--color-success);
+}
+
+.TimelineOfxImport__amount.negative {
+  color: var(--color-danger);
+}
+
+.TimelineOfxImport__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+.TimelineOfxImport__actions .Button {
+  min-width: 120px;
+}

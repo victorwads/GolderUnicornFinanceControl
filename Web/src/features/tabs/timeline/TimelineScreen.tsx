@@ -16,6 +16,7 @@ import SearchBar from '@components/fields/SearchBar';
 
 import { PARAM_CATEGORY, PARAM_FROM, PARAM_TO } from './TimelineFilterScreen';
 import RegistryItem from "./RegistryItem";
+import TimelineOfxImport from "./TimelineOfxImport";
 
 const formatNumber = (number: number) => number.toLocaleString(CurrentLangInfo.short, {
   style: "currency",
@@ -35,6 +36,8 @@ const TimelineScreen = () => {
   // @legacy
   const [selectedAccount, setSelectedAccount] = useState<Account | null>();
   const [searchValue, setSearchValue] = useState('');
+  const [showImport, setShowImport] = useState(false);
+  const [dataVersion, setDataVersion] = useState(0);
 
   useEffect(() => {
     const { accounts } = getRepositories();
@@ -57,7 +60,7 @@ const TimelineScreen = () => {
 
     setCurrentBalance(balance.getBalance(accountIds, period.end));
     setRegistries(registries);
-  }, [categoryIds, accountIds, showArchived, period, searchValue]);
+  }, [categoryIds, accountIds, showArchived, period, searchValue, dataVersion]);
 
   const { id: accountId} = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -111,10 +114,16 @@ const TimelineScreen = () => {
 
   const hasCategoryFilter = categoryIds && categoryIds?.length > 0;
 
+  const handleImportSuccess = () => {
+    setShowImport(false);
+    setDataVersion((value) => value + 1);
+  };
+
   // TODO
   let perDayTotal = 0;
   let currentDay = registries[0]?.registry.date.getDate();
-  return <Container spaced full>
+  return <>
+    <Container spaced full>
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
         <h1 className="ScreenTitle">{Lang.timeline.title}</h1>
@@ -136,12 +145,33 @@ const TimelineScreen = () => {
             {Lang.accounts.showArchived}
           </label>
         </div>}
-        {(() => {
-          const filterParams = new URLSearchParams(searchParams);
-          if (selectedAccount) filterParams.set('account', selectedAccount.id);
-          const filterLink = `/timeline/filters${filterParams.toString() ? `?${filterParams.toString()}` : ''}`;
-          return <Link to={filterLink} className="FilterButton"><Icon icon={Icon.all.faFilter} /></Link>;
-        })()}
+        <div className="TimelineHeaderActions">
+          <button
+            type="button"
+            className="TimelineActionButton"
+            onClick={() => setShowImport(true)}
+            aria-label={Lang.timeline.importOfx}
+            title={Lang.timeline.importOfx}
+          >
+            <Icon icon={Icon.all.faFileImport} />
+          </button>
+          {(() => {
+            const filterParams = new URLSearchParams(searchParams);
+            if (selectedAccount) filterParams.set('account', selectedAccount.id);
+            const queryString = filterParams.toString();
+            const filterLink = `/timeline/filters${queryString ? `?${queryString}` : ''}`;
+            return (
+              <Link
+                to={filterLink}
+                className="FilterButton TimelineActionButton"
+                aria-label={Lang.timeline.filters}
+                title={Lang.timeline.filters}
+              >
+                <Icon icon={Icon.all.faFilter} />
+              </Link>
+            );
+          })()}
+        </div>
       </div>
       <div className="ScreenHeaderRow">
         <div className="ScreenTotal">
@@ -201,7 +231,14 @@ const TimelineScreen = () => {
         </div>
       </div>
     </ContainerScrollContent>
-  </Container>;
+    </Container>
+    <TimelineOfxImport
+      isOpen={showImport}
+      onClose={() => setShowImport(false)}
+      onImported={handleImportSuccess}
+      defaultAccountId={selectedAccount?.id}
+    />
+  </>;
 };
 
 

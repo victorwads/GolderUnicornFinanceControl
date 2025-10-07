@@ -20,6 +20,18 @@ export default interface Translation {
     from: string;
     to: string;
     apply: string;
+    importOfx: string;
+    importOfxTitle: string;
+    importOfxAccountOption: string;
+    importOfxCreditOption: string;
+    importOfxAccountLabel: string;
+    importOfxCardLabel: string;
+    importOfxFileLabel: string;
+    importOfxLoaded: (count: number) => string;
+    importOfxNoTransactions: string;
+    importOfxImport: string;
+    importOfxError: string;
+    importOfxSuccess: string;
   };
   registry: {
     title: string;

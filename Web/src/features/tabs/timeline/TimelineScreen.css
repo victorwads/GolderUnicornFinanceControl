@@ -44,7 +44,15 @@
   margin-right: 5px;
 }
 
-.FilterButton {
+.TimelineHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-right: var(--spacing-md);
+}
+
+.FilterButton,
+.TimelineActionButton {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -55,10 +63,10 @@
   justify-content: center;
   cursor: pointer;
   background-color: var(--bg-color-highlight);
-  margin-right: var(--spacing-md);
 }
 
-.FilterButton:hover {
+.FilterButton:hover,
+.TimelineActionButton:hover {
   background-color: var(--bg-color-shadow);
 }
 
