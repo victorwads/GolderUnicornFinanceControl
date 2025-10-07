@@ -1,4 +1,5 @@
 import { getCerts, RouteTable } from "./commons";
+import { setFirebaseHost } from "./plugins/firebase";
 import { parseArgs } from "./process";
 import { ProxyManager, Plugin, ServiceRules } from "./proxy";
 
@@ -11,6 +12,7 @@ const defaultConfig = Promise.resolve({
 });
 
 async function start(): Promise<void> {
+  setFirebaseHost(isDocker ? "firebase" : "localhost");
   const extraDomains = (args.domains || "").split(",");
   const cert = await getCerts(
     extraDomains,
