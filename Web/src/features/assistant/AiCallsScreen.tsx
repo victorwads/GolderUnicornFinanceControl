@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import getRepositories from '@repositories';
-import type { AiCall } from '@models';
+import type { AiCallContext } from '@models';
 
 type AiCallLogEntry = {
   role?: string;
@@ -27,7 +27,7 @@ const AiCallsScreen = () => {
   useEffect(() => {
     const repo = getRepositories().aiCalls;
 
-    const sync = (items: AiCall[]) => {
+    const sync = (items: AiCallContext[]) => {
       const normalized = normalizeConversations(items);
       setConversations(normalized);
       setSelectedId((previous) => {
@@ -97,7 +97,7 @@ const AiCallsScreen = () => {
 
 export default AiCallsScreen;
 
-function normalizeConversations(items: AiCall[]): Conversation[] {
+function normalizeConversations(items: AiCallContext[]): Conversation[] {
   return items
     .map((item) => {
       const entries = extractEntries(item);
@@ -113,7 +113,7 @@ function normalizeConversations(items: AiCall[]): Conversation[] {
     .sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
-function extractEntries(call: AiCall): AiCallLogEntry[] {
+function extractEntries(call: AiCallContext): AiCallLogEntry[] {
   if (!Array.isArray(call.messages)) return [];
   return call.messages.map((entry) => (isLogEntry(entry) ? entry : { data: entry }));
 }
@@ -139,7 +139,7 @@ function deriveTitle(entries: AiCallLogEntry[]): string {
   return '';
 }
 
-function getConversationTimestamp(call: AiCall, entries: AiCallLogEntry[]): number {
+function getConversationTimestamp(call: AiCallContext, entries: AiCallLogEntry[]): number {
   const lastEntryWithTimestamp = [...entries]
     .reverse()
     .find((entry) => entry.timestamp && !Number.isNaN(Date.parse(entry.timestamp)));

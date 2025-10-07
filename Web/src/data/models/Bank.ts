@@ -1,5 +1,10 @@
+import { Account } from "./Account";
 import { DocumentModel } from "./DocumentModel";
 import { ModelMetadata } from "./metadata";
+
+export interface WithInfoAccount extends Account {
+  bank: Bank
+}
 
 export class Bank extends DocumentModel {
   constructor(

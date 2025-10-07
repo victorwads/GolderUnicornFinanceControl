@@ -28,7 +28,7 @@ export default class TimelineService {
   ) {}
 
   public getFirstRegistryDate(): Date {
-    const accountsRegistry = this.repositories.accountRegistries.firstRegistryDate;
+    const accountsRegistry = this.repositories.accountTransactions.firstRegistryDate;
     const invoicesRegistry = new Date() // this.repositories.creditCardsInvoices.firstRegistryDate;
     return accountsRegistry < invoicesRegistry ? accountsRegistry : invoicesRegistry;
   }
@@ -42,7 +42,7 @@ export default class TimelineService {
     paid,
     search
   }: TimelineFilterParams = {}): RegistryWithDetails[] {
-    const { accounts, categories, accountRegistries, creditCards, creditCardsInvoices } = this.repositories;
+    const { accounts, categories, accountTransactions: accountRegistries, creditCards, creditCardsInvoices } = this.repositories;
     const period = periodData && TimelineFilterPeriodImpl.fromData(periodData);
 
     const debit = accountRegistries.getCache()

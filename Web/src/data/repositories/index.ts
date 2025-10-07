@@ -19,16 +19,17 @@ import CryptoPassRepository from "./CryptoPassRepository";
 import AiCallsRepository from "./AiCallsRepository";
 import RecurrentRegistryRepository from "./RecurrentRegistryRepository";
 export { default as CryptoPassRepository } from './CryptoPassRepository';
+export { default as BaseRepository } from './BaseRepository';
 
 export type Repositories = {
   user: UserRepository;
   banks: BanksRepository;
   categories: CategoriesRepository;
   accounts: AccountsRepository;
-  accountRegistries: AccountsRegistryRepository;
-  recurrentRegistries: RecurrentRegistryRepository;
+  accountTransactions: AccountsRegistryRepository;
+  recurrentTransactions: RecurrentRegistryRepository;
   creditCards: CreditcardsRepository;
-  creditCardsRegistries: CreditCardsRegistryRepository;
+  creditCardsTransactions: CreditCardsRegistryRepository;
   creditCardsInvoices: CreditCardInvoicesRepository;
   products: GroceriesProductsRepository;
   groceries: GroceriesRepository;
@@ -61,10 +62,10 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
     banks: new BanksRepository(),
     categories: new CategoriesRepository(),
     accounts: new AccountsRepository(),
-    accountRegistries: new AccountsRegistryRepository(),
-    recurrentRegistries: new RecurrentRegistryRepository(),
+    accountTransactions: new AccountsRegistryRepository(),
+    recurrentTransactions: new RecurrentRegistryRepository(),
     creditCards: new CreditcardsRepository(),
-    creditCardsRegistries: new CreditCardsRegistryRepository(),
+    creditCardsTransactions: new CreditCardsRegistryRepository(),
     creditCardsInvoices: new CreditCardInvoicesRepository(),
     products: new GroceriesProductsRepository(),
     groceries: new GroceriesRepository(),

@@ -30,7 +30,7 @@ const CreditCardRegistryScreen = () => {
 
   const registry = useMemo(() => {
     if (!id) return undefined;
-    return getRepositories().creditCardsRegistries.getLocalById(id);
+    return getRepositories().creditCardsTransactions.getLocalById(id);
   }, [id]);
 
   const [description, setDescription] = useState("");
@@ -92,9 +92,9 @@ const CreditCardRegistryScreen = () => {
       categoryId
     );
     if (id) {
-      await getRepositories().creditCardsRegistries.editRegistry(newRegistry);
+      await getRepositories().creditCardsTransactions.editRegistry(newRegistry);
     } else {
-      await getRepositories().creditCardsRegistries.addRegistry(newRegistry);
+      await getRepositories().creditCardsTransactions.addRegistry(newRegistry);
     }
     alert(Lang.registry.messages.saved);
     navigate(-1);

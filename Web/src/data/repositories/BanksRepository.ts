@@ -1,4 +1,4 @@
-import BaseRepository from './RepositoryBase';
+import BaseRepository from './BaseRepository';
 
 import { Bank } from '@models';
 import { Collections } from '../../data/firebase/Collections'

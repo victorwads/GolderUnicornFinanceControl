@@ -75,7 +75,7 @@ const CreditCardsInvoices: React.FC = () => {
   useEffect(() => {
     if (!selectedInvoice) return;
 
-    const { creditCardsRegistries, categories } = getRepositories();
+    const { creditCardsTransactions: creditCardsRegistries, categories } = getRepositories();
     const registries = creditCardsRegistries.getRegistriesByInvoice(selectedInvoice)
     setInvoiceRegistries(registries.map((registry) => ({
       registry,

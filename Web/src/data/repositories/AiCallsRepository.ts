@@ -1,10 +1,18 @@
-import BaseRepository from "./RepositoryBase";
+import BaseRepository from "./BaseRepository";
 
-import { AiCall } from "@models";
+import { AiCallContext } from "@models";
 import { Collections } from "../firebase/Collections";
+import { arrayUnion } from "firebase/firestore";
 
-export default class AiCallsRepository extends BaseRepository<AiCall> {
+export default class AiCallsRepository extends BaseRepository<AiCallContext> {
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.AiCalls}`, AiCall);
+    super(`${Collections.Users}/{userId}/${Collections.AiCalls}`, AiCallContext);
+  }
+
+  public addMessage(callId: string, message: any) {
+    return this.set({
+      id: callId,
+      messages: arrayUnion(message) 
+    }, true);
   }
 }

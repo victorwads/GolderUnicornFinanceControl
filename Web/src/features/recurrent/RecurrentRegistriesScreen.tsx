@@ -18,7 +18,7 @@ interface RecurrentEntryView {
 
 const RecurrentRegistriesScreen = () => {
   const repositories = useMemo(() => getRepositories(), []);
-  const { recurrentRegistries } = repositories;
+  const { recurrentTransactions: recurrentRegistries } = repositories;
 
   const [entries, setEntries] = useState<RecurrentEntryView[]>(() =>
     normalizeEntries(recurrentRegistries.getCache(), repositories)

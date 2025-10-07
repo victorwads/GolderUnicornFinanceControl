@@ -1,11 +1,11 @@
 import type { ChatCompletionFunctionTool } from "openai/resources/index";
 
-import { Similarity, RankedResult } from '../utils/stringSimilarity';
-import type {
-  AssistantToolDefinition,
-  AssistantToolName,
-} from "./types";
-import { RepoName, waitUntilReady, type Repositories } from "@repositories";
+import { iconNamesList } from "@components/Icons";
+import { Similarity } from '../utils/stringSimilarity';
+import { routeMatch } from "./routesDefinition";
+import type { AssistantToolDefinition } from "./types";
+
+import { BaseRepository, RepoName, waitUntilReady, type Repositories } from "@repositories";
 import {
   Account,
   CreditCard,
@@ -18,27 +18,47 @@ import {
   Category,
   Bank,
   AccountRecurrentRegistry as RecurrentRegistry,
+  validateRequiredFields
 } from "@models";
-import { validateRequiredFields } from "@models";
-import { routeMatch, type RoutesDefinition } from "./routesDefinition";
-import BaseRepository from "src/data/repositories/RepositoryBase";
-import { iconNamesList } from "@components/Icons";
 
-const MAX_RESULTS = 10;
+const MAX_RESULTS = 5;
+const ignoredRepos: RepoName[] = [
+  'products', 'resourcesUse', 'aiCalls',
+]
 
 export class AssistantTools {
-  private readonly definitions: AssistantToolDefinition<unknown>[];
-  private readonly toolMap: Map<AssistantToolName, AssistantToolDefinition<unknown>>;
+  private readonly baseDefinitions: AssistantToolDefinition[];
+  private readonly toolMap: Map<string, AssistantToolDefinition>;
+  private readonly domains: Domain<any>[] = []
+  public sharedDomains: string[] = [];
 
   constructor(private readonly repositories: Repositories) {
-    this.definitions = this.createDefinitions();
-    this.toolMap = new Map(
-      this.definitions.map((tool) => [tool.name as AssistantToolName, tool])
-    );
+    this.domains = Object.entries(this.repositories)
+      .filter(([key]) => !ignoredRepos.includes(key as RepoName)) 
+      .map(([name, repository]) => {
+        const repoName = name as RepoName;
+        return {
+          name: repoName,
+          handlers: []
+        };
+      });
+    this.baseDefinitions = this.createDefinitions();
+
+    this.toolMap = new Map([
+      ...this.baseDefinitions.map((tool) => [tool.name, tool]),
+      ...this.domains
+        .flatMap(d => Object.values(d.handlers)
+        .map(tool => [tool.name, tool]))
+    ] as [string, AssistantToolDefinition][]);
   }
 
   buildToolSchema(): ChatCompletionFunctionTool[] {
-    return this.definitions.map((tool) => ({
+    return [
+      ...this.baseDefinitions,
+      ...this.domains
+        .filter(d => this.sharedDomains.includes(d.name))
+        .flatMap(d => Object.values(d.handlers))
+    ].map((tool) => ({
       type: "function" as const,
       function: {
         name: tool.name,
@@ -48,12 +68,12 @@ export class AssistantTools {
     }));
   }
 
-  getDefinitions(): AssistantToolDefinition<unknown>[] {
-    return this.definitions;
+  getDefinitions(): AssistantToolDefinition[] {
+    return this.baseDefinitions;
   }
 
   getToolUserInfo(
-    name: AssistantToolName,
+    name: string,
     args: Record<string, unknown>,
     result?: unknown
   ): string | undefined {
@@ -62,46 +82,36 @@ export class AssistantTools {
   }
 
   async execute(
-    name: AssistantToolName,
+    name: string,
     args: Record<string, unknown>,
-  ): Promise<unknown> {
+  ): Promise<Result<unknown>> {
     const tool = this.toolMap.get(name);
-    if (!tool) throw new Error(`Tool '${name}' não reconhecida.`);
+    if (!tool) return { success: false, error: `Tool '${name}' not found.` }
 
-    const result = await tool.execute?.(args);
-    return result;
+    return tool.execute( args);
   }
 
-  private createFromMetadata<T>(
-    {aiToolCreator, from}: ModelMetadata<T>,
-    repository: BaseRepository<any>
-  ): AssistantToolDefinition<Result<T>> {
-    return {
-      name: 'action_create_' + aiToolCreator.name,
+  private getRepository<T extends DocumentModel>(name: RepoName): BaseRepository<T> {
+    return this.repositories[name] as unknown as BaseRepository<T>;
+  }
+
+  private createFromMetadata<T extends DocumentModel>(
+    {aiToolCreator, from}: ModelMetadata<T & any>,
+    repoName: RepoName,
+    customName?: string
+  ) {
+    const name = customName || repoName;
+    const creator: AssistantToolDefinition =  {
+      name: name + '_create',
       description: aiToolCreator.description,
       parameters: {
         type: "object",
-        properties: {
-          id: {
-            type: "string",
-            description: `ID to manipulate an existing item. Use search_${aiToolCreator.name} to obtain the ID.`,
-          },
-          remove: {
-            type: "boolean",
-            description: "used to delete the item with the given ID",
-          },
-          ...Object.entries(aiToolCreator.properties).reduce((acc: object, [key, prop]: [string, { [K in R]?: Properties }]) => {
-            acc[key] = {
-              ...prop,
-              description: prop.description + `only if informed by the user ou tool.`,
-            }
-            return acc;
-          }, {} as object),
-        },
+        properties: aiToolCreator.properties,
         required: aiToolCreator.required,
         additionalProperties: false,
       },
       execute: async (args) => {
+        const repository = this.getRepository<T>(repoName);
         if (args.remove && args.id) {
           await repository.delete(String(args.id));
           return { success: true, result: "Registro excluído" }
@@ -132,37 +142,153 @@ export class AssistantTools {
           ).join("\n")
         }` : undefined
     };
+    const deletor: AssistantToolDefinition =  {
+      name: repoName + '_delete_by_id',
+      description: `Delete an existing ${aiToolCreator.name} by its identifier. Use ${DomainToolName.SEARCH_IN_DOMAIN} to obtain the ID.`,
+      parameters: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            description: `${aiToolCreator.name} identifier to delete an existing item. Use ${DomainToolName.SEARCH_IN_DOMAIN} to obtain the ID.`,
+          },
+        },
+        required: ["id"],
+        additionalProperties: false,
+      },
+      execute: async (args) => {
+        const repository = this.getRepository<T>(repoName);
+        const item = repository.getLocalById(String(args.id));
+        if(!item) {
+          return { success: false, error: `${aiToolCreator.name} with id '${args.id}' not found.` }
+        }
+        await repository.delete(String(args.id));
+        return { success: true, result: "Registro excluído" }
+      },
+      userInfo: (_, result) => result ? `Registro excluído com sucesso` : undefined
+    };
+    this.registerDomainAction(name, creator);
+    if (!customName) this.registerDomainAction(name, deletor);
   }
 
-  private createDefinitions(): AssistantToolDefinition<unknown>[] {
-    return [
+  private registerDomainAction(repoName: string, action: AssistantToolDefinition) {
+    let domain = this.domains.find(d => d.name === repoName);
+    if(!domain) {
+      domain = { name: repoName, handlers: [] };
+      this.domains.push(domain);
+    }
+    domain.handlers.push(action);
+  }
+
+  private createDefinitions(): AssistantToolDefinition[] {
+    const domainNames = this.domains.map(d => d.name);
+
+    const userTools: AssistantToolDefinition[] = [
       {
-        name: "close_context",
-        description: "Finaliza a sessão do assistente e reseta o contexto.",
+        name: ToUserTool.ASK,
+        description: "Ask user for additional information to proceed in his native language.",
+        parameters: {
+          type: "object", required: ["message"],
+          properties: { message: { type: "string" } },
+          additionalProperties: false,
+        }, execute: async () => ({ success: false }),
+      },
+      {
+        name: ToUserTool.FINISH,
+        description: "End user conversation when all requests are completed. Confirm with user before executing it.",
         parameters: {},
         execute: async () => {
-          return { success: true, message: "Pedido concluído contexto resetado." };
+          return { success: true, result: "Pedido concluído contexto resetado." };
         },
       },
+    ]
+    const domainTools: AssistantToolDefinition[] = [
       {
-        name: "list_available_actions",
-        description:
-          "Retorna a lista de ações que o assistente consegue executar.",
-        parameters: {
-          type: "object",
-          properties: {},
-          additionalProperties: false,
-        },
-        execute: async () => this.definitions.map(def => def.name),
-        userInfo: (args) => `Procurando ações disponíveis.`
+        name: DomainToolName.LIST_ALL,
+        description: "List all available domains in the system.",
+        parameters: {},
+        execute: async () =>  ({ success: true, result: domainNames }),
       },
       {
-        name: 'action_navigate_to_screen',
-        description: 'Utilizar quando o usuário quer "ir para" ou "ver alguma informação". Sempre use search_navigation_options antes para obter a listagem de telas e seus parâmetros.',
+        name: DomainToolName.LIST_ACTIONS,
+        description: "List the available actions/tools for a given domain.",
         parameters: {
           type: "object",
           properties: {
-            route: { type: "string", description: "Rota da tela para navegar já com path params se houver" },
+            domain: { type: "string", description: "Domain name to list actions" },
+          },
+          required: ["domain"],
+          additionalProperties: false,
+        },
+        execute: async ({ domain: domainName }: { domain: string }) => {
+          if (!domainNames.includes(domainName)) return { success: false, error: `Domain '${domainName}' not found.` };
+          const domain = this.domains.find(d => d.name === domainName);
+
+          this.sharedDomains.push(domainName);
+          return { 
+            success: true, 
+            result: domain?.handlers
+              .map(h => ({ name: h.name, description: h.description })) ?? [] 
+          };
+        },
+        userInfo: (args) => `Listing actions for domain '${args.domain}'`
+      },
+    ];
+    this.createSearchMetadata(
+      Account.metadata, "Conta", 'accounts',
+      (item) => `${item.name} - ${item.type}`,
+      ({ id, name, type }) => ({ id, name, type }),
+      { filter: (item) => !item.archived },
+    )
+    this.createSearchMetadata(
+      CreditCard.metadata, "Cartão de Crédito", 'creditCards',
+      (item) => `${item.name} - ${item.brand}`,
+      ({ id, name, brand }) => ({ id, name, brand }),
+      { filter: (item) => !item.archived },
+    )
+    this.createSearchMetadata(
+      Category.metadata, "Categoria", 'categories',
+      ({name, parentId}) => {
+        return parentId ? `${this.repositories.categories.getLocalById(parentId)?.name ?? "??"} -> ${name}` : name;
+      },
+      ({ id, name, parentId }) => ({ id, name, isSubcategory: !!parentId }),
+    )
+    this.createSearchMetadata(
+      Bank.metadata, "Banco", 'banks',
+      (item) => item.name,
+      ({ id, name }) => ({ id, name }),
+    )
+    this.createFromMetadata(Category.metadata, 'categories')
+    this.createFromMetadata(Account.metadata, 'accounts')
+    this.createFromMetadata(AccountsRegistry.metadata, 'accountTransactions', `accountTransfers`)
+    this.createFromMetadata(TransferRegistry.metadata2, 'accountTransactions')
+    this.createFromMetadata(RecurrentRegistry.metadata2, 'recurrentTransactions')
+    this.createFromMetadata(CreditCard.metadata, 'creditCards')
+    this.createFromMetadata(CreditCardRegistry.metadata, 'creditCardsTransactions')
+    this.registerDomainAction('categories',       {
+      name: AppActionTool.LIST_ICONS,
+      description: `Search for font awesome icons by term based on textual similarity.`,
+      parameters: this.createSearchParamsSchemema(),
+      execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => {
+        return {
+          success: true,
+          result: new Similarity<string>(n => n)
+            .rank(query, iconNamesList, this.capLimit(limit))
+            .map(rank => rank.item),
+        };
+      },
+      userInfo: (args) => `Procurando Ícone '${args.query}'`
+    });
+    return [
+      ...userTools,
+      ...domainTools,
+      {
+        name: AppActionTool.NAVIGATE,
+        description: 'Used to control user screen navigation. Use when the user wants to "go to" or "see some information". Always use search_navigation_options first to obtain search the list of screens.',
+        parameters: {
+          type: "object",
+          properties: {
+            route: { type: "string", description: "Term to search a screen. You can use the domain name, use list_domain tool if needed" },
             queryParams: { 
               type: "object",
               description: "Parâmetros opcionais descritos nas rotas",
@@ -188,84 +314,31 @@ export class AssistantTools {
         }
       },
       {
-        name: "search_navigation_options",
-        description: "Lista telas e visualizações disponíveis e seus parâmetros para navegação.",
+        name: AppActionTool.LIST_SCREENS,
+        description: "List the available screens and views and their parameters for navigation.",
         parameters: this.createSearchParamsSchemema(),
         execute: async ({ query }) => {
           const routes = (await import("./routesDefinition")).stringRoutesDefinition;
           const similarity = new Similarity<string>(route => route);
           return {
+            success: true,
             result: similarity.rank(query, routes, 5)
           }
         },
         userInfo: (args) => `Procurando telas sobre '${args.query}'`
       },
-      {
-        name: "ask_aditional_info",
-        description:
-          "Solicita informações adicionais ao usuário para prosseguir.",
-        parameters: {
-          type: "object",
-          properties: { message: { type: "string" } },
-          required: ["message"],
-          additionalProperties: false,
-        },
-      },
-      {
-        name: `search_icon_name`,
-        description: `Search for font awesome icons by term based on textual similarity.`,
-        parameters: this.createSearchParamsSchemema(),
-        execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => {
-          return {
-            result: new Similarity<string>(n => n)
-              .rank(query, iconNamesList, this.capLimit(limit))
-              .map(rank => rank.item),
-          };
-        },
-        userInfo: (args) => `Procurando Ícone '${args.query}'`
-      },
-      this.createSearchMetadata(
-        Account.metadata, "Conta", this.repositories.accounts,
-        (item) => `${item.name} - ${item.type}`,
-        ({ id, name, type }) => ({ id, name, type }),
-        { filter: (item) => !item.archived },
-      ),
-      this.createSearchMetadata(
-        CreditCard.metadata, "Cartão de Crédito", this.repositories.creditCards,
-        (item) => `${item.name} - ${item.brand}`,
-        ({ id, name, brand }) => ({ id, name, brand }),
-        { filter: (item) => !item.archived },
-      ),
-      this.createSearchMetadata(
-        Category.metadata, "Categoria", this.repositories.categories,
-        ({name, parentId}) => {
-          return parentId ? `${this.repositories.categories.getLocalById(parentId)?.name ?? "??"} -> ${name}` : name;
-        },
-        ({ id, name, parentId }) => ({ id, name, isSubcategory: !!parentId }),
-      ),
-      this.createSearchMetadata(
-        Bank.metadata, "Banco", this.repositories.banks,
-        (item) => item.name,
-        ({ id, name }) => ({ id, name }),
-      ),
-      this.createFromMetadata(Category.metadata, this.repositories.categories),
-      this.createFromMetadata(Account.metadata, this.repositories.accounts),
-      this.createFromMetadata(AccountsRegistry.metadata, this.repositories.accountRegistries),
-      this.createFromMetadata(TransferRegistry.metadata2, this.repositories.accountRegistries),
-      this.createFromMetadata(RecurrentRegistry.metadata2, this.repositories.recurrentRegistries),
-      this.createFromMetadata(CreditCard.metadata, this.repositories.creditCards),
-      this.createFromMetadata(CreditCardRegistry.metadata, this.repositories.creditCardsRegistries),
-    ];
+    ]
   }
 
   private createSearchMetadata<M extends DocumentModel>(
-    metadata: ModelMetadata<M>, itemName: string, repository: BaseRepository<M>,
+    metadata: ModelMetadata<M>, itemName: string, repositoryName: RepoName,
     selector: (item: M) => string, mapper: (item: M) => object,
     params?: {
       filter?: (item: M) => boolean
       repos?: RepoName[]
     }
-  ): AssistantToolDefinition<unknown> {
+  ): AssistantToolDefinition {
+    const repository = this.repositories[repositoryName] as unknown as BaseRepository<M>;
     const { filter = () => true, repos = [] } = params ?? {};
     return {
       name: `search_${metadata.aiToolCreator.name}`,
@@ -276,7 +349,6 @@ export class AssistantTools {
         await waitUntilReady(...repos);
 
         const items = repository.getCache().filter(filter);
-
         const similarity = new Similarity<M>(selector);
 
         return {
@@ -304,4 +376,25 @@ export class AssistantTools {
   private capLimit(limit?: number) {
     return Math.min(MAX_RESULTS, Math.max(1, Math.round(limit ?? MAX_RESULTS)));
   }
+}
+
+export enum ToUserTool {
+  FINISH = "finish_conversation",
+  ASK = "ask_user_aditional_info",
+};
+export enum DomainToolName {
+  LIST_ALL = "list_domains",
+  LIST_ACTIONS = "list_domain_actions",
+  SEARCH_IN_DOMAIN = "search_id_in_domain",
+}
+export enum AppActionTool {
+  LIST_ICONS = "search_icon_by_name",
+  LIST_SCREENS = "search_navigation_options",
+  NAVIGATE = "navigate_to_screen",
+}
+
+export type DomainAction<T = string> = T;
+export type Domain<Name extends RepoName> = {
+  name: Name;
+  handlers: AssistantToolDefinition[];
 }

@@ -43,6 +43,7 @@ export const WithRepo: React.FC<WithRepoProps> = ({ names, children, onReady }) 
       </div>
     );
   }
+  if (window.isDevelopment) console.log("WithRepo ready for ", names);
   return <>{children}</>;
 };
 

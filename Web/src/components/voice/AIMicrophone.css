@@ -173,10 +173,12 @@
   overflow-y: auto;
 }
 
-.ai-mic-onboarding__close {
-  position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
+.ai-mic-onboarding__header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ai-mic-onboarding__header > button {
   border: none;
   background: transparent;
   color: var(--font-color-default);
@@ -189,11 +191,11 @@
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.ai-mic-onboarding__close:hover {
+.ai-mic-onboarding__header > button:hover {
   background: var(--bg-color-highlight);
 }
 
-.ai-mic-onboarding__close:focus-visible {
+.ai-mic-onboarding__header > button:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.35);
 }

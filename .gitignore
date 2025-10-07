@@ -73,3 +73,5 @@ node_modules/
 .DS_Store
 
 .dev/
+serviceAccountKey.ts
+LanguageConverter

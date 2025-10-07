@@ -200,6 +200,7 @@ export default interface Translation {
         start: string;
         confirm: string;
         back: string;
+        imDone: string;
         tryAgain: string;
         close: string;
       };

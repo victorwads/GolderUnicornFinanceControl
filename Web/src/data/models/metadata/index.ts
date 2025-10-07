@@ -37,6 +37,7 @@ export type Properties =
 
 export interface ModelMetadata<M, R extends string = Extract<keyof M, string>, D = Record<R, unknown>> {
   aiToolCreator: {
+    /** @deprecated use domains instead */
     name: string;
     description: string;
     properties: { [K in R]?: Properties };

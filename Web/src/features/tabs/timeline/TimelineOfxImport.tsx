@@ -166,7 +166,7 @@ const TimelineOfxImport = ({
     accountId: string,
     sourceFile: string
   ) => {
-    const { accountRegistries } = getRepositories();
+    const { accountTransactions: accountRegistries } = getRepositories();
 
     const registries = entries.map(
       ({ amount, date, description, fitId }): AccountsRegistry => {
@@ -202,7 +202,7 @@ const TimelineOfxImport = ({
     cards: CreditCardWithInfos[],
     sourceFile: string
   ) => {
-    const { creditCardsRegistries, creditCards } = getRepositories();
+    const { creditCardsTransactions: creditCardsRegistries, creditCards } = getRepositories();
     const card = cards.find((c) => c.id === cardId) ?? creditCards.getLocalById(cardId);
     if (!card) {
       throw new Error("Credit card not found");
