@@ -50,6 +50,7 @@ export class ProxyManager {
   }
 
   private async loadPlugins(): Promise<void> {
+    console.log(`\n🔌 Loading ${this.plugins.length} plugins...`);
     for (const pluginPromise of this.plugins) {
       let plugin;
       try {
@@ -62,7 +63,8 @@ export class ProxyManager {
     }
 
     for (const [key, value] of Object.entries(this.routeTable)) {
-      console.log(`  🔧 URLs with '${key}' will be proxied to ${value}`);
+      console.log(` 🔧 Route '${key}' will be proxy to ${value} when request fulfill the following rule:`);
+      console.log(`    - ${this.serviceRules[key]?.toString() || "No specific rule"}`);
     }
     console.log("\n");
   }
@@ -150,9 +152,8 @@ export class ProxyManager {
           }
         } else {
           if (this.shouldLogRequest(req)) {
-          console.log(
-            `🦉 Proxying ${req?.method} ${targetName} -> ${target}${req?.url}`
-          );
+          const from = `https://${req?.headers?.host}/${req?.url}`.replace('//', '/');
+          console.log(`🦉 Proxying ${targetName}:${req?.method} ${from} -> ${target}/*`);
         }
         }
       });
@@ -164,7 +165,7 @@ export class ProxyManager {
 
       proxy.on("error", (err, req, res) => {
         this.logDomainChange(req);
-        console.error(`❌ Proxy error: ${err.message}`, req);
+        console.error(`❌ Proxy error: ${err.message}`, req.url, req.headers);
         res?.end(`Proxy error: ${err.message}`);
       });
 

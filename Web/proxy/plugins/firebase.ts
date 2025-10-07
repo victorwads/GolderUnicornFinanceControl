@@ -3,10 +3,10 @@ import { ProxyTarget, RouteTable } from "../commons";
 import { ServiceRules } from "../proxy";
 
 export const serviceRules: ServiceRules = {
-  ui: (_, host) => host.includes("firebase.local"),
-  firestore: (pathname) => pathname.includes("google.firestore.v1.Firestore/"),
-  functions: (pathname) => pathname.includes("/us-central1/"),
-  auth: (pathname) =>
+  ui: (host) => host.includes("firebase.local"),
+  firestore: (_, pathname) => pathname.includes("google.firestore.v1.Firestore/"),
+  functions: (_, pathname) => pathname.includes("/us-central1/"),
+  auth: (_, pathname) =>
     pathname.includes("identitytoolkit.googleapis.com/") ||
     pathname.includes("securetoken.googleapis.com/") ||
     pathname.includes("emulator/auth/")
