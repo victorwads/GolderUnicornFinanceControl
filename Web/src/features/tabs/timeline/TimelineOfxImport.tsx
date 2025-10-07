@@ -4,7 +4,7 @@ import "./TimelineOfxImport.css";
 
 import Dialog from "@components/visual/Dialog";
 import Button from "@components/Button";
-import Icon from "@components/Icons";
+import Icon, { Icons } from "@components/Icons";
 
 import { AccountsRegistry, CreditCard, CreditCardRegistry, RegistryType } from "@models";
 import getRepositories from "@repositories";
@@ -31,13 +31,13 @@ const TimelineOfxImport = ({
   const accounts = repositories.accounts.getCache();
   const creditCards = repositories.creditCards.getCacheWithBank();
 
-  const [importType, setImportType] = useState<ImportType>("account");
-  const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(
-    defaultAccountId || accounts[0]?.id
-  );
-  const [selectedCardId, setSelectedCardId] = useState<string | undefined>(
-    creditCards[0]?.id
-  );
+  const firstAccountId = defaultAccountId ?? accounts[0]?.id;
+  const firstCardId = creditCards[0]?.id;
+  const defaultType: ImportType = firstAccountId ? "account" : "credit";
+
+  const [importType, setImportType] = useState<ImportType>(defaultType);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(firstAccountId);
+  const [selectedCardId, setSelectedCardId] = useState<string | undefined>(firstCardId);
   const [transactions, setTransactions] = useState<ParsedOfxTransaction[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
@@ -47,30 +47,16 @@ const TimelineOfxImport = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    setImportType(defaultAccountId ? "account" : "account");
-    setSelectedAccountId(defaultAccountId || accounts[0]?.id);
-    setSelectedCardId((prev) => prev || creditCards[0]?.id);
+    setImportType(defaultType);
+    setSelectedAccountId(firstAccountId);
+    setSelectedCardId(firstCardId);
     setTransactions([]);
     setError(null);
     setFileName("");
     setIsLoadingFile(false);
     setIsImporting(false);
     setFileInputKey((value) => value + 1);
-  }, [isOpen, defaultAccountId, accounts, creditCards]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    if (importType === "account") {
-      if (!selectedAccountId && accounts.length > 0) {
-        setSelectedAccountId(accounts[0].id);
-      }
-    } else if (importType === "credit") {
-      if (!selectedCardId && creditCards.length > 0) {
-        setSelectedCardId(creditCards[0].id);
-      }
-    }
-  }, [importType, isOpen, accounts, creditCards, selectedAccountId, selectedCardId]);
+  }, [isOpen, defaultType, firstAccountId, firstCardId]);
 
   const summaryTotal = useMemo(() => {
     if (importType === "credit") {
@@ -86,6 +72,20 @@ const TimelineOfxImport = ({
     });
 
   const resetFileInput = () => setFileInputKey((value) => value + 1);
+
+  const ensureSelectionForType = (type: ImportType) => {
+    if (type === "account" && !selectedAccountId && firstAccountId) {
+      setSelectedAccountId(firstAccountId);
+    }
+    if (type === "credit" && !selectedCardId && firstCardId) {
+      setSelectedCardId(firstCardId);
+    }
+  };
+
+  const handleTypeChange = (type: ImportType) => {
+    setImportType(type);
+    ensureSelectionForType(type);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -246,7 +246,7 @@ const TimelineOfxImport = ({
     };
   };
 
-  const status = (() => {
+  const status = useMemo(() => {
     if (isLoadingFile) {
       return { text: Lang.commons.loading, tone: "info" as const };
     }
@@ -262,7 +262,7 @@ const TimelineOfxImport = ({
       };
     }
     return null;
-  })();
+  }, [isLoadingFile, error, transactions.length, summaryTotal]);
 
   const handleClose = () => {
     setTransactions([]);
@@ -287,7 +287,7 @@ const TimelineOfxImport = ({
             onClick={handleClose}
             aria-label={Lang.commons.cancel}
           >
-            <Icon icon={Icon.all.faClose} />
+            <Icon icon={Icons.faClose} />
           </button>
         </div>
 
@@ -298,7 +298,7 @@ const TimelineOfxImport = ({
               name="ofxImportType"
               value="account"
               checked={importType === "account"}
-              onChange={() => setImportType("account")}
+              onChange={() => handleTypeChange("account")}
             />{" "}
             {Lang.timeline.importOfxAccountOption}
           </label>
@@ -308,7 +308,7 @@ const TimelineOfxImport = ({
               name="ofxImportType"
               value="credit"
               checked={importType === "credit"}
-              onChange={() => setImportType("credit")}
+              onChange={() => handleTypeChange("credit")}
             />{" "}
             {Lang.timeline.importOfxCreditOption}
           </label>

@@ -23,7 +23,7 @@ import {
 
 const MAX_RESULTS = 5;
 const ignoredRepos: RepoName[] = [
-  'products', 'resourcesUse', 'aiCalls',
+  'products', 'resourcesUse', 'aiCalls', 'groceries', 'user', 'creditCardsInvoices'
 ]
 
 export class AssistantTools {

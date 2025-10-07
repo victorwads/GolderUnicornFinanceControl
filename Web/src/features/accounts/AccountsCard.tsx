@@ -47,7 +47,7 @@ const AccountItem = ({ account }: AccountItemParams) => {
   const [balance, setBalance] = useState<number|true>(true)
 
   useEffect(() => {
-    waitUntilReady('accountRegistries', 'creditCardsInvoices').then(() => {
+    waitUntilReady('accountTransactions', 'creditCardsInvoices').then(() => {
       const { balance } = getServices();
       setBalance(balance.getBalance(account.id))
     });

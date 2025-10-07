@@ -4,8 +4,8 @@ import * as brands from '@fortawesome/free-brands-svg-icons'
 import * as solid from '@fortawesome/free-solid-svg-icons'
 import * as regular from '@fortawesome/free-regular-svg-icons'
 
-const Icons = { ...solid, ...brands, ...regular }
-const Icon = FontAwesomeIcon as (typeof FontAwesomeIcon & {all: typeof Icons});
+export const Icons = { ...solid, ...brands, ...regular }
+const Icon = FontAwesomeIcon;
 Icon.all = Icons;
 export default Icon;
 

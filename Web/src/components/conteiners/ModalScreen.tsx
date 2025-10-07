@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './ModalScreen.css';
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from './';
-import Icon from '../Icons';
+import Icon, { Icons } from '../Icons';
 
 interface ModalScreenProps {
   title?: string;
@@ -20,7 +20,7 @@ export function ModalScreen({ title, header, children }: ModalScreenProps) {
         {title && <h1 className="modal-screen-title">{title}</h1>}
         <div className="spacer" />
         <button onClick={() => navigate(-1)} className="modal-back-button">
-          <Icon icon={Icon.all.faClose} />
+          <Icon icon={Icons.faClose} />
         </button>
       </div>
       {header}

@@ -16,12 +16,15 @@ export default class CategoriesRepository extends RepositoryWithCrypt<Category> 
 	}
 
 	public getAllRoots(): RootCategory[] {
-		let rootCategories: RootCategory[] = [];
-		let categories: Map<string, Category> = new Map();
+		const rootCategories: RootCategory[] = [];
+		const categories: Map<string, Category> = new Map();
+		const all = this.getCache();
+		const ids = all.map(c => c.id);
 
-		this.getCache().forEach((category) => {
+		all.forEach((category) => {
 			categories.set(category.id, category);
-			if (!category.parentId) {
+			const pId = category.parentId;
+			if (!pId || !ids.includes(pId)) {
 				rootCategories.push({
 					...category,
 					children: [],

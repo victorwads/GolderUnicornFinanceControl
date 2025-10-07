@@ -87,9 +87,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected async waitInit(): Promise<void> {
     if (Object.keys(this.cache || {}).length === this.minimumCacheSize) {
       await this.handleWait(this.getAll());
-      console.warn(`Repository ${this.collectionName} initialized with ${Object.keys(this.cache).length} items`);
-      // const length = Object.keys(this.cache).length;
-      // console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
+      console.warn(`Repository ${this.collectionName} initialized with ${Object.keys(this.cache).length} items`, this.cache);
     }
   }
 
@@ -101,7 +99,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     if (!this.cache) {
       this.cache = {};
     }
-    // await this.waitInit();
   }
 
   protected async createQuery(field: Partial<Model>): Promise<Query<Model, DocumentData>> {
@@ -211,7 +208,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   public getCache(showDeleted: boolean = false): Model[] {
-    if (window.isDevelopment) console.log(`Cache for ${this.collectionName}:`, this.cache);
     const result = Object.values(this.cache || {}) as Model[];
     return result.filter(item => showDeleted || !item.isDeleted);
   }

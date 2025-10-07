@@ -130,6 +130,13 @@ export async function waitUntilReady(...names: RepoName[]): Promise<void> {
   await Promise.all(toWait.map(name => repos[name].waitUntilReady()));
 }
 
+export function isAllReady(...names: RepoName[]): boolean {
+  if (!repositorieInstances) return false;
+  const repos = getRepositories();
+  return names
+    .every(name => !names.includes(name) || repos[name].isReady);
+}
+
 const user = getCurrentUser()
 if (user) {
   const sessionHash = CryptoPassRepository.getSyncHash(user.uid);

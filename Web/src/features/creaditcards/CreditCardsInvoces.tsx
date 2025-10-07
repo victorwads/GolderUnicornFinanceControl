@@ -5,7 +5,7 @@ import './CreditCardsInvoices.css';
 import routes from "../navigate";
 import RegistryItem from '../tabs/timeline/RegistryItem';
 import { ModalScreen } from "@components/conteiners/ModalScreen";
-import Icon from "@components/Icons";
+import Icon, { Icons } from "@components/Icons";
 
 import getRepositories from "@repositories";
 import { CreditCard, CreditCardInvoice, RegistryWithDetails } from "@models";
@@ -111,7 +111,7 @@ const CreditCardsInvoices: React.FC = () => {
     {id && (
       <div className="FloatButton">
         <Link to={`/creditcards/registry/add?card=${id}`}>
-          <Icon icon={Icon.all.faPlus} size="2x" />
+          <Icon icon={Icons.faPlus} size="2x" />
         </Link>
       </div>
     )}

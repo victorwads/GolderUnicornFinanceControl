@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Card from "@components/visual/Card";
-import Icon from "@components/Icons";
+import Icon, { Icons } from "@components/Icons";
 import { ModalScreen } from "@components/conteiners/ModalScreen";
 
 import { Bank, CreditCard } from "@models";
@@ -39,7 +39,7 @@ const CreditCardsScreen = () => {
         )}
         <div className="FloatButton">
           <Link to={'/creditcards/create'}>
-            <Icon icon={Icon.all.faPlus} size="2x" />
+            <Icon icon={Icons.faPlus} size="2x" />
           </Link>
         </div>
       </Card>

@@ -10,6 +10,10 @@ export class AiCallContext extends DocumentModel {
     public warnings: string[] = [],
     public finishReason?: string | null,
     public finishedAt: Date | null = null,
+    public tokens = {
+      input: 0,
+      output: 0,
+    }
   ) {
     super(id);
   }

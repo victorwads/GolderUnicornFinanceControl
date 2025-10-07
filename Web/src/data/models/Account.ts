@@ -25,24 +25,24 @@ export class Account extends DocumentModel {
   static metadata: ModelMetadata<Account> = {
     aiToolCreator: {
       name: "account",
-      description: "Cria, atualiza ou remove uma conta bancária",
+      description: "create an account, by default create checking account",
       properties: {
         name: {
           type: "string",
-          description: "Nome da conta.",
+          description: "name of the account, can be the bank name or a user nickname",
         },
         initialBalance: {
           type: "number",
-          description: "Saldo inicial da conta.",
+          description: "initial balance of the account. default: 0",
         },
         bankId: {
           type: "string",
-          description: "ID do banco associado à conta.",
+          description: "ID of the bank associated with the account.",
         },
         type: {
           type: "string",
           description:
-            "Tipo da conta. Pode ser 'CURRENT' (corrente), 'SAVINGS' (poupança), 'INVESTMENT' (investimento) ou 'CASH' (dinheiro).",
+            "Type of account. Can be 'CURRENT' (checking), 'SAVINGS' (savings), 'INVESTMENT' (investment), or 'CASH' (cash).",
         },
       },
       required: ["name", "bankId", "type"],

@@ -6,7 +6,7 @@ import { useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
 import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
 import { startListening, stopListening } from './microfone';
 
-import Icon from '@components/Icons';
+import Icon, { Icons } from '@components/Icons';
 import AIActionsParser, { AIActionHandler, AIItemData } from '@features/speech/AIParserManager';
 import GlassContainer from '@components/GlassContainer';
 import { Loading } from '@components/Loading';
@@ -151,7 +151,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       >
         {withLoading
           ? <Loading show />
-          : <Icon icon={listening ? Icon.all.faMicrophoneSlash : Icon.all.faMicrophone} />
+          : <Icon icon={listening ? Icons.faMicrophoneSlash : Icons.faMicrophone} />
         }
       </button>
       <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />

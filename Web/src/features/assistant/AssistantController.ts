@@ -55,7 +55,7 @@ export default class AssistantController {
   ) {}
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
-    const context = this.createRunContext(userLanguage);
+    const context = this.createRunContext(text, userLanguage);
     let messages = this.buildMessages(context.history);
 
     this.onToolCalled?.({
@@ -72,7 +72,7 @@ export default class AssistantController {
         const toolSchema = this.toolRegistry.buildToolSchema();
         const completion = await this.requestCompletion(messages, toolSchema);
         const choice = completion.choices[0];
-        this.recordUsage(completion);
+        this.recordUsage(completion, context);
 
         if (!choice) { context.finishReason = "no_choice_returned"; break;}
 
@@ -91,6 +91,8 @@ export default class AssistantController {
         messages = this.buildMessages(context.history);
         context.history = limitHistory(context.history);
       }
+    } catch (error) {
+      context.warnings.push(`internal_error: ${error}`);
     } finally {
       context.finishedAt = new Date();
       await this.persistAiCall(context);
@@ -99,16 +101,17 @@ export default class AssistantController {
     return { warnings: context.warnings };
   }
 
-  private createRunContext(userLanguage: string): AiCallContext {
+  private createRunContext(text: string, userLanguage: string): AiCallContext {
     const context = new AiCallContext(
-      crypto.randomUUID(),
+      new Date().toISOString().replace("T", " ").substring(0, 19),
       this.model,
       [
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
           content: `User native language: ${userLanguage}\nCurrent DateTime: ${new Date().toISOString()}`,
-        }
+        },
+        { role: "user", content: text }
       ],
     );
     this.repositories.aiCalls.set(context);
@@ -149,18 +152,20 @@ export default class AssistantController {
       context.warnings.push("model_return_plain_text");
     }
 
-    const { history, warnings, sharedDomains } = context;
-    this.repositories.aiCalls.set({ history, warnings, sharedDomains }, true);
+    const { id, history, warnings, sharedDomains, tokens } = context;
+    this.repositories.aiCalls.set({ id, history, warnings, sharedDomains, tokens }, true);
     return message.tool_calls || [];
   }
 
   private recordUsage(completion: {
     usage?: { prompt_tokens?: number; completion_tokens?: number };
-  }) {
+  }, context: AiCallContext) {
     const { prompt_tokens: input, completion_tokens: output } =
       completion.usage ?? {};
     if (!input && !output) return;
 
+    context.tokens.input += input ?? 0;
+    context.tokens.output += output ?? 0;
     addResourceUse({
       ai: {
         [ASSISTANT_MODEL]: {
@@ -198,13 +203,7 @@ export default class AssistantController {
     let result: Result<unknown>;
     if (call.function.name === ToUserTool.ASK) {
       result = await this.onAskAnditionalInfo?.(args.message)
-        .then((response) => {
-          context.history.push({
-            role: "user",
-            content: response,
-          });
-          return { success: true, result: response }
-        })
+        .then((response) => ({ success: true, result: response }))
         ?? { success: false, error: "No onAskAnditionalInfo handler provided." };
     } else {
       result = await this.toolRegistry.execute(name, args );
@@ -240,16 +239,6 @@ export default class AssistantController {
     return result;
   }
 }
-
-type AssistantMessageMetadata = {
-  completionId?: string;
-  finishReason?: string | null;
-  index?: number;
-  usage?: { prompt_tokens?: number; completion_tokens?: number };
-  model?: string;
-  created?: number;
-  requestMessages?: ChatCompletionMessageParam[];
-};
 
 function limitHistory(
   history: ChatCompletionMessageParam[]

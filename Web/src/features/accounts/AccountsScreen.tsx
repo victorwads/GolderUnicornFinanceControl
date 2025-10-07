@@ -6,7 +6,7 @@ import { Bank } from "@models"
 import getRepositories from "@repositories"
 
 import Card from "@components/visual/Card"
-import Icon from "@components/Icons"
+import Icon, { Icons } from "@components/Icons"
 import { ModalScreen } from "@components/conteiners/ModalScreen"
 import { WithInfoAccount } from './AccountsCard'
 import BankInfo from "../banks/BankInfo"
@@ -42,7 +42,7 @@ const AccountsScreen = () => {
       {accounts.length === 0 && <div className="centerInfo">{Lang.accounts.noAccounts}</div>}
       <div className="FloatButton">
         <Link to={'/accounts/create'}>
-        <Icon icon={Icon.all.faPlus} size="2x" />
+        <Icon icon={Icons.faPlus} size="2x" />
         </Link>
       </div>
     </Card>
