@@ -1,3 +1,4 @@
+import "dotenv"
 import "./index.css";
 import ReactDOM from "react-dom/client";
 
