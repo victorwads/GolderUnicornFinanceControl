@@ -18,7 +18,9 @@ export default abstract class Importer<T extends DocumentModel, JT> {
     protected modelClass: new (...args: any) => T,
     protected encryptor?: Encryptor,
     protected encrypt: boolean = true,
-  ) { }
+  ) { 
+    if (!this.encryptor) this.encrypt = false;
+  }
 
   abstract process(): Promise<void>;
 

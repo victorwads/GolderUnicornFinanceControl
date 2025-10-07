@@ -32,7 +32,7 @@ export default function CryptoPassSetupScreen({ onCompleted, user, onProgress }:
       setError('Informe uma senha de pelo menos 8 caracteres para proteger seus dados.');
       return;
     }
-    if (password !== confirmation) {
+    if (password !== confirmation && !user.privateHash) {
       setError('As senhas não coincidem.');
       return;
     }
