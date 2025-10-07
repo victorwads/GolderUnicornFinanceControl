@@ -11,7 +11,6 @@ type RouteParams = Record<string, RouteParamsInfo>;
 
 type RouteParamsInfo = {
   description: string;
-  type: 'path_param_string' | 'query_param_string';
   required: boolean;
   validation?: (value: any) => Result;
 };
@@ -32,21 +31,22 @@ export const routesDefinition: RoutesDefinition[] = [
     name: '/timeline/:id?',
     description: 'See transactions history of financial records, main place to view and manage account transactions. filtering by category, account, date range and month key, etc...',
     pathParams: {
-      id: { description: ' account ID to filter', type: 'path_param_string', required: false},
+      id: { description: ' account ID to filter', required: false},
     },
     queryParams: {
-      c: { description: 'category IDs to filter, separated by commas', type: 'query_param_string', required: false },
-      f: { description: '`from` filter by initial date', type: 'query_param_string', required: false },
-      t: { description: '`to` filter by final date', type: 'query_param_string', required: false },
-      m: { description: 'view Month key (e.g., 2025-09)', type: 'query_param_string', required: false },
+      c: { description: 'category IDs to filter, separated by commas', required: false },
+      f: { description: '`from` filter by initial date', required: false },
+      t: { description: '`to` filter by final date', required: false },
+      m: { description: 'view Month key (e.g., 2025-09)', required: false },
     },
   },
   {
     name: '/timeline/import',
-    description: 'Import OFX files to load transactions for an account or credit card directly into the timeline. Always pass one of the query params to preselect the target account/card and the screen will automatically gets the file. then you can finish conversation.',
+    description: 'MUST use query params. Use files to import transactions. Required one IDs of an account or a card.'+
+    'When load with the query params, the screen will automatically prompt the file selection.',
     queryParams: {
-      account: { description: 'Account ID to preselect and import into', type: 'query_param_string', required: false },
-      card: { description: 'Credit card ID to preselect and import into', type: 'query_param_string', required: false },
+      account: { description: 'Account ID to import into (search the id on accounts domain)', required: false },
+      card: { description: 'Credit card ID to import into (search the id on creditcards domain)', required: false },
     },
   },
   {
@@ -88,7 +88,7 @@ export const routesDefinition: RoutesDefinition[] = [
   // {
   //   name: '/accounts/:id/edit',
   //   description: 'Edit a especific bank account info manually',
-  //   pathParams: { id: { description: 'ID da conta bancária', type: 'path_param_string', required: true } },
+  //   pathParams: { id: { description: 'ID da conta bancária', required: true } },
   // },
   // {
   //   name: '/accounts/registry/add',
@@ -97,7 +97,7 @@ export const routesDefinition: RoutesDefinition[] = [
   {
     name: '/accounts/registry/:id/edit',
     description: 'Edit bank account info manually',
-    pathParams: { id: { description: 'ID of the account registry', type: 'path_param_string', required: true } }
+    pathParams: { id: { description: 'ID of the account registry', required: true } }
   },
   {
     name: '/creditcards',
@@ -110,7 +110,7 @@ export const routesDefinition: RoutesDefinition[] = [
   {
     name: '/creditcards/:id',
     description: 'View credit card info details',
-    pathParams: { id: { description: 'credit card ID', type: 'path_param_string', required: true } },
+    pathParams: { id: { description: 'credit card ID', required: true } },
   },
   // {
   //   name: '/creditcards/:id/edit',
@@ -120,8 +120,8 @@ export const routesDefinition: RoutesDefinition[] = [
     name: '/creditcards/:id/invoices/:selected?',
     description: 'View credit card invoices, list all invoices and details or the selected one',
     pathParams: {
-      id: { description: 'credit card ID', type: 'path_param_string', required: true },
-      selected: { description: 'ID of the selected invoice as Month key (e.g., 2025-09)', type: 'path_param_string', required: false },
+      id: { description: 'credit card ID', required: true },
+      selected: { description: 'ID of the selected invoice as Month key (e.g., 2025-09)', required: false },
     }
   },
   // {
@@ -147,7 +147,7 @@ export const routesDefinition: RoutesDefinition[] = [
   // {
   //   name: '/groceries/:id/edit',
   //   description: 'Editar item da lista de compras',
-  //   pathParams: { id: { description: 'ID do item de compra', type: 'path_param_string' } },
+  //   pathParams: { id: { description: 'ID do item de compra' } },
   // },
   {
     name: '/subscriptions/',

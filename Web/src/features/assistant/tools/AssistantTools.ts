@@ -20,6 +20,8 @@ import {
   AccountRecurrentRegistry as RecurrentRegistry,
   validateRequiredFields
 } from "@models";
+import { ad } from "vitest/dist/chunks/reporters.d.BFLkQcL6";
+import { Properties } from '../../../data/models/metadata/index';
 
 const MAX_RESULTS = 5;
 const ignoredRepos: RepoName[] = [
@@ -308,20 +310,26 @@ export class AssistantTools {
     this.registerDomainAction('accountTransactions',       {
       name: 'accountTransactions_import_ofx',
       description: `Import bank transactions from OFX file content.`,
-      parameters: {},
-      execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => ({
-        success: true,
-        result: "use the navigate tool to route /timeline/import?account={accountId} and the user will be prompted to upload the OFX file.",
-      })
+      parameters: {
+        type: "object",
+        properties: { id: { type: "string", description: "The ID of the account to import transactions for." }},
+        required: ["id"],
+        additionalProperties: false,
+      },
+      execute: async ({ id }: { id: string }) =>
+        this.execute('navigate_to_screen', { route: '/timeline/import', queryParams: { account: id } })
     });
     this.registerDomainAction('creditCardsTransactions',       {
       name: 'creditCardsTransactions_import_ofx',
       description: `Import credit card transactions from OFX file content.`,
-      parameters: {},
-      execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => ({
-        success: true,
-        result: "use the navigate tool to route /timeline/import?card={cardId} and the user will be prompted to upload the OFX file.",
-      })
+      parameters: {
+        type: "object",
+        properties: { id: { type: "string", description: "The ID of the credit card to import transactions for." } },
+        required: ["id"],
+        additionalProperties: false,
+      },
+      execute: async ({ id }: { id: string }) =>
+        this.execute(AppActionTool.NAVIGATE, { route: '/timeline/import', queryParams: { card: id } })
     });
     return [
       ...userTools,
@@ -335,12 +343,16 @@ export class AssistantTools {
             route: { type: "string", description: "Term to search a screen. use words related to the screen in english" },
             queryParams: { 
               type: "object",
-              description: "optional query parameters for the screen",
-              additionalProperties: true,
-            }
+              description: "query parameters for the screen",
+            },
+            additionalProperties: false,
           }
         },
-        execute: async ({ route, queryParams }): Promise<Result<void>> => {
+        execute: async ({ route, queryParams, ...other }): Promise<Result<void>> => {
+          if(other && Object.keys(other).length) {
+            return { success: false, error: `Parâmetros inválidos: ${Object.keys(other).join(", ")}. use o { route: '${route}', queryParams: { key: value } } para navegar.` };
+          }
+
           if(!route) return { success: false, error: `route is required. use ${AppActionTool.LIST_SCREENS} to obtain the list of available screens.` };
           const routes = (await import("./routesDefinition")).routesDefinition;
           const match = routes.find(r => routeMatch(r.name, route));

@@ -13,13 +13,24 @@ import type {
   AssistantRunResult,
   AssistantToolCallLog,
 } from "./tools/types";
-import { addResourceUse, type AiModel } from "@resourceUse";
+import { addResourceUse, TOKEN_PRICES, type AiModel } from "@resourceUse";
 import getRepositories, { Repositories } from "@repositories";
 import { AiCallContext } from "@models";
 import { Result } from "src/data/models/metadata";
 
-export const ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
-const HISTORY_LIMIT = 50;
+export let ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+
+const AIModelStorageKey = "assistant_model";
+const savedModel = localStorage.getItem(AIModelStorageKey);
+if (savedModel && Object.keys(TOKEN_PRICES).includes(savedModel)) {
+  ASSISTANT_MODEL = savedModel as AiModel;
+}
+
+export function setAssistantModel(model: AiModel) {
+  ASSISTANT_MODEL = model;
+  localStorage.setItem(AIModelStorageKey, model);
+  window.location.reload();
+}
 
 const SYSTEM_PROMPT = `
 You are an personal finance management assistant app. Your role is to help the user manage their personal finances.
@@ -35,6 +46,7 @@ Use the tools provided by the system to accomplish your tasks. Follow exactly th
 - Before you finish, you can move to the screen about the action that you just did using the ${AppActionTool.NAVIGATE} tool.
 - Do not call ${ToUserTool.FINISH} before finishing all orchestration required by the user.
 - Only talk with the user in his native language, which is provided in the first user message.
+- DO NOT ask user for file, always use the tools that will prompt it.
 `.trim();
 // - The action_create_new tools can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
 
@@ -57,7 +69,6 @@ export default class AssistantController {
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
     const context = this.createRunContext(text, userLanguage);
-    let messages = this.buildMessages(context.history);
 
     this.onToolCalled?.({
       id: "user-message",
@@ -71,11 +82,11 @@ export default class AssistantController {
     try {
       while (run) {
         const toolSchema = this.toolRegistry.buildToolSchema();
-        const completion = await this.requestCompletion(messages, toolSchema);
+        const completion = await this.requestCompletion(context.history, toolSchema);
         const choice = completion.choices[0];
         this.recordUsage(completion, context);
 
-        if (!choice) { context.finishReason = "no_choice_returned"; break;}
+        if (!choice) { context.finishReason = "no_choice_returned"; break; }
 
         const toolCalls = this.appendAssistantResponse(choice.message, context)
           .filter(call => call?.type === "function")
@@ -89,8 +100,6 @@ export default class AssistantController {
             await this.executeToolCall(call, context);
           }
         }
-        messages = this.buildMessages(context.history);
-        context.history = limitHistory(context.history);
       }
     } catch (error) {
       context.warnings.push(`internal_error: ${error}`);
@@ -117,12 +126,6 @@ export default class AssistantController {
     );
     this.repositories.aiCalls.set(context);
     return context;
-  }
-
-  private buildMessages(
-    history: ChatCompletionMessageParam[]
-  ): ChatCompletionMessageParam[] {
-    return [{ role: "system", content: SYSTEM_PROMPT }, ...history];
   }
 
   private async requestCompletion(
@@ -239,11 +242,4 @@ export default class AssistantController {
 
     return result;
   }
-}
-
-function limitHistory(
-  history: ChatCompletionMessageParam[]
-): ChatCompletionMessageParam[] {
-  if (history.length <= HISTORY_LIMIT) return history;
-  return history.slice(history.length - HISTORY_LIMIT);
 }

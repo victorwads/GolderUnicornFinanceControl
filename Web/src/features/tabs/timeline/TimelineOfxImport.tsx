@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./TimelineOfxImport.css";
 
@@ -84,62 +84,85 @@ const TimelineOfxImport = ({
   onImported,
   defaultAccountId,
   defaultCardId,
-  autoOpenFilePicker = false,
 }: TimelineOfxImportProps) => {
   const repositories = getRepositories();
   const accounts = repositories.accounts.getCache();
   const creditCards = repositories.creditCards.getCacheWithBank();
 
-  const firstAccountId = defaultAccountId ?? accounts[0]?.id;
-  const firstCardId = defaultCardId ?? creditCards[0]?.id;
-  const defaultType: ImportType = defaultAccountId
-    ? "account"
-    : defaultCardId
-    ? "credit"
-    : firstAccountId
-    ? "account"
-    : "credit";
+  const defaults = useMemo(() => {
+    const accountId = defaultAccountId ?? accounts[0]?.id;
+    const cardId = defaultCardId ?? creditCards[0]?.id;
+    const type: ImportType = defaultAccountId
+      ? "account"
+      : defaultCardId
+      ? "credit"
+      : accountId
+      ? "account"
+      : "credit";
 
-  const [importType, setImportType] = useState<ImportType>(defaultType);
-  const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(firstAccountId);
-  const [selectedCardId, setSelectedCardId] = useState<string | undefined>(firstCardId);
-  const [transactions, setTransactions] = useState<ParsedOfxTransaction[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string>("");
-  const [isLoadingFile, setIsLoadingFile] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [fileInputKey, setFileInputKey] = useState(0);
+    return { accountId, cardId, type };
+  }, [accounts, creditCards, defaultAccountId, defaultCardId]);
+
+  interface ImportState {
+    importType: ImportType;
+    selectedAccountId?: string;
+    selectedCardId?: string;
+    transactions: ParsedOfxTransaction[];
+    error: string | null;
+    fileName: string;
+    isLoadingFile: boolean;
+    isImporting: boolean;
+  }
+
+  const [state, setState] = useState<ImportState>(() => ({
+    importType: defaults.type,
+    selectedAccountId: defaults.accountId,
+    selectedCardId: defaults.cardId,
+    transactions: [],
+    error: null,
+    fileName: "",
+    isLoadingFile: false,
+    isImporting: false,
+  }));
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const hasAutoOpenedRef = useRef(false);
+
+  const resetFileInput = useCallback(() => {
+    const input = fileInputRef.current;
+    if (input) {
+      input.value = "";
+    }
+  }, []);
+
+  const resetState = useCallback(() => {
+    setState(() => ({
+      importType: defaults.type,
+      selectedAccountId: defaults.accountId,
+      selectedCardId: defaults.cardId,
+      transactions: [],
+      error: null,
+      fileName: "",
+      isLoadingFile: false,
+      isImporting: false,
+    }));
+    resetFileInput();
+  }, [defaults, resetFileInput]);
 
   useEffect(() => {
-    if (!isOpen) return;
-    setImportType(defaultType);
-    setSelectedAccountId(firstAccountId);
-    setSelectedCardId(firstCardId);
-    setTransactions([]);
-    setError(null);
-    setFileName("");
-    setIsLoadingFile(false);
-    setIsImporting(false);
-    setFileInputKey((value) => value + 1);
-    hasAutoOpenedRef.current = false;
-  }, [isOpen, defaultType, firstAccountId, firstCardId]);
+    if (!fileInputRef.current) return;
+    setTimeout(() => fileInputRef.current?.click(), 1000)
+  }, [fileInputRef.current]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      hasAutoOpenedRef.current = false;
-      return;
-    }
-
-    if (autoOpenFilePicker && !hasAutoOpenedRef.current) {
-      hasAutoOpenedRef.current = true;
-      const input = fileInputRef.current;
-      if (input) {
-        window.setTimeout(() => input.click(), 10);
-      }
-    }
-  }, [isOpen, autoOpenFilePicker, fileInputKey]);
+  const {
+    importType,
+    selectedAccountId,
+    selectedCardId,
+    transactions,
+    error,
+    fileName,
+    isLoadingFile,
+    isImporting,
+  } = state;
 
   const summaryTotal = useMemo(() => {
     if (importType === "credit") {
@@ -154,28 +177,24 @@ const TimelineOfxImport = ({
       currency: "BRL",
     });
 
-  const resetFileInput = () => setFileInputKey((value) => value + 1);
-
-  const ensureSelectionForType = (type: ImportType) => {
-    if (type === "account" && !selectedAccountId && firstAccountId) {
-      setSelectedAccountId(firstAccountId);
-    }
-    if (type === "credit" && !selectedCardId && firstCardId) {
-      setSelectedCardId(firstCardId);
-    }
-  };
-
   const handleTypeChange = (type: ImportType) => {
-    setImportType(type);
-    ensureSelectionForType(type);
+    setState((prev) => {
+      const next: ImportState = { ...prev, importType: type };
+      if (type === "account" && !next.selectedAccountId && defaults.accountId) {
+        next.selectedAccountId = defaults.accountId;
+      }
+      if (type === "credit" && !next.selectedCardId && defaults.cardId) {
+        next.selectedCardId = defaults.cardId;
+      }
+      return next;
+    });
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsLoadingFile(true);
-    setError(null);
+    setState((prev) => ({ ...prev, isLoadingFile: true, error: null }));
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -185,62 +204,66 @@ const TimelineOfxImport = ({
             ? reader.result
             : new TextDecoder().decode(reader.result as ArrayBuffer);
         const parsed = parseOfx(raw);
-        setTransactions(parsed);
-        setFileName(file.name);
-        if (parsed.length === 0) {
-          setError(Lang.timeline.importOfxNoTransactions);
-        }
+        setState((prev) => ({
+          ...prev,
+          transactions: parsed,
+          fileName: file.name,
+          isLoadingFile: false,
+          error: parsed.length === 0 ? Lang.timeline.importOfxNoTransactions : null,
+        }));
       } catch (err) {
         console.error("Error parsing OFX file", err);
-        setTransactions([]);
-        setError(Lang.timeline.importOfxError);
-      } finally {
-        setIsLoadingFile(false);
+        setState((prev) => ({
+          ...prev,
+          transactions: [],
+          isLoadingFile: false,
+          error: Lang.timeline.importOfxError,
+        }));
       }
     };
     reader.onerror = () => {
       console.error("Error reading OFX file");
-      setTransactions([]);
-      setError(Lang.timeline.importOfxError);
-      setIsLoadingFile(false);
+      setState((prev) => ({
+        ...prev,
+        transactions: [],
+        isLoadingFile: false,
+        error: Lang.timeline.importOfxError,
+      }));
     };
     reader.readAsText(file);
   };
 
   const handleImport = async () => {
     if (transactions.length === 0) {
-      setError(Lang.timeline.importOfxNoTransactions);
+      setState((prev) => ({ ...prev, error: Lang.timeline.importOfxNoTransactions }));
       return;
     }
 
     try {
-      setIsImporting(true);
-      setError(null);
+      setState((prev) => ({ ...prev, isImporting: true, error: null }));
 
       if (importType === "account") {
         if (!selectedAccountId) {
-          setError(Lang.commons.fillAllFields);
+          setState((prev) => ({ ...prev, error: Lang.commons.fillAllFields }));
           return;
         }
         await importAccounts(transactions, selectedAccountId, fileName);
       } else {
         if (!selectedCardId) {
-          setError(Lang.commons.fillAllFields);
+          setState((prev) => ({ ...prev, error: Lang.commons.fillAllFields }));
           return;
         }
         await importCredit(transactions, selectedCardId, creditCards, fileName);
       }
 
       alert(Lang.timeline.importOfxSuccess);
-      resetFileInput();
-      setTransactions([]);
-      setFileName("");
+      resetState();
       onImported();
     } catch (err) {
       console.error("OFX import failed", err);
-      setError(Lang.timeline.importOfxError);
+      setState((prev) => ({ ...prev, error: Lang.timeline.importOfxError }));
     } finally {
-      setIsImporting(false);
+      setState((prev) => ({ ...prev, isImporting: false }));
     }
   };
 
@@ -358,10 +381,7 @@ const TimelineOfxImport = ({
   }, [isLoadingFile, error, transactions.length, summaryTotal]);
 
   const handleClose = () => {
-    setTransactions([]);
-    resetFileInput();
-    setError(null);
-    setFileName("");
+    resetState();
     onClose();
   };
 
@@ -413,7 +433,12 @@ const TimelineOfxImport = ({
               {Lang.timeline.importOfxAccountLabel}
               <select
                 value={selectedAccountId ?? ""}
-                onChange={(event) => setSelectedAccountId(event.target.value || undefined)}
+                onChange={(event) =>
+                  setState((prev) => ({
+                    ...prev,
+                    selectedAccountId: event.target.value || undefined,
+                  }))
+                }
               >
                 <option value="">{Lang.commons.selectOption(Lang.timeline.importOfxAccountLabel)}</option>
                 {accounts.map((account) => (
@@ -428,7 +453,12 @@ const TimelineOfxImport = ({
               {Lang.timeline.importOfxCardLabel}
               <select
                 value={selectedCardId ?? ""}
-                onChange={(event) => setSelectedCardId(event.target.value || undefined)}
+                onChange={(event) =>
+                  setState((prev) => ({
+                    ...prev,
+                    selectedCardId: event.target.value || undefined,
+                  }))
+                }
               >
                 <option value="">{Lang.commons.selectOption(Lang.timeline.importOfxCardLabel)}</option>
                 {creditCards.map((card) => (
@@ -443,7 +473,6 @@ const TimelineOfxImport = ({
           <label>
             {Lang.timeline.importOfxFileLabel}
             <input
-              key={fileInputKey}
               type="file"
               accept=".ofx"
               ref={fileInputRef}

@@ -7,13 +7,13 @@ const CHANNEL_NAME = "ResourcesUseRepository";
 const MILION = 1000000;
 
 type Dolar = number
-const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
+export const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
   "gpt-5-nano": { input: 0.05, output: 0.40},
   "gpt-5-mini": { input: 0.25, output: 2.00 },
   "gpt-4.1-nano": { input: 0.10, output: 0.40 },
   "gpt-4.1-mini": { input: 0.40, output: 1.60 },
 };
-TOKEN_PRICES['legacy'] = TOKEN_PRICES['gpt-4.1-mini'];
+// TOKEN_PRICES['legacy'] = TOKEN_PRICES['gpt-4.1-mini'];
 
 export class ResourcesUseModel extends DocumentModel {
   constructor(id: string, public use?: ResourceUsage) {

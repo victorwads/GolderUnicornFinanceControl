@@ -11,13 +11,8 @@ const TimelineImportScreen = () => {
 
   const defaultAccountId = searchParams.get("account") ?? undefined;
   const defaultCardId = searchParams.get("card") ?? undefined;
-  const shouldAutoOpenFilePicker = searchParams.has("account") || searchParams.has("card");
 
-  const handleClose = useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
-
-  const handleImported = useCallback(() => {
+  const exitScreen = useCallback(() => {
     navigate(-1);
   }, [navigate]);
 
@@ -26,11 +21,10 @@ const TimelineImportScreen = () => {
       <ContainerFixedContent>
         <TimelineOfxImport
           isOpen
-          onClose={handleClose}
-          onImported={handleImported}
+          onClose={exitScreen}
+          onImported={exitScreen}
           defaultAccountId={defaultAccountId}
           defaultCardId={defaultCardId}
-          autoOpenFilePicker={shouldAutoOpenFilePicker}
         />
       </ContainerFixedContent>
     </Container>

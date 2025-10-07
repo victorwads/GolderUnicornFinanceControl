@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import getRepositories from '@repositories';
 import type { AiCallContext } from '@models';
-import { getByModelCosts, type AiModel } from '@resourceUse';
+import { getByModelCosts, TOKEN_PRICES, type AiModel } from '@resourceUse';
+import { ASSISTANT_MODEL, setAssistantModel } from './AssistantController';
 
 type Conversation = {
   id: string;
@@ -52,7 +53,14 @@ const AiCallsScreen = () => {
       <ContainerFixedContent>
         <header className="AiCallsScreen__header">
           <div>
-            <h2>AI Calls</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2>AI Calls</h2>
+              <select onChange={(e) => setAssistantModel(e.target.value as AiModel)} value={ASSISTANT_MODEL}>
+                {Object.keys(TOKEN_PRICES).map((model) => (
+                  <option value={model}>{model}</option>
+                ))}
+              </select>
+            </div>
             <p className="AiCallsScreen__subtitle">
               Visualize os registros completos das execuções do assistente.
             </p>
