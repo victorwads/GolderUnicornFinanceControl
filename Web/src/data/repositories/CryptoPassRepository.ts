@@ -67,6 +67,7 @@ export default class CryptoPassRepository {
 
     const { privateHash, fullyMigrated } = await user.getUserData();
     if (!privateHash || !fullyMigrated) {
+      alert(`Fully migrating value is ${fullyMigrated} and privateHash is ${privateHash}.`);
       this.updateEncryption(secretHash);
     } else if (privateHash !== secretHash.hex) {
       throw new Error('Senha de criptografia inválida.');
@@ -122,7 +123,7 @@ export default class CryptoPassRepository {
       
       while (prog.sub.current < all.length) {
         const chunk = all.slice(prog.sub.current, prog.sub.current + CHUNK_SIZE);
-        await (repo as RepositoryWithCrypt<any>).saveAll(chunk);
+        await (repo as RepositoryWithCrypt<any>).saveAll(chunk.filter(i => !(i as any).encrypted));
         prog.sub.current += chunk.length;
         progress({ ...prog });
       }

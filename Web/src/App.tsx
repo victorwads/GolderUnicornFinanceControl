@@ -40,6 +40,7 @@ function App() {
 
           const { fullyMigrated } = await getRepositories().user.getUserData()
           if(savedHash && !fullyMigrated) {
+            alert(`Fully migrating value is ${fullyMigrated} and savedHash is ${savedHash}.`);
             passRepository.updateEncryption(savedHash)
           }
         }

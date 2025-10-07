@@ -315,18 +315,9 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     };
   }
 
-  /**
-   * Registra o listener onSnapshot na coleção para detectar mudanças em tempo real.
-   * Só é chamado quando há pelo menos um listener registrado.
-   */
   private registerCollectionSnapshotListener(): () => void {
-    // Importação dinâmica para evitar dependência circular
-    // Mantém conexão ativa, mas só enquanto houver listeners
     const unsubscribe = onSnapshot(this.ref, (snapshot: any) => {
-      // Atualiza cache local com os dados mais recentes
       const docs = snapshot.docs || [];
-      // Limpa cache e atualiza
-      this.cache = {};
       docs.forEach((docSnap: any) => {
         this.fromFirestore(docSnap.id, docSnap.data()).then((model) => {
           this.addToCache(model);
