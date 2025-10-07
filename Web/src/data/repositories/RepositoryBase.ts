@@ -7,6 +7,7 @@ import {
   // Actions
   addDoc, getDocsFromCache, getDocs, setDoc, writeBatch,
   collection, doc, query, orderBy, limit, where,
+  onSnapshot,
 } from "firebase/firestore";
 
 import { DocumentModel } from "@models";
@@ -320,7 +321,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
    */
   private registerCollectionSnapshotListener(): () => void {
     // Importação dinâmica para evitar dependência circular
-    const { onSnapshot } = require("firebase/firestore");
     // Mantém conexão ativa, mas só enquanto houver listeners
     const unsubscribe = onSnapshot(this.ref, (snapshot: any) => {
       // Atualiza cache local com os dados mais recentes
