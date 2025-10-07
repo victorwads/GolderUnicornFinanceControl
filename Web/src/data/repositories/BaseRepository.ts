@@ -41,7 +41,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     if (this.listenners.length === 1) {
       this.unsubscribeSnapshot = this.registerCollectionSnapshotListener();
     }
-    listenner(this);
     return () => this.removeUpdatedEventListenner(listenner);
   }
 

@@ -33,7 +33,7 @@ export class Account extends DocumentModel {
         },
         initialBalance: {
           type: "number",
-          description: "initial balance of the account. default: 0",
+          description: "initial balance of the account. if not provided, defaults to 0",
         },
         bankId: {
           type: "string",

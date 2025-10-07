@@ -233,6 +233,32 @@ export class AssistantTools {
         },
         userInfo: (args) => `Listing actions for domain '${args.domain}'`
       },
+      {
+        name: DomainToolName.SEARCH_IN_DOMAIN,
+        description: `Search for an identifier in a given domain by term based on textual similarity. Use the returned ID to perform actions in the domain.`,
+        parameters: {
+          type: "object",
+          properties: {
+            domain: { type: "string", description: "Domain name where the search will be performed" },
+            query: { type: "string", description: "Search term" },
+          },
+          required: ["domain", "query"],
+          additionalProperties: false,
+        },
+        execute: async ({ domain: domainName, query, limit }: { domain: string; query: string; limit?: number }) => {
+          if (!domainNames.includes(domainName)) {
+            return { success: false, error: `Domain '${domainName}' not found. Use ${DomainToolName.LIST_ALL} to obtain the list of available domains.` };
+          }
+          const search = this.domains.find(d => d.name === domainName)?.search;
+          if (!search) {
+            return { success: false, error: `Domain '${domainName}' has no search capability. Inform user that this is not possible cause you can't obtain information from this domain.` };
+          }
+
+          this.sharedDomains.push(domainName);
+          return search(query, limit );
+        },
+        userInfo: (args) => `Searching in '${args.domain}' for '${args.query}'`
+      }
     ];
     this.createSearchMetadata(
       Account.metadata, "Conta", 'accounts',
@@ -284,25 +310,24 @@ export class AssistantTools {
       ...domainTools,
       {
         name: AppActionTool.NAVIGATE,
-        description: 'Used to control user screen navigation. Use when the user wants to "go to" or "see some information". Always use search_navigation_options first to obtain search the list of screens.',
+        description: `Use when the user wants to "go to" or "see some existing information". Use ${AppActionTool.LIST_SCREENS} to obtain the routes.`,
         parameters: {
           type: "object",
           properties: {
-            route: { type: "string", description: "Term to search a screen. You can use the domain name, use list_domain tool if needed" },
+            route: { type: "string", description: "Term to search a screen. use words related to the screen in english" },
             queryParams: { 
               type: "object",
-              description: "Parâmetros opcionais descritos nas rotas",
-              additionalProperties: { type: "string"
-              }
+              description: "optional query parameters for the screen",
+              additionalProperties: true,
             }
           }
         },
         execute: async ({ route, queryParams }): Promise<Result<void>> => {
-          if(!route) return { success: false, error: "Rota é obrigatória. use search_navigation_options para obter a lista de telas disponíveis." };
+          if(!route) return { success: false, error: `route is required. use ${AppActionTool.LIST_SCREENS} to obtain the list of available screens.` };
           const routes = (await import("./routesDefinition")).routesDefinition;
           const match = routes.find(r => routeMatch(r.name, route));
           if(!match) {
-            return { success: false, error: `Rota '${route}' não encontrada. use search_navigation_options para obter a lista de telas disponíveis.` };
+            return { success: false, error: `Route '${route}' not found. use ${AppActionTool.LIST_SCREENS} to obtain the list of available screens.` };
           }
 
           const requiredParams = Object.entries(match.queryParams ?? {}).filter(([_, param]) => param.required).map(([key, _]) => key);
@@ -315,7 +340,7 @@ export class AssistantTools {
       },
       {
         name: AppActionTool.LIST_SCREENS,
-        description: "List the available screens and views and their parameters for navigation.",
+        description: "List the available routes and their parameters when user wants to navigate or see existing information.",
         parameters: this.createSearchParamsSchemema(),
         execute: async ({ query }) => {
           const routes = (await import("./routesDefinition")).stringRoutesDefinition;
@@ -337,27 +362,26 @@ export class AssistantTools {
       filter?: (item: M) => boolean
       repos?: RepoName[]
     }
-  ): AssistantToolDefinition {
+  ) {
+    const domain = this.domains.find(d => d.name === repositoryName);
+    if (!domain) throw new Error(`Domain '${repositoryName}' not found to create search metadata.`);
+
     const repository = this.repositories[repositoryName] as unknown as BaseRepository<M>;
     const { filter = () => true, repos = [] } = params ?? {};
-    return {
-      name: `search_${metadata.aiToolCreator.name}`,
-      description: `Search for ${itemName}s by term based on textual similarity.`,
-      parameters: this.createSearchParamsSchemema(),
-      execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => {
-        await repository.waitUntilReady();
-        await waitUntilReady(...repos);
 
-        const items = repository.getCache().filter(filter);
-        const similarity = new Similarity<M>(selector);
+    domain.search = async (query: string, limit?: number) => {
+      await repository.waitUntilReady();
+      await waitUntilReady(...repos);
 
-        return {
-          result: similarity
-            .rank(query, items, this.capLimit(limit))
-            .map(rank => mapper(rank.item)),
-        };
-      },
-      userInfo: (args) => `Procurando ${itemName} '${args.query}'`
+      const items = repository.getCache().filter(filter);
+      const similarity = new Similarity<M>(selector);
+
+      return {
+        success: true,
+        result: similarity
+          .rank(query, items, this.capLimit(limit))
+          .map(rank => mapper(rank.item)),
+      };
     }
   }
 
@@ -396,5 +420,6 @@ export enum AppActionTool {
 export type DomainAction<T = string> = T;
 export type Domain<Name extends RepoName> = {
   name: Name;
+  search?: (term: string, limit?: number) => Promise<Result<unknown[]>>;
   handlers: AssistantToolDefinition[];
 }

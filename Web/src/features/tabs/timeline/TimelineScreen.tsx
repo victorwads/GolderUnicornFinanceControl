@@ -1,5 +1,5 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./TimelineScreen.css";
 
 import { Month, MonthKey } from '@utils/FinancialMonthPeriod';
@@ -39,8 +39,8 @@ const TimelineScreen = () => {
   const [showImport, setShowImport] = useState(false);
   const [dataVersion, setDataVersion] = useState(0);
 
-  useEffect(() => {
-    const { accounts } = getRepositories();
+  const { accounts, accountTransactions } = getRepositories();
+  const load = useCallback(() => {
     const { balance, timeline } = getServices();
 
     if (accountIds?.length) {
@@ -61,6 +61,17 @@ const TimelineScreen = () => {
     setCurrentBalance(balance.getBalance(accountIds, period.end));
     setRegistries(registries);
   }, [categoryIds, accountIds, showArchived, period, searchValue, dataVersion]);
+
+  useEffect(() => {
+    load();
+    const subscriptions = [
+      accounts.addUpdatedEventListenner(load),
+      accountTransactions.addUpdatedEventListenner(load),
+    ];
+    return () => {
+      subscriptions.forEach((un) => un())
+    }
+  }, [load]);
 
   const { id: accountId} = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();

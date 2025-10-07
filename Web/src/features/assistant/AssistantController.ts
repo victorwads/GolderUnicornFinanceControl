@@ -32,6 +32,7 @@ Use the tools provided by the system to accomplish your tasks. Follow exactly th
 - For identifier fields, use the ${DomainToolName.SEARCH_IN_DOMAIN} tool to find the ID of the record. You can use multiple ${DomainToolName.SEARCH} calls to find all required identifiers.
 - Dates should be converted from relative formats like "today", "tomorrow", "last week", etc to absolute datetime in the format YYYY-MM-DDTHH:mm.
 - When you finish all actions requested by the user, you should call the ${ToUserTool.FINISH} tool to end the session. Please confirm with the user that all actions were completed.
+- Before you finish, you can move to the screen about the action that you just did using the ${AppActionTool.NAVIGATE} tool.
 - Do not call ${ToUserTool.FINISH} before finishing all orchestration required by the user.
 - Only talk with the user in his native language, which is provided in the first user message.
 `.trim();

@@ -46,14 +46,18 @@ export default function AssistantPage({
   }, [normalizeUsage, resourcesUse]);
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
+    // if (!event.result) return;
     console.log("Tool call event", event);
     if (compact) {
       // if (!event.userInfo) return;
       setTimeout(() => setCalls(
         previous => previous.filter(c => c.id !== event.id)
-      ), 2500)
+      ), 2500);
     }
-    setCalls((previous) => [...previous, event]);
+    setCalls((previous) => [
+      ...previous.filter(c => c.id !== event.id),
+      event
+    ]);
   }, [compact]);
 
   const handleAskAdditionalInfo = useCallback((message: string) => {

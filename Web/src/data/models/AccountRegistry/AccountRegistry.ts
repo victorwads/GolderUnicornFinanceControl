@@ -14,7 +14,7 @@ export class AccountsRegistry extends Registry {
     tags: string[] = [],
     categoryId?: string,
     observation?: string,
-    relatedInfo?: string
+    relatedInfo?: string // is used to store info like transactionId when imported from some external source, when re-importing the same transaction can be ignored
   ) {
     super(
       id,

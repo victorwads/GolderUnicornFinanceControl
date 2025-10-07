@@ -15,7 +15,9 @@ const AccountsCard: React.FC<{}> = () => {
   const [showArchived, setShowArchived] = useState<boolean|null>(null)
 
   useEffect(() => {
-    return getRepositories().accounts.addUpdatedEventListenner(repo =>
+    const repo = getRepositories().accounts;
+    setAccounts(repo.getCacheWithBank(showArchived))
+    return repo.addUpdatedEventListenner(repo =>
       setAccounts(repo.getCacheWithBank(showArchived))
     )
   }, [showArchived])
