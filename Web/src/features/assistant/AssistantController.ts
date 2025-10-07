@@ -32,9 +32,9 @@ Follow exactly these rules:
 - The action_create_* tools can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
 - Dates should be converted from relative formats like "today", "tomorrow", "last week", etc. to absolute dates.
 - Any date must be returned in the format YYYY-MM-DDTHH:mm.
-- When you finish all actions requested by the user, you MUST call the close_context tool to end the session and reset the context. Never keep the context open after the user's request is completed.
-- Only call close_context when you are sure all dependent actions are done (e.g., do this and that and etc..).
-- Do not call close_context before finishing all orchestration required by the user.
+- When you finish all actions requested by the user, you should call the finish_conversation tool to end the session. Please confirm with the user that all actions were completed.
+- Only call finish_conversation when you are sure all dependent actions are done (e.g., do this and that and etc..).
+- Do not call finish_conversation before finishing all orchestration required by the user.
 `.trim();
 
 export type ToolEventListener = (event: AssistantToolCallLog) => void;
@@ -109,7 +109,7 @@ export default class AssistantController {
               context
             )) as Result<unknown>;
             if (
-              call.function.name.startsWith("close_context") &&
+              call.function.name.startsWith("finish_conversation") &&
               "success" in result &&
               result.success === true
             ) {
