@@ -42,6 +42,14 @@ export const routesDefinition: RoutesDefinition[] = [
     },
   },
   {
+    name: '/timeline/import',
+    description: 'Import OFX files to load transactions for an account or credit card directly into the timeline. Always pass one of the query params to preselect the target account/card and the screen will automatically gets the file. then you can finish conversation.',
+    queryParams: {
+      account: { description: 'Account ID to preselect and import into', type: 'query_param_string', required: false },
+      card: { description: 'Credit card ID to preselect and import into', type: 'query_param_string', required: false },
+    },
+  },
+  {
     name: '/recurrent',
     description: 'View the list of recurring registries with their schedule information',
   },
@@ -156,4 +164,8 @@ export function routeMatch(knownRoute: string, aiRoute: string): boolean {
     .replace(/\/:[\w]+/g, '(\/[^\/]+)+');
   const regex = new RegExp(`^${configRoute}$`);
   return regex.test(goRoute);
+}
+
+export function getDefinitionByExactName(name: string): RoutesDefinition | undefined {
+  return routesDefinition.find(route => route.name === name);
 }

@@ -305,6 +305,24 @@ export class AssistantTools {
       },
       userInfo: (args) => `Procurando Ícone '${args.query}'`
     });
+    this.registerDomainAction('accountTransactions',       {
+      name: 'accountTransactions_import_ofx',
+      description: `Import bank transactions from OFX file content.`,
+      parameters: {},
+      execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => ({
+        success: true,
+        result: "use the navigate tool to route /timeline/import?account={accountId} and the user will be prompted to upload the OFX file.",
+      })
+    });
+    this.registerDomainAction('creditCardsTransactions',       {
+      name: 'creditCardsTransactions_import_ofx',
+      description: `Import credit card transactions from OFX file content.`,
+      parameters: {},
+      execute: async ({ query, limit = MAX_RESULTS }: { query: string; limit?: number; }) => ({
+        success: true,
+        result: "use the navigate tool to route /timeline/import?card={cardId} and the user will be prompted to upload the OFX file.",
+      })
+    });
     return [
       ...userTools,
       ...domainTools,

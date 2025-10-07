@@ -13,7 +13,8 @@ export class AiCallContext extends DocumentModel {
     public tokens = {
       input: 0,
       output: 0,
-    }
+    },
+    public version = 2
   ) {
     super(id);
   }

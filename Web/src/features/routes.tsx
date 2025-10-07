@@ -6,6 +6,7 @@ import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
 import LoginScreen from '@features/login/LoginScreen';
 import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
+import TimelineImportScreen from '@features/tabs/timeline/TimelineImportScreen';
 import TimelineFilterScreen from '@features/tabs/timeline/TimelineFilterScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
@@ -33,6 +34,10 @@ export const privateRouter = createBrowserRouter([
     path: '/', element: withRepos(<TabScreen />), children: [
       { path: 'dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: withRepos(<TimelineFilterScreen />, 'banks', 'creditCards', 'accounts', 'categories') },
+      { path: 'timeline/import', element: withRepos(
+        <TimelineImportScreen />,
+        'accountTransactions', 'creditCardsTransactions', 'creditCards', 'accounts'
+      ) },
       { path: 'timeline/:id?', element: withRepos(
         <TimelineScreen />,
         'accountTransactions', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'

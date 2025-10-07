@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import "./TimelineOfxImport.css";
 
@@ -19,21 +19,86 @@ interface TimelineOfxImportProps {
   onClose: () => void;
   onImported: () => void;
   defaultAccountId?: string;
+  defaultCardId?: string;
+  autoOpenFilePicker?: boolean;
 }
+
+const buildAccountTransactionSignature = ({
+  fitId,
+  amount,
+  date,
+  description,
+}: ParsedOfxTransaction): string => {
+  if (fitId) {
+    return `ofx:fit:${fitId}`;
+  }
+
+  const normalizedAmount = (Math.round(amount * 100) / 100).toFixed(2);
+  const normalizedDate = date.toISOString().slice(0, 10);
+  const normalizedDescription = description.replace(/\s+/g, " ").trim().toLowerCase();
+
+  return `ofx:${normalizedDate}:${normalizedAmount}:${normalizedDescription}`;
+};
+
+const extractSignatureFromRelatedInfo = (relatedInfo?: string): string | null => {
+  if (!relatedInfo) return null;
+
+  try {
+    const parsed = JSON.parse(relatedInfo);
+    if (typeof parsed === "string") {
+      return parsed;
+    }
+    if (parsed && typeof parsed === "object") {
+      if (typeof parsed.signature === "string") {
+        return parsed.signature;
+      }
+      if (typeof parsed.fitId === "string" && parsed.fitId.trim() !== "") {
+        return `ofx:fit:${parsed.fitId}`;
+      }
+    }
+  } catch {
+    // ignore parsing errors, fallback to raw value
+  }
+
+  return relatedInfo;
+};
+
+const collectAccountSignatures = (registries: AccountsRegistry[], accountId: string): Set<string> => {
+  const signatures = new Set<string>();
+
+  registries
+    .filter((registry) => registry.accountId === accountId)
+    .forEach((registry) => {
+      const signature = extractSignatureFromRelatedInfo(registry.relatedInfo);
+      if (signature) {
+        signatures.add(signature);
+      }
+    });
+
+  return signatures;
+};
 
 const TimelineOfxImport = ({
   isOpen,
   onClose,
   onImported,
   defaultAccountId,
+  defaultCardId,
+  autoOpenFilePicker = false,
 }: TimelineOfxImportProps) => {
   const repositories = getRepositories();
   const accounts = repositories.accounts.getCache();
   const creditCards = repositories.creditCards.getCacheWithBank();
 
   const firstAccountId = defaultAccountId ?? accounts[0]?.id;
-  const firstCardId = creditCards[0]?.id;
-  const defaultType: ImportType = firstAccountId ? "account" : "credit";
+  const firstCardId = defaultCardId ?? creditCards[0]?.id;
+  const defaultType: ImportType = defaultAccountId
+    ? "account"
+    : defaultCardId
+    ? "credit"
+    : firstAccountId
+    ? "account"
+    : "credit";
 
   const [importType, setImportType] = useState<ImportType>(defaultType);
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(firstAccountId);
@@ -44,6 +109,8 @@ const TimelineOfxImport = ({
   const [isLoadingFile, setIsLoadingFile] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const hasAutoOpenedRef = useRef(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,7 +123,23 @@ const TimelineOfxImport = ({
     setIsLoadingFile(false);
     setIsImporting(false);
     setFileInputKey((value) => value + 1);
+    hasAutoOpenedRef.current = false;
   }, [isOpen, defaultType, firstAccountId, firstCardId]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      hasAutoOpenedRef.current = false;
+      return;
+    }
+
+    if (autoOpenFilePicker && !hasAutoOpenedRef.current) {
+      hasAutoOpenedRef.current = true;
+      const input = fileInputRef.current;
+      if (input) {
+        window.setTimeout(() => input.click(), 10);
+      }
+    }
+  }, [isOpen, autoOpenFilePicker, fileInputKey]);
 
   const summaryTotal = useMemo(() => {
     if (importType === "credit") {
@@ -168,30 +251,40 @@ const TimelineOfxImport = ({
   ) => {
     const { accountTransactions: accountRegistries } = getRepositories();
 
-    const registries = entries.map(
-      ({ amount, date, description, fitId }): AccountsRegistry => {
-        const value = Math.round(amount * 100) / 100;
-        const importMeta = JSON.stringify({
-          source: "ofx",
-          fileName: sourceFile,
-          fitId: fitId ?? null,
-        });
+    const existingSignatures = collectAccountSignatures(accountRegistries.getCache(), accountId);
+    const registries = entries.reduce<AccountsRegistry[]>((acc, transaction) => {
+      const signature = buildAccountTransactionSignature(transaction);
+      if (existingSignatures.has(signature)) {
+        return acc;
+      }
 
-        return new AccountsRegistry(
+      existingSignatures.add(signature);
+      const value = Math.round(transaction.amount * 100) / 100;
+      const importMeta = JSON.stringify({
+        source: "ofx",
+        fileName: sourceFile,
+        fitId: transaction.fitId ?? null,
+        signature,
+      });
+
+      acc.push(
+        new AccountsRegistry(
           crypto.randomUUID(),
           RegistryType.ACCOUNT,
           accountId,
           value,
-          description,
-          date,
+          transaction.description,
+          transaction.date,
           true,
           [],
           undefined,
           undefined,
           importMeta
-        );
-      }
-    );
+        )
+      );
+
+      return acc;
+    }, []);
 
     await accountRegistries.saveAll(registries);
   };
@@ -277,7 +370,7 @@ const TimelineOfxImport = ({
     : undefined;
 
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose}>
+    <>
       <div className="TimelineOfxImport">
         <div className="TimelineOfxImport__header">
           <h2 className="TimelineOfxImport__title">{Lang.timeline.importOfxTitle}</h2>
@@ -353,6 +446,7 @@ const TimelineOfxImport = ({
               key={fileInputKey}
               type="file"
               accept=".ofx"
+              ref={fileInputRef}
               onChange={handleFileChange}
             />
           </label>
@@ -415,7 +509,7 @@ const TimelineOfxImport = ({
           />
         </div>
       </div>
-    </Dialog>
+    </>
   );
 };
 

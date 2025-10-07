@@ -16,6 +16,17 @@ const routes = {
         return `/timeline${accountId ? `/${accountId}` : ''}`
             + `${categories?.length ? `?categories=${categories.join(',')}` : ''}`;
     },
+    timelineImport: (accountId?: string, cardId?: string): string => {
+        const params = new URLSearchParams();
+        if (accountId) {
+            params.set('account', accountId);
+        }
+        if (cardId) {
+            params.set('card', cardId);
+        }
+        const queryString = params.toString();
+        return `/timeline/import${queryString ? `?${queryString}` : ''}`;
+    },
 };
 
 export default routes;

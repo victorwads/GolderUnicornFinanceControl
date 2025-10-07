@@ -41,12 +41,24 @@ export function getCurrentCosts(uses?: AIUses): {
 
   const modelsUse = Object.entries(uses || STATIC_INSTANTE?.currentUse?.ai || {});
   for (const [model, use] of modelsUse) {
-    const prices = TOKEN_PRICES[model as AiModel] || { input: 0, output: 0 };
-    totalTokens += use.input + use.output;
-    totalDolar += 
-      ( use.input * (prices.input / MILION) ) +
-      ( use.output * (prices.output / MILION) );
+    const costs = getByModelCosts(model as AiModel, use || {});
+    totalTokens += costs.tokens;
+    totalDolar += costs.dolars;
   }
+  return { tokens: totalTokens, dolars: totalDolar };
+}
+
+export function getByModelCosts(model: AiModel, use: AIUse): {
+  tokens: number;
+  dolars: number;
+} {
+  let totalTokens = 0, totalDolar = 0, input = use.input || 0, output = use.output || 0;
+  const prices = TOKEN_PRICES[model] || { input: 0, output: 0 };
+  totalTokens += input + output;
+  totalDolar += 
+    ( input * (prices.input! / MILION) ) +
+    ( output * (prices.output! / MILION) );
+
   return { tokens: totalTokens, dolars: totalDolar };
 }
 
