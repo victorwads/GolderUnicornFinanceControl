@@ -18,7 +18,7 @@ import getRepositories, { Repositories } from "@repositories";
 import { AiCallContext } from "@models";
 import { Result } from "src/data/models/metadata";
 
-export let ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+export let ASSISTANT_MODEL: AiModel = "gpt-4.1-nano";
 
 const AIModelStorageKey = "assistant_model";
 const savedModel = localStorage.getItem(AIModelStorageKey);
