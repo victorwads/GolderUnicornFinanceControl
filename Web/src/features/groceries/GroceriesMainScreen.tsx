@@ -5,7 +5,7 @@ import { GroceryItemModel } from '@models';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import AIMicrophone from '@components/voice/AIMicrophone';
 import getRepositories from '@repositories';
-import Icon from '@components/Icons';
+import Icon, { Icons } from '@components/Icons';
 
 import GroceryList from './GroceryList';
 import AIActionsParser, { AIActionHandler } from '../speech/AIParserManager';
@@ -60,7 +60,7 @@ const SpeechScreen = () => {
         <div className="GroceryHeader">
           <h2>{Lang.groceries.title}</h2>
           <Link to="/groceries/removed" className="TrashButton">
-            <Icon icon={Icon.all.faTrash} />
+            <Icon icon={Icons.faTrash} />
             {removedCount > 0 && <span className="TrashCount">{removedCount}</span>}
           </Link>
         </div>

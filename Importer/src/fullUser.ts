@@ -17,8 +17,8 @@ console.log(`User ID: ${userId}`);
 
 async function main() {
 
-  const encryptor = new Encryptor();
-  await encryptor.initWithPass(userId);
+  const encryptor = null; //new Encryptor();
+  // await encryptor.initWithPass(userId);
 
   const banks = new BanksImporter(current);
   await banks.loadFrom(prod);

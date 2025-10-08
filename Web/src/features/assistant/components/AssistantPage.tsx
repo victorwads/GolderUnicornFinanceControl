@@ -16,7 +16,7 @@ import type { AssistantToolCallLog } from "../tools/types";
 import ToolCallLogList from "./ToolCallLogList";
 
 import "./AssistantPage.css";
-import Icon from "@components/Icons";
+import Icon, { Icons } from "@components/Icons";
 import GlassContainer from "@components/GlassContainer";
 import { startListening, stopListening } from "@components/voice/microfone";
 
@@ -46,14 +46,18 @@ export default function AssistantPage({
   }, [normalizeUsage, resourcesUse]);
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
+    // if (!event.result) return;
     console.log("Tool call event", event);
     if (compact) {
-      if (!event.userInfo) return;
-      if (!event.userInfo.includes("_create_")) setTimeout(() => setCalls(
+      // if (!event.userInfo) return;
+      setTimeout(() => setCalls(
         previous => previous.filter(c => c.id !== event.id)
-      ), 2500)
-    };
-    setCalls((previous) => [...previous, event]);
+      ), 2500);
+    }
+    setCalls((previous) => [
+      ...previous.filter(c => c.id !== event.id),
+      event
+    ]);
   }, [compact]);
 
   const handleAskAdditionalInfo = useCallback((message: string) => {
@@ -139,7 +143,7 @@ export default function AssistantPage({
           <GlassContainer key={call.id} className="assistant-toast assistant-toast--call">
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setCalls(previous => previous.filter(c => c.id !== call.id))}>
-                <Icon icon="trash" />
+                <Icon icon={Icons.faTrash} />
               </button>
             </div>
             <pre>{call.userInfo}</pre>

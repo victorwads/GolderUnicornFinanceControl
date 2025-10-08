@@ -210,6 +210,7 @@ const en: Translation = {
         start: 'Start test',
         confirm: 'Confirm language',
         back: 'Back',
+        imDone: "I'm done",
         tryAgain: 'Try again',
         close: 'Close',
       },

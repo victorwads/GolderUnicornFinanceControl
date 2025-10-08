@@ -6,7 +6,6 @@ import AIMicrophoneOnboardingLanguageStep from './AIMicrophoneOnboardingLanguage
 import AIMicrophoneOnboardingSuccessStep from './AIMicrophoneOnboardingSuccessStep';
 import AIMicrophoneOnboardingTestStep from './AIMicrophoneOnboardingTestStep';
 import { AIMicrophoneOnboardingComponentProps, OnboardingStepKey } from './AIMicrophoneOnboarding.types';
-import { startListening } from './AIMicrophone';
 
 const SUCCESS_DISPLAY_TIME = 8000;
 
@@ -140,14 +139,14 @@ export default function AIMicrophoneOnboarding({
     <div className="ai-mic-onboarding">
       <div className="ai-mic-onboarding__backdrop" />
       <div className="ai-mic-onboarding__modal" role="dialog" aria-modal="true" aria-labelledby={modalTitleId}>
-        <button
-          type="button"
-          className="ai-mic-onboarding__close"
-          onClick={handleClose}
-          aria-label={Lang.aiMic.onboarding.actions.close}
-        >
+        <div className='ai-mic-onboarding__header'>
+        <button type="button" onClick={onComplete} >
+          {Lang.aiMic.onboarding.actions.imDone}
+        </button>
+        <button type="button" onClick={handleClose} >
           {Lang.aiMic.onboarding.actions.close}
         </button>
+        </div>
         {content}
       </div>
     </div>

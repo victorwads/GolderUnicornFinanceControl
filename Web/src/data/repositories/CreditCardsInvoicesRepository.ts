@@ -15,7 +15,7 @@ export default class CreditCardInvoicesRepository extends RepositoryWithCrypt<Cr
 
   public getInvoices(cardId: string): CreditCardInvoice[] {
 
-    const { creditCardsRegistries } = getRepositories();
+    const { creditCardsTransactions: creditCardsRegistries } = getRepositories();
 
     const invoices = this.getCache()
       .filter((invoice) => invoice.cardId === cardId)

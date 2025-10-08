@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./TimelineOfxImport.css";
 
 import Dialog from "@components/visual/Dialog";
 import Button from "@components/Button";
-import Icon from "@components/Icons";
+import Icon, { Icons } from "@components/Icons";
 
 import { AccountsRegistry, CreditCard, CreditCardRegistry, RegistryType } from "@models";
 import getRepositories from "@repositories";
@@ -19,58 +19,150 @@ interface TimelineOfxImportProps {
   onClose: () => void;
   onImported: () => void;
   defaultAccountId?: string;
+  defaultCardId?: string;
+  autoOpenFilePicker?: boolean;
 }
+
+const buildAccountTransactionSignature = ({
+  fitId,
+  amount,
+  date,
+  description,
+}: ParsedOfxTransaction): string => {
+  if (fitId) {
+    return `ofx:fit:${fitId}`;
+  }
+
+  const normalizedAmount = (Math.round(amount * 100) / 100).toFixed(2);
+  const normalizedDate = date.toISOString().slice(0, 10);
+  const normalizedDescription = description.replace(/\s+/g, " ").trim().toLowerCase();
+
+  return `ofx:${normalizedDate}:${normalizedAmount}:${normalizedDescription}`;
+};
+
+const extractSignatureFromRelatedInfo = (relatedInfo?: string): string | null => {
+  if (!relatedInfo) return null;
+
+  try {
+    const parsed = JSON.parse(relatedInfo);
+    if (typeof parsed === "string") {
+      return parsed;
+    }
+    if (parsed && typeof parsed === "object") {
+      if (typeof parsed.signature === "string") {
+        return parsed.signature;
+      }
+      if (typeof parsed.fitId === "string" && parsed.fitId.trim() !== "") {
+        return `ofx:fit:${parsed.fitId}`;
+      }
+    }
+  } catch {
+    // ignore parsing errors, fallback to raw value
+  }
+
+  return relatedInfo;
+};
+
+const collectAccountSignatures = (registries: AccountsRegistry[], accountId: string): Set<string> => {
+  const signatures = new Set<string>();
+
+  registries
+    .filter((registry) => registry.accountId === accountId)
+    .forEach((registry) => {
+      const signature = extractSignatureFromRelatedInfo(registry.relatedInfo);
+      if (signature) {
+        signatures.add(signature);
+      }
+    });
+
+  return signatures;
+};
 
 const TimelineOfxImport = ({
   isOpen,
   onClose,
   onImported,
   defaultAccountId,
+  defaultCardId,
 }: TimelineOfxImportProps) => {
   const repositories = getRepositories();
   const accounts = repositories.accounts.getCache();
   const creditCards = repositories.creditCards.getCacheWithBank();
 
-  const [importType, setImportType] = useState<ImportType>("account");
-  const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(
-    defaultAccountId || accounts[0]?.id
-  );
-  const [selectedCardId, setSelectedCardId] = useState<string | undefined>(
-    creditCards[0]?.id
-  );
-  const [transactions, setTransactions] = useState<ParsedOfxTransaction[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string>("");
-  const [isLoadingFile, setIsLoadingFile] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [fileInputKey, setFileInputKey] = useState(0);
+  const defaults = useMemo(() => {
+    const accountId = defaultAccountId ?? accounts[0]?.id;
+    const cardId = defaultCardId ?? creditCards[0]?.id;
+    const type: ImportType = defaultAccountId
+      ? "account"
+      : defaultCardId
+      ? "credit"
+      : accountId
+      ? "account"
+      : "credit";
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setImportType(defaultAccountId ? "account" : "account");
-    setSelectedAccountId(defaultAccountId || accounts[0]?.id);
-    setSelectedCardId((prev) => prev || creditCards[0]?.id);
-    setTransactions([]);
-    setError(null);
-    setFileName("");
-    setIsLoadingFile(false);
-    setIsImporting(false);
-    setFileInputKey((value) => value + 1);
-  }, [isOpen, defaultAccountId, accounts, creditCards]);
+    return { accountId, cardId, type };
+  }, [accounts, creditCards, defaultAccountId, defaultCardId]);
 
-  useEffect(() => {
-    if (!isOpen) return;
+  interface ImportState {
+    importType: ImportType;
+    selectedAccountId?: string;
+    selectedCardId?: string;
+    transactions: ParsedOfxTransaction[];
+    error: string | null;
+    fileName: string;
+    isLoadingFile: boolean;
+    isImporting: boolean;
+  }
 
-    if (importType === "account") {
-      if (!selectedAccountId && accounts.length > 0) {
-        setSelectedAccountId(accounts[0].id);
-      }
-    } else if (importType === "credit") {
-      if (!selectedCardId && creditCards.length > 0) {
-        setSelectedCardId(creditCards[0].id);
-      }
+  const [state, setState] = useState<ImportState>(() => ({
+    importType: defaults.type,
+    selectedAccountId: defaults.accountId,
+    selectedCardId: defaults.cardId,
+    transactions: [],
+    error: null,
+    fileName: "",
+    isLoadingFile: false,
+    isImporting: false,
+  }));
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const resetFileInput = useCallback(() => {
+    const input = fileInputRef.current;
+    if (input) {
+      input.value = "";
     }
-  }, [importType, isOpen, accounts, creditCards, selectedAccountId, selectedCardId]);
+  }, []);
+
+  const resetState = useCallback(() => {
+    setState(() => ({
+      importType: defaults.type,
+      selectedAccountId: defaults.accountId,
+      selectedCardId: defaults.cardId,
+      transactions: [],
+      error: null,
+      fileName: "",
+      isLoadingFile: false,
+      isImporting: false,
+    }));
+    resetFileInput();
+  }, [defaults, resetFileInput]);
+
+  useEffect(() => {
+    if (!fileInputRef.current) return;
+    setTimeout(() => fileInputRef.current?.click(), 1000)
+  }, [fileInputRef.current]);
+
+  const {
+    importType,
+    selectedAccountId,
+    selectedCardId,
+    transactions,
+    error,
+    fileName,
+    isLoadingFile,
+    isImporting,
+  } = state;
 
   const summaryTotal = useMemo(() => {
     if (importType === "credit") {
@@ -85,14 +177,24 @@ const TimelineOfxImport = ({
       currency: "BRL",
     });
 
-  const resetFileInput = () => setFileInputKey((value) => value + 1);
+  const handleTypeChange = (type: ImportType) => {
+    setState((prev) => {
+      const next: ImportState = { ...prev, importType: type };
+      if (type === "account" && !next.selectedAccountId && defaults.accountId) {
+        next.selectedAccountId = defaults.accountId;
+      }
+      if (type === "credit" && !next.selectedCardId && defaults.cardId) {
+        next.selectedCardId = defaults.cardId;
+      }
+      return next;
+    });
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsLoadingFile(true);
-    setError(null);
+    setState((prev) => ({ ...prev, isLoadingFile: true, error: null }));
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -102,62 +204,66 @@ const TimelineOfxImport = ({
             ? reader.result
             : new TextDecoder().decode(reader.result as ArrayBuffer);
         const parsed = parseOfx(raw);
-        setTransactions(parsed);
-        setFileName(file.name);
-        if (parsed.length === 0) {
-          setError(Lang.timeline.importOfxNoTransactions);
-        }
+        setState((prev) => ({
+          ...prev,
+          transactions: parsed,
+          fileName: file.name,
+          isLoadingFile: false,
+          error: parsed.length === 0 ? Lang.timeline.importOfxNoTransactions : null,
+        }));
       } catch (err) {
         console.error("Error parsing OFX file", err);
-        setTransactions([]);
-        setError(Lang.timeline.importOfxError);
-      } finally {
-        setIsLoadingFile(false);
+        setState((prev) => ({
+          ...prev,
+          transactions: [],
+          isLoadingFile: false,
+          error: Lang.timeline.importOfxError,
+        }));
       }
     };
     reader.onerror = () => {
       console.error("Error reading OFX file");
-      setTransactions([]);
-      setError(Lang.timeline.importOfxError);
-      setIsLoadingFile(false);
+      setState((prev) => ({
+        ...prev,
+        transactions: [],
+        isLoadingFile: false,
+        error: Lang.timeline.importOfxError,
+      }));
     };
     reader.readAsText(file);
   };
 
   const handleImport = async () => {
     if (transactions.length === 0) {
-      setError(Lang.timeline.importOfxNoTransactions);
+      setState((prev) => ({ ...prev, error: Lang.timeline.importOfxNoTransactions }));
       return;
     }
 
     try {
-      setIsImporting(true);
-      setError(null);
+      setState((prev) => ({ ...prev, isImporting: true, error: null }));
 
       if (importType === "account") {
         if (!selectedAccountId) {
-          setError(Lang.commons.fillAllFields);
+          setState((prev) => ({ ...prev, error: Lang.commons.fillAllFields }));
           return;
         }
         await importAccounts(transactions, selectedAccountId, fileName);
       } else {
         if (!selectedCardId) {
-          setError(Lang.commons.fillAllFields);
+          setState((prev) => ({ ...prev, error: Lang.commons.fillAllFields }));
           return;
         }
         await importCredit(transactions, selectedCardId, creditCards, fileName);
       }
 
       alert(Lang.timeline.importOfxSuccess);
-      resetFileInput();
-      setTransactions([]);
-      setFileName("");
+      resetState();
       onImported();
     } catch (err) {
       console.error("OFX import failed", err);
-      setError(Lang.timeline.importOfxError);
+      setState((prev) => ({ ...prev, error: Lang.timeline.importOfxError }));
     } finally {
-      setIsImporting(false);
+      setState((prev) => ({ ...prev, isImporting: false }));
     }
   };
 
@@ -166,32 +272,42 @@ const TimelineOfxImport = ({
     accountId: string,
     sourceFile: string
   ) => {
-    const { accountRegistries } = getRepositories();
+    const { accountTransactions: accountRegistries } = getRepositories();
 
-    const registries = entries.map(
-      ({ amount, date, description, fitId }): AccountsRegistry => {
-        const value = Math.round(amount * 100) / 100;
-        const importMeta = JSON.stringify({
-          source: "ofx",
-          fileName: sourceFile,
-          fitId: fitId ?? null,
-        });
+    const existingSignatures = collectAccountSignatures(accountRegistries.getCache(), accountId);
+    const registries = entries.reduce<AccountsRegistry[]>((acc, transaction) => {
+      const signature = buildAccountTransactionSignature(transaction);
+      if (existingSignatures.has(signature)) {
+        return acc;
+      }
 
-        return new AccountsRegistry(
+      existingSignatures.add(signature);
+      const value = Math.round(transaction.amount * 100) / 100;
+      const importMeta = JSON.stringify({
+        source: "ofx",
+        fileName: sourceFile,
+        fitId: transaction.fitId ?? null,
+        signature,
+      });
+
+      acc.push(
+        new AccountsRegistry(
           crypto.randomUUID(),
           RegistryType.ACCOUNT,
           accountId,
           value,
-          description,
-          date,
+          transaction.description,
+          transaction.date,
           true,
           [],
           undefined,
           undefined,
           importMeta
-        );
-      }
-    );
+        )
+      );
+
+      return acc;
+    }, []);
 
     await accountRegistries.saveAll(registries);
   };
@@ -202,7 +318,7 @@ const TimelineOfxImport = ({
     cards: CreditCardWithInfos[],
     sourceFile: string
   ) => {
-    const { creditCardsRegistries, creditCards } = getRepositories();
+    const { creditCardsTransactions: creditCardsRegistries, creditCards } = getRepositories();
     const card = cards.find((c) => c.id === cardId) ?? creditCards.getLocalById(cardId);
     if (!card) {
       throw new Error("Credit card not found");
@@ -246,7 +362,7 @@ const TimelineOfxImport = ({
     };
   };
 
-  const status = (() => {
+  const status = useMemo(() => {
     if (isLoadingFile) {
       return { text: Lang.commons.loading, tone: "info" as const };
     }
@@ -262,13 +378,10 @@ const TimelineOfxImport = ({
       };
     }
     return null;
-  })();
+  }, [isLoadingFile, error, transactions.length, summaryTotal]);
 
   const handleClose = () => {
-    setTransactions([]);
-    resetFileInput();
-    setError(null);
-    setFileName("");
+    resetState();
     onClose();
   };
 
@@ -277,7 +390,7 @@ const TimelineOfxImport = ({
     : undefined;
 
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose}>
+    <>
       <div className="TimelineOfxImport">
         <div className="TimelineOfxImport__header">
           <h2 className="TimelineOfxImport__title">{Lang.timeline.importOfxTitle}</h2>
@@ -287,7 +400,7 @@ const TimelineOfxImport = ({
             onClick={handleClose}
             aria-label={Lang.commons.cancel}
           >
-            <Icon icon={Icon.all.faClose} />
+            <Icon icon={Icons.faClose} />
           </button>
         </div>
 
@@ -298,7 +411,7 @@ const TimelineOfxImport = ({
               name="ofxImportType"
               value="account"
               checked={importType === "account"}
-              onChange={() => setImportType("account")}
+              onChange={() => handleTypeChange("account")}
             />{" "}
             {Lang.timeline.importOfxAccountOption}
           </label>
@@ -308,7 +421,7 @@ const TimelineOfxImport = ({
               name="ofxImportType"
               value="credit"
               checked={importType === "credit"}
-              onChange={() => setImportType("credit")}
+              onChange={() => handleTypeChange("credit")}
             />{" "}
             {Lang.timeline.importOfxCreditOption}
           </label>
@@ -320,7 +433,12 @@ const TimelineOfxImport = ({
               {Lang.timeline.importOfxAccountLabel}
               <select
                 value={selectedAccountId ?? ""}
-                onChange={(event) => setSelectedAccountId(event.target.value || undefined)}
+                onChange={(event) =>
+                  setState((prev) => ({
+                    ...prev,
+                    selectedAccountId: event.target.value || undefined,
+                  }))
+                }
               >
                 <option value="">{Lang.commons.selectOption(Lang.timeline.importOfxAccountLabel)}</option>
                 {accounts.map((account) => (
@@ -335,7 +453,12 @@ const TimelineOfxImport = ({
               {Lang.timeline.importOfxCardLabel}
               <select
                 value={selectedCardId ?? ""}
-                onChange={(event) => setSelectedCardId(event.target.value || undefined)}
+                onChange={(event) =>
+                  setState((prev) => ({
+                    ...prev,
+                    selectedCardId: event.target.value || undefined,
+                  }))
+                }
               >
                 <option value="">{Lang.commons.selectOption(Lang.timeline.importOfxCardLabel)}</option>
                 {creditCards.map((card) => (
@@ -350,9 +473,9 @@ const TimelineOfxImport = ({
           <label>
             {Lang.timeline.importOfxFileLabel}
             <input
-              key={fileInputKey}
               type="file"
               accept=".ofx"
+              ref={fileInputRef}
               onChange={handleFileChange}
             />
           </label>
@@ -415,7 +538,7 @@ const TimelineOfxImport = ({
           />
         </div>
       </div>
-    </Dialog>
+    </>
   );
 };
 

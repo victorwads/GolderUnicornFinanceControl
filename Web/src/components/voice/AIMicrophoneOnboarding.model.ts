@@ -4,7 +4,6 @@ import { useCssVars } from '@components/Vars';
 
 import {
   AIMicrophoneOnboardingComponentProps,
-  AIMicrophoneOnboardingController,
   StartListeningOptions,
   UseOnboardingOptions,
 } from './AIMicrophoneOnboarding.types';

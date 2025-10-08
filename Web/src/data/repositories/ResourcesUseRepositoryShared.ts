@@ -7,13 +7,13 @@ const CHANNEL_NAME = "ResourcesUseRepository";
 const MILION = 1000000;
 
 type Dolar = number
-const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
+export const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
   "gpt-5-nano": { input: 0.05, output: 0.40},
   "gpt-5-mini": { input: 0.25, output: 2.00 },
   "gpt-4.1-nano": { input: 0.10, output: 0.40 },
   "gpt-4.1-mini": { input: 0.40, output: 1.60 },
 };
-TOKEN_PRICES['legacy'] = TOKEN_PRICES['gpt-4.1-mini'];
+// TOKEN_PRICES['legacy'] = TOKEN_PRICES['gpt-4.1-mini'];
 
 export class ResourcesUseModel extends DocumentModel {
   constructor(id: string, public use?: ResourceUsage) {
@@ -41,12 +41,24 @@ export function getCurrentCosts(uses?: AIUses): {
 
   const modelsUse = Object.entries(uses || STATIC_INSTANTE?.currentUse?.ai || {});
   for (const [model, use] of modelsUse) {
-    const prices = TOKEN_PRICES[model as AiModel] || { input: 0, output: 0 };
-    totalTokens += use.input + use.output;
-    totalDolar += 
-      ( use.input * (prices.input / MILION) ) +
-      ( use.output * (prices.output / MILION) );
+    const costs = getByModelCosts(model as AiModel, use || {});
+    totalTokens += costs.tokens;
+    totalDolar += costs.dolars;
   }
+  return { tokens: totalTokens, dolars: totalDolar };
+}
+
+export function getByModelCosts(model: AiModel, use: AIUse): {
+  tokens: number;
+  dolars: number;
+} {
+  let totalTokens = 0, totalDolar = 0, input = use.input || 0, output = use.output || 0;
+  const prices = TOKEN_PRICES[model] || { input: 0, output: 0 };
+  totalTokens += input + output;
+  totalDolar += 
+    ( input * (prices.input! / MILION) ) +
+    ( output * (prices.output! / MILION) );
+
   return { tokens: totalTokens, dolars: totalDolar };
 }
 

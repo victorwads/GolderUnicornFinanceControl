@@ -199,6 +199,7 @@ const zh: Translation = {
         start: '开始测试',
         confirm: '确认语言',
         back: '返回',
+        imDone: '完成',
         tryAgain: '重试',
         close: '关闭',
       },

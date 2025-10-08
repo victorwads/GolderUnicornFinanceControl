@@ -8,34 +8,47 @@ import {
 } from "openai/resources/index";
 
 import { createOpenAIClient } from "./createOpenAIClient";
-import { AssistantTools } from "./tools/AssistantTools";
+import { AppActionTool, AssistantTools, DomainToolName, ToUserTool } from "./tools/AssistantTools";
 import type {
   AssistantRunResult,
   AssistantToolCallLog,
-  AssistantToolName,
 } from "./tools/types";
-import { addResourceUse, type AiModel } from "@resourceUse";
+import { addResourceUse, TOKEN_PRICES, type AiModel } from "@resourceUse";
 import getRepositories, { Repositories } from "@repositories";
-import { AiCall } from "@models";
+import { AiCallContext } from "@models";
 import { Result } from "src/data/models/metadata";
 
-export const ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
-const HISTORY_LIMIT = 40;
+export let ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+
+const AIModelStorageKey = "assistant_model";
+const savedModel = localStorage.getItem(AIModelStorageKey);
+if (savedModel && Object.keys(TOKEN_PRICES).includes(savedModel)) {
+  ASSISTANT_MODEL = savedModel as AiModel;
+}
+
+export function setAssistantModel(model: AiModel) {
+  ASSISTANT_MODEL = model;
+  localStorage.setItem(AIModelStorageKey, model);
+  window.location.reload();
+}
 
 const SYSTEM_PROMPT = `
-You are the orchestrator of Golden Unicorn, a personal finance management app.
-Your role is to help the user manage their personal finances using the available tools.
-Follow exactly these rules:
+You are an personal finance management assistant app. Your role is to help the user manage their personal finances.
+Use the tools provided by the system to accomplish your tasks. Follow exactly these rules:
 - Always respond using registered tool calls.
-- NEVER make up IDs or any values that the user did not provide. If required values are missing, use the ask_aditional_info tool to ask the user for them. If not required, omit them.
-- The search_* tools can be called multiple times to obtain identifiers of data.
-- The action_create_* tools can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
-- Dates should be converted from relative formats like "today", "tomorrow", "last week", etc. to absolute dates.
-- Any date must be returned in the format YYYY-MM-DDTHH:mm.
-- When you finish all actions requested by the user, you should call the finish_conversation tool to end the session. Please confirm with the user that all actions were completed.
-- Only call finish_conversation when you are sure all dependent actions are done (e.g., do this and that and etc..).
-- Do not call finish_conversation before finishing all orchestration required by the user.
+- The apps is divided in domains, use ${DomainToolName.LIST_ALL} to obtain the list of domain names.
+- Each domain has its own data that can be managed. Call ${DomainToolName.LIST_ACTIONS} to get the domain tools.
+- To obtain required values for toolcalls, use the ${ToUserTool.ASK} tool to ask the user for them. Avoid inferring them.
+- For not required values, omit them if the user did not provide them.
+- For identifier fields, use the ${DomainToolName.SEARCH_IN_DOMAIN} tool to find the ID of the record. You can use multiple ${DomainToolName.SEARCH} calls to find all required identifiers.
+- Dates should be converted from relative formats like "today", "tomorrow", "last week", etc to absolute datetime in the format YYYY-MM-DDTHH:mm.
+- When you finish all actions requested by the user, you should call the ${ToUserTool.FINISH} tool to end the session. Please confirm with the user that all actions were completed.
+- Before you finish, you can move to the screen about the action that you just did using the ${AppActionTool.NAVIGATE} tool.
+- Do not call ${ToUserTool.FINISH} before finishing all orchestration required by the user.
+- Only talk with the user in his native language, which is provided in the first user message.
+- DO NOT ask user for file, always use the tools that will prompt it.
 `.trim();
+// - The action_create_new tools can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
 
 export type ToolEventListener = (event: AssistantToolCallLog) => void;
 export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
@@ -50,14 +63,12 @@ export default class AssistantController {
     private readonly repositories: Repositories = getRepositories(),
     public onAskAnditionalInfo?: AskAnditionalInfoCallback,
     public onToolCalled?: ToolEventListener,
-    public onNavigate?: (route: string, queryParams?: Record<string, string>) => void
+    public onNavigate?: (route: string, queryParams?: Record<string, string>) => void,
+    public model: string = ASSISTANT_MODEL,
   ) {}
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
     const context = this.createRunContext(text, userLanguage);
-    const toolSchema = this.toolRegistry.buildToolSchema();
-
-    let messages = this.buildMessages(context.history);
 
     this.onToolCalled?.({
       id: "user-message",
@@ -70,110 +81,51 @@ export default class AssistantController {
     let run = true;
     try {
       while (run) {
-        const completion = await this.requestCompletion(messages, toolSchema);
-        this.recordUsage(completion);
-
+        const toolSchema = this.toolRegistry.buildToolSchema();
+        const completion = await this.requestCompletion(context.history, toolSchema);
         const choice = completion.choices[0];
+        this.recordUsage(completion, context);
 
-        if (!choice) {
-          this.trackLog(
-            context,
-            this.createLogEntry("assistant", {
-              error: "Completion returned no choices",
-              completionId: completion.id,
-              model: completion.model,
-              requestMessages: messages,
-            })
-          );
-          break;
-        }
+        if (!choice) { context.finishReason = "no_choice_returned"; break; }
 
-        const toolCalls = this.appendAssistantResponse(choice.message, context, {
-          completionId: completion.id,
-          finishReason: choice.finish_reason ?? null,
-          index: choice.index,
-          usage: completion.usage,
-          model: completion.model,
-          created: completion.created,
-          requestMessages: messages,
-        });
+        const toolCalls = this.appendAssistantResponse(choice.message, context)
+          .filter(call => call?.type === "function")
 
-        if (!toolCalls.length) {
-          break;
-        }
+        if (!toolCalls.length) {context.finishReason = "assistant_no_tool_calls"; break; }
 
         for (const call of toolCalls) {
-          if ("function" in call) {
-            const result = (await this.executeToolCall(
-              call,
-              context
-            )) as Result<unknown>;
-            if (
-              call.function.name.startsWith("finish_conversation") &&
-              "success" in result &&
-              result.success === true
-            ) {
-              run = false;
-            }
+          if (call.function.name === ToUserTool.FINISH) {
+            context.finishReason = "finished_by_assistant"; run = false;
+          } else {
+            await this.executeToolCall(call, context);
           }
         }
-        messages = this.buildMessages(context.history);
-        context.history = limitHistory(context.history);
       }
+    } catch (error) {
+      context.warnings.push(`internal_error: ${error}`);
     } finally {
+      context.finishedAt = new Date();
       await this.persistAiCall(context);
     }
 
-    return {
-      warnings: context.warnings,
-    };
+    return { warnings: context.warnings };
   }
 
-  private createRunContext(text: string, userLanguage: string): RunContext {
-    const messageTimestamp = new Date();
-    const userMessage: ChatCompletionMessageParam = {
-      role: "user",
-      content: `Idioma: ${userLanguage}\n${text} Data Hora Atual: ${messageTimestamp.toISOString()}`,
-    };
-
-    return {
-      history: [userMessage],
-      warnings: [],
-      log: [
-        this.createLogEntry("system", { content: SYSTEM_PROMPT }),
-        this.createLogEntry(
-          "user",
-          {
-            language: userLanguage,
-            text,
-            message: userMessage,
-          },
-          messageTimestamp
-        ),
+  private createRunContext(text: string, userLanguage: string): AiCallContext {
+    const context = new AiCallContext(
+      new Date().toISOString().replace("T", " ").substring(0, 19),
+      this.model,
+      [
+        { role: "system", content: SYSTEM_PROMPT },
+        {
+          role: "user",
+          content: `User native language: ${userLanguage}\nCurrent DateTime: ${new Date().toISOString()}`,
+        },
+        { role: "user", content: text }
       ],
-    };
-  }
-
-  private buildMessages(
-    history: ChatCompletionMessageParam[]
-  ): ChatCompletionMessageParam[] {
-    return [{ role: "system", content: SYSTEM_PROMPT }, ...history];
-  }
-
-  private createLogEntry(
-    role: ChatCompletionMessageParam["role"],
-    data: Record<string, unknown>,
-    timestamp: Date = new Date()
-  ): AiCallLogEntry {
-    return {
-      role,
-      timestamp: timestamp.toISOString(),
-      data,
-    };
-  }
-
-  private trackLog(context: RunContext, entry: AiCallLogEntry): void {
-    context.log.push(entry);
+    );
+    this.repositories.aiCalls.set(context);
+    return context;
   }
 
   private async requestCompletion(
@@ -193,43 +145,31 @@ export default class AssistantController {
     });
   }
 
-  private appendAssistantResponse(
-    message: ChatCompletionMessage,
-    context: RunContext,
-    metadata?: AssistantMessageMetadata
-  ): ChatCompletionMessageToolCall[] {
+  private appendAssistantResponse(message: ChatCompletionMessage, context: AiCallContext): ChatCompletionMessageToolCall[] {
     const assistantMessage: ChatCompletionAssistantMessageParam = {
       role: "assistant",
       content: message.content,
       tool_calls: message.tool_calls,
     };
     context.history.push(assistantMessage);
-
-    const logPayload: Record<string, unknown> = {
-      assistantMessage,
-      rawMessage: message,
-    };
-
-    if (metadata) {
-      Object.assign(logPayload, metadata);
-    }
-
-    this.trackLog(context, this.createLogEntry("assistant", logPayload));
-
     if (message.content && message.content.trim().length > 0) {
-      context.warnings.push("O modelo tentou responder com texto livre.");
+      context.warnings.push("model_return_plain_text");
     }
 
+    const { id, history, warnings, sharedDomains, tokens } = context;
+    this.repositories.aiCalls.set({ id, history, warnings, sharedDomains, tokens }, true);
     return message.tool_calls || [];
   }
 
   private recordUsage(completion: {
     usage?: { prompt_tokens?: number; completion_tokens?: number };
-  }) {
+  }, context: AiCallContext) {
     const { prompt_tokens: input, completion_tokens: output } =
       completion.usage ?? {};
     if (!input && !output) return;
 
+    context.tokens.input += input ?? 0;
+    context.tokens.output += output ?? 0;
     addResourceUse({
       ai: {
         [ASSISTANT_MODEL]: {
@@ -240,27 +180,19 @@ export default class AssistantController {
     });
   }
 
-  private async persistAiCall(context: RunContext): Promise<void> {
-    try {
-      const aiCall = new AiCall(
-        new Date().toISOString().replace(/:/g, ""),
-        context.log as object[]
-      );
-      await this.repositories.aiCalls.set(aiCall);
-    } catch (error) {
-      console.error("Failed to persist AI call log", error);
-    }
+  private async persistAiCall(context: AiCallContext): Promise<void> {
+    await this.repositories.aiCalls.set(context);
   }
 
   private async executeToolCall(
     call: ChatCompletionMessageFunctionToolCall,
-    context: RunContext
+    context: AiCallContext
   ): Promise<unknown> {
     const args = call.function.arguments
       ? JSON.parse(call.function.arguments)
       : {};
 
-    const name = call.function.name as AssistantToolName;
+    const name = call.function.name;
     const userInfo = this.toolRegistry.getToolUserInfo(name, args);
 
     this.onToolCalled?.({
@@ -272,24 +204,23 @@ export default class AssistantController {
       executedAt: Date.now(),
     });
 
-    let result;
-    if (call.function.name === "ask_aditional_info") {
-      result = await this.onAskAnditionalInfo?.(args.message);
+    let result: Result<unknown>;
+    if (call.function.name === ToUserTool.ASK) {
+      result = await this.onAskAnditionalInfo?.(args.message)
+        .then((response) => ({ success: true, result: response }))
+        ?? { success: false, error: "No onAskAnditionalInfo handler provided." };
     } else {
-      result = await this.toolRegistry.execute(
-        name,
-        args,
-        { id: call.id }
-      ) as Result<unknown>;
+      result = await this.toolRegistry.execute(name, args );
+      context.sharedDomains = this.toolRegistry.sharedDomains;
 
-      if(name === "action_navigate_to_screen" && result.success === true) {
+      if(name === AppActionTool.NAVIGATE && result.success === true) {
         const { route, queryParams } = args as { route: string, queryParams?: Record<string, string> };
         this.onNavigate?.(route, queryParams);
       }
     }
 
     let resultInfo = undefined;
-    if(name.startsWith("action_create_") && result.success === true) {
+    if(result.success === true) {
       resultInfo = this.toolRegistry.getToolUserInfo(name, args, result.result);
     }
 
@@ -309,53 +240,6 @@ export default class AssistantController {
     };
     context.history.push(toolMessage);
 
-    this.trackLog(
-      context,
-      this.createLogEntry("tool", {
-        callId: call.id,
-        name,
-        arguments: args,
-        result: result ?? null,
-        toolCall: {
-          id: call.id,
-          type: (call as ChatCompletionMessageToolCall).type,
-          function: call.function,
-        },
-        toolMessage,
-        userInfo,
-        resultInfo,
-      })
-    );
-
     return result;
   }
-}
-
-type RunContext = {
-  history: ChatCompletionMessageParam[];
-  warnings: string[];
-  log: AiCallLogEntry[];
-};
-
-type AiCallLogEntry = {
-  role: ChatCompletionMessageParam["role"];
-  timestamp: string;
-  data: Record<string, unknown>;
-};
-
-type AssistantMessageMetadata = {
-  completionId?: string;
-  finishReason?: string | null;
-  index?: number;
-  usage?: { prompt_tokens?: number; completion_tokens?: number };
-  model?: string;
-  created?: number;
-  requestMessages?: ChatCompletionMessageParam[];
-};
-
-function limitHistory(
-  history: ChatCompletionMessageParam[]
-): ChatCompletionMessageParam[] {
-  if (history.length <= HISTORY_LIMIT) return history;
-  return history.slice(history.length - HISTORY_LIMIT);
 }

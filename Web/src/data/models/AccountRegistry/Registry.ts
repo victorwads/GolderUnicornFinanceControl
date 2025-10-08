@@ -65,7 +65,7 @@ export abstract class Registry extends DocumentModel {
         },
         categoryId: {
           type: "string",
-          description: "Identificador da categoria associada ao lançamento. você pode testar varios termos no search_categories para decidir a categoria para o usuário. se não encontrar nada que faça sentido, deixe em branco.",
+          description: "Identificador da categoria associada ao lançamento. você pode testar varios termos no search_domain[categories] para decidir a categoria para o usuário. se não encontrar nada que faça sentido, deixe em branco.",
         },
         observation: { type: "string", description: "Observações adicionais sobre a recorrência." },
       },

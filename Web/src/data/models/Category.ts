@@ -56,7 +56,7 @@ export class Category extends DocumentModel {
         success: true,
         result: new Category(
           "", String(name), 
-          String(icon), String(color)  , String(parent)
+          String(icon), String(color)  , parentId as string
         )
       };
     },

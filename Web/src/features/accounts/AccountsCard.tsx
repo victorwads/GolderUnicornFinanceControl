@@ -4,41 +4,22 @@ import { Link } from "react-router-dom"
 import Card from "@components/visual/Card"
 import BankInfo from "../banks/BankInfo"
 
-import { Bank, Account } from "@models"
 import getRepositories from "@repositories"
 import { waitUntilReady } from '@repositories';
 import { WithRepo } from "@components/WithRepo"
 import { getServices } from "@services"
-import { a } from "vitest/dist/chunks/suite.d.FvehnV49"
-
-export interface WithInfoAccount extends Account {
-  bank: Bank
-}
+import { WithInfoAccount } from "@models"
 
 const AccountsCard: React.FC<{}> = () => {
   const [accounts, setAccounts] = useState<WithInfoAccount[]>([])
   const [showArchived, setShowArchived] = useState<boolean|null>(null)
 
-  function setAccountsWithBank(accounts: Account[]) {
-    const { banks } = getRepositories();
-    setAccounts(accounts.map(account => {
-        return {
-          ...account,
-          bank: new Bank(
-            account.bankId, account.name, '',
-            banks.getLocalById(account.bankId)?.logoUrl
-          )
-        }
-      }))
-  }
-
   useEffect(() => {
-    if (showArchived === null) return
-    const { accounts: accountsRepo } = getRepositories();
-
-    setAccountsWithBank(accountsRepo.getCache(showArchived))
-
-    return accountsRepo.addUpdatedEventListenner(setAccountsWithBank)
+    const repo = getRepositories().accounts;
+    setAccounts(repo.getCacheWithBank(showArchived))
+    return repo.addUpdatedEventListenner(repo =>
+      setAccounts(repo.getCacheWithBank(showArchived))
+    )
   }, [showArchived])
 
   return <>
@@ -68,7 +49,7 @@ const AccountItem = ({ account }: AccountItemParams) => {
   const [balance, setBalance] = useState<number|true>(true)
 
   useEffect(() => {
-    waitUntilReady('accountRegistries', 'creditCardsInvoices').then(() => {
+    waitUntilReady('accountTransactions', 'creditCardsInvoices').then(() => {
       const { balance } = getServices();
       setBalance(balance.getBalance(account.id))
     });

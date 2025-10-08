@@ -13,9 +13,11 @@ const CreditCardsCard: React.FC<{}> = () => {
   let [creditCards, setCreditCards] = useState<CreditCardWithInfos[]>([])
 
   const fetchCreditCards = useCallback(() => {
-    const { creditCards } = getRepositories();
-    const cards = creditCards.getCacheWithBank();
-    setCreditCards(cards)
+    const repo = getRepositories().creditCards;
+    setCreditCards(repo.getCacheWithBank())
+    return repo.addUpdatedEventListenner(repo =>
+      setCreditCards(repo.getCacheWithBank())
+    )
   }, [])
   
   return <>

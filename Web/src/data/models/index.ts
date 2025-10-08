@@ -8,4 +8,4 @@ export * from './DocumentModel';
 export * from './ProductModel';
 export * from './GroceryItemModel';
 export * from './metadata';
-export * from './AiCall';
+export * from './AiCallContext';

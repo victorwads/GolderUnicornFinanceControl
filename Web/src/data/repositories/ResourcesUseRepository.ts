@@ -2,7 +2,7 @@ import { doc, getDoc, getDocs, increment } from "firebase/firestore";
 
 import getBroadcastChannel from "@utils/Broadcast";
 
-import BaseRepository from "./RepositoryBase";
+import BaseRepository from "./BaseRepository";
 import { Collections } from "../firebase/Collections";
 import { 
   ResourceUsage, FirestoreDatabasesUse, ResourcesUseRepository as Interface, 

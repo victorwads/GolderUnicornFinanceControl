@@ -5,7 +5,7 @@ import {
   CollectionReference, Query, Timestamp,
   DocumentData, DocumentReference,
   // Actions
-  addDoc, getDocsFromCache, getDocs, setDoc, writeBatch,
+  addDoc, getDocsFromCache, getDocs, setDoc, writeBatch, getDoc,
   collection, doc, query, orderBy, limit, where,
   onSnapshot,
 } from "firebase/firestore";
@@ -15,8 +15,6 @@ import { addResourceUse } from "./ResourcesUseRepositoryShared";
 
 const queryField: keyof DocumentModel = "_updatedAt";
 
-type RepositoryUpdatedEventListenner<T> = (cache: T[]) => void;
-
 export default abstract class BaseRepository<Model extends DocumentModel> {
   protected db: Firestore;
   protected ref: CollectionReference<any>;
@@ -25,7 +23,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   private minimumCacheSize = 0;
   private waitRef: Promise<any> | null = null;
   private inited: boolean = false;
-  private listenners: RepositoryUpdatedEventListenner<Model>[] = [];
+  private listenners: ((repository: this) => void)[] = [];
   protected waitFinished: boolean = false;
   private unsubscribeSnapshot?: () => void;
 
@@ -38,19 +36,17 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.ref = collection(this.db, this.collectionName);
   }
 
-  public addUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
+  public addUpdatedEventListenner(listenner: (repository: this) => void) {
     this.listenners.push(listenner);
     if (this.listenners.length === 1) {
-      // Registra o snapshot listener na coleção
       this.unsubscribeSnapshot = this.registerCollectionSnapshotListener();
     }
     return () => this.removeUpdatedEventListenner(listenner);
   }
 
-  public removeUpdatedEventListenner(listenner: RepositoryUpdatedEventListenner<Model>) {
+  public removeUpdatedEventListenner(listenner: (repository: this) => void) {
     this.listenners = this.listenners.filter(l => l !== listenner);
     if (this.listenners.length === 0 && this.unsubscribeSnapshot) {
-      // Remove o snapshot listener
       this.unsubscribeSnapshot();
       this.unsubscribeSnapshot = undefined;
     }
@@ -59,7 +55,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   private callEventListenners() {
     this.listenners.forEach(l => {
       try {
-        l(this.getCache());
+        l(this);
       } catch {}
     });
   }
@@ -90,9 +86,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   protected async waitInit(): Promise<void> {
     if (Object.keys(this.cache || {}).length === this.minimumCacheSize) {
       await this.handleWait(this.getAll());
-      console.warn(`Repository ${this.collectionName} initialized with ${Object.keys(this.cache).length} items`);
-      // const length = Object.keys(this.cache).length;
-      // console.log(`Cache for ${this.collectionName} initialized with ${length} items`);
+      console.warn(`Repository ${this.collectionName} initialized with ${Object.keys(this.cache).length} items`, this.cache);
     }
   }
 
@@ -104,7 +98,6 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     if (!this.cache) {
       this.cache = {};
     }
-    // await this.waitInit();
   }
 
   protected async createQuery(field: Partial<Model>): Promise<Query<Model, DocumentData>> {
@@ -159,7 +152,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     this.callEventListenners();
   }
 
-  public async set(model: Model, merge: boolean = false, update: boolean = true): Promise<DocumentReference<Model>> {
+  public async set(model: Model|DocumentData, merge: boolean = false, update: boolean = true): Promise<DocumentReference<Model>> {
     let data = await this.toFirestore(model);
     let result;
     if (update) await this.updateLocalCache();
@@ -173,10 +166,18 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       (model as any).id = result.id;
     }
 
-    this.addToCache(model);
+    if (model instanceof this.modelClass)
+      this.addToCache(model);
+    else
+      await getDoc(doc(this.ref, model.id))
+        .then(snap => {
+          if (snap.exists()) return this.fromFirestore(snap.id, snap.data());
+        })
+        .then(m => { if (m) this.addToCache(m); });
+
     addResourceUse({
       db: {
-        remote: { writes: 1 },
+        remote: { writes: 1, docReads: model instanceof this.modelClass ? 0 : 1 },
         local: { writes: 1 },
       }
     });
@@ -240,7 +241,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     );
   }
 
-  protected async toFirestore(model: Model): Promise<DocumentData> {
+  protected async toFirestore(model: Model|DocumentData): Promise<DocumentData> {
     const data = {
       ...model,
       _updatedAt: new Date(),

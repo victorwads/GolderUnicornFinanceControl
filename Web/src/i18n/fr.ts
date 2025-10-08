@@ -199,6 +199,7 @@ const fr: Translation = {
         start: 'Commencer le test',
         confirm: 'Confirmer la langue',
         back: 'Retour',
+        imDone: 'Terminé',
         tryAgain: 'Réessayer',
         close: 'Fermer',
       },

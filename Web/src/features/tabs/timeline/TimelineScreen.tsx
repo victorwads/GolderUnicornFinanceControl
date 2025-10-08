@@ -1,22 +1,20 @@
-import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { useEffect, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 import "./TimelineScreen.css";
 
 import { Month, MonthKey } from '@utils/FinancialMonthPeriod';
 import { Account, RegistryWithDetails } from "@models";
 import { getServices, TimelineFilterPeriod } from '@services';
 import getRepositories from '@repositories';
-
-import routes from '@features/navigate';
+import routes from "@features/navigate";
 import { Container, ContainerFixedContent } from "@components/conteiners";
 import { ContainerScrollContent } from '@components/conteiners';
 import { Loading } from "@components/Loading";
-import Icon from '@components/Icons';
+import Icon, { Icons } from '@components/Icons';
 import SearchBar from '@components/fields/SearchBar';
 
 import { PARAM_CATEGORY, PARAM_FROM, PARAM_TO } from './TimelineFilterScreen';
 import RegistryItem from "./RegistryItem";
-import TimelineOfxImport from "./TimelineOfxImport";
 
 const formatNumber = (number: number) => number.toLocaleString(CurrentLangInfo.short, {
   style: "currency",
@@ -36,11 +34,9 @@ const TimelineScreen = () => {
   // @legacy
   const [selectedAccount, setSelectedAccount] = useState<Account | null>();
   const [searchValue, setSearchValue] = useState('');
-  const [showImport, setShowImport] = useState(false);
-  const [dataVersion, setDataVersion] = useState(0);
 
-  useEffect(() => {
-    const { accounts } = getRepositories();
+  const { accounts, accountTransactions } = getRepositories();
+  const load = useCallback(() => {
     const { balance, timeline } = getServices();
 
     if (accountIds?.length) {
@@ -60,7 +56,18 @@ const TimelineScreen = () => {
 
     setCurrentBalance(balance.getBalance(accountIds, period.end));
     setRegistries(registries);
-  }, [categoryIds, accountIds, showArchived, period, searchValue, dataVersion]);
+  }, [categoryIds, accountIds, showArchived, period, searchValue]);
+
+  useEffect(() => {
+    load();
+    const subscriptions = [
+      accounts.addUpdatedEventListenner(load),
+      accountTransactions.addUpdatedEventListenner(load),
+    ];
+    return () => {
+      subscriptions.forEach((un) => un())
+    }
+  }, [load]);
 
   const { id: accountId} = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -114,11 +121,6 @@ const TimelineScreen = () => {
 
   const hasCategoryFilter = categoryIds && categoryIds?.length > 0;
 
-  const handleImportSuccess = () => {
-    setShowImport(false);
-    setDataVersion((value) => value + 1);
-  };
-
   // TODO
   let perDayTotal = 0;
   let currentDay = registries[0]?.registry.date.getDate();
@@ -146,15 +148,14 @@ const TimelineScreen = () => {
           </label>
         </div>}
         <div className="TimelineHeaderActions">
-          <button
-            type="button"
+          <Link
+            to={routes.timelineImport(selectedAccount?.id)}
             className="TimelineActionButton"
-            onClick={() => setShowImport(true)}
             aria-label={Lang.timeline.importOfx}
             title={Lang.timeline.importOfx}
           >
-            <Icon icon={Icon.all.faFileImport} />
-          </button>
+            <Icon icon={Icons.faFileImport} />
+          </Link>
           {(() => {
             const filterParams = new URLSearchParams(searchParams);
             if (selectedAccount) filterParams.set('account', selectedAccount.id);
@@ -167,7 +168,7 @@ const TimelineScreen = () => {
                 aria-label={Lang.timeline.filters}
                 title={Lang.timeline.filters}
               >
-                <Icon icon={Icon.all.faFilter} />
+                <Icon icon={Icons.faFilter} />
               </Link>
             );
           })()}
@@ -185,7 +186,7 @@ const TimelineScreen = () => {
       </div>
       <div className="TimelineMonthNav">
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(false)}>
-          <Icon icon={Icon.all.faChevronLeft} />
+          <Icon icon={Icons.faChevronLeft} />
         </button>
         <div className="TimelineMonthInfo">
           <span className="TimelineMonthLabel">
@@ -196,7 +197,7 @@ const TimelineScreen = () => {
           </span>
         </div>
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(true)}>
-          <Icon icon={Icon.all.faChevronRight} />
+          <Icon icon={Icons.faChevronRight} />
         </button>
       </div>
       <SearchBar value={searchValue} onSearchEach={setSearchValue} onClose={() => setSearchValue('')} />
@@ -205,7 +206,7 @@ const TimelineScreen = () => {
           + (selectedAccount ? `&account=${selectedAccount.id}` : '')
           + (categoryIds.length === 1 ? `&category=${categoryIds[0]}` : '')
         }>
-          <Icon icon={Icon.all.faPlus} size="2x" />
+          <Icon icon={Icons.faPlus} size="2x" />
         </Link>
       </div>
     </ContainerFixedContent>
@@ -232,12 +233,6 @@ const TimelineScreen = () => {
       </div>
     </ContainerScrollContent>
     </Container>
-    <TimelineOfxImport
-      isOpen={showImport}
-      onClose={() => setShowImport(false)}
-      onImported={handleImportSuccess}
-      defaultAccountId={selectedAccount?.id}
-    />
   </>;
 };
 

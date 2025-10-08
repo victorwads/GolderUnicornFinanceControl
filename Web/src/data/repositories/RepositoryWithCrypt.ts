@@ -7,7 +7,7 @@ import {
 import { DocumentModel } from "@models";
 
 import Encryptor from "../crypt/Encryptor";
-import BaseRepository from "./RepositoryBase";
+import BaseRepository from "./BaseRepository";
 import { addResourceUse } from "./ResourcesUseRepositoryShared";
 
 export default abstract class RepositoryWithCrypt<Model extends DocumentModel> extends BaseRepository<Model> {

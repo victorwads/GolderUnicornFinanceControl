@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Loading } from '@components/Loading';
-import { RepoName, waitUntilReady } from '@repositories';
+import { isAllReady, RepoName, waitUntilReady } from '@repositories';
 
 interface WithRepoProps {
   names: RepoName[];
@@ -9,31 +9,28 @@ interface WithRepoProps {
 }
 
 export const WithRepo: React.FC<WithRepoProps> = ({ names, children, onReady }) => {
-  const [loading, setLoading] = useState(true);
-  const onReadyRef = useRef(onReady);
+  const [loading, setLoading] = useState(!isAllReady(...names));
+  const list = names.join(',');
 
   useEffect(() => {
-    onReadyRef.current = onReady;
-    if(!loading) onReadyRef.current?.();
-  }, [onReady, loading]);
+    if (!loading || names.length === 0) {
+      onReady?.();
+      return;
+    };
 
-  useEffect(() => {
     let cancelled = false;
     const unsubscribe = () => {cancelled = true}
-
-    if (names.length === 0) {
-      setLoading(false);
-      return unsubscribe;
-    }
 
     setLoading(true);
     waitUntilReady(...names).finally(() => {
       if (cancelled) return;
       setLoading(false);
+      onReady?.();
+      console.log("WithRepo ready for", list);
     });
 
     return unsubscribe;
-  }, []);
+  }, [list, onReady]);
 
   if (loading) {
     return (

@@ -208,7 +208,8 @@ const hi: Translation = {
       actions: {
         start: 'परीक्षण शुरू करें',
         confirm: 'भाषा की पुष्टि करें',
-        back: 'वापस जाएँ',
+        back: 'वापस जाएं',
+        imDone: 'समाप्त',
         tryAgain: 'फिर से प्रयास करें',
         close: 'बंद करें',
       },

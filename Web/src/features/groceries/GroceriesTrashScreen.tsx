@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
-import Icon from '@components/Icons';
+import Icon, { Icons } from '@components/Icons';
 import getRepositories from '@repositories';
 import { GroceryItemModel } from '@models';
 
@@ -45,12 +45,12 @@ const GroceriesTrashScreen = () => {
         <div className="GroceryHeader">
           <h2>Groceries Trash - {items.length}</h2>
           <Link to="/groceries" className="TrashButton">
-            <Icon icon={Icon.all.faArrowLeft} />
+            <Icon icon={Icons.faArrowLeft} />
           </Link>
         </div>
         {items.length > 0 && (
           <button className="FloatButton TrashDeleteButton" onClick={deleteSelected}>
-            <Icon icon={Icon.all.faTrash} size="2x" />
+            <Icon icon={Icons.faTrash} size="2x" />
           </button>
         )}
       </ContainerFixedContent>

@@ -211,6 +211,7 @@ const ptBR: Translation = {
         start: 'Iniciar teste',
         confirm: 'Confirmar idioma',
         back: 'Voltar',
+        imDone: 'Concluir',
         tryAgain: 'Tente novamente',
         close: 'Fechar',
       },

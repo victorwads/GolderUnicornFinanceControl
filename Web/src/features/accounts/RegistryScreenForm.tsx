@@ -26,7 +26,7 @@ const RegistryScreenForm = () => {
     }));
   const registry = useMemo(() => {
     if (!id) return undefined;
-    return getRepositories().accountRegistries.getLocalById(id);
+    return getRepositories().accountTransactions.getLocalById(id);
   }, [id]);
 
   const [description, setDescription] = useState("");
@@ -50,7 +50,7 @@ const RegistryScreenForm = () => {
 
   useEffect(() => {
     if (id) {
-      const registry = getRepositories().accountRegistries.getCache().find((r: AccountsRegistry) => r.id === id);
+      const registry = getRepositories().accountTransactions.getCache().find((r: AccountsRegistry) => r.id === id);
       if (registry) {
         setDescription(registry.description);
         setValue(registry.value);
@@ -81,10 +81,10 @@ const RegistryScreenForm = () => {
     );
 
     if (id) {
-      await getRepositories().accountRegistries.editRegistry(newRegistry);
+      await getRepositories().accountTransactions.editRegistry(newRegistry);
       alert(Lang.registry.messages.saved);
     } else {
-      await getRepositories().accountRegistries.addRegistry(newRegistry);
+      await getRepositories().accountTransactions.addRegistry(newRegistry);
       alert(Lang.registry.messages.saved);
     }
     navigate(-1);

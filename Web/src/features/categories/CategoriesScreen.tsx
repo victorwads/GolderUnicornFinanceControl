@@ -13,9 +13,12 @@ import { WithRepo } from '@components/WithRepo';
 const CategoriesScreen: React.FC = () => {
   const [categories, setCategories] = useState<RootCategory[]>([]);
 
-  const fetchCategories = useCallback(() => {
-    const { categories } = getRepositories();
-    setCategories(categories.getAllRoots());
+  const fetchCategories = useCallback(async () => {
+    const repo = getRepositories().categories;
+    setCategories(repo.getAllRoots());
+    repo.addUpdatedEventListenner((repo) => {
+      setCategories(repo.getAllRoots());
+    });
   }, []);
 
   return <ModalScreen title={Lang.categories.title}><WithRepo names={['categories']} onReady={fetchCategories}>

@@ -1,4 +1,4 @@
-import Icon from '../Icons'
+import Icon, { Icons } from '../Icons'
 import './SearchBar.css'
 
 interface SearchBarParams {
@@ -13,7 +13,7 @@ const SearchBar = (params: SearchBarParams) => {
             if(params.onSearchEach) params.onSearchEach(it.target.value)
         } } placeholder={Lang.commons.search} value={params.value} />
         <button className="modal-back-button" onClick={params.onClose}>
-          <Icon icon={Icon.all.faClose} />
+          <Icon icon={Icons.faClose} />
         </button>
     </div>
 }

@@ -3,22 +3,22 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import getRepositories from '@repositories';
-import type { AiCall } from '@models';
-
-type AiCallLogEntry = {
-  role?: string;
-  timestamp?: string;
-  data?: unknown;
-};
+import type { AiCallContext } from '@models';
+import { getByModelCosts, TOKEN_PRICES, type AiModel } from '@resourceUse';
+import { ASSISTANT_MODEL, setAssistantModel } from './AssistantController';
 
 type Conversation = {
   id: string;
   title: string;
   updatedAt: number;
-  entries: AiCallLogEntry[];
+  context: AiCallContext;
+  costBRL: number;
 };
 
+type MessageEntry = AiCallContext['history'][number] & Record<string, unknown>;
+
 const UNTITLED = 'Conversa sem título';
+const USD_TO_BRL = 5.6;
 
 const AiCallsScreen = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -27,7 +27,7 @@ const AiCallsScreen = () => {
   useEffect(() => {
     const repo = getRepositories().aiCalls;
 
-    const sync = (items: AiCall[]) => {
+    const sync = (items: AiCallContext[]) => {
       const normalized = normalizeConversations(items);
       setConversations(normalized);
       setSelectedId((previous) => {
@@ -40,7 +40,7 @@ const AiCallsScreen = () => {
 
     repo.getAll().then(sync).catch(() => sync(repo.getCache()));
 
-    return repo.addUpdatedEventListenner((items) => sync(items));
+    return repo.addUpdatedEventListenner(() => sync(repo.getCache()));
   }, []);
 
   const selectedConversation = useMemo(
@@ -53,9 +53,16 @@ const AiCallsScreen = () => {
       <ContainerFixedContent>
         <header className="AiCallsScreen__header">
           <div>
-            <h2>AI Calls</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2>AI Calls</h2>
+              <select onChange={(e) => setAssistantModel(e.target.value as AiModel)} value={ASSISTANT_MODEL}>
+                {Object.keys(TOKEN_PRICES).map((model) => (
+                  <option value={model}>{model}</option>
+                ))}
+              </select>
+            </div>
             <p className="AiCallsScreen__subtitle">
-              Visualize as conversas salvas do assistente com o histórico completo em JSON.
+              Visualize os registros completos das execuções do assistente.
             </p>
           </div>
         </header>
@@ -74,7 +81,10 @@ const AiCallsScreen = () => {
                     onClick={() => setSelectedId(conversation.id)}
                   >
                     <strong className="AiCallsList__title">{conversation.title}</strong>
-                    <span className="AiCallsList__time">{formatRelativeTime(conversation.updatedAt)}</span>
+                    <span className="AiCallsList__model">{conversation.context.model}</span>
+                    <span className="AiCallsList__time">
+                      {`${formatCurrencyBRL(conversation.costBRL)} • ${formatRelativeTime(conversation.updatedAt)}`}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -82,7 +92,7 @@ const AiCallsScreen = () => {
           </aside>
           <section className="AiCallsThread">
             {selectedConversation ? (
-              <ConversationMessages conversation={selectedConversation} />
+              <ConversationDetails conversation={selectedConversation} />
             ) : (
               <div className="AiCallsThread__empty">
                 Selecione uma conversa para visualizar os detalhes.
@@ -97,60 +107,35 @@ const AiCallsScreen = () => {
 
 export default AiCallsScreen;
 
-function normalizeConversations(items: AiCall[]): Conversation[] {
+function normalizeConversations(items: AiCallContext[]): Conversation[] {
   return items
-    .map((item) => {
-      const entries = extractEntries(item);
-      const title = deriveTitle(entries) || UNTITLED;
-      const updatedAt = getConversationTimestamp(item, entries);
-      return {
-        id: item.id,
-        title,
-        updatedAt,
-        entries,
-      };
-    })
+    .filter((context) => context.version === 2)
+    .map((context) => ({
+      id: context.id,
+      title: deriveTitle(context) || UNTITLED,
+      updatedAt: getConversationTimestamp(context),
+      context,
+      costBRL: getConversationCostBRL(context),
+    }))
     .sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
-function extractEntries(call: AiCall): AiCallLogEntry[] {
-  if (!Array.isArray(call.messages)) return [];
-  return call.messages.map((entry) => (isLogEntry(entry) ? entry : { data: entry }));
-}
-
-function isLogEntry(entry: unknown): entry is AiCallLogEntry {
-  if (!entry || typeof entry !== 'object') return false;
-  return 'data' in (entry as Record<string, unknown>) || 'role' in (entry as Record<string, unknown>);
-}
-
-function deriveTitle(entries: AiCallLogEntry[]): string {
-  const userEntry = entries[1] ?? entries.find((entry) => entry.role === 'user');
+function deriveTitle(context: AiCallContext): string {
+  const history = Array.isArray(context.history) ? context.history : [];
+  const userEntry = [...history].reverse().find((entry) => entry?.role === 'user');
   if (!userEntry) return '';
-  const data = userEntry.data;
-  if (data && typeof data === 'object') {
-    const message = (data as { message?: { text?: unknown } }).message;
-    if (message && typeof message === 'object') {
-      const text = (message as { text?: unknown }).text;
-      if (typeof text === 'string' && text.trim()) return text.trim();
-    }
-    const directText = (data as { text?: unknown }).text;
-    if (typeof directText === 'string' && directText.trim()) return directText.trim();
-  }
-  return '';
+  const title = formatContent((userEntry as Record<string, unknown>).content).trim();
+  return title && title !== 'null' ? title : '';
 }
 
-function getConversationTimestamp(call: AiCall, entries: AiCallLogEntry[]): number {
-  const lastEntryWithTimestamp = [...entries]
-    .reverse()
-    .find((entry) => entry.timestamp && !Number.isNaN(Date.parse(entry.timestamp)));
-
-  if (lastEntryWithTimestamp?.timestamp) {
-    return Date.parse(lastEntryWithTimestamp.timestamp);
+function getConversationTimestamp(context: AiCallContext): number {
+  if (context.finishedAt instanceof Date) {
+    return context.finishedAt.getTime();
   }
-
-  const updatedAt = (call as { _updatedAt?: Date })._updatedAt;
-  if (updatedAt instanceof Date) return updatedAt.getTime();
-
+  const updatedAt = context._updatedAt instanceof Date ? context._updatedAt.getTime() : undefined;
+  if (updatedAt) return updatedAt;
+  const createdAt = context._createdAt instanceof Date ? context._createdAt.getTime() : undefined;
+  if (createdAt) return createdAt;
   return Date.now();
 }
 
@@ -172,39 +157,125 @@ function formatRelativeTime(timestamp: number): string {
   return new Date(timestamp).toLocaleString();
 }
 
-type ConversationMessagesProps = {
+type ConversationDetailsProps = {
   conversation: Conversation;
 };
 
-function ConversationMessages({ conversation }: ConversationMessagesProps) {
+function ConversationDetails({ conversation }: ConversationDetailsProps) {
+  const { context } = conversation;
+  const history = getMessageEntries(context);
+  const sharedDomains = Array.isArray(context.sharedDomains) ? context.sharedDomains : [];
+  const warnings = Array.isArray(context.warnings) ? context.warnings : [];
+  const finishedAt = context.finishedAt instanceof Date ? context.finishedAt : null;
+  const createdAt = context._createdAt instanceof Date ? context._createdAt : null;
+  const updatedAt = context._updatedAt instanceof Date ? context._updatedAt : null;
+  const tokens = context.tokens ?? { input: 0, output: 0 };
+  const costBRL = conversation.costBRL;
+
   return (
     <div className="AiCallsMessages">
       <header className="AiCallsMessages__header">
         <div>
           <h3>{conversation.title}</h3>
-          <span>{new Date(conversation.updatedAt).toLocaleString()}</span>
+          <span>Atualizado em {new Date(conversation.updatedAt).toLocaleString()}</span>
         </div>
+        <div className="AiCallsMessages__metaGrid">
+          <span><strong>ID:</strong> {context.id}</span>
+          <span><strong>Modelo:</strong> {context.model}</span>
+          <span><strong>Tokens entrada:</strong> {tokens.input ?? 0}</span>
+          <span><strong>Tokens saída:</strong> {tokens.output ?? 0}</span>
+          <span><strong>Custo estimado:</strong> {formatCurrencyBRL(costBRL)}</span>
+          {createdAt && <span><strong>Criado em:</strong> {createdAt.toLocaleString()}</span>}
+          {updatedAt && <span><strong>Último update:</strong> {updatedAt.toLocaleString()}</span>}
+          {finishedAt && <span><strong>Finalizado em:</strong> {finishedAt.toLocaleString()}</span>}
+          {context.finishReason && <span><strong>Motivo de término:</strong> {context.finishReason}</span>}
+        </div>
+        {sharedDomains.length > 0 && (
+          <div className="AiCallsMessages__tags">
+            <strong>Domínios compartilhados:</strong>
+            {sharedDomains.map((domain) => (
+              <span key={domain} className="AiCallsMessages__tag">{domain}</span>
+            ))}
+          </div>
+        )}
+        {warnings.length > 0 && (
+          <div className="AiCallsMessages__warnings">
+            <strong>Avisos</strong>
+            <ul>
+              {warnings.map((warning, index) => (
+                <li key={`${warning}-${index}`}>{warning}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </header>
       <div className="AiCallsMessages__list">
-        {conversation.entries.map((entry, index) => (
-          <article
-            key={`${entry.timestamp ?? 'entry'}-${index}`}
-            className={`AiCallsMessage AiCallsMessage--${entry.role ?? 'unknown'}`}
-          >
-            <div className="AiCallsMessage__meta">
-              <span className="AiCallsMessage__role">{entry.role ?? 'unknown'}</span>
-              {entry.timestamp && (
-                <span className="AiCallsMessage__time">
-                  {new Date(entry.timestamp).toLocaleString()}
-                </span>
-              )}
-            </div>
-            <pre>{formatJson(entry.data)}</pre>
-          </article>
-        ))}
+        {history.length === 0 ? (
+          <div className="AiCallsThread__empty">Nenhum histórico disponível para esta chamada.</div>
+        ) : (
+          history.map((entry, index) => {
+            const { content, role, ...rest } = entry ?? {};
+            const extra = sanitize(rest);
+            const metaItems = [
+              typeof entry?.name === 'string' ? entry.name : null,
+              typeof entry?.tool_call_id === 'string' ? `tool:${entry.tool_call_id}` : null,
+            ].filter(Boolean);
+
+            return (
+              <article
+                key={`${role ?? 'entry'}-${index}`}
+                className={`AiCallsMessage AiCallsMessage--${role ?? 'unknown'}`}
+              >
+                <div className="AiCallsMessage__meta">
+                  <span className="AiCallsMessage__role">{role ?? 'unknown'}</span>
+                  {metaItems.length > 0 && (
+                    <span className="AiCallsMessage__time">{metaItems.join(' · ')}</span>
+                  )}
+                </div>
+                <pre>{formatContent(content)}</pre>
+                {extra && Object.keys(extra).length > 0 && (
+                  <div className="AiCallsMessage__extra">
+                    <pre>{formatJson(extra)}</pre>
+                  </div>
+                )}
+              </article>
+            );
+          })
+        )}
       </div>
     </div>
   );
+}
+
+function getMessageEntries(context: AiCallContext): MessageEntry[] {
+  if (!Array.isArray(context.history)) return [];
+  return context.history
+    .filter((entry): entry is MessageEntry => !!entry && typeof entry === 'object')
+    .map((entry) => entry as MessageEntry);
+}
+
+function formatContent(content: unknown): string {
+  if (content === undefined) return 'null';
+  if (content === null) return 'null';
+  if (typeof content === 'string') return content;
+  if (typeof content === 'number' || typeof content === 'boolean') return String(content);
+  if (Array.isArray(content)) {
+    const text = content
+      .map((part) => {
+        if (typeof part === 'string') return part;
+        if (part && typeof part === 'object' && 'text' in part && typeof (part as { text?: unknown }).text === 'string') {
+          return String((part as { text?: string }).text);
+        }
+        return JSON.stringify(part, null, 2);
+      })
+      .join('\n')
+      .trim();
+    return text || formatJson(content);
+  }
+  if (typeof content === 'object') {
+    return formatJson(content);
+  }
+  return String(content);
 }
 
 function formatJson(data: unknown): string {
@@ -214,4 +285,38 @@ function formatJson(data: unknown): string {
   } catch {
     return String(data);
   }
+}
+
+function getConversationCostBRL(context: AiCallContext): number {
+  const tokens = context.tokens ?? { input: 0, output: 0 };
+  const model = (context.model || 'gpt-4.1-mini') as AiModel;
+  const { dolars } = getByModelCosts(model, tokens);
+  return dolars * USD_TO_BRL;
+}
+
+function formatCurrencyBRL(value: number): string {
+  if (!Number.isFinite(value)) return 'R$\u00a00,00';
+  return value.toLocaleString(CurrentLangInfo.short, {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: value > 1 ? 2 : 4,
+    maximumFractionDigits: 4,
+  });
+}
+
+function sanitize<T>(value: T): T | undefined {
+  if (Array.isArray(value)) {
+    return value.map(sanitize).filter((item) => item !== undefined) as T;
+  }
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>).reduce<Record<string, unknown>>((acc, [key, val]) => {
+      const cleaned = sanitize(val);
+      if (cleaned !== undefined) {
+        acc[key] = cleaned;
+      }
+      return acc;
+    }, {});
+    return (Object.keys(entries).length > 0 ? entries : undefined) as T | undefined;
+  }
+  return value === undefined ? undefined : value;
 }

@@ -6,6 +6,7 @@ import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
 import LoginScreen from '@features/login/LoginScreen';
 import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
+import TimelineImportScreen from '@features/tabs/timeline/TimelineImportScreen';
 import TimelineFilterScreen from '@features/tabs/timeline/TimelineFilterScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
@@ -33,11 +34,15 @@ export const privateRouter = createBrowserRouter([
     path: '/', element: withRepos(<TabScreen />), children: [
       { path: 'dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: withRepos(<TimelineFilterScreen />, 'banks', 'creditCards', 'accounts', 'categories') },
+      { path: 'timeline/import', element: withRepos(
+        <TimelineImportScreen />,
+        'accountTransactions', 'creditCardsTransactions', 'creditCards', 'accounts'
+      ) },
       { path: 'timeline/:id?', element: withRepos(
         <TimelineScreen />,
-        'accountRegistries', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
+        'accountTransactions', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
       ) },
-      { path: 'recurrent', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentRegistries', 'accounts', 'creditCards', 'categories') },
+      { path: 'recurrent', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentTransactions', 'accounts', 'creditCards', 'categories') },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
       { path: 'settings', element: <SettingsScreen /> },
@@ -47,17 +52,17 @@ export const privateRouter = createBrowserRouter([
       { path: '/accounts/create', element: withRepos(<AccountScreenForm />, 'banks') },
       { path: '/accounts/:id/edit', element: withRepos(<AccountScreenForm />, 'accounts', 'banks') },
       { path: '/accounts/registry/add', element: withRepos(<RegistryScreenForm />, 'accounts', 'categories', 'banks') },
-      { path: '/accounts/registry/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountRegistries') },
+      { path: '/accounts/registry/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
       { path: '/creditcards', element: withRepos(<CreditCardsScreen />, 'creditCards') },
       { path: '/creditcards/create', element: withRepos(<CreditCardScreenForm />, 'accounts') },
       { path: '/creditcards/:id', element: <ViewCreditCardsScreen /> },
       { path: '/creditcards/:id/edit', element: withRepos(<CreditCardScreenForm />, 'creditCards', 'accounts') },
       { path: '/creditcards/:id/invoices/:selected?', element: withRepos(
         <CreditCardsInvoices />,
-        'creditCardsInvoices', 'creditCardsRegistries', 'categories', 'creditCards'
+        'creditCardsInvoices', 'creditCardsTransactions', 'categories', 'creditCards'
       ) },
       { path: '/creditcards/registry/add', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards') },
-      { path: '/creditcards/registry/:id/edit', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards', 'creditCardsRegistries') },
+      { path: '/creditcards/registry/:id/edit', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards', 'creditCardsTransactions') },
       { path: '/categories', element: <CategoriesScreen /> },
       { path: '/categories/create', element: <AddCategoriesScreen /> },
       { path: '/groceries/create', element: <GroceryItemForm /> },
