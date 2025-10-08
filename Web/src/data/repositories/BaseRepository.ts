@@ -150,8 +150,8 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       await setDoc(ref, { _deletedAt: new Date() }, { merge: true })
     } else {
       await deleteDoc(ref);
+      delete this.cache[id];
     }
-    delete this.cache[id];
     this.callEventListenners();
   }
 
