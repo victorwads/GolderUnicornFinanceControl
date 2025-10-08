@@ -16,6 +16,7 @@ const DevContent = () => {
     const all = accountTransactions.getCache(true);
     const toKill = all
       .filter((reg) => reg.accountId === accountId)
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
       .map((reg) => reg.id);
 
     const account = accounts.getLocalById(accountId);

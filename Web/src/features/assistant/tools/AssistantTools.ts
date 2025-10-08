@@ -307,29 +307,59 @@ export class AssistantTools {
       },
       userInfo: (args) => `Procurando Ícone '${args.query}'`
     });
-    this.registerDomainAction('accountTransactions',       {
-      name: 'accountTransactions_import_ofx',
-      description: `Import bank transactions from OFX file content.`,
+    this.registerDomainAction('accountTransactions', {
+      name: 'accountTransactions_fill_missing_categories_iterator',
+      description: `This is an iterator for categorizing account transactions without categories in batch until it ends.` +
+        `but your work here is trying to categorize as many transactions as possible.` +
+        `fell free to ask user to create new categories and learn how they prefer. ` +
+        `Call this function again with the transaction IDs and category ID to categorize them and get the next one.`,
       parameters: {
         type: "object",
-        properties: { id: { type: "string", description: "The ID of the account to import transactions for." }},
-        required: ["id"],
+        properties: {
+          accountId: { type: "string", description: "The ID of for filtering transactions" },
+          batchSize: { type: "number", description: "Number of transactions to return in batch. Default is 15. Max is 30." },
+          batch: {
+            type: "array",
+            description: "List of account transaction IDs to categorize in batch. If provided the categoryId must be provided as well.",
+            items: { 
+              type: "object",
+              properties: {
+                id: { type: "string", description: "The ID of the account transaction to update" },
+                categoryId: { type: "string", description: "The ID of the category to set. Use the domain 'categories' to find the ID." }
+              },
+              required: ["id", "categoryId"],
+            },
+          },
+        },
+        required: ["batch"],
         additionalProperties: false,
       },
-      execute: async ({ id }: { id: string }) =>
-        this.execute('navigate_to_screen', { route: '/timeline/import', queryParams: { account: id } })
-    });
-    this.registerDomainAction('creditCardsTransactions',       {
-      name: 'creditCardsTransactions_import_ofx',
-      description: `Import credit card transactions from OFX file content.`,
-      parameters: {
-        type: "object",
-        properties: { id: { type: "string", description: "The ID of the credit card to import transactions for." } },
-        required: ["id"],
-        additionalProperties: false,
-      },
-      execute: async ({ id }: { id: string }) =>
-        this.execute(AppActionTool.NAVIGATE, { route: '/timeline/import', queryParams: { card: id } })
+      execute: async ({ 
+        accountId, batchSize = 15, batch
+      }: { accountId: string, batchSize?: number, batch: Array<{ id: string, categoryId: string }> }) => {
+        const { accountTransactions, categories } = this.repositories;
+        for (const { id: updateId, categoryId } of batch) {
+          const transaction = accountTransactions.getLocalById(updateId);
+          const category = categories.getLocalById(categoryId);
+          if (!transaction) return { success: false, error: `Account transaction with id '${updateId}' not found. call without id to get the next valid id.` }
+          if (!category) return { success: false, error: `Category with id '${categoryId}' not found.` }
+          accountTransactions.set( { id: updateId, categoryId }, true);
+        }
+        const uncategorized = accountTransactions.getCache()
+          .sort((a, b) => a.date.getTime() - b.date.getTime())
+          .filter(at => !at.categoryId && (!accountId || at.accountId === accountId) )
+          .slice(0, 15);
+        if (!uncategorized.length) {
+          return { success: true, result: "All transactions are categorized." }
+        }
+        return { 
+          success: true,
+          result: uncategorized
+            .map(({ id, description, value, date }) => 
+              ({ id, description, value, date: date.toISOString() }))
+        }
+      }
+        
     });
     return [
       ...userTools,
