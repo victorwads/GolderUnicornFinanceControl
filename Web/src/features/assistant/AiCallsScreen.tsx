@@ -43,10 +43,8 @@ const AiCallsScreen = () => {
     return repo.addUpdatedEventListenner(() => sync(repo.getCache()));
   }, []);
 
-  const selectedConversation = useMemo(
-    () => conversations.find((conversation) => conversation.id === selectedId) ?? null,
-    [conversations, selectedId]
-  );
+  const selectedConversation =
+    conversations.find((conversation) => conversation.id === selectedId)
 
   return (
     <Container screen spaced full className="AiCallsScreen">
@@ -67,7 +65,7 @@ const AiCallsScreen = () => {
           </div>
         </header>
       </ContainerFixedContent>
-      <ContainerScrollContent>
+      <ContainerScrollContent autoScroll>
         <div className="AiCallsLayout">
           <aside className="AiCallsList">
             {conversations.length === 0 ? (
