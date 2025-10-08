@@ -8,6 +8,7 @@ import {
   addDoc, getDocsFromCache, getDocs, setDoc, writeBatch, getDoc,
   collection, doc, query, orderBy, limit, where,
   onSnapshot,
+  deleteDoc,
 } from "firebase/firestore";
 
 import { DocumentModel } from "@models";
@@ -143,11 +144,13 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return this.cache[id ?? ""] as Model;
   }
 
-  public async delete(id: string): Promise<void> {
-    await setDoc(
-      doc(this.ref, id),
-      { _deletedAt: new Date() }, { merge: true }
-    )
+  public async delete(id: string, soft: boolean = true): Promise<void> {
+    const ref = doc(this.ref, id);
+    if(soft) {
+      await setDoc(ref, { _deletedAt: new Date() }, { merge: true })
+    } else {
+      await deleteDoc(ref);
+    }
     delete this.cache[id];
     this.callEventListenners();
   }

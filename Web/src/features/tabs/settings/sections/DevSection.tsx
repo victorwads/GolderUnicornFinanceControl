@@ -11,6 +11,15 @@ const DevContent = () => {
   const [encryptionDisabled, setEncryptionDisabled] = React.useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
   const [progress, setProgress] = React.useState<Progress | null>(null);
 
+  const killAccountRegisters = (accountId: string) => {
+    const { accountRegistries } = getRepositories();
+    const all = accountRegistries.getCache();
+    const toKill = all.find((reg) => reg.accountId === accountId);
+    if (toKill) {
+      accountRegistries.delete(toKill.id, false);
+    }
+  }
+
   const toggleEncryption = async () => {
     const newValue = !encryptionDisabled;
     localStorage.setItem('disableEncryption', newValue ? 'true' : 'false');
@@ -43,6 +52,7 @@ const DevContent = () => {
       <Link to="/settings/ai-calls">AI Calls</Link>
       <a onClick={() => setCompletedOnboarding(false)}>{Lang.settings.resetOnboarding}</a>
       <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
+      <input type="text" placeholder='Kill account registers' onChange={(e) => {killAccountRegisters(e.target.value)}} />
     </div>
     {progress && <div className="progress-box">
       <div className="progress-label">
