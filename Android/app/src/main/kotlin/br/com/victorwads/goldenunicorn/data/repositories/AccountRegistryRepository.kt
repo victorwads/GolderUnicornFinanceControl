@@ -5,7 +5,7 @@ import br.com.victorwads.goldenunicorn.data.models.DebitRegistry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 
-class AccountRegistryRepository(
+internal class AccountRegistryRepository(
     userId: String? = FirebaseAuth.getInstance().currentUser?.uid,
     accountId: String
 ): BaseRepository<DebitRegistry>(DebitRegistry::class.java)  {

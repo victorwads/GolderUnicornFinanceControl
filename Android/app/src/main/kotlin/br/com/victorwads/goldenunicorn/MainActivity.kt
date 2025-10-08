@@ -66,11 +66,18 @@ class MainActivity : ComponentActivity() {
                         composable(Screens.Accounts) { AccountsScreen() }
                         composable(Screens.CreditCards) { CreditCardsScreen() }
                         composable(Screens.Categories) { CategoriesScreen() }
+                        composable(Screens.Subscriptions.Plans) { br.com.victorwads.goldenunicorn.features.subscriptions.PlansScreen(navController) }
+                        composable(Screens.Subscriptions.Why) { br.com.victorwads.goldenunicorn.features.subscriptions.WhyWeChargeScreen(navController) }
+                        composable(Screens.Subscriptions.Costs) { br.com.victorwads.goldenunicorn.features.subscriptions.CostsExplainedScreen(navController) }
+                        composable(Screens.Subscriptions.ThankYou) { br.com.victorwads.goldenunicorn.features.subscriptions.ThankYouScreen(navController) }
                     }
 
                     LaunchedEffect(Unit) {
                         firebaseAuth.addAuthStateListener {
                             loggedUser = it.currentUser != null
+                            if (it.currentUser != null) {
+                                br.com.victorwads.goldenunicorn.data.repositories.RepositoriesProvider.reset(it.currentUser!!.uid)
+                            }
                         }
                     }
 

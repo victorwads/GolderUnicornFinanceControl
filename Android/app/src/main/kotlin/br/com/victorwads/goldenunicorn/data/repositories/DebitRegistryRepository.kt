@@ -7,13 +7,12 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.Source
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.tasks.await
-import br.com.victorwads.goldenunicorn.crypt.CryptoService
-import br.com.victorwads.goldenunicorn.crypt.NumericDecryptor
 import java.util.Date
 
-class DebitRegistryRepository(
+internal class DebitRegistryRepository(
     userId: String? = FirebaseAuth.getInstance().currentUser?.uid,
-): BaseRepository<DebitRegistry>(DebitRegistry::class.java)  {
+    encryptor: br.com.victorwads.goldenunicorn.data.crypt.Encryptor,
+): RepositoryWithCrypt<DebitRegistry>(DebitRegistry::class.java, encryptor)  {
 
     override val cacheDuration: Long = 0
     override val ref: CollectionReference
@@ -33,9 +32,9 @@ class DebitRegistryRepository(
             val list = snap.documents.mapNotNull { doc ->
                 val raw = doc.data ?: return@mapNotNull null
 
-                fun decStr(key: String): String? = CryptoService.decryptIfNeeded(raw[key] as? String)
+                fun decStr(key: String): String? = encryptor.decryptIfNeeded(raw[key] as? String)
                 fun decNum(value: Any?): Any? = when (value) {
-                    is Number -> NumericDecryptor.decryptToPrimitive(value)
+                    is Number -> encryptor.decryptNumeric(value)
                     else -> value
                 }
 
@@ -45,12 +44,12 @@ class DebitRegistryRepository(
                 val valueAny = decNum(raw["value"]) ?: 0.0
                 val paidAny = when (val p = raw["paid"]) {
                     is Boolean -> p
-                    is Number -> (NumericDecryptor.decryptToPrimitive(p) as? Boolean) ?: false
+                    is Number -> (encryptor.decryptNumeric(p) as? Boolean) ?: false
                     else -> false
                 }
                 val date: Date = when (val d = raw["date"]) {
                     is Timestamp -> d.toDate()
-                    is Number -> (NumericDecryptor.decryptToPrimitive(d) as? Date) ?: Date()
+                    is Number -> (encryptor.decryptNumeric(d) as? Date) ?: Date()
                     else -> Date()
                 }
 
