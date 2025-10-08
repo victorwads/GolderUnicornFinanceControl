@@ -11,13 +11,19 @@ const DevContent = () => {
   const [encryptionDisabled, setEncryptionDisabled] = React.useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
   const [progress, setProgress] = React.useState<Progress | null>(null);
 
-  const killAccountRegisters = (accountId: string) => {
-    const { accountRegistries } = getRepositories();
-    const all = accountRegistries.getCache();
-    const toKill = all.find((reg) => reg.accountId === accountId);
-    if (toKill) {
-      accountRegistries.delete(toKill.id, false);
+  const killAccountRegisters = async (accountId: string) => {
+    const { accountTransactions, accounts } = getRepositories();
+    const all = accountTransactions.getCache(true);
+    const toKill = all
+      .filter((reg) => reg.accountId === accountId)
+      .map((reg) => reg.id);
+
+    const account = accounts.getLocalById(accountId);
+    if (!confirm(`Are you sure you want to delete ${toKill.length} registers for account ${account?.name}? This action cannot be undone.`)) return;
+    for (const id of toKill) {
+      await accountTransactions.delete(id, false);
     }
+    alert(`Deleted ${toKill.length} registers for account ${account?.name}.`);
   }
 
   const toggleEncryption = async () => {
@@ -45,14 +51,16 @@ const DevContent = () => {
     setProgress(null);
   };
 
-  if(!window.isDevelopment) return null;
-
   return <>
     <div className='list'>
       <Link to="/settings/ai-calls">AI Calls</Link>
       <a onClick={() => setCompletedOnboarding(false)}>{Lang.settings.resetOnboarding}</a>
       <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
-      <input type="text" placeholder='Kill account registers' onChange={(e) => {killAccountRegisters(e.target.value)}} />
+      <input type="text" style={{color: 'black'}} placeholder='Kill account registers' onKeyDown={(e) => {
+        if (e.key === 'Enter' && e.currentTarget.value) {
+          killAccountRegisters(e.currentTarget.value);
+        }
+      }} />
     </div>
     {progress && <div className="progress-box">
       <div className="progress-label">

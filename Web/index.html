@@ -14,7 +14,7 @@ const developmentHosts = [
   'localhost', '192.168', '10.0', '127.0',
   '.local', 'local.', 'home.', 'ddns.net',
 ];
-window.isDevelopment = developmentHosts.some(host => window.location.hostname.includes(host));
+window.isDevelopment = developmentHosts.some(host => window.location.hostname.includes(host))
 if(window.isDevelopment) {
   window.isSsl = window.location.protocol.includes('https');
   window.port = window.location.port || (window.isSsl ? 443 : 80);
