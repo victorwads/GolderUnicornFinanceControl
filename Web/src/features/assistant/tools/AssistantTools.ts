@@ -338,7 +338,7 @@ export class AssistantTools {
         accountId, batchSize = 15, batch
       }: { accountId: string, batchSize?: number, batch: Array<{ id: string, categoryId: string }> }) => {
         const { accountTransactions, categories } = this.repositories;
-        for (const { id: updateId, categoryId } of batch) {
+        for (const { id: updateId, categoryId } of (batch || [])) {
           const transaction = accountTransactions.getLocalById(updateId);
           const category = categories.getLocalById(categoryId);
           if (!transaction) return { success: false, error: `Account transaction with id '${updateId}' not found. call without id to get the next valid id.` }

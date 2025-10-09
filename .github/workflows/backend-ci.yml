@@ -1,0 +1,38 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'Backend/**', '.github/workflows/backend-ci.yml' ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: cloud-functions
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/yarn
+          Backend/.yarn/cache
+        key: ${{ runner.os }}-yarn-backend-${{ hashFiles('Backend/yarn.lock') }}
+        restore-keys: ${{ runner.os }}-yarn-backend-
+    - uses: actions/cache@v4
+      with:
+        path: ~/.npm/_npx
+        key: ${{ runner.os }}-npx-firebase-tools
+        restore-keys: ${{ runner.os }}-npx-
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - run: yarn install --frozen-lockfile
+      working-directory: Backend
+    - run: yarn build
+      working-directory: Backend
+      env:
+        CRYPTO_JWT_SIGN_SECRET: ${{ secrets.CRYPTO_JWT_SIGN_SECRET }}
+        CRYPTO_JWT_ENCRYPT_SECRET: ${{ secrets.CRYPTO_JWT_ENCRYPT_SECRET }}
+    - run: yarn test
+      working-directory: Backend
+    - run: npx firebase-tools deploy --only functions --project goldenunicornfc --token ${{ secrets.FIREBASE_TOKEN }}

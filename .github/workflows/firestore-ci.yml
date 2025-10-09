@@ -1,0 +1,19 @@
+name: Firestore CI
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'Firebase/firestore.rules', 'Firebase/firestore.indexes.json', '.github/workflows/firestore-ci.yml' ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: cloud-firestore
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache@v4
+      with:
+        path: ~/.npm/_npx
+        key: ${{ runner.os }}-npx-firebase-tools
+        restore-keys: ${{ runner.os }}-npx-
+    - run: npx firebase-tools deploy --only firestore --project goldenunicornfc --token ${{ secrets.FIREBASE_TOKEN }}
