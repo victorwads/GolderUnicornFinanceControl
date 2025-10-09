@@ -253,25 +253,13 @@ function getMessageEntries(context: AiCallContext): MessageEntry[] {
 }
 
 function formatContent(content: unknown): string {
-  if (content === undefined) return 'null';
-  if (content === null) return 'null';
-  if (typeof content === 'string') return content;
-  if (typeof content === 'number' || typeof content === 'boolean') return String(content);
-  if (Array.isArray(content)) {
-    const text = content
-      .map((part) => {
-        if (typeof part === 'string') return part;
-        if (part && typeof part === 'object' && 'text' in part && typeof (part as { text?: unknown }).text === 'string') {
-          return String((part as { text?: string }).text);
-        }
-        return JSON.stringify(part, null, 2);
-      })
-      .join('\n')
-      .trim();
-    return text || formatJson(content);
-  }
-  if (typeof content === 'object') {
-    return formatJson(content);
+  if (typeof content === 'string') {
+    try {
+      const obj = JSON.parse(content);
+      if (obj && typeof obj === 'object') {
+        return JSON.stringify(obj, null, 2);
+      }
+    } catch {}
   }
   return String(content);
 }

@@ -190,6 +190,24 @@
   gap: var(--spacing-md);
 }
 
+/* // close button */
+.assistant-toasts button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.assistant-toast--call .glass-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .assistant-toasts > div {
   display: block;
   border-radius: 1rem;

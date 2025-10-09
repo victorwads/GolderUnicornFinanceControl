@@ -21,20 +21,22 @@ import RecurrentRegistryRepository from "./RecurrentRegistryRepository";
 export { default as CryptoPassRepository } from './CryptoPassRepository';
 export { default as BaseRepository } from './BaseRepository';
 
-export type Repositories = {
-  user: UserRepository;
-  banks: BanksRepository;
-  categories: CategoriesRepository;
-  accounts: AccountsRepository;
-  accountTransactions: AccountsRegistryRepository;
-  recurrentTransactions: RecurrentRegistryRepository;
-  creditCards: CreditcardsRepository;
-  creditCardsTransactions: CreditCardsRegistryRepository;
-  creditCardsInvoices: CreditCardInvoicesRepository;
-  products: GroceriesProductsRepository;
-  groceries: GroceriesRepository;
-  resourcesUse: ResourcesUseRepository;
-  aiCalls: AiCallsRepository;
+export class Repositories {
+  constructor(
+    public readonly user: UserRepository,
+    public readonly banks: BanksRepository,
+    public readonly categories: CategoriesRepository,
+    public readonly accounts: AccountsRepository,
+    public readonly accountTransactions: AccountsRegistryRepository,
+    public readonly recurrentTransactions: RecurrentRegistryRepository,
+    public readonly creditCards: CreditcardsRepository,
+    public readonly creditCardsTransactions: CreditCardsRegistryRepository,
+    public readonly creditCardsInvoices: CreditCardInvoicesRepository,
+    public readonly products: GroceriesProductsRepository,
+    public readonly groceries: GroceriesRepository,
+    public readonly resourcesUse: ResourcesUseRepository,
+    public readonly aiCalls: AiCallsRepository,
+  ) {}
 }
 
 export type RepoName = keyof Repositories;
@@ -57,21 +59,21 @@ export const getCurrentRepositoryUserId = (): string | null => {
 export async function resetRepositories(uid: string, secretHash?: Hash | null): Promise<Repositories> {
   if (repositorieInstances?.uid === uid) return repositorieInstances.instances;
 
-  const instances: Repositories = {
-    user: new UserRepository(),
-    banks: new BanksRepository(),
-    categories: new CategoriesRepository(),
-    accounts: new AccountsRepository(),
-    accountTransactions: new AccountsRegistryRepository(),
-    recurrentTransactions: new RecurrentRegistryRepository(),
-    creditCards: new CreditcardsRepository(),
-    creditCardsTransactions: new CreditCardsRegistryRepository(),
-    creditCardsInvoices: new CreditCardInvoicesRepository(),
-    products: new GroceriesProductsRepository(),
-    groceries: new GroceriesRepository(),
-    resourcesUse: new ResourcesUseRepository(),
-    aiCalls: new AiCallsRepository(),
-  }
+  const instances = new Repositories(
+    new UserRepository(),
+    new BanksRepository(),
+    new CategoriesRepository(),
+    new AccountsRepository(),
+    new AccountsRegistryRepository(),
+    new RecurrentRegistryRepository(),
+    new CreditcardsRepository(),
+    new CreditCardsRegistryRepository(),
+    new CreditCardInvoicesRepository(),
+    new GroceriesProductsRepository(),
+    new GroceriesRepository(),
+    new ResourcesUseRepository(),
+    new AiCallsRepository(),
+  )
 
   const encryptor = new Encryptor(CryptoPassRepository.ENCRYPTION_VERSION);
   repositorieInstances = { uid, instances, encryptor };

@@ -52,7 +52,7 @@ export default function AssistantPage({
       // if (!event.userInfo) return;
       setTimeout(() => setCalls(
         previous => previous.filter(c => c.id !== event.id)
-      ), 2500);
+      ), 3500);
     }
     setCalls((previous) => [
       ...previous.filter(c => c.id !== event.id),
@@ -141,12 +141,10 @@ export default function AssistantPage({
         )}
         {calls.length > 0 && calls.filter(call => Boolean(call.userInfo)).map((call) => (
           <GlassContainer key={call.id} className="assistant-toast assistant-toast--call">
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setCalls(previous => previous.filter(c => c.id !== call.id))}>
-                <Icon icon={Icons.faTrash} />
-              </button>
-            </div>
             <pre>{call.userInfo}</pre>
+            <button onClick={() => setCalls(previous => previous.filter(c => c.id !== call.id))}>
+              <Icon icon={Icons.faTrash} />
+            </button>
           </GlassContainer>
         ))}
         {partial && (

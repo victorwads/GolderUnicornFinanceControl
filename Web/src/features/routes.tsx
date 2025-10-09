@@ -38,7 +38,7 @@ export const privateRouter = createBrowserRouter([
         <TimelineImportScreen />,
         'accountTransactions', 'creditCardsTransactions', 'creditCards', 'accounts'
       ) },
-      { path: 'timeline/:id?', element: withRepos(
+      { path: 'timeline/:accountId?', element: withRepos(
         <TimelineScreen />,
         'accountTransactions', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
       ) },

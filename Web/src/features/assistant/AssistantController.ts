@@ -8,7 +8,7 @@ import {
 } from "openai/resources/index";
 
 import { createOpenAIClient } from "./createOpenAIClient";
-import { AppActionTool, AssistantTools, DomainToolName, ToUserTool } from "./tools/AssistantTools";
+import { AssistantTools, DomainToolName, ToUserTool } from "./tools/AssistantTools";
 import type {
   AssistantRunResult,
   AssistantToolCallLog,
@@ -17,6 +17,7 @@ import { addResourceUse, TOKEN_PRICES, type AiModel } from "@resourceUse";
 import getRepositories, { Repositories } from "@repositories";
 import { AiCallContext } from "@models";
 import { Result } from "src/data/models/metadata";
+import { AppNavigationTool } from "./tools/routesDefinition";
 
 export let ASSISTANT_MODEL: AiModel = "gpt-4.1-nano";
 
@@ -34,19 +35,25 @@ export function setAssistantModel(model: AiModel) {
 
 const SYSTEM_PROMPT = `
 You are an personal finance management assistant app. Your role is to help the user manage their personal finances.
-Use the tools provided by the system to accomplish your tasks. Follow exactly these rules:
-- Always respond using registered tool calls.
-- The apps is divided in domains, use ${DomainToolName.LIST_ALL} to obtain the list of domain names.
-- Each domain has its own data that can be managed. Call ${DomainToolName.LIST_ACTIONS} to get the domain tools.
-- To obtain required values for toolcalls, use the ${ToUserTool.ASK} tool to ask the user for them. Avoid inferring them.
+Always respond using registered tool calls, use them to accomplish your tasks.
+
+Data management:
+- You can manage user's data by "domain" using the ${DomainToolName.LIST_ALL}, ${DomainToolName.LIST_ACTIONS} tools when user wants to create/update/delete something.
+- To obtain required model's values for toolcalls, you can use the ${ToUserTool.ASK} tool to ask the user for them if need. Avoid inferring import fields.
 - For not required values, omit them if the user did not provide them.
-- For identifier fields, use the ${DomainToolName.SEARCH_IN_DOMAIN} tool to find the ID of the record. You can use multiple ${DomainToolName.SEARCH} calls to find all required identifiers.
+- For identifier fields, use the ${DomainToolName.SEARCH_IN_DOMAIN} tool to find the ID of the record. You can use multiple ${DomainToolName.SEARCH_IN_DOMAIN} calls to find all required identifiers.
 - Dates should be converted from relative formats like "today", "tomorrow", "last week", etc to absolute datetime in the format YYYY-MM-DDTHH:mm.
+
+Navigation:
+- User can ask to see something, use the ${AppNavigationTool.LIST_SCREENS} tool to search available screens.
+- Every search term should be translated to English before calling ${AppNavigationTool.LIST_SCREENS}.
+- Always try to set urlPathParams and queryParams when using ${AppNavigationTool.NAVIGATE}. Fill then according to user request and the screen you are navigating to.
+
+Rules:
 - When you finish all actions requested by the user, you should call the ${ToUserTool.FINISH} tool to end the session. Please confirm with the user that all actions were completed.
-- Before you finish, you can move to the screen about the action that you just did using the ${AppActionTool.NAVIGATE} tool.
 - Do not call ${ToUserTool.FINISH} before finishing all orchestration required by the user.
 - Only talk with the user in his native language, which is provided in the first user message.
-- DO NOT ask user for file, always use the tools that will prompt it.
+- Before you finish, you can optionally move to the screen about the action that you just did like view the "edit/view screen" of that domain.
 `.trim();
 // - The action_create_new tools can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
 
@@ -213,7 +220,7 @@ export default class AssistantController {
       result = await this.toolRegistry.execute(name, args );
       context.sharedDomains = this.toolRegistry.sharedDomains;
 
-      if(name === AppActionTool.NAVIGATE && result.success === true) {
+      if(name === AppNavigationTool.NAVIGATE && result.success === true) {
         const { route, queryParams } = args as { route: string, queryParams?: Record<string, string> };
         this.onNavigate?.(route, queryParams);
       }

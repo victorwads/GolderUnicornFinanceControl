@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ModalScreen } from '@components/conteiners/ModalScreen';
-import SelectField from '@components/fields/SelectField';
-import { DatePicker } from '@components/inputs';
-import Button from '@components/Button';
-import getRepositories from '@repositories';
-import CategoryListItem from '@features/categories/CategoryListItem';
 import './TimelineFilterScreen.css';
 
-export const PARAM_FROM = 'f';
-export const PARAM_TO = 't';
-export const PARAM_CATEGORY = 'c';
+import Button from '@components/Button';
+import SelectField from '@components/fields/SelectField';
+import { ModalScreen } from '@components/conteiners/ModalScreen';
+import { DatePicker } from '@components/inputs';
+
+import getRepositories from '@repositories';
+import CategoryListItem from '@features/categories/CategoryListItem';
+import { TimelineParam } from './TimelineScreen.model';
 
 const TimelineFilterScreen = () => {
   const navigate = useNavigate();
@@ -18,10 +17,10 @@ const TimelineFilterScreen = () => {
   const { accounts, categories } = getRepositories();
 
   const [accountId, setAccountId] = useState<string | undefined>(searchParams.get('account') || undefined);
-  const [from, setFrom] = useState<Date | null>(searchParams.get(PARAM_FROM) ? new Date(String(searchParams.get(PARAM_FROM))) : null);
-  const [to, setTo] = useState<Date | null>(searchParams.get(PARAM_TO) ? new Date(String(searchParams.get(PARAM_TO))) : null);
+  const [from, setFrom] = useState<Date | null>(searchParams.get(TimelineParam.FROM) ? new Date(String(searchParams.get(TimelineParam.FROM))) : null);
+  const [to, setTo] = useState<Date | null>(searchParams.get(TimelineParam.TO) ? new Date(String(searchParams.get(TimelineParam.TO))) : null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    searchParams.get(PARAM_CATEGORY)?.split(',').filter(Boolean) ?? []
+    searchParams.get(TimelineParam.CATEGORY)?.split(',').filter(Boolean) ?? []
   );
 
   const accountsList = accounts.getCache();
@@ -35,9 +34,9 @@ const TimelineFilterScreen = () => {
 
   const applyFilters = () => {
     const params = new URLSearchParams();
-    if (selectedCategories.length) params.set(PARAM_CATEGORY, selectedCategories.join(','));
-    if (from) params.set(PARAM_FROM, from.toISOString().substring(0,10));
-    if (to) params.set(PARAM_TO, to.toISOString().substring(0,10));
+    if (selectedCategories.length) params.set(TimelineParam.CATEGORY, selectedCategories.join(','));
+    if (from) params.set(TimelineParam.FROM, from.toISOString().substring(0,10));
+    if (to) params.set(TimelineParam.TO, to.toISOString().substring(0,10));
     const search = params.toString();
     navigate(`/timeline${accountId ? `/${accountId}` : ''}${search ? `?${search}` : ''}`);
   };

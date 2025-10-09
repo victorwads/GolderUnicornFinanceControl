@@ -30,7 +30,7 @@ const RecurrentRegistriesScreen = () => {
     sync();
 
     return recurrentRegistries.addUpdatedEventListenner((items) => {
-      setEntries(normalizeEntries(items, repositories));
+      setEntries(normalizeEntries(items.getCache(), repositories));
     });
   }, [recurrentRegistries, repositories]);
 

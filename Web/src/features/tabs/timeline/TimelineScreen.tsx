@@ -1,11 +1,6 @@
-import { Link, useParams, useSearchParams } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./TimelineScreen.css";
 
-import { Month, MonthKey } from '@utils/FinancialMonthPeriod';
-import { Account, RegistryWithDetails } from "@models";
-import { getServices, TimelineFilterPeriod } from '@services';
-import getRepositories from '@repositories';
 import routes from "@features/navigate";
 import { Container, ContainerFixedContent } from "@components/conteiners";
 import { ContainerScrollContent } from '@components/conteiners';
@@ -13,117 +8,27 @@ import { Loading } from "@components/Loading";
 import Icon, { Icons } from '@components/Icons';
 import SearchBar from '@components/fields/SearchBar';
 
-import { PARAM_CATEGORY, PARAM_FROM, PARAM_TO } from './TimelineFilterScreen';
 import RegistryItem from "./RegistryItem";
+import { useTimeline } from "./TimelineScreen.model";
 
 const formatNumber = (number: number) => number.toLocaleString(CurrentLangInfo.short, {
   style: "currency",
   currency: "BRL",
 });
 
-const PARAM_MONTH = 'm';
-
 const TimelineScreen = () => {
-  const [period, setPeriod] = useState<TimelineFilterPeriod>(() => getServices().timeline.period.getPeriodForDate(new Date()));
-  const [currentBalance, setCurrentBalance] = useState<number>(0);
-  const [accountIds, setAccountIds] = useState<string[]>([]);
-  const [categoryIds, setCategoryIds] = useState<string[]>([]);
-  const [showArchived, setShowArchived] = useState(false)
-  const [registries, setRegistries] = useState<RegistryWithDetails[]>([]);
-  const [currentMonth, setCurrentMonth] = useState<Month>(() => Month.fromDate(period.start));
-  // @legacy
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>();
-  const [searchValue, setSearchValue] = useState('');
+  const { 
+    setShowArchived, setSearchValue, changeMonth, addCategoryFilter,
+    searchValue, searchParams, showArchived, hasCategoryFilter,
 
-  const { accounts, accountTransactions } = getRepositories();
-  const load = useCallback(() => {
-    const { balance, timeline } = getServices();
+    registries,
+    selectedAccount, categoryIds, period,
+    currentBalance, currentMonth
+  } = useTimeline();
 
-    if (accountIds?.length) {
-      const id = accountIds[0];
-      setSelectedAccount(accounts.getLocalById(id) ?? null);
-    } else {
-      setSelectedAccount(null);
-    }
-
-    let registries = timeline.getAccountItems({
-      period: searchValue ? undefined : period,
-      accountIds,
-      categoryIds,
-      showArchived,
-      search: searchValue,
-    });
-
-    setCurrentBalance(balance.getBalance(accountIds, period.end));
-    setRegistries(registries);
-  }, [categoryIds, accountIds, showArchived, period, searchValue]);
-
-  useEffect(() => {
-    load();
-    const subscriptions = [
-      accounts.addUpdatedEventListenner(load),
-      accountTransactions.addUpdatedEventListenner(load),
-    ];
-    return () => {
-      subscriptions.forEach((un) => un())
-    }
-  }, [load]);
-
-  const { id: accountId} = useParams<{ id?: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const categoriaParam = searchParams.get(PARAM_CATEGORY);
-  const fromParam = searchParams.get(PARAM_FROM);
-  const toParam = searchParams.get(PARAM_TO);
-  const monthParam = searchParams.get(PARAM_MONTH);
-
-  useEffect(() => {
-    const { balance } = getServices();
-
-    setCategoryIds((categoriaParam || '').split(',').filter(Boolean));
-    setAccountIds(accountId ? [accountId] : []);
-
-    if (fromParam && toParam) {
-      const start = new Date(fromParam);
-      setPeriod({
-        start,
-        end: new Date(toParam)
-      });
-      setCurrentMonth(Month.fromDate(start));
-    } else if (monthParam) {
-      const currentMonth = Month.fromKey(monthParam as MonthKey);
-      setPeriod(balance.period.getMonthPeriod(currentMonth));
-      setCurrentMonth(currentMonth);
-    }
-  }, [categoriaParam, accountId, fromParam, toParam, monthParam]);
-
-  function addCategoryFilter(categoryId: string) {
-    const newParams = new URLSearchParams(searchParams);
-    const categoriaIds = newParams.get(PARAM_CATEGORY)?.split(',') ?? [];
-    if (!categoriaIds.includes(categoryId)) {
-      categoriaIds.push(categoryId);
-    }
-    newParams.set(PARAM_CATEGORY, categoriaIds.join(','));
-    setSearchParams(newParams);
-  }
-
-  function changeMonth(add: boolean = true) {
-    const newMonth = currentMonth[
-      add ? 'plusOneMonth' : 'minusOneMonth'
-    ]();
-
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set(PARAM_MONTH, newMonth.key);
-    newParams.delete(PARAM_FROM);
-    newParams.delete(PARAM_TO);
-    setSearchParams(newParams);
-    setCurrentMonth(newMonth);
-  }
-
-  const hasCategoryFilter = categoryIds && categoryIds?.length > 0;
-
-  // TODO
   let perDayTotal = 0;
   let currentDay = registries[0]?.registry.date.getDate();
+
   return <>
     <Container spaced full>
     <ContainerFixedContent>
