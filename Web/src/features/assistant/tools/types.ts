@@ -29,6 +29,12 @@ export interface AskUserPayload {
   options?: AskUserOption[];
 }
 
+export type AssistantLimitResult = {
+  success: false;
+  result: string;
+};
+
 export interface AssistantRunResult {
   warnings: string[];
+  limitResult?: AssistantLimitResult;
 }

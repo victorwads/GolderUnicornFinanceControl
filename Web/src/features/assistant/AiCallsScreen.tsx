@@ -4,8 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import getRepositories from '@repositories';
 import type { AiCallContext } from '@models';
-import { getByModelCosts, TOKEN_PRICES, type AiModel } from '@resourceUse';
-import { ASSISTANT_MODEL, setAssistantModel } from './AssistantController';
+import { TOKEN_PRICES, type AiModel } from '@resourceUse';
+import { ASSISTANT_MODEL, setAssistantModel, setPendingAiContext } from './AssistantController';
+import {
+  MONTHLY_AI_COST_LIMIT_BRL,
+} from './costControl';
 
 type Conversation = {
   id: string;
@@ -18,7 +21,6 @@ type Conversation = {
 type MessageEntry = AiCallContext['history'][number] & Record<string, unknown>;
 
 const UNTITLED = 'Conversa sem título';
-const USD_TO_BRL = 5.6;
 
 const AiCallsScreen = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -45,6 +47,22 @@ const AiCallsScreen = () => {
 
   const selectedConversation =
     conversations.find((conversation) => conversation.id === selectedId)
+  const monthlyLimitBRL = MONTHLY_AI_COST_LIMIT_BRL;
+  const monthlyCostBRL = useMemo(() => {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime();
+
+    const total = conversations.reduce((accumulator, conversation) => {
+      const timestamp = getConversationTimestamp(conversation.context);
+      if (!Number.isFinite(timestamp)) return accumulator;
+      if (timestamp < monthStart || timestamp >= monthEnd) return accumulator;
+      return accumulator + conversation.costBRL;
+    }, 0);
+    return Number(total.toFixed(2));
+  }, [conversations]);
+  const exceededMonthlyLimit = monthlyCostBRL > monthlyLimitBRL;
+  const progressValue = Math.min(monthlyCostBRL, monthlyLimitBRL);
 
   return (
     <Container screen spaced full className="AiCallsScreen">
@@ -64,6 +82,20 @@ const AiCallsScreen = () => {
             </p>
           </div>
         </header>
+        <div className={`AiCallsScreen__usage${exceededMonthlyLimit ? ' is-exceeded' : ''}`}>
+          <div className="AiCallsScreen__usageInfo">
+            <strong>Consumo mensal</strong>
+            <span>
+              {`${formatCurrencyBRL(monthlyCostBRL)} de ${formatCurrencyBRL(monthlyLimitBRL)}`}
+            </span>
+          </div>
+          <progress value={progressValue} max={monthlyLimitBRL} />
+          {exceededMonthlyLimit && (
+            <span className="AiCallsScreen__usageWarning">
+              Limite excedido em {formatCurrencyBRL(monthlyCostBRL - monthlyLimitBRL)}
+            </span>
+          )}
+        </div>
       </ContainerFixedContent>
       <ContainerScrollContent autoScroll>
         <div className="AiCallsLayout">
@@ -113,7 +145,7 @@ function normalizeConversations(items: AiCallContext[]): Conversation[] {
       title: deriveTitle(context) || UNTITLED,
       updatedAt: getConversationTimestamp(context),
       context,
-      costBRL: getConversationCostBRL(context),
+      costBRL: context.getCostBRL(),
     }))
     .sort((a, b) => b.updatedAt - a.updatedAt);
 }
@@ -196,6 +228,16 @@ function ConversationDetails({ conversation }: ConversationDetailsProps) {
             ))}
           </div>
         )}
+        <button onClick={() => {
+          const lastMessage = history.length > 0 ? history[history.length - 1] : null;
+          if (lastMessage?.role === 'assistant') {
+            // remove last assistant message to avoid confusion
+            context.history = context.history?.slice(0, -1);
+          }
+          console.log('context', context);
+          setPendingAiContext(context);
+          alert('Contexto da conversa carregado. Você pode iniciar o assistente para continuar a conversa.');
+        }}>Continue a conversa</button>
         {warnings.length > 0 && (
           <div className="AiCallsMessages__warnings">
             <strong>Avisos</strong>
@@ -271,13 +313,6 @@ function formatJson(data: unknown): string {
   } catch {
     return String(data);
   }
-}
-
-function getConversationCostBRL(context: AiCallContext): number {
-  const tokens = context.tokens ?? { input: 0, output: 0 };
-  const model = (context.model || 'gpt-4.1-mini') as AiModel;
-  const { dolars } = getByModelCosts(model, tokens);
-  return dolars * USD_TO_BRL;
 }
 
 function formatCurrencyBRL(value: number): string {

@@ -11,6 +11,7 @@ import { createOpenAIClient } from "./createOpenAIClient";
 import { AssistantTools, DomainToolName, ToUserTool } from "./tools/AssistantTools";
 import type {
   AssistantRunResult,
+  AssistantLimitResult,
   AssistantToolCallLog,
 } from "./tools/types";
 import { addResourceUse, TOKEN_PRICES, type AiModel } from "@resourceUse";
@@ -18,8 +19,12 @@ import getRepositories, { Repositories } from "@repositories";
 import { AiCallContext } from "@models";
 import { Result } from "src/data/models/metadata";
 import { AppNavigationTool } from "./tools/routesDefinition";
+import {
+  ensureMonthlyLimit,
+  MONTHLY_LIMIT_REACHED_MESSAGE,
+} from "./costControl";
 
-export let ASSISTANT_MODEL: AiModel = "gpt-4.1-nano";
+export let ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
 
 const AIModelStorageKey = "assistant_model";
 const savedModel = localStorage.getItem(AIModelStorageKey);
@@ -86,8 +91,17 @@ export default class AssistantController {
     });
 
     let run = true;
+    let limitResult: AssistantLimitResult | undefined;
     try {
       while (run) {
+        const { allowed } = await ensureMonthlyLimit(this.repositories);
+        if (!allowed) {
+          limitResult = { success: false, result: MONTHLY_LIMIT_REACHED_MESSAGE };
+          context.finishReason = "blocked_by_monthly_limit";
+          context.warnings.push(MONTHLY_LIMIT_REACHED_MESSAGE);
+          break;
+        }
+
         const toolSchema = this.toolRegistry.buildToolSchema();
         const completion = await this.requestCompletion(context.history, toolSchema);
         const choice = completion.choices[0];
@@ -115,10 +129,19 @@ export default class AssistantController {
       await this.persistAiCall(context);
     }
 
-    return { warnings: context.warnings };
+    return { warnings: context.warnings, limitResult };
   }
 
   private createRunContext(text: string, userLanguage: string): AiCallContext {
+    if (pendingContext.context) {
+      const { context} = pendingContext;
+      pendingContext.context = null;
+      context.history.push(
+        { role: "user", content: text }
+      );
+      return context;
+    }
+
     const context = new AiCallContext(
       new Date().toISOString().replace("T", " ").substring(0, 19),
       this.model,
@@ -250,3 +273,14 @@ export default class AssistantController {
     return result;
   }
 }
+
+const pendingContext: {
+  context: AiCallContext | null;
+} = {
+  context: null,
+}
+
+export const setPendingAiContext = (context: AiCallContext) => {
+  pendingContext.context = context;
+}
+

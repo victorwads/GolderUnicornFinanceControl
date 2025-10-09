@@ -1,7 +1,6 @@
 import { TimelineParam } from "@features/tabs/timeline/TimelineScreen.model";
 import { RepoName } from "@repositories";
 import { AssistantToolExecution } from "./types";
-import { RouteMatch } from "react-router-dom";
 
 type Result =
   | {

@@ -1,12 +1,21 @@
 import { getCurrentCosts, ResourceUsage } from "@resourceUse";
 import Metric from "./Metric";
 import MetricCard from "./MetricCard";
+import { USD_TO_BRL } from "../../../data/constants/currency";
 
 const ResourceUsageView: React.FC<{ 
   usage?: ResourceUsage
   title: string
   hide?: boolean
-}> = ({ usage, title, hide = false }) => {
+  monthlyAiCostBRL?: number
+  monthlyAiCostLimitBRL?: number
+}> = ({
+  usage,
+  title,
+  hide = false,
+  monthlyAiCostBRL,
+  monthlyAiCostLimitBRL,
+}) => {
   const currentCosts = getCurrentCosts(usage?.ai);
   const aiEntries = Object.entries(usage?.ai || {});
   const aiTotals = aiEntries.reduce(
@@ -19,9 +28,34 @@ const ResourceUsageView: React.FC<{
     { requests: 0, input: 0, output: 0 }
   );
 
+  const showMonthlyUsage = !hide
+    && typeof monthlyAiCostBRL === "number"
+    && typeof monthlyAiCostLimitBRL === "number";
+  const monthlyUsageExceeded =
+    showMonthlyUsage && monthlyAiCostBRL! > monthlyAiCostLimitBRL!;
+  const monthlyProgressValue = showMonthlyUsage
+    ? Math.min(monthlyAiCostBRL!, monthlyAiCostLimitBRL!)
+    : 0;
+  const estimatedCostBRL = currentCosts.dolars * USD_TO_BRL;
 
   return <>
     <h2>{title}</h2>
+    {showMonthlyUsage && (
+      <div className={`resource-use-progress${monthlyUsageExceeded ? " is-exceeded" : ""}`}>
+        <div className="resource-use-progress__info">
+          <strong>Consumo mensal de IA</strong>
+          <span>
+            {`${formatCurrencyBRL(monthlyAiCostBRL!)} de ${formatCurrencyBRL(monthlyAiCostLimitBRL!)}`}
+          </span>
+        </div>
+        <progress value={monthlyProgressValue} max={monthlyAiCostLimitBRL} />
+        {monthlyUsageExceeded && (
+          <span className="resource-use-progress__warning">
+            Limite excedido em {formatCurrencyBRL(monthlyAiCostBRL! - monthlyAiCostLimitBRL!)}
+          </span>
+        )}
+      </div>
+    )}
     <section className="resource-use-section">
       {!hide && <h3>Database</h3>}
       <div className="cards-grid">
@@ -50,7 +84,7 @@ const ResourceUsageView: React.FC<{
             <Metric label="Total Requests" value={aiTotals.requests} />
             <Metric label="Tokens Input" value={aiTotals.input} />
             <Metric label="Tokens Output" value={aiTotals.output} />
-            <Metric label="Estimated Cost" value={`R$ ${(currentCosts.dolars * 5.6).toFixed(4)}`} />
+            <Metric label="Estimated Cost" value={formatCurrencyBRL(estimatedCostBRL)} />
           </div>
         </>
       )}
@@ -59,3 +93,13 @@ const ResourceUsageView: React.FC<{
 };
 
 export default ResourceUsageView;
+
+function formatCurrencyBRL(value: number): string {
+  if (!Number.isFinite(value)) return "R$\u00a00,00";
+  return value.toLocaleString(CurrentLangInfo.short, {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: value > 1 ? 2 : 4,
+    maximumFractionDigits: 4,
+  });
+}

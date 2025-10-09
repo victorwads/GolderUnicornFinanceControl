@@ -107,6 +107,9 @@ export default function AssistantPage({
         if (result.warnings.length) {
           setWarnings((previous) => [...previous, ...result.warnings]);
         }
+        if (result.limitResult && result.limitResult.success === false) {
+          setWarnings((previous) => [...previous, result.limitResult.result]);
+        }
         setLoading(false);
       }).catch((error) => {
         console.log("Erro ao processar comando do assistente", error);
