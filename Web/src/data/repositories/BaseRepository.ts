@@ -132,7 +132,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     };
     this.postQueryProcess(items);
 
-    return items.filter(item => !item.isDeleted);
+    return items.filter(item => !item._deletedAt);
   }
 
   protected addToCache(model: Model): void {
@@ -147,7 +147,11 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   public async delete(id: string, soft: boolean = true): Promise<void> {
     const ref = doc(this.ref, id);
     if(soft) {
-      await setDoc(ref, { _deletedAt: new Date() }, { merge: true })
+      const data = await this.toFirestore({ 
+        _deletedAt: new Date(),
+        _updatedAt: new Date(),
+      });
+      await setDoc(ref, data, { merge: true })
     } else {
       await deleteDoc(ref);
       delete this.cache[id];
@@ -156,11 +160,12 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   public async set(model: Model|DocumentData, merge: boolean = false, update: boolean = true): Promise<DocumentReference<Model>> {
-    let data = await this.toFirestore(model);
+    let data = await this.toFirestore(model) as Model;
     let result;
     if (update) await this.updateLocalCache();
     if (model.id && model.id !== "") {
       result = doc(this.ref, model.id);
+      data._updatedAt = new Date();
       await setDoc(result, data, { merge })
         .catch(this.getErrorHanlder("setting", model, data));
     } else {
@@ -211,7 +216,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
 
   public getCache(showDeleted: boolean = false): Model[] {
     const result = Object.values(this.cache || {}) as Model[];
-    return result.filter(item => showDeleted || !item.isDeleted);
+    return result.filter(item => showDeleted || !item._deletedAt);
   }
 
   protected async getLastUpdatedValue(): Promise<any> {
@@ -320,12 +325,16 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   private registerCollectionSnapshotListener(): () => void {
-    const unsubscribe = onSnapshot(this.ref, (snapshot: any) => {
-      const docs = snapshot.docs || [];
-      docs.forEach((docSnap: any) => {
-        this.fromFirestore(docSnap.id, docSnap.data()).then((model) => {
-          this.addToCache(model);
-        });
+    const unsubscribe = onSnapshot(this.ref, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "removed") {
+          delete this.cache[change.doc.id];
+        }
+        if (change.type === "modified" || change.type === "added") {
+          this.fromFirestore(change.doc.id, change.doc.data()).then((model) => {
+            this.addToCache(model);
+          });
+        }
       });
       this.callEventListenners();
     });
