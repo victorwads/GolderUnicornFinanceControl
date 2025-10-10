@@ -20,6 +20,35 @@ import Icon, { Icons } from "@components/Icons";
 import GlassContainer from "@components/GlassContainer";
 import { startListening, stopListening } from "@components/voice/microfone";
 
+// Função para sintetizar voz usando Web Speech API
+const speak = (text: string) => {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    // Configurar voz em português se disponível
+    const voices = speechSynthesis.getVoices();
+    const portugueseVoice = voices.find(voice => voice.lang.startsWith('pt'));
+    if (portugueseVoice) {
+      utterance.voice = portugueseVoice;
+    }
+    utterance.lang = 'pt-BR'; // Idioma português brasileiro
+
+    // Usar velocidade salva ou padrão
+    const savedRate = localStorage.getItem('speechRate');
+    const rate = savedRate ? parseFloat(savedRate) : 1.3;
+    utterance.rate = isNaN(rate) ? 1.3 : Math.max(0.5, Math.min(2.0, rate));
+
+    utterance.pitch = 1; // Tom normal
+    speechSynthesis.speak(utterance);
+  }
+};
+
+// Garantir que as vozes estejam carregadas
+if ('speechSynthesis' in window) {
+  speechSynthesis.onvoiceschanged = () => {
+    // Vozes carregadas
+  };
+}
+
 export default function AssistantPage({
   compact = false,
 }: { compact?: boolean }) {

@@ -139,6 +139,14 @@ export default interface Translation {
     installUpdate: string;
     upToDate: string;
     offlineReady: string;
+    speechRate: string;
+    speechRateSlow: string;
+    speechRateFast: string;
+    testSpeech: string;
+    listVoices: string;
+    hideVoices: string;
+    availableVoices: string;
+    availableLanguages: string;
   };
   dashboard: {
     title: string;
