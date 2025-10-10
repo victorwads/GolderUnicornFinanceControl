@@ -222,8 +222,12 @@ export class AssistantTools {
     return Math.min(MAX_RESULTS, Math.max(1, Math.round(limit ?? MAX_RESULTS)));
   }
 
+  private normalizeDomainName(name: string) {
+    return name.toLowerCase().replace(/([^a-z0-9]+)/g, '');
+  }
+
   private createDefinitions(): AssistantToolDefinition[] {
-    const domainNames = this.domains.map(d => d.name);
+    const domainNames = this.domains.map(d => this.normalizeDomainName(d.name));
     this.createSearchMetadata(
       Account.metadata, "Conta", 'accounts',
       (item) => `${item.name} - ${item.type}`,
@@ -289,6 +293,7 @@ export class AssistantTools {
           additionalProperties: false,
         },
         execute: async ({ domain: domainName }: { domain: string }) => {
+          domainName = this.normalizeDomainName(domainName);
           if (!domainNames.includes(domainName)) return { success: false, error: `Domain '${domainName}' not found.` };
           const domain = this.domains.find(d => d.name === domainName);
 
@@ -314,6 +319,7 @@ export class AssistantTools {
           additionalProperties: false,
         },
         execute: async ({ domain: domainName, query, limit }: { domain: string; query: string; limit?: number }) => {
+          domainName = this.normalizeDomainName(domainName);
           if (!domainNames.includes(domainName)) {
             return { success: false, error: `Domain '${domainName}' not found. Use ${DomainToolName.LIST_ALL} to obtain the list of available domains.` };
           }
