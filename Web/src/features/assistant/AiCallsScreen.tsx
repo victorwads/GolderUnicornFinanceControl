@@ -2,13 +2,14 @@ import './AiCallsScreen.css';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
-import getRepositories from '@repositories';
+import getRepositories, { AiCallsRepository } from '@repositories';
 import type { AiCallContext } from '@models';
 import { TOKEN_PRICES, type AiModel } from '@resourceUse';
 import { ASSISTANT_MODEL, setAssistantModel, setPendingAiContext } from './AssistantController';
 import {
   MONTHLY_AI_COST_LIMIT_BRL,
 } from './costControl';
+import { useParams } from 'react-router-dom';
 
 type Conversation = {
   id: string;
@@ -25,9 +26,14 @@ const UNTITLED = 'Conversa sem título';
 const AiCallsScreen = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { userId } = useParams<{ userId?: string }>();
 
   useEffect(() => {
-    const repo = getRepositories().aiCalls;
+    let repo = getRepositories().aiCalls;
+    if (userId) {
+      repo = new AiCallsRepository();
+      repo.reset(userId);
+    }
 
     const sync = (items: AiCallContext[]) => {
       const normalized = normalizeConversations(items);
@@ -40,10 +46,11 @@ const AiCallsScreen = () => {
       });
     };
 
+    repo.waitUntilReady()
     repo.getAll().then(sync).catch(() => sync(repo.getCache()));
 
     return repo.addUpdatedEventListenner(() => sync(repo.getCache()));
-  }, []);
+  }, [userId]);
 
   const selectedConversation =
     conversations.find((conversation) => conversation.id === selectedId)

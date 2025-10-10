@@ -18,6 +18,7 @@ import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import CryptoPassRepository from "./CryptoPassRepository";
 import AiCallsRepository from "./AiCallsRepository";
 import RecurrentRegistryRepository from "./RecurrentRegistryRepository";
+export { default as AiCallsRepository } from './AiCallsRepository';
 export { default as CryptoPassRepository } from './CryptoPassRepository';
 export { default as BaseRepository } from './BaseRepository';
 

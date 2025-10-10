@@ -46,7 +46,7 @@ export const privateRouter = createBrowserRouter([
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
       { path: 'settings', element: <SettingsScreen /> },
-      { path: 'settings/ai-calls', element: withRepos(<AiCallsScreen />, 'aiCalls') },
+      { path: 'settings/ai-calls/:userId?', element: withRepos(<AiCallsScreen />, 'aiCalls') },
       { path: 'resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
       { path: '/accounts', element: withRepos(<AccountsScreen />, 'accounts', 'banks') },
       { path: '/accounts/create', element: withRepos(<AccountScreenForm />, 'banks') },

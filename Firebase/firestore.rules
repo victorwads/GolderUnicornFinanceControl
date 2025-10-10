@@ -3,6 +3,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'fUztrRAGqQZ3lzT5AmvIki5x0443';
+    }
+
     function hasAuth() {
       return request.auth != null;
     }
@@ -28,7 +32,6 @@ service cloud.firestore {
           'CreditCardInvoices',
           'GroceriesItems',
           'GroceriesProducts',
-          'AiCalls',
           'RecurrentRegistries'
           ];
       }
@@ -36,10 +39,15 @@ service cloud.firestore {
       match /{collection}/{id} {
         allow read, write: if isValidCollection(collection) && isOwner(userId);
       }
+
+      match /AiCalls/{callId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId);
+      }
     } 
 
     match /ResourcesUse/{userId} {
-      allow read: if isOwner(userId) || request.auth.uid == 'fUztrRAGqQZ3lzT5AmvIki5x0443';
+      allow read: if isOwner(userId) || isAdmin();
       allow write: if isOwner(userId);
     }
   }
