@@ -1,1 +1,60 @@
-{"kind":"identitytoolkit#DownloadAccountResponse","users":[{"localId":"fUztrRAGqQZ3lzT5AmvIki5x0443","lastLoginAt":"1759670780522","emailVerified":true,"email":"filled@wads.dev","createdAt":"1759670780522","providerUserInfo":[{"providerId":"google.com","email":"filled@wads.dev","displayName":"filled@wads.dev","rawId":"fUztrRAGqQZ3lzT5AmvIki5x0443-google"}],"lastRefreshAt":"2025-10-05T15:36:55.211Z"},{"localId":"vdtrRfdsdgdsgT5AmvfeFSSGVSD","lastLoginAt":"1759678826983","emailVerified":true,"email":"empty@wads.dev","createdAt":"1759670780536","providerUserInfo":[{"providerId":"google.com","rawId":"vdtrRfdsdgdsgT5AmvfeFSSGVSD-google","federatedId":"vdtrRfdsdgdsgT5AmvfeFSSGVSD-google","displayName":"empty@wads.dev","email":"empty@wads.dev"}],"lastRefreshAt":"2025-10-05T15:40:26.983Z"}]}
+{
+    "kind": "identitytoolkit#DownloadAccountResponse",
+    "users": [
+        {
+            "localId": "adminuseruid00000000000000",
+            "createdAt": "1759992949008",
+            "lastLoginAt": "1760000529642",
+            "photoUrl": "https://media.licdn.com/dms/image/v2/C5603AQFfs45hJE2Bfg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1637717820330?e=1762387200&v=beta&t=7lSqUjFy24CqrOOE00ofCf-LzUDaGpgHLQ6D2d8bjeM",
+            "providerUserInfo": [
+                {
+                    "providerId": "google.com",
+                    "rawId": "adminuseruid00000000000000-google",
+                    "federatedId": "adminuseruid00000000000000-google",
+                    "displayName": "rafa@wads.dev",
+                    "email": "rafa@wads.dev"
+                }
+            ],
+            "validSince": "1760071903",
+            "email": "rafa@wads.dev",
+            "emailVerified": true,
+            "disabled": false,
+            "lastRefreshAt": "2025-10-10T04:52:30.433Z"
+        },
+        {
+            "localId": "fUztrRAGqQZ3lzT5AmvIki5x0443",
+            "createdAt": "1759670780522",
+            "lastLoginAt": "1759670780522",
+            "providerUserInfo": [
+                {
+                    "providerId": "google.com",
+                    "email": "filled@wads.dev",
+                    "displayName": "filled@wads.dev",
+                    "rawId": "fUztrRAGqQZ3lzT5AmvIki5x0443-google"
+                }
+            ],
+            "validSince": "1760071903",
+            "email": "victor@wads.dev",
+            "emailVerified": false,
+            "disabled": false
+        },
+        {
+            "localId": "vdtrRfdsdgdsgT5AmvfeFSSGVSD",
+            "createdAt": "1759670780536",
+            "lastLoginAt": "1759998265766",
+            "providerUserInfo": [
+                {
+                    "providerId": "google.com",
+                    "rawId": "vdtrRfdsdgdsgT5AmvfeFSSGVSD-google",
+                    "federatedId": "vdtrRfdsdgdsgT5AmvfeFSSGVSD-google",
+                    "displayName": "empty@wads.dev",
+                    "email": "empty@wads.dev"
+                }
+            ],
+            "validSince": "1760071903",
+            "email": "empty@wads.dev",
+            "emailVerified": true,
+            "disabled": false
+        }
+    ]
+}
