@@ -12,6 +12,7 @@ export const TOKEN_PRICES: AIUses<Dolar, AiModel | 'legacy'> = {
   "gpt-5-mini": { input: 0.25, output: 2.00 },
   "gpt-4.1-nano": { input: 0.10, output: 0.40 },
   "gpt-4.1-mini": { input: 0.40, output: 1.60 },
+  "@preset/gu-daily-assistant": { input: 0.40, output: 0.80 }, // Similar to gpt-4.1-mini
 };
 // TOKEN_PRICES['legacy'] = TOKEN_PRICES['gpt-4.1-mini'];
 
@@ -63,7 +64,7 @@ export function getByModelCosts(model: AiModel, use: AIUse): {
 }
 
 export type UsageMsgTypes = 'addition'
-export type AiModel = "gpt-5-nano" | "gpt-5-mini" | "gpt-4.1-nano" | "gpt-4.1-mini";
+export type AiModel = "gpt-5-nano" | "gpt-5-mini" | "gpt-4.1-nano" | "gpt-4.1-mini" | "@preset/gu-daily-assistant";
 
 export interface ResourcesUseRepository {
   currentUse: ResourceUsage;

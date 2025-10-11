@@ -1,5 +1,4 @@
 
-import {getApps, initializeApp} from "firebase-admin/app";
 import {getAuth, type UserRecord} from "firebase-admin/auth";
 
 const DEV_BOOT_USERS = [
@@ -65,9 +64,6 @@ export async function bootstrapDevelopmentAuthUser(): Promise<void> {
   }
   if (!process.env.FIREBASE_AUTH_EMULATOR_HOST) {
     return;
-  }
-  if (!getApps().length) {
-    initializeApp();
   }
   const auth = getAuth();
   for (const user of DEV_BOOT_USERS) {

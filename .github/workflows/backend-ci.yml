@@ -28,11 +28,13 @@ jobs:
         node-version: '22'
     - run: yarn install --frozen-lockfile
       working-directory: Backend
+    - run: |
+        echo "CRYPTO_JWT_SIGN_SECRET=${{ secrets.CRYPTO_JWT_SIGN_SECRET }}" > Backend/.env
+        echo "CRYPTO_JWT_ENCRYPT_SECRET=${{ secrets.CRYPTO_JWT_ENCRYPT_SECRET }}" >> Backend/.env
+        echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_MASTER_API_KEY }}" >> Backend/.env
     - run: yarn build
       working-directory: Backend
-      env:
-        CRYPTO_JWT_SIGN_SECRET: ${{ secrets.CRYPTO_JWT_SIGN_SECRET }}
-        CRYPTO_JWT_ENCRYPT_SECRET: ${{ secrets.CRYPTO_JWT_ENCRYPT_SECRET }}
     - run: yarn test
       working-directory: Backend
     - run: npx firebase-tools deploy --only functions --project goldenunicornfc --token ${{ secrets.FIREBASE_TOKEN }}
+    - run: rm Backend/.env

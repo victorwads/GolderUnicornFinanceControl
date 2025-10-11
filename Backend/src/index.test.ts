@@ -1,6 +1,9 @@
+process.env.NODE_ENV = 'test';
+
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type {CallableRequest, Request as HttpsRequest} from 'firebase-functions/v2/https';
+import firebaseFunctionsTest from 'firebase-functions-test';
 
 import {cryptoPassEncrypt, cryptoPassDecrypt} from './index';
 
@@ -25,16 +28,27 @@ function buildDecryptRequest(uid: string, token: string): DecryptRequest {
   } as DecryptRequest;
 }
 
+process.env.NODE_ENV = 'test';
 process.env.CRYPTO_JWT_SIGN_SECRET = 'test-sign-secret';
 process.env.CRYPTO_JWT_ENCRYPT_SECRET = 'test-encrypt-secret';
 
 const SECRET_VALUE = 'valor-x';
 
+// Initialize test environment
+let testEnv: any;
+test.before(async () => {
+  testEnv = firebaseFunctionsTest({ projectId: 'test-project' });
+});
+
+test.after(async () => {
+  testEnv.cleanup();
+});
+
 void test('cryptoPassDecrypt retorna o valor original para o mesmo usuário', async () => {
   const uid = 'user-123';
 
-  const encryptResponse = await cryptoPassEncrypt.run(buildEncryptRequest(uid, SECRET_VALUE));
-  const decryptResponse = await cryptoPassDecrypt.run(buildDecryptRequest(uid, encryptResponse.token));
+  const encryptResponse = await testEnv.wrap(cryptoPassEncrypt)(buildEncryptRequest(uid, SECRET_VALUE));
+  const decryptResponse = await testEnv.wrap(cryptoPassDecrypt)(buildDecryptRequest(uid, encryptResponse.token));
 
   assert.equal(decryptResponse.secretHash, SECRET_VALUE);
 });
@@ -43,9 +57,9 @@ void test('cryptoPassDecrypt rejeita quando o token é usado com outro usuário'
   const originalUid = 'user-123';
   const otherUid = 'user-456';
 
-  const encryptResponse = await cryptoPassEncrypt.run(buildEncryptRequest(originalUid, SECRET_VALUE));
+  const encryptResponse = await testEnv.wrap(cryptoPassEncrypt)(buildEncryptRequest(originalUid, SECRET_VALUE));
 
   await assert.rejects(
-    () => cryptoPassDecrypt.run(buildDecryptRequest(otherUid, encryptResponse.token)),
+    () => testEnv.wrap(cryptoPassDecrypt)(buildDecryptRequest(otherUid, encryptResponse.token)),
   );
 });

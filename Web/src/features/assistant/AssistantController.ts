@@ -1,3 +1,4 @@
+import { OpenAI } from "openai";
 import {
   ChatCompletionAssistantMessageParam,
   ChatCompletionFunctionTool,
@@ -24,7 +25,7 @@ import {
   MONTHLY_LIMIT_REACHED_MESSAGE,
 } from "./costControl";
 
-export let ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+export let ASSISTANT_MODEL: AiModel = "@preset/gu-daily-assistant";
 
 const AIModelStorageKey = "assistant_model";
 const savedModel = localStorage.getItem(AIModelStorageKey);
@@ -66,7 +67,8 @@ export type ToolEventListener = (event: AssistantToolCallLog) => void;
 export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
 
 export default class AssistantController {
-  private readonly openai = createOpenAIClient();
+  private openai: OpenAI | null = null;
+
   private readonly toolRegistry: AssistantTools = new AssistantTools(
     this.repositories
   );
@@ -78,6 +80,13 @@ export default class AssistantController {
     public onNavigate?: (route: string, queryParams?: Record<string, string>) => void,
     public model: string = ASSISTANT_MODEL,
   ) {}
+
+  private async getOpenAIClient(): Promise<OpenAI> {
+    if (!this.openai) {
+      this.openai = await createOpenAIClient();
+    }
+    return this.openai;
+  }
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
     const context = this.createRunContext(text, userLanguage);
@@ -163,7 +172,8 @@ export default class AssistantController {
     tools: ChatCompletionFunctionTool[]
   ) {
     addResourceUse({ ai: { [ASSISTANT_MODEL]: { requests: 1 } } });
-    return this.openai.chat.completions.create({
+    const openai = await this.getOpenAIClient();
+    return openai.chat.completions.create({
       model: ASSISTANT_MODEL,
       messages,
       tools,
