@@ -5,7 +5,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Web [Launch Chrome Desktop]",
-            "url": "https://local.wads.dev",
+            "url": "https://finance.local.wads.dev",
             "webRoot": "${workspaceFolder}/Web"
         },
         {

@@ -32,8 +32,4 @@ jobs:
       working-directory: Web
     - run: yarn build
       working-directory: Web
-      env:
-        VITE_MOD_K: ${{ vars.VITE_MOD_K }}
-        VITE_MOD_P: ${{ vars.VITE_MOD_P }}
-        VITE_MOD_O: ${{ vars.VITE_MOD_O }}
     - run: npx firebase-tools deploy --only hosting --project goldenunicornfc --token ${{ secrets.FIREBASE_TOKEN }}

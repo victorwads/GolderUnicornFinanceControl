@@ -7,6 +7,7 @@ import { alias } from './configs/aliases';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { VitePWA } from 'vite-plugin-pwa';
 import manifest from './assets/manifest.json';
+// import Checker from 'vite-plugin-checker'
 
 const rootDir = dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +26,7 @@ const appVersion = (() => {
 export default defineConfig({
   plugins: [
     react(),
+    // Checker({ typescript: true }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['assets/logo.png'],
