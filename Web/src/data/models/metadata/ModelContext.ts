@@ -14,7 +14,7 @@ export default class ModelContext<Model extends DocumentModel> {
     public data: RawData<Model> = {}
   ) {}
 
-  ensureUnique(fieldNames: (keyof Model)[], repo: BaseRepository<Model>, values: unknown[]) {
+  ensureUnique = (fieldNames: (keyof Model)[], repo: BaseRepository<Model>, values: unknown[]) => {
     if (this.update) return;
     if (!values.length) return;
     const value = values.map(v => String(v).trim()).join("|");

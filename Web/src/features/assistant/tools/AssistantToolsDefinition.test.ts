@@ -289,4 +289,44 @@ describe('AssistantTools - Domain and Action Listings', async () => {
       }
     });
   });
+
+  describe('buildToolSchema', () => {
+    const expectedNames = ['list_domains', 'list_domain_actions', 'search_id_in_domain', 'navigate_to_screen', 'search_screens', 'say_to_user', 'finish_conversation'];
+
+    it('should return correct tool names', () => {
+      const actualNames = assistantTools.buildToolSchema().map(t => t.function.name);
+      expect(actualNames).toEqual(expectedNames);
+    });
+
+    describe('should return correct tool names after adding domain', () => {
+
+      const domains = [
+        'accounts',
+        'credit_cards',
+        'creditcards',
+        'creditCards',
+        'categories',
+        'account_transactions',
+        'accountTransactions',
+        'accounttransactions',
+        'account_transfers_transactions',
+        'accountTransfersTransactions',
+        'accounttransferstransactions',
+        'recurrent_transactions',
+        'recurrentTransactions',
+        'recurrenttransactions',
+        'creditcards_transactions',
+        'creditCardsTransactions',
+        'creditcardstransactions',
+      ];
+
+      domains.forEach(domain => {
+        it(`should return actions tools for domain '${domain}' when shared`, async () => {
+          assistantTools.sharedDomains.add(domain);
+          const actualNames = assistantTools.buildToolSchema().map(t => t.function.name);
+          expect(actualNames.length).not.toEqual(expectedNames.length);
+        });
+      });
+    });
+  });
 });

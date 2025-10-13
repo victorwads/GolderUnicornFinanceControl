@@ -115,7 +115,7 @@ export default class AssistantController {
 
         if (!choice) { context.finishReason = "no_choice_returned"; break; }
 
-        const toolCalls = this.appendAssistantResponse(choice.message, context)
+        const toolCalls = this.appendAssistantResponse(choice.message, context, toolSchema.map(t => t.function.name))
           .filter(call => call?.type === "function")
 
         if (!toolCalls.length) {context.finishReason = "assistant_no_tool_calls"; break; }
@@ -188,10 +188,11 @@ export default class AssistantController {
     });
   }
 
-  private appendAssistantResponse(message: ChatCompletionMessage, context: AiCallContext): ChatCompletionMessageToolCall[] {
-    const assistantMessage: ChatCompletionAssistantMessageParam = {
+  private appendAssistantResponse(message: ChatCompletionMessage, context: AiCallContext, toolNames: string[]): ChatCompletionMessageToolCall[] {
+    const assistantMessage: ChatCompletionAssistantMessageParam & {available_tools: string[]} = {
       role: "assistant",
       content: message.content,
+      available_tools: toolNames,
       tool_calls: message.tool_calls,
     };
     context.history.push(assistantMessage);

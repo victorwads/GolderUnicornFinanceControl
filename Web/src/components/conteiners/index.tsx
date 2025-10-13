@@ -52,7 +52,7 @@ export function ContainerScrollContent({ children, spaced, autoScroll = false }:
   }
 
   const ref = useRef<HTMLDivElement | null>(null);
-  const [stickToBottom, setStickToBottom] = useState(true); // assume inicia no final
+  const [stickToBottom, setStickToBottom] = useState(false); // assume inicia no final
   const THRESHOLD_PX = 48; // tolerância para considerar "quase no final"
 
   const handleScroll = (e: UIEvent<HTMLDivElement>) => {

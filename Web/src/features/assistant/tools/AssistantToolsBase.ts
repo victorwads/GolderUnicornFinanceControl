@@ -49,7 +49,7 @@ export abstract class AssistantToolsBase {
 
 
   buildToolSchema(): ChatCompletionFunctionTool[] {
-    const domains = Array.from(this.sharedDomains);
+    const domains = Array.from(this.sharedDomains).map(d => this.dn(d));
     return [
       ...this.baseDefinitions,
       ...this.domains

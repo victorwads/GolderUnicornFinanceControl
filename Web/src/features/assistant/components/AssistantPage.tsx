@@ -23,6 +23,7 @@ export default function AssistantPage({
 }: { compact?: boolean }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isFirst, setIsFirst] = useState(true);
   const [partial, setPartial] = useState('');
   const [calls, setCalls] = useState<AssistantToolCallLog[]>([]);
   const [askUserPrompt, setAskUserPrompt] = useState<string | null>(null);
@@ -59,10 +60,12 @@ export default function AssistantPage({
   }, [compact]);
 
   const handleAskAdditionalInfo = useCallback(async (message: string) => {
+    setLoading(false);
+    setIsFirst(false);
     setAskUserPrompt(message);
+    stopListening();
     await speak(message);
     startListening();
-    setLoading(false);
 
     return new Promise<string>((resolve) => {
       pendingAskResolver.current = (answer: string) => {
@@ -72,6 +75,20 @@ export default function AssistantPage({
       };
     });
   }, []);
+
+  useEffect(() => {
+    if (loading && !askUserPrompt) {
+      const init = isFirst
+        ? Promise.resolve() 
+        : speak("OK", 1.4)
+          ?.then(() => speak("ta", 1.2))
+      init
+        ?.then(() => speak("humm, hum hum, hum hum", 0.01, 0.03))
+        ?.then(() =>
+          isFirst ? Promise.resolve() : speak("ah", 0.8, 0.25)
+        )
+    };
+  }, [loading, isFirst, askUserPrompt]);
 
   const controller = useMemo(
     () =>
@@ -101,7 +118,6 @@ export default function AssistantPage({
         return;
       }
 
-      speak("Humm...");
       controller.run(text, userLanguage).then((result) => {
         if (result.warnings.length) {
           setWarnings((previous) => [...previous, ...result.warnings]);
@@ -141,7 +157,7 @@ export default function AssistantPage({
             </p>
           </GlassContainer>
         )}
-        {loading && (
+        {loading && !askUserPrompt && (
           <GlassContainer className="assistant-toast">
             <strong>Assistente pensando, aguarde:</strong>
             <pre>Hummm.....</pre>

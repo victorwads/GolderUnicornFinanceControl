@@ -116,7 +116,7 @@ export class AssistantTools extends AssistantToolsBase {
           const domain = this.getDomain(domainName);
           if (!domain) return { success: false, errors: `Domain '${domainName}' not found.` };
 
-          this.sharedDomains.add(domainName);
+          this.sharedDomains.add(this.dn(domainName));
           return { 
             success: true, 
             result: domain.handlers
@@ -146,7 +146,7 @@ export class AssistantTools extends AssistantToolsBase {
             return { success: false, errors: `Domain '${domainName}' has no search capability. Inform user that this is not possible cause you can't obtain information from this domain.` };
           }
 
-          this.sharedDomains.add(domainName);
+          this.sharedDomains.add(this.dn(domainName));
           return domain.search(query, limit);
         },
         userInfo: (args) => `Searching in '${args.domain}' for '${args.query}'`

@@ -10,7 +10,6 @@ import {
   MONTHLY_AI_COST_LIMIT_BRL,
 } from './costControl';
 import { getAssistantModel, setAssistantModel, setPendingAiContext } from './AssistantController';
-import { get } from 'http';
 
 type Conversation = {
   id: string;
@@ -162,7 +161,7 @@ function deriveTitle(context: AiCallContext): string {
   const history = Array.isArray(context.history) ? context.history : [];
   const userEntry = [...history].reverse().find((entry) => entry?.role === 'user');
   if (!userEntry) return '';
-  const title = formatContent((userEntry as Record<string, unknown>).content).trim();
+  const title = formatContent((userEntry as any).content).trim();
   return title && title !== 'null' ? title : '';
 }
 
