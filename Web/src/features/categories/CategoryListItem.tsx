@@ -1,6 +1,6 @@
 import React from 'react';
 import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
-import Category from '@model/Category';
+import { Category } from '@models';
 
 interface CategoryListItemProps {
   category: Category;

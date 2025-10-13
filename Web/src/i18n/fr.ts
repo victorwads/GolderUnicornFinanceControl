@@ -134,10 +134,10 @@ const fr: Translation = {
     speechRateSlow: 'Lent',
     speechRateFast: 'Rapide',
     testSpeech: 'Tester la Parole',
+    testSpeechMessage: 'Ceci est un message de test pour exemplifier ma parole.',
     listVoices: 'Lister les Voix',
     hideVoices: 'Masquer les Voix',
     availableVoices: 'Voix Disponibles',
-    availableLanguages: 'Langues Disponibles',
   },
   dashboard: {
     title: 'Tableau de Bord',

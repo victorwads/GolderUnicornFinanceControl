@@ -4,10 +4,6 @@ import { useNavigate } from "react-router-dom";
 import AIMicrophone, { type AIMicrophoneProps } from "@components/voice/AIMicrophone";
 import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
-import {
-  getCurrentCosts,
-  type AIUse,
-} from "@resourceUse";
 import getRepositories from "@repositories";
 
 import AssistantController, { ASSISTANT_MODEL } from "../AssistantController";
@@ -19,35 +15,8 @@ import "./AssistantPage.css";
 import Icon, { Icons } from "@components/Icons";
 import GlassContainer from "@components/GlassContainer";
 import { startListening, stopListening } from "@components/voice/microfone";
-
-// Função para sintetizar voz usando Web Speech API
-const speak = (text: string) => {
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    // Configurar voz em português se disponível
-    const voices = speechSynthesis.getVoices();
-    const portugueseVoice = voices.find(voice => voice.lang.startsWith('pt'));
-    if (portugueseVoice) {
-      utterance.voice = portugueseVoice;
-    }
-    utterance.lang = 'pt-BR'; // Idioma português brasileiro
-
-    // Usar velocidade salva ou padrão
-    const savedRate = localStorage.getItem('speechRate');
-    const rate = savedRate ? parseFloat(savedRate) : 1.3;
-    utterance.rate = isNaN(rate) ? 1.3 : Math.max(0.5, Math.min(2.0, rate));
-
-    utterance.pitch = 1; // Tom normal
-    speechSynthesis.speak(utterance);
-  }
-};
-
-// Garantir que as vozes estejam carregadas
-if ('speechSynthesis' in window) {
-  speechSynthesis.onvoiceschanged = () => {
-    // Vozes carregadas
-  };
-}
+import { AiCallContext, AIUse } from "@models";
+import { speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
 
 export default function AssistantPage({
   compact = false,
@@ -89,8 +58,9 @@ export default function AssistantPage({
     ]);
   }, [compact]);
 
-  const handleAskAdditionalInfo = useCallback((message: string) => {
+  const handleAskAdditionalInfo = useCallback(async (message: string) => {
     setAskUserPrompt(message);
+    await speak(message);
     startListening();
     setLoading(false);
 
@@ -106,7 +76,6 @@ export default function AssistantPage({
   const controller = useMemo(
     () =>
       new AssistantController(
-        undefined,
         handleAskAdditionalInfo,
         handleToolCall,
         (route: string, queryParams?: Record<string, string>) => {
@@ -163,7 +132,7 @@ export default function AssistantPage({
       <AIMicrophone parser={microphoneParser} compact withLoading={loading} onPartialResult={setPartial} />
       <div className="assistant-toasts">
         {askUserPrompt && (
-          <GlassContainer className="assistant-toast assistant-toast--ask-user">
+          <GlassContainer className="assistant-toast">
             <strong>Pergunta do assistente:</strong>
             <pre>{askUserPrompt}</pre>
             <p className="assistant-ask-user__hint">
@@ -199,7 +168,7 @@ export default function AssistantPage({
   const totalTokens = modelUsage.input + modelUsage.output;
   const assistantCosts = useMemo(
     () =>
-      getCurrentCosts({
+      AiCallContext.getCurrentCosts({
         [ASSISTANT_MODEL]: modelUsage as AIUse<number>,
       }),
     [modelUsage]
@@ -233,6 +202,7 @@ export default function AssistantPage({
             <pre className="assistant-ask-user__message">{askUserPrompt}</pre>
             <p className="assistant-ask-user__hint">
               Responda pelo microfone para continuar.
+              <Icon aria-label="Clique aqui para ouvir a mensagem" icon={Icons.faVolumeUp} />
             </p>
           </section>
         )}

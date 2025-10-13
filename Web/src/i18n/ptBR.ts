@@ -147,10 +147,10 @@ const ptBR: Translation = {
     speechRateSlow: 'Lento',
     speechRateFast: 'Rápido',
     testSpeech: 'Testar Fala',
+    testSpeechMessage: 'Esta é uma mensagem de teste para exemplificar a minha fala.',
     listVoices: 'Listar Vozes',
     hideVoices: 'Ocultar Vozes',
     availableVoices: 'Vozes Disponíveis',
-    availableLanguages: 'Linguagens disponíveis',
   },
   dashboard: {
     title: 'Visão Geral',

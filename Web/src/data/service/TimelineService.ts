@@ -1,4 +1,4 @@
-import { CreditCard, CreditCardInvoice, InvoiceRegistry, RegistryWithDetails } from "@models";
+import { CreditCard, CreditCardInvoice, InvoiceTransaction, RegistryWithDetails } from "@models";
 import { Repositories } from "@repositories";
 import { getCurrentUser } from '../firebase/google-services';
 import { AccountsRegistry } from '../models/AccountRegistry';
@@ -65,7 +65,7 @@ export default class TimelineService {
         sourceName: accounts.getLocalById(registry.accountId)?.name || 'Unknown Source',
       }));
 
-    const credit = categoryIds.length === 0 || categoryIds.includes(InvoiceRegistry.categoryId)
+    const credit = categoryIds.length === 0 || categoryIds.includes(InvoiceTransaction.categoryId)
       ? creditCardsInvoices.getCache()
       .filter(r => 
         // Paid
@@ -80,11 +80,11 @@ export default class TimelineService {
         )
       )
       .map<RegistryWithDetails>((invoice) => ({
-        registry: new InvoiceRegistry(
+        registry: new InvoiceTransaction(
           invoice, 
           light ? new CreditCard(invoice.cardId) : creditCards.getLocalById(invoice.cardId)!
         ),
-        category: !light ? categories.getLocalById(InvoiceRegistry.categoryId) : undefined,
+        category: !light ? categories.getLocalById(InvoiceTransaction.categoryId) : undefined,
         sourceName: accounts.getLocalById(invoice.paymentAccountId)?.name || 'Unknown Source',
       }))
       : [];

@@ -135,10 +135,10 @@ const es: Translation = {
     speechRateSlow: 'Lento',
     speechRateFast: 'Rápido',
     testSpeech: 'Probar Voz',
+    testSpeechMessage: 'Este es un mensaje de prueba para ejemplificar mi habla.',
     listVoices: 'Listar Voces',
     hideVoices: 'Ocultar Voces',
     availableVoices: 'Voces Disponibles',
-    availableLanguages: 'Idiomas disponibles',
   },
   dashboard: {
     title: 'Tablero',

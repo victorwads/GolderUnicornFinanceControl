@@ -13,11 +13,11 @@ export enum RegistryType {
 
 export interface RegistryWithDetails {
   sourceName: string;
-  registry: Registry;
+  registry: Transaction;
   category?: Category;
 }
 
-export abstract class Registry extends DocumentModel {
+export abstract class Transaction extends DocumentModel {
 
   constructor(
     public id: string,
@@ -45,9 +45,8 @@ export abstract class Registry extends DocumentModel {
     observation: "Additional notes or observations about the transfer besides the description and accounts involved or other structured parameters",
   }
 
-  static metadataBase: ModelMetadata<Registry> = {
+  static metadataBase: ModelMetadata<Transaction> = {
     aiToolCreator: {
-      name: "",
       description: "",
       properties: {
         value: {
@@ -71,7 +70,7 @@ export abstract class Registry extends DocumentModel {
       },
       required: [],
     },
-    from: (params, repositories): Result<Registry> => 
-      ({ success: false, error: "Not implemented in base class" }),
+    from: (params, repositories): Result<Transaction> => 
+      ({ success: false, errors: ["Not implemented in base class"] }),
   };
 }

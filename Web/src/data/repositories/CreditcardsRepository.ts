@@ -6,7 +6,11 @@ import { Bank } from '../models/Bank';
 
 export default class CreditcardsRepository extends RepositoryWithCrypt<CreditCard> {
     constructor() {
-        super(`${Collections.Users}/{userId}/${Collections.CreditCards}`, CreditCard);
+      super(
+        'Credit Card',
+        `${Collections.Users}/{userId}/${Collections.CreditCards}`,
+        CreditCard,
+      );
     }
 
     getCacheWithBank(): CreditCardWithInfos[] {

@@ -80,13 +80,7 @@ const RegistryScreenForm = () => {
       categoryId
     );
 
-    if (id) {
-      await getRepositories().accountTransactions.editRegistry(newRegistry);
-      alert(Lang.registry.messages.saved);
-    } else {
-      await getRepositories().accountTransactions.addRegistry(newRegistry);
-      alert(Lang.registry.messages.saved);
-    }
+    await getRepositories().accountTransactions.set(newRegistry);
     navigate(-1);
   };
 

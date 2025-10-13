@@ -2,7 +2,8 @@ import { OpenAI } from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index";
 
 import StreamedJsonArrayParser from "./StreamedJsonArrayParser";
-import { addResourceUse, AiModel } from "@resourceUse";
+import { addResourceUse } from "@resourceUse";
+import { AiModel } from "@models";
 
 const CHAT_HISTORY_SIZE = 2;
 const n = (id: string | undefined | null): string =>
@@ -257,9 +258,9 @@ Context:
 
   private initOpenAI() {
     return new OpenAI({
-      apiKey: atob(import.meta.env.VITE_MOD_K),
-      project: atob(import.meta.env.VITE_MOD_P),
-      organization: atob(import.meta.env.VITE_MOD_O),
+      apiKey: "",
+      project: "",
+      organization: "",
       dangerouslyAllowBrowser: true,
     });
   }

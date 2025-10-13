@@ -2,13 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./TimelineOfxImport.css";
 
-import Dialog from "@components/visual/Dialog";
 import Button from "@components/Button";
 import Icon, { Icons } from "@components/Icons";
-
 import { AccountsRegistry, CreditCard, CreditCardRegistry, RegistryType } from "@models";
+
 import getRepositories from "@repositories";
-import type { CreditCardWithInfos } from "@repositories/CreditcardsRepository";
+import type { CreditCardWithInfos } from "@repositories";
 
 import { parseOfx, ParsedOfxTransaction } from "./ofxParser";
 

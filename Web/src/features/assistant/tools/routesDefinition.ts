@@ -144,7 +144,7 @@ export const routesDefinition: RoutesDefinition[] = [
   //   pathParams: { id: { description: 'ID do item de compra' } },
   // },
   {
-    name: '/subscriptions/',
+    name: '/subscriptions',
     description: 'See avalilable subscriptions plans and manage your current plan',
   }
 ];
@@ -165,18 +165,18 @@ export const navigateToRoute: AssistantToolExecution = async (
   { route, queryParams, ...other }: { route: string, queryParams?: Record<string, any> }
 ) => {
   if(other && Object.keys(other).length) {
-    return { success: false, error: `Parâmetros inválidos: ${Object.keys(other).join(", ")}. use o { route: '${route}', queryParams: { key: value } } para navegar.` };
+    return { success: false, errors: `Parâmetros inválidos: ${Object.keys(other).join(", ")}. use o { route: '${route}', queryParams: { key: value } } para navegar.` };
   }
 
-  if(!route) return { success: false, error: `route is required. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.` };
+  if(!route) return { success: false, errors: `route is required. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.` };
   const match = routesDefinition.find(r => routeMatch(r.name, route));
   if(!match) {
-    return { success: false, error: `Route '${route}' not found. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.` };
+    return { success: false, errors: `Route '${route}' not found. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.` };
   }
 
   const validationError = validateParams('query', match, queryParams);
   if (validationError) {
-    return { success: false, error: validationError };
+    return { success: false, errors: validationError };
   }
 
   return { success: true, result: route };

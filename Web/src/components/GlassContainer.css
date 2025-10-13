@@ -1,12 +1,12 @@
 .glass-container {
     position: relative;
-	background: transparent;
+	background: rgba(37, 23, 66, 0.7);
 	border-radius: 2rem;
 	overflow: hidden;
 	box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
-	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
 	z-index: 40;
     max-width: 90vw;
+	padding: var(--spacing-md);
 }
 
 .glass-filter {

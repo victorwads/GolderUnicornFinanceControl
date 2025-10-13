@@ -13,6 +13,7 @@ import {
 
 import { DocumentModel } from "@models";
 import { addResourceUse } from "./ResourcesUseRepositoryShared";
+import en from '../../i18n/en';
 
 const queryField: keyof DocumentModel = "_updatedAt";
 
@@ -24,13 +25,14 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   private minimumCacheSize = 0;
   private waitRef: Promise<any> | null = null;
   private inited: boolean = false;
-  private listenners: ((repository: this) => void)[] = [];
+  private listenners: ((repository: BaseRepository<Model>) => void)[] = [];
   protected waitFinished: boolean = false;
   private unsubscribeSnapshot?: () => void;
 
   constructor(
+    public readonly entityName: string,
     private collectionNamePattern: string,
-    private modelClass: new (...args: any) => Model
+    public readonly modelClass: new (...args: any) => Model
   ) {
     this.collectionName = this.parseCollectionName();
     this.db = getFirestore();
@@ -38,7 +40,7 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
   }
 
   public addUpdatedEventListenner(listenner: (repository: this) => void) {
-    this.listenners.push(listenner);
+    this.listenners.push(listenner as (repository: BaseRepository<Model>) => void);
     if (this.listenners.length === 1) {
       this.unsubscribeSnapshot = this.registerCollectionSnapshotListener();
     }

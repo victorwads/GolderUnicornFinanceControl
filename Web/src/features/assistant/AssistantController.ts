@@ -8,28 +8,33 @@ import {
   ChatCompletionMessageToolCall,
 } from "openai/resources/index";
 
+import getRepositories, { Repositories } from "@repositories";
+import { AiCallContext, type AiModel } from "@models";
+import { addResourceUse } from "@resourceUse";
+
 import { createOpenAIClient } from "./createOpenAIClient";
-import { AssistantTools, DomainToolName, ToUserTool } from "./tools/AssistantTools";
+import { AssistantTools } from "./tools/AssistantToolsDefinition";
 import type {
   AssistantRunResult,
   AssistantLimitResult,
   AssistantToolCallLog,
 } from "./tools/types";
-import { addResourceUse, TOKEN_PRICES, type AiModel } from "@resourceUse";
-import getRepositories, { Repositories } from "@repositories";
-import { AiCallContext } from "@models";
-import { Result } from "src/data/models/metadata";
-import { AppNavigationTool } from "./tools/routesDefinition";
+
 import {
   ensureMonthlyLimit,
   MONTHLY_LIMIT_REACHED_MESSAGE,
 } from "./costControl";
+import { Result } from "src/data/models/metadata";
+import { AppNavigationTool } from "./tools/routesDefinition";
+import AssistantGeneralPrompt from "./AssistantGeneral.prompt";
+import AssistantOnboardingPrompt from "./AssistantOnboarding.prompt";
+import { ToUserTool } from "./tools/AssistantToolsBase";
 
 export let ASSISTANT_MODEL: AiModel = "@preset/gu-daily-assistant";
 
 const AIModelStorageKey = "assistant_model";
 const savedModel = localStorage.getItem(AIModelStorageKey);
-if (savedModel && Object.keys(TOKEN_PRICES).includes(savedModel)) {
+if (savedModel && Object.keys(AiCallContext.TOKEN_PRICES).includes(savedModel)) {
   ASSISTANT_MODEL = savedModel as AiModel;
 }
 
@@ -39,47 +44,33 @@ export function setAssistantModel(model: AiModel) {
   window.location.reload();
 }
 
-const SYSTEM_PROMPT = `
-You are an personal finance management assistant app. Your role is to help the user manage their personal finances.
-Always respond using registered tool calls, use them to accomplish your tasks.
-
-Data management:
-- You can manage user's data by "domain" using the ${DomainToolName.LIST_ALL}, ${DomainToolName.LIST_ACTIONS} tools when user wants to create/update/delete something.
-- To obtain required model's values for toolcalls, you can use the ${ToUserTool.ASK} tool to ask the user for them if need. Avoid inferring import fields.
-- For not required values, omit them if the user did not provide them.
-- For identifier fields, use the ${DomainToolName.SEARCH_IN_DOMAIN} tool to find the ID of the record. You can use multiple ${DomainToolName.SEARCH_IN_DOMAIN} calls to find all required identifiers.
-- Dates should be converted from relative formats like "today", "tomorrow", "last week", etc to absolute datetime in the format YYYY-MM-DDTHH:mm.
-
-Navigation:
-- User can ask to see something, use the ${AppNavigationTool.LIST_SCREENS} tool to search available screens.
-- Every search term should be translated to English before calling ${AppNavigationTool.LIST_SCREENS}.
-- Always try to set urlPathParams and queryParams when using ${AppNavigationTool.NAVIGATE}. Fill then according to user request and the screen you are navigating to.
-
-Rules:
-- When you finish all actions requested by the user, you should call the ${ToUserTool.FINISH} tool to end the session. Please confirm with the user that all actions were completed.
-- Do not call ${ToUserTool.FINISH} before finishing all orchestration required by the user.
-- Only talk with the user in his native language, which is provided in the first user message.
-- Before you finish, you can optionally move to the screen about the action that you just did like view the "edit/view screen" of that domain.
-`.trim();
-// - The action_create_new tools can be used to create records, or if an ID is provided, update or delete it. The provided ID must be obtained via equivalent search_*.
-
 export type ToolEventListener = (event: AssistantToolCallLog) => void;
 export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
 
 export default class AssistantController {
   private openai: OpenAI | null = null;
-
+  private inOnboarding: boolean = false;
+ 
   private readonly toolRegistry: AssistantTools = new AssistantTools(
     this.repositories
   );
 
   constructor(
-    private readonly repositories: Repositories = getRepositories(),
     public onAskAnditionalInfo?: AskAnditionalInfoCallback,
     public onToolCalled?: ToolEventListener,
     public onNavigate?: (route: string, queryParams?: Record<string, string>) => void,
     public model: string = ASSISTANT_MODEL,
-  ) {}
+    private readonly repositories: Repositories = getRepositories(),
+  ) {
+
+    this.repositories.user.getUserData().then(user => {
+      this.setPrompt(!user.onboardingDone)
+    })
+  }
+
+  private setPrompt(onboarding: boolean) {
+    this.inOnboarding = onboarding;
+  }
 
   private async getOpenAIClient(): Promise<OpenAI> {
     if (!this.openai) {
@@ -115,6 +106,8 @@ export default class AssistantController {
         const completion = await this.requestCompletion(context.history, toolSchema);
         const choice = completion.choices[0];
         this.recordUsage(completion, context);
+        context.model = completion.model || context.model || ASSISTANT_MODEL;
+        context.provider = (completion as any).provider || "OpenRouter";
 
         if (!choice) { context.finishReason = "no_choice_returned"; break; }
 
@@ -125,6 +118,10 @@ export default class AssistantController {
 
         for (const call of toolCalls) {
           if (call.function.name === ToUserTool.FINISH) {
+            if (this.inOnboarding) {
+              this.inOnboarding = false;
+              await this.repositories.user.updateUserData({ onboardingDone: true });
+            }
             context.finishReason = "finished_by_assistant"; run = false;
           } else {
             await this.executeToolCall(call, context);
@@ -154,8 +151,10 @@ export default class AssistantController {
     const context = new AiCallContext(
       new Date().toISOString().replace("T", " ").substring(0, 19),
       this.model,
+      this.model,
+      "OpenRouter",
       [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: this.inOnboarding ? AssistantOnboardingPrompt : AssistantGeneralPrompt },
         {
           role: "user",
           content: `User native language: ${userLanguage}\nCurrent DateTime: ${new Date().toISOString()}`,
@@ -196,13 +195,14 @@ export default class AssistantController {
       context.warnings.push("model_return_plain_text");
     }
 
-    const { id, history, warnings, sharedDomains, tokens } = context;
-    this.repositories.aiCalls.set({ id, history, warnings, sharedDomains, tokens }, true);
+    const { id, history, warnings, sharedDomains, tokens, model } = context;
+    this.repositories.aiCalls.set({ id, history, warnings, sharedDomains, tokens, model }, true);
     return message.tool_calls || [];
   }
 
   private recordUsage(completion: {
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
+    model?: string;
+    usage?: { prompt_tokens?: number; completion_tokens?: number};
   }, context: AiCallContext) {
     const { prompt_tokens: input, completion_tokens: output } =
       completion.usage ?? {};
@@ -212,7 +212,7 @@ export default class AssistantController {
     context.tokens.output += output ?? 0;
     addResourceUse({
       ai: {
-        [ASSISTANT_MODEL]: {
+        [completion.model || ASSISTANT_MODEL]: {
           input,
           output,
         },
@@ -248,10 +248,10 @@ export default class AssistantController {
     if (call.function.name === ToUserTool.ASK) {
       result = await this.onAskAnditionalInfo?.(args.message)
         .then((response) => ({ success: true, result: response }))
-        ?? { success: false, error: "No onAskAnditionalInfo handler provided." };
+        ?? { success: false, errors: "No onAskAnditionalInfo handler provided." };
     } else {
       result = await this.toolRegistry.execute(name, args );
-      context.sharedDomains = this.toolRegistry.sharedDomains;
+      context.sharedDomains = Array.from(this.toolRegistry.sharedDomains);
 
       if(name === AppNavigationTool.NAVIGATE && result.success === true) {
         const { route, queryParams } = args as { route: string, queryParams?: Record<string, string> };

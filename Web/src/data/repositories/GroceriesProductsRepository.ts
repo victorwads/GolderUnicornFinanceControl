@@ -4,7 +4,11 @@ import { ProductModel } from '@models';
 
 export default class GroceriesProductsRepository extends RepositoryWithCrypt<ProductModel> {
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.Products}`, ProductModel);
+    super(
+      'Grocery Product',
+      `${Collections.Users}/{userId}/${Collections.Products}`,
+      ProductModel,
+    );
   }
 
   public getByBarcode(barcode?: string): ProductModel | undefined {

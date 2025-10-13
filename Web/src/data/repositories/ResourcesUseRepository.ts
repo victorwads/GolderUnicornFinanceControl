@@ -24,7 +24,11 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
   private sessionCache: ResourceUsage = {};
 
   constructor() {
-    super(Collections.ResourcesUse, ResourcesUseModel);
+    super(
+      "Resource Usage",
+      Collections.ResourcesUse,
+      ResourcesUseModel,
+    );
   }
 
   public get currentUse() {

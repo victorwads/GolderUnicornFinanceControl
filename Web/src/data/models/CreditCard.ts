@@ -1,5 +1,7 @@
+import { a } from "vitest/dist/chunks/suite.d.FvehnV49";
 import { DocumentModel } from "./DocumentModel";
 import { ModelMetadata } from "./metadata";
+import ModelContext from "./metadata/ModelContext";
 
 const CREDIT_CARD_BRANDS = [
   "Visa",
@@ -28,7 +30,6 @@ export class CreditCard extends DocumentModel {
   static metadata: ModelMetadata<CreditCard> = {
     aiToolCreator: {
       description: "Cria ou atualiza um cartão de crédito.",
-      name: "credit_card",
       properties: {
         name: { type: "string", description: "Nome do cartão de crédito." },
         limit: { type: "number", description: "Limite do cartão de crédito." },
@@ -39,33 +40,20 @@ export class CreditCard extends DocumentModel {
       },
       required: ["name", "limit", "brand", "closingDay", "dueDay"],
     },
-    from: (data, repositories) => {
-      if (data.id )
-        return { success: false, error: "CreditCard update not implemented yet" }
+    from: (params, repositories, update) => {
+      const { assignId, assignString, assignNumber, assignEnum, toResult, data } = new ModelContext(
+        repositories.creditCards.modelClass,
+        update
+      );
 
-      if (!CREDIT_CARD_BRANDS.includes(String(data.brand))) {
-        return { success: false, error: `Bandeira do cartão de crédito ${data.brand} não é válida.` };
-      }
-
-      if (data.accountId) {
-        const account = repositories.accounts.getLocalById(String(data.accountId));
-        if (!account) {
-          return { success: false, error: `Conta com ID ${data.accountId} não encontrada.` };
-        }
-      }
+      assignId("accountId", repositories.accounts, params.accountId);
+      assignString("name", params.name);
+      assignNumber("limit", params.limit, 0);
+      assignNumber("closingDay", params.closingDay, 1, 31);
+      assignNumber("dueDay", params.dueDay, 1, 31);
+      assignEnum("brand", CREDIT_CARD_BRANDS, params.brand);
       
-      return {
-        success: true,
-        result: new CreditCard(
-          '',
-          String(data.name),
-          Number(data.limit),
-          String(data.brand),
-          String(data.accountId),
-          Number(data.closingDay),
-          Number(data.dueDay),
-        )
-      };
+      return toResult();
     }
     ,
   }

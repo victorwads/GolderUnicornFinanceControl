@@ -1,8 +1,10 @@
 import { Repositories } from "@repositories";
+import { DocumentData } from "firebase/firestore";
+import { RawData } from "./ModelContext";
 
 export type Result<T> =
   | { success: true; result: T }
-  | { success: false; error?: string };
+  | { success: false; errors?: string[] | string };
 
 type BaseProperty = {
   type: string;
@@ -37,30 +39,14 @@ export type Properties =
 
 export interface ModelMetadata<M, R extends string = Extract<keyof M, string>, D = Record<R, unknown>> {
   aiToolCreator: {
-    /** @deprecated use domains instead */
-    name: string;
     description: string;
-    properties: { [K in R]?: Properties };
+    properties: Partial<{ [K in R]?: Properties }>;
     required: R[];
   };
-  from: (data: D, repositories: Repositories) => Result<unknown>;
+  from: (data: D, repositories: Repositories, update?: boolean, oldData?: M) => Result<DocumentData>;
 }
 
-export function validateDate(input: string): Result<Date> {
-  const regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(:\d{2}){0,1}$/
-  const match = regex.exec(input)
-  if (!match) return { success: false, error: "Invalid date format use YYYY-MM-DDTHH:mm:ss" }
-  const append = input.length < 17 ? ":00.000Z" : ".000Z"
-  return { success: true, result: new Date(input + append) }
-}
-
-export function validateOptionalDate(input: string): Result<Date|undefined> {
-  if(!input || String(input).trim().length === 0) return { success: true, result: undefined }
-
-  return validateDate(input)
-}
-
-export function validateRequiredFields<T extends Record<string, unknown>>(data: T, requiredFields: (keyof T)[]): Result<T> {
+export function validateRequiredFields<T extends RawData<any>>(data: T, requiredFields: (keyof T)[]): Result<T> {
   const missing: string[] = [];
   for (const field of requiredFields) {
     if (!(field in data)) {
@@ -68,7 +54,7 @@ export function validateRequiredFields<T extends Record<string, unknown>>(data: 
     }
   }
   if (missing.length > 0) {
-    return { success: false, error: `Missing required fields: ${missing.join(", ")}` };
+    return { success: false, errors: missing.map(f => `Missing: ${f}`) };
   }
   return { success: true, result: data };
 }

@@ -140,7 +140,7 @@ export default function AIMicrophoneOnboarding({
       <div className="ai-mic-onboarding__backdrop" />
       <div className="ai-mic-onboarding__modal" role="dialog" aria-modal="true" aria-labelledby={modalTitleId}>
         <div className='ai-mic-onboarding__header'>
-        <button type="button" onClick={onComplete} >
+        <button type="button" onClick={() => { onComplete(); handleClose(); }} >
           {Lang.aiMic.onboarding.actions.imDone}
         </button>
         <button type="button" onClick={handleClose} >
