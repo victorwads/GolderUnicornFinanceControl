@@ -60,7 +60,15 @@ export default class CryptoPassRepository {
 
     const token = localStorage.getItem(this.STORAGE_TOKEN_KEY);
     if (!token) return null;
-    return await this.decryptHash(token);
+
+    try {
+      return await this.decryptHash(token);
+    } catch (error) {
+      console.error('Failed to decrypt stored hash', error);
+      localStorage.removeItem(this.STORAGE_TOKEN_KEY);
+      sessionStorage.removeItem(this.SESSION_SECRET_KEY);
+      return null;
+    }
   }
 
   public async initSession(pass: string): Promise<void> {
@@ -78,9 +86,9 @@ export default class CryptoPassRepository {
       throw new Error('Senha de criptografia inválida.');
     }
 
-    const token = await this.encryptPassword(secretHash.hex);
-    localStorage.setItem(this.STORAGE_TOKEN_KEY, token);
     sessionStorage.setItem(this.SESSION_SECRET_KEY, secretHash.hex);
+    this.encryptPassword(secretHash.hex)
+      .then(token => localStorage.setItem(this.STORAGE_TOKEN_KEY, token));
   }
 
   public clear(): void {
