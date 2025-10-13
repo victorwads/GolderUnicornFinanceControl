@@ -7,13 +7,11 @@ import { type Dolar, USD_TO_BRL } from "../constants/currency";
 const MILION = 1000000;
 
 export class AiCallContext extends DocumentModel {
-  public static TOKEN_PRICES: AIUses<Dolar, AiModel> = {
+  private static TOKEN_PRICES: AIUses<Dolar, AiModel> = {
     "gpt-5-nano": { input: 0.05, output: 0.4 },
     "gpt-5-mini": { input: 0.25, output: 2.0 },
     "gpt-4.1-nano": { input: 0.1, output: 0.4 },
     "gpt-4.1-mini": { input: 0.4, output: 1.6 },
-    "openai/gpt-4.1-mini": { input: 0.4, output: 1.6 },
-    "openai/gpt-4.1-nano": { input: 0.1, output: 0.4 },
   };
 
   constructor(
@@ -35,6 +33,10 @@ export class AiCallContext extends DocumentModel {
     super(id);
   }
 
+  public static get PriceModels() {
+    return Object.keys(AiCallContext.TOKEN_PRICES);
+  }
+
   public getCostBRL(): number {
     const tokens = this.tokens ?? { input: 0, output: 0 };
     const model = (this.model || "gpt-4.1-mini") as AiModel;
@@ -47,11 +49,21 @@ export class AiCallContext extends DocumentModel {
     dolars: number;
   } {
     let totalTokens = 0, totalDolar = 0, input = use.input || 0, output = use.output || 0;
-    const prices = (AiCallContext.TOKEN_PRICES[model] || { input: 0, output: 0 }) as AIUse<Dolar>;
     totalTokens += input + output;
+
+    const pricesNames: string[] = AiCallContext.PriceModels;
+    const modelPriceName: string | undefined =
+      pricesNames.find(name => name === model) ||
+      pricesNames.find(name => model.includes(name));
+    ;
+    if (!modelPriceName) {
+      return { tokens: totalTokens, dolars: 0 };
+    }
+
+    const prices = AiCallContext.TOKEN_PRICES[modelPriceName] as Required<AIUse<Dolar>>;
     totalDolar += 
-      ( input * ((prices.input || 0) / MILION) ) +
-      ( output * ((prices.output || 0) / MILION) );
+      ( input * (prices.input / MILION) ) +
+      ( output * (prices.output / MILION) );
   
     return { tokens: totalTokens, dolars: totalDolar };
   }

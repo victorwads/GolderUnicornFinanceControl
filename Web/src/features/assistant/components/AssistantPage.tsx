@@ -101,6 +101,7 @@ export default function AssistantPage({
         return;
       }
 
+      speak("Humm...");
       controller.run(text, userLanguage).then((result) => {
         if (result.warnings.length) {
           setWarnings((previous) => [...previous, ...result.warnings]);
@@ -138,6 +139,12 @@ export default function AssistantPage({
             <p className="assistant-ask-user__hint">
               Responda pelo microfone para continuar.
             </p>
+          </GlassContainer>
+        )}
+        {loading && (
+          <GlassContainer className="assistant-toast">
+            <strong>Assistente pensando, aguarde:</strong>
+            <pre>Hummm.....</pre>
           </GlassContainer>
         )}
         {calls.length > 0 && calls.filter(call => Boolean(call.userInfo)).map((call) => (

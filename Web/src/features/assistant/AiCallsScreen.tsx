@@ -80,7 +80,7 @@ const AiCallsScreen = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2>AI Calls</h2>
               <select onChange={(e) => setAssistantModel(e.target.value as AiModel)} value={getAssistantModel()}>
-                {Object.keys(AiCallContext.TOKEN_PRICES).map((model) => (
+                {AiCallContext.PriceModels.map((model) => (
                   <option value={model}>{model}</option>
                 ))}
               </select>

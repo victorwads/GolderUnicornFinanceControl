@@ -36,7 +36,7 @@ const AIModelStorageKey = "assistant_model";
 
 export const getAssistantModel = (): AiModel => {
   const savedModel = localStorage.getItem(AIModelStorageKey);
-  if (savedModel && Object.keys(AiCallContext.TOKEN_PRICES).includes(savedModel)) {
+  if (savedModel && AiCallContext.PriceModels.includes(savedModel)) {
     return savedModel as AiModel;
   }
   return DEFAULT_ASSISTANT_MODEL;
