@@ -129,7 +129,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       : ''
   );
   
-  return (
+  return <>
     <GlassContainer className={"speech-marquee" + (compact ? ' compact' : '')}>
       {processingQueue.length > 0 && <div>
         {listening && (
@@ -148,7 +148,8 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       </div>}
       <button
         className={`microphone-toggle${listening ? ' listening' : ''}`}
-        onClick={disableClick ? undefined : (() => listening ? stopListening() : requestStart())}
+        // onClick={disableClick ? undefined : (() => listening ? stopListening() : requestStart())}
+        onClick={(() => listening ? stopListening() : requestStart())}
         aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
       >
         {withLoading
@@ -156,7 +157,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
           : <Icon icon={listening ? Icons.faMicrophoneSlash : Icons.faMicrophone} size='sm' />
         }
       </button>
-      <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />
     </GlassContainer>
-  );
+    <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />
+  </>;
 }

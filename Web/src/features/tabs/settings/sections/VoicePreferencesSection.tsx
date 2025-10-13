@@ -3,7 +3,7 @@ import { SettingsSection } from "./types";
 import "./VoicePreferencesSection.css";
 
 const SPEECH_RATE_KEY = "speechRate";
-const VOICE_NAME_KEY = "voiceName";
+const VOICE_NAME_KEY = "voiceNameV2";
 
 function getRate(): number {
   const rate = Number(localStorage.getItem(SPEECH_RATE_KEY + CurrentLang));
@@ -34,6 +34,8 @@ export function speak(text: string, rate?: number, volume?: number, important: b
   const voices = speechSynthesis.getVoices();
   const userLangVoice =
     voices.find((voice) => voice.name === savedVoiceName) ||
+    voices.find((voice) => voice.default) ||
+    voices.find((voice) => !voice.localService) ||
     voices.find(
       (voice) =>
         voice.name.toLocaleLowerCase().includes("google") &&
@@ -58,10 +60,12 @@ export function speak(text: string, rate?: number, volume?: number, important: b
     utterance.onend = () => resolve();
     utterance.onerror = (error) => reject(error);
     speechSynthesis.speak(utterance);
-    if (!important) lastSpeakStop = () => {
-      speechSynthesis.cancel();
-      lastSpeakStop = null;
-      reject(new Error("Speech cancelled"));
+    if (!important) {
+      lastSpeakStop = () => {
+        speechSynthesis.cancel();
+        lastSpeakStop = null;
+        reject(new Error("Speech cancelled"));
+      }
     }
   }).finally(() => {
     lastSpeakStop = null;

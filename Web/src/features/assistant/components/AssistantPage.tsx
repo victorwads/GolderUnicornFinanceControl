@@ -23,6 +23,7 @@ export default function AssistantPage({
 }: { compact?: boolean }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const [isFirst, setIsFirst] = useState(true);
   const [partial, setPartial] = useState('');
   const [calls, setCalls] = useState<AssistantToolCallLog[]>([]);
@@ -65,9 +66,12 @@ export default function AssistantPage({
     setAskUserPrompt(message);
     stopListening();
     try {
+      setSpeaking(true);
       await speak(message, undefined, undefined, true);
     } catch (error) {
       setWarnings((previous) => [...previous, "Erro ao falar a mensagem"]);
+    } finally {
+      setSpeaking(false);
     }
     startListening();
 
@@ -152,6 +156,11 @@ export default function AssistantPage({
     return <div className="assistant-icon">
       <AIMicrophone parser={microphoneParser} compact withLoading={loading} onPartialResult={setPartial} />
       <div className="assistant-toasts">
+        {speaking && <>
+          <GlassContainer>
+            <strong>Aviso:</strong> estou falando, aumente o volume do seu dispositivo.
+          </GlassContainer>
+        </>}
         {warnings.map((warning, index) => (
           <GlassContainer key={`${warning}-${index}`}>
             <strong>Aviso:</strong> {warning}

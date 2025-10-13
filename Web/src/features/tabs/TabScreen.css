@@ -13,7 +13,7 @@
   /* flex-wrap: wrap-reverse; */
   justify-content: center;
   align-items: center;
-  padding: 1em 0.2em;
+  padding: 1.5em 0.2em;
   color: var(--font-color-default);
   text-decoration: none;
   text-align: center;
@@ -25,7 +25,16 @@
 }
 
 .AiMicrophoneButtonContainer {
-  /* position: absolute; */
+  flex: 1;
+}
+
+.AiMicrophoneButtonContainer .speech-marquee {
+  position: absolute;
+  width: auto;
+  height: auto;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 @media (orientation: portrait) {
