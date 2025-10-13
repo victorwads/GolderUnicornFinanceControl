@@ -7,7 +7,7 @@ import FinancialMonthPeriod, {
   Period,
 } from "@utils/FinancialMonthPeriod";
 import TimelineService from "./TimelineService";
-import { Registry } from "@models";
+import { Transaction } from "@models";
 
 type Key = "all" | string;
 export interface BalanceSnapshot {
@@ -51,7 +51,7 @@ export class BalanceService {
     this.cache = {};
   }
 
-  private getRegistriesForMonth(period: Period, accountId?: string): Registry[] {
+  private getRegistriesForMonth(period: Period, accountId?: string): Transaction[] {
     return this.timeline.getAccountItems({
         period,
         accountIds: accountId ? [accountId] : [],

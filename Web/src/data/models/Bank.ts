@@ -19,11 +19,10 @@ export class Bank extends DocumentModel {
   static metadata: ModelMetadata<Bank> = {
     aiToolCreator: {
       description: "",
-      name: "bank",
       properties: {},
       required: [],
     },
-    from: (data: any) => ({
+    from: () => ({
       success: false,
       error: "Bank manipulation not allowed",
     }),

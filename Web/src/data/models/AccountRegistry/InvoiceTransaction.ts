@@ -1,8 +1,8 @@
 import { CreditCard } from "../CreditCard";
 import { CreditCardInvoice } from "../CreditCardInvoice";
-import { Registry, RegistryType } from "./Registry";
+import { Transaction, RegistryType } from "./Transaction";
 
-export class InvoiceRegistry extends Registry {
+export class InvoiceTransaction extends Transaction {
 
   static categoryId = "fatura";
   public cardId: string;
@@ -19,7 +19,7 @@ export class InvoiceRegistry extends Registry {
     super(
       'invoice' + invoice.id, RegistryType.INVOICE, true, invoice.value * -1,
       `Fatura cartão -  ${card.name}`,
-      invoice.paymentDate, [], InvoiceRegistry.categoryId
+      invoice.paymentDate, [], InvoiceTransaction.categoryId
     );
     this.cardId = card.id;
     this.accountId = invoice.paymentAccountId;

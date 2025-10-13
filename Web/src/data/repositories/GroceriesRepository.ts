@@ -4,7 +4,11 @@ import { GroceryItemModel } from '@models';
 
 export default class GroceriesRepository extends RepositoryWithCrypt<GroceryItemModel> {
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.Groceries}`, GroceryItemModel);
+    super(
+      "Grocery Item",
+      `${Collections.Users}/{userId}/${Collections.Groceries}`,
+      GroceryItemModel,
+    );
   }
 
   public getAllSorted(): GroceryItemModel[] {

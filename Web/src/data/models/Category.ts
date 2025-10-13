@@ -1,6 +1,7 @@
 import { iconNamesList } from '@components/Icons';
 import { DocumentModel } from './DocumentModel';
 import { ModelMetadata } from './metadata';
+import ModelContext from './metadata/ModelContext';
 
 export class Category extends DocumentModel {
   constructor(
@@ -15,7 +16,6 @@ export class Category extends DocumentModel {
 
   static metadata: ModelMetadata<Category> = {
     aiToolCreator: {
-      name: "categories",
       description: "Cria ou atualiza uma categoria do usuário para organizar lançamentos financeiros. Cada categoria pode ter nome, ícone, cor e categoria pai.",
       properties: {
         name: {
@@ -37,28 +37,23 @@ export class Category extends DocumentModel {
       },
       required: ["name", "icon", "color"],
     },
-    from: (data, repositories) => {
-      const { name, icon, color, parentId } = data;
+    from: (params, repositories, update) => {
+      const { assignId, assignString, assignColor, toResult, errors } = new ModelContext(
+        repositories.categories.modelClass,
+        update
+      );
+
+      assignId("parentId", repositories.categories, params.parentId);
+      assignString("name", params.name);
+      assignString("icon", params.icon);
+      assignColor("color", params.color);
+
+      const icon = params.icon;
       if (icon && !iconNamesList.includes(String(icon))) {
-        return { success: false, error: `Ícone inválido. Use um dos nomes válidos da font awesome.` };
-      }
-      if (color && !/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(String(color))) {
-        return { success: false, error: "Cor inválida. Use formato hexadecimal, exemplo: #FFAA00." };
-      }
-      if (parentId) {
-        const parent = repositories.categories.getLocalById(String(parentId));
-        if (!parent) {
-          return { success: false, error: `Categoria pai com id ${parentId} não encontrada.` };
-        }
+        errors.push(`Ícone inválido. Use um dos nomes válidos da font awesome.`);
       }
 
-      return {
-        success: true,
-        result: new Category(
-          "", String(name), 
-          String(icon), String(color)  , parentId as string
-        )
-      };
+      return toResult();
     },
   }
 }

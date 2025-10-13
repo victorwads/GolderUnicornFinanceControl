@@ -91,11 +91,7 @@ const CreditCardRegistryScreen = () => {
       [],
       categoryId
     );
-    if (id) {
-      await getRepositories().creditCardsTransactions.editRegistry(newRegistry);
-    } else {
-      await getRepositories().creditCardsTransactions.addRegistry(newRegistry);
-    }
+    await getRepositories().creditCardsTransactions.set(newRegistry);
     alert(Lang.registry.messages.saved);
     navigate(-1);
   };

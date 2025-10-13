@@ -1,7 +1,6 @@
-import { Category } from "../Category";
-import { ModelMetadata, Result, validateDate } from "../metadata";
-import { Registry, RegistryType } from "./Registry";
-import { Repositories } from '../../repositories/index';
+import ModelContext from "../metadata/ModelContext";
+import { ModelMetadata } from "../metadata";
+import { Transaction, RegistryType } from "./Transaction";
 import { CreditCard } from "../CreditCard";
 
 export interface WithInvoiceTime {
@@ -9,7 +8,7 @@ export interface WithInvoiceTime {
   year: number;
 }
 
-export class CreditCardRegistry extends Registry implements WithInvoiceTime {
+export class CreditCardRegistry extends Transaction implements WithInvoiceTime {
   constructor(
     id: string,
     public cardId: string,
@@ -24,12 +23,20 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
     super(id, RegistryType.CREDIT, true, value, description, date, tags, categoryId, observation, importInfo);
   }
 
+  static calcInvoiceDate(card: CreditCard, date: Date): { month: number; year: number } {
+    const currentMonth = date.getMonth() + 1;
+    const currentYear = date.getFullYear();
+    const currentInvoice = card.closingDay > date.getDate();
+    const month = currentInvoice ? (currentMonth + 1) : (currentMonth + 2);
+    const year = currentInvoice ? currentYear : (month > 12 ? currentYear + 1 : currentYear);
+    return { month, year };
+  }
+
   static metadata: ModelMetadata<CreditCardRegistry & { invoiceMonth: any, invoiceYear: any }> = {
     aiToolCreator: {
-      name: "creditcard_invoice_item",
       description: "Registra um lançamento vinculado a um cartão de crédito. sempre valide se o usuário comprou mesmo no crédito ou para débito a ferramenta adequada.",
       properties: {
-        ...Registry.metadataBase.aiToolCreator.properties,
+        ...Transaction.metadataBase.aiToolCreator.properties,
         cardId: {
           type: "string",
           description: "Identificador do cartão responsável pelo lançamento.",
@@ -45,60 +52,30 @@ export class CreditCardRegistry extends Registry implements WithInvoiceTime {
       },
       required: ["cardId", "value", "description", "date"],
     },
-    from: (params, repositories): Result<CreditCardRegistry> => {
-      const {
-        cardId,
-        value,
-        description,
-        date,
-        invoiceMonth,
-        invoiceYear,
-        categoryId,
-        observation,
-      } = params as Record<string, unknown>;
-
-      const creditCard = repositories.creditCards.getLocalById(String(cardId));
-      if (!creditCard) {
-        return { success: false, error: `Credit card not found, use ${CreditCard.metadata.aiToolCreator.name} to find it.` };
-      }
-
-      const numericValue = Number(value);
-      if (!Number.isFinite(numericValue) || numericValue === 0) {
-        return { success: false, error: "Value must be a non-zero number." };
-      }
-
-      const parsedDate = validateDate(String(date));
-      if (!parsedDate.success) {
-        return { success: false, error: parsedDate.error };
-      }
-
-      const baseDate = parsedDate.result;
-
-      let month = Number(invoiceMonth);
-      let year = Number(invoiceYear);
-
-      if (!Number.isInteger(month) || month < 1 || month > 12) {
-        month = baseDate.getMonth() + 1;
-      }
-
-      if (!Number.isInteger(year) || year < 1900) {
-        year = baseDate.getFullYear();
-      }
-
-      const registry = new CreditCardRegistry(
-        "",
-        String(cardId),
-        month,
-        year,
-        baseDate,
-        String(description),
-        numericValue,
-        [],
-        categoryId ? String(categoryId) : undefined,
-        observation ? String(observation) : undefined
+    from: (params, repositories, update) => {
+      const { assignId, assignString, assignNumber, assignDate, toResult, data } = new ModelContext(
+        repositories.creditCardsTransactions.modelClass,
+        update
       );
+      const creditCard = assignId("cardId", repositories.creditCards, params.cardId);
+      assignId("categoryId", repositories.categories, params.categoryId);
+      assignDate("date", params.date)
+      assignNumber("value", params.value);
+      assignNumber("month", params.invoiceMonth, 1, 12);
+      assignNumber("year", params.invoiceYear, 1900);
+      assignString("description", params.description);
+      assignString("observation", params.observation);
+      
+      if (!update && creditCard) {
+        const date = data.date as Date;
+        if (!data.month || !data.year) {
+          const { month, year } = CreditCardRegistry.calcInvoiceDate(creditCard, date);
+          if (!data.month) data.month = month;
+          if (!data.year) data.year = year;
+        }
+      }
 
-      return { success: true, result: registry };
+      return toResult();
     },
   };
 }

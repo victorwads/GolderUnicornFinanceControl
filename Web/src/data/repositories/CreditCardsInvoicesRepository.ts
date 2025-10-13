@@ -6,7 +6,11 @@ import { Collections } from "../firebase/Collections";
 
 export default class CreditCardInvoicesRepository extends RepositoryWithCrypt<CreditCardInvoice> {
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.CreditCardInvoices}`, CreditCardInvoice);
+    super(
+      "Credit Card Invoice",
+      `${Collections.Users}/{userId}/${Collections.CreditCardInvoices}`,
+      CreditCardInvoice,
+    );
   }
 
   public getNextInvoices(): CreditCardInvoice[] {

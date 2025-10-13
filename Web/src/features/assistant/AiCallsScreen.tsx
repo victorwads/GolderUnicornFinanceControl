@@ -1,15 +1,15 @@
 import './AiCallsScreen.css';
 import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import getRepositories, { AiCallsRepository } from '@repositories';
-import type { AiCallContext } from '@models';
-import { TOKEN_PRICES, type AiModel } from '@resourceUse';
-import { ASSISTANT_MODEL, setAssistantModel, setPendingAiContext } from './AssistantController';
+import { AiCallContext, AiModel } from '@models';
+
 import {
   MONTHLY_AI_COST_LIMIT_BRL,
 } from './costControl';
-import { useParams } from 'react-router-dom';
+import { ASSISTANT_MODEL, setAssistantModel, setPendingAiContext } from './AssistantController';
 
 type Conversation = {
   id: string;
@@ -79,7 +79,7 @@ const AiCallsScreen = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2>AI Calls</h2>
               <select onChange={(e) => setAssistantModel(e.target.value as AiModel)} value={ASSISTANT_MODEL}>
-                {Object.keys(TOKEN_PRICES).map((model) => (
+                {Object.keys(AiCallContext.TOKEN_PRICES).map((model) => (
                   <option value={model}>{model}</option>
                 ))}
               </select>

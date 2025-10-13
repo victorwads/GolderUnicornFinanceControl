@@ -4,10 +4,6 @@ import { useNavigate } from "react-router-dom";
 import AIMicrophone, { type AIMicrophoneProps } from "@components/voice/AIMicrophone";
 import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
-import {
-  getCurrentCosts,
-  type AIUse,
-} from "@resourceUse";
 import getRepositories from "@repositories";
 
 import AssistantController, { ASSISTANT_MODEL } from "../AssistantController";
@@ -19,6 +15,7 @@ import "./AssistantPage.css";
 import Icon, { Icons } from "@components/Icons";
 import GlassContainer from "@components/GlassContainer";
 import { startListening, stopListening } from "@components/voice/microfone";
+import { AiCallContext, AIUse } from "@models";
 
 // Função para sintetizar voz usando Web Speech API
 const speak = (text: string) => {
@@ -199,7 +196,7 @@ export default function AssistantPage({
   const totalTokens = modelUsage.input + modelUsage.output;
   const assistantCosts = useMemo(
     () =>
-      getCurrentCosts({
+      AiCallContext.getCurrentCosts({
         [ASSISTANT_MODEL]: modelUsage as AIUse<number>,
       }),
     [modelUsage]

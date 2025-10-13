@@ -10,6 +10,7 @@ export class User extends DocumentModel {
     id: string = '',
     public privateHash?: string,
     public fullyMigrated: boolean = false,
+    public onboardingDone: boolean = false,
   ) {
     super(id);
   }
@@ -17,7 +18,11 @@ export class User extends DocumentModel {
 
 export default class UserRepository extends RepositoryWithCrypt<User> {
   constructor() {
-    super(Collections.Users, User);
+    super(
+      "User",
+      Collections.Users,
+      User,
+    );
   }
 
   protected override async waitInit(): Promise<void> { }

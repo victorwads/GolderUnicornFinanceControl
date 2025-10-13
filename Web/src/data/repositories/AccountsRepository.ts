@@ -7,7 +7,11 @@ import { Account, Bank, WithInfoAccount } from '@models';
 export default class AccountsRepository extends RepositoryWithCrypt<Account> {
 
   constructor() {
-    super(`${Collections.Users}/{userId}/${Collections.Accounts}`, Account);
+    super(
+      "Account",
+      `${Collections.Users}/{userId}/${Collections.Accounts}`,
+      Account,
+    );
   }
 
   public getCacheWithBank(showArchived: boolean|null = false): WithInfoAccount[] {

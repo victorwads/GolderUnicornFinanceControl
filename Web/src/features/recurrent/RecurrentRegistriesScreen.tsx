@@ -5,11 +5,11 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
 import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
-import { AccountRecurrentRegistry, Category } from '@models';
+import { RecurrentTransaction, Category } from '@models';
 import getRepositories from '@repositories';
 
 interface RecurrentEntryView {
-  registry: AccountRecurrentRegistry;
+  registry: RecurrentTransaction;
   category?: Category;
   sourceName: string;
   sourceType: 'account' | 'creditCard';
@@ -76,7 +76,7 @@ type NormalizeDeps = ReturnType<typeof getRepositories>;
 
 type NormalizeItems = RecurrentEntryView[];
 
-function normalizeEntries(items: AccountRecurrentRegistry[], deps: NormalizeDeps): NormalizeItems {
+function normalizeEntries(items: RecurrentTransaction[], deps: NormalizeDeps): NormalizeItems {
   const { accounts, creditCards, categories } = deps;
 
   return [...items]

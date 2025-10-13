@@ -3,13 +3,15 @@ import Encryptor, { Hash } from '../crypt/Encryptor';
 export type { Hash } from '../crypt/Encryptor';
 
 export { User } from "./UserRepository";
+export type { CreditCardWithInfos } from "./CreditcardsRepository";
+
 import UserRepository from "./UserRepository";
 import BanksRepository from "./BanksRepository";
 import AccountsRepository from './AccountsRepository';
 import CategoriesRepository from "./CategoriesRepository";
-import AccountsRegistryRepository from "./AccountsRegistryRepository";
+import AccountsTransactionsRepository from "./AccountTransactionsRepository";
 import CreditCardInvoicesRepository from "./CreditCardsInvoicesRepository";
-import CreditCardsRegistryRepository from "./CreditCardsRegistryRepository";
+import CreditCardsTransactionsRepository from "./CreditCardsRegistryRepository";
 import GroceriesProductsRepository from './GroceriesProductsRepository';
 import GroceriesRepository from './GroceriesRepository';
 import ResourcesUseRepository from './ResourcesUseRepository';
@@ -17,7 +19,7 @@ import CreditcardsRepository from "./CreditcardsRepository";
 import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import CryptoPassRepository from "./CryptoPassRepository";
 import AiCallsRepository from "./AiCallsRepository";
-import RecurrentRegistryRepository from "./RecurrentRegistryRepository";
+import RecurrentTransactionsRepository from "./RecurrentRegistryRepository";
 export { default as AiCallsRepository } from './AiCallsRepository';
 export { default as CryptoPassRepository } from './CryptoPassRepository';
 export { default as BaseRepository } from './BaseRepository';
@@ -28,10 +30,10 @@ export class Repositories {
     public readonly banks: BanksRepository,
     public readonly categories: CategoriesRepository,
     public readonly accounts: AccountsRepository,
-    public readonly accountTransactions: AccountsRegistryRepository,
-    public readonly recurrentTransactions: RecurrentRegistryRepository,
+    public readonly accountTransactions: AccountsTransactionsRepository,
+    public readonly recurrentTransactions: RecurrentTransactionsRepository,
     public readonly creditCards: CreditcardsRepository,
-    public readonly creditCardsTransactions: CreditCardsRegistryRepository,
+    public readonly creditCardsTransactions: CreditCardsTransactionsRepository,
     public readonly creditCardsInvoices: CreditCardInvoicesRepository,
     public readonly products: GroceriesProductsRepository,
     public readonly groceries: GroceriesRepository,
@@ -65,10 +67,10 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
     new BanksRepository(),
     new CategoriesRepository(),
     new AccountsRepository(),
-    new AccountsRegistryRepository(),
-    new RecurrentRegistryRepository(),
+    new AccountsTransactionsRepository(),
+    new RecurrentTransactionsRepository(),
     new CreditcardsRepository(),
-    new CreditCardsRegistryRepository(),
+    new CreditCardsTransactionsRepository(),
     new CreditCardInvoicesRepository(),
     new GroceriesProductsRepository(),
     new GroceriesRepository(),

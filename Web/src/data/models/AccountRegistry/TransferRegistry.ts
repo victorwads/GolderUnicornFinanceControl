@@ -1,6 +1,7 @@
-import { ModelMetadata, Result, validateDate } from "../metadata";
-import { Registry, RegistryType } from "./Registry";
+import ModelContext from "../metadata/ModelContext";
+import { ModelMetadata } from "../metadata";
 import { AccountsRegistry } from "./AccountRegistry";
+import { Transaction, RegistryType } from "./Transaction";
 
 interface TransferInfo {
   transferId: string;
@@ -8,7 +9,7 @@ interface TransferInfo {
   targetAccountId: string;
 }
 
-export class TransferRegistry extends AccountsRegistry {
+export class TransferTransaction extends AccountsRegistry {
   static categoryId = "transfer";
 
   constructor(
@@ -30,13 +31,13 @@ export class TransferRegistry extends AccountsRegistry {
       date,
       true,
       tags,
-      TransferRegistry.categoryId,
+      TransferTransaction.categoryId,
       observation
     );
   }
 
-  public toTuple(): [TransferRegistry, TransferRegistry] {
-    const source = new TransferRegistry(
+  public toTuple(): [TransferTransaction, TransferTransaction] {
+    const source = new TransferTransaction(
       "",
       { ...this.transfer },
       this.transfer.sourceAccountId,
@@ -46,7 +47,7 @@ export class TransferRegistry extends AccountsRegistry {
       this.tags,
       this.observation
     );
-    const target = new TransferRegistry(
+    const target = new TransferTransaction(
       "",
       { ...this.transfer },
       this.transfer.targetAccountId,
@@ -59,13 +60,17 @@ export class TransferRegistry extends AccountsRegistry {
     return [source, target];
   }
 
+  static isTransferTransaction(transaction: AccountsRegistry): boolean {
+    return 'transfer' in transaction && transaction.categoryId === TransferTransaction.categoryId;
+  }
+
   static metadata2: ModelMetadata<
-    Partial<TransferRegistry & TransferInfo>
+    Partial<TransferTransaction & TransferInfo>
   > = {
     aiToolCreator: {
-      name: "transfer_between_accounts",
-      description: "Cria uma transferência entre contas.",
+      description: "Create a bank transfer between accounts.",
       properties: {
+        ...Transaction.metadataBase.aiToolCreator.properties,
         sourceAccountId: {
           type: "string",
           description:
@@ -76,60 +81,49 @@ export class TransferRegistry extends AccountsRegistry {
           description:
             "Identifier of the target account to which the amount is credited",
         },
-        value: {
-          type: "number",
-          description: "Positive amount to be transferred",
-        },
-        date: {
-          type: "string",
-          description: "Date of the transfer",
-        },
-        description: {
-          type: "string",
-          description:
-            "Brief description about what/whys is the transfer besides the accounts involved",
-        },
-        observation: { type: "string", description: Registry.ai.observation },
       },
       required: ["sourceAccountId", "targetAccountId", "value", "description"],
     },
-    from: (params) => {
-      const {
-        sourceAccountId,
-        targetAccountId,
-        value,
-        date,
-        description,
-        observation,
-      } = params;
+    from: (params, repositories, update) => {
+      if(update) {
+        // TODO: fix updating transfer info with Assistant will not work cause `transfer` reassign logic is not implemented
+        return { success: false, error: "Updating transfer transactions using assistant is not supported yet" };
+      }
 
-      if (sourceAccountId === targetAccountId) {
+      const { assignId, assignString, assignNumber, assignDate, toResult, data } = new ModelContext(
+        TransferTransaction,
+        update
+      );
+
+      if (params.sourceAccountId === params.targetAccountId) {
         return {
           success: false,
           error: "Source and target accounts must be different",
         };
       }
 
-      const validDate = validateDate(String(date));
-      if (!validDate.success) return validDate;
+      assignDate("date", params.date);
+      assignNumber("value", params.value);
+      assignString("description", params.description);
+      assignString("observation", params.observation);
+      assignId(null, repositories.accounts, params.sourceAccountId);
+      assignId(null, repositories.accounts, params.targetAccountId);
 
-      return {
-        success: true,
-        result: new TransferRegistry(
-          "",
-          {
-            transferId: crypto.randomUUID(),
-            sourceAccountId: String(sourceAccountId),
-            targetAccountId: String(targetAccountId),
-          },
-          "",
-          validDate.result,
-          String(description),
-          Number(value),
-          [],
-          observation ? String(observation) : undefined
-        ).toTuple(),
-      };
+      const result = toResult(() => ({
+        transfer: {
+          transferId: crypto.randomUUID(),
+          sourceAccountId: String(params.sourceAccountId),
+          targetAccountId: String(params.targetAccountId),
+        },
+      }))
+
+      if(result.success) {
+        return {
+          success: true,
+          result: (result.result as TransferTransaction).toTuple(),
+        }
+      }
+      return result;
     },
   };
 }

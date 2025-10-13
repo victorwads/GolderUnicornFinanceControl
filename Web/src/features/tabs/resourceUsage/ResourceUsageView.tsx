@@ -1,4 +1,5 @@
-import { getCurrentCosts, ResourceUsage } from "@resourceUse";
+import { AiCallContext, AIUse } from "@models";
+import { ResourceUsage } from "@resourceUse";
 import Metric from "./Metric";
 import MetricCard from "./MetricCard";
 import { USD_TO_BRL } from "../../../data/constants/currency";
@@ -16,8 +17,8 @@ const ResourceUsageView: React.FC<{
   monthlyAiCostBRL,
   monthlyAiCostLimitBRL,
 }) => {
-  const currentCosts = getCurrentCosts(usage?.ai);
-  const aiEntries = Object.entries(usage?.ai || {});
+  const currentCosts = AiCallContext.getCurrentCosts(usage?.ai);
+  const aiEntries = Object.entries(usage?.ai || {}) as [string, AIUse][];
   const aiTotals = aiEntries.reduce(
     (acc, [, s]) => {
       acc.requests += s?.requests ?? 0;

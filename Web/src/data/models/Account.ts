@@ -1,3 +1,4 @@
+import ModelContext from "./metadata/ModelContext";
 import { DocumentModel } from "./DocumentModel";
 import { ModelMetadata } from "./metadata";
 
@@ -14,7 +15,7 @@ export class Account extends DocumentModel {
     public name: string,
     public initialBalance: number,
     public bankId: string,
-    public type: AccountType,
+    public type: AccountType = AccountType.CURRENT,
     public archived: boolean = false,
     public color?: string,
     public includeInTotal: boolean = false
@@ -24,7 +25,6 @@ export class Account extends DocumentModel {
 
   static metadata: ModelMetadata<Account> = {
     aiToolCreator: {
-      name: "account",
       description: "create an account, by default create checking account",
       properties: {
         name: {
@@ -44,41 +44,28 @@ export class Account extends DocumentModel {
           description:
             "Type of account. Can be 'CURRENT' (checking), 'SAVINGS' (savings), 'INVESTMENT' (investment), or 'CASH' (cash).",
         },
+        color: {
+          type: "string",
+          description: "Color associated with the account for easy identification in the UI.",
+        },
       },
       required: ["name", "bankId", "type"],
     },
-    from: (data, repositories) => {
-      const { id, bankId, name, initialBalance, type } = data;
+    from: (params, repositories, update) => {
+      const { assignId, assignString, assignNumber, assignEnum, assignBoolean, assignColor, toResult } = new ModelContext(
+        repositories.accounts.modelClass,
+        update
+      );
 
-      const bank = repositories.banks.getLocalById(String(bankId));
-      if (!bank) return { success: false, error: `Banco com ID ${bankId} não encontrado.` };
+      assignId("bankId", repositories.banks, params.bankId);
+      assignString("name", params.name);
+      assignNumber("initialBalance", params.initialBalance, 0);
+      assignString("bankId", params.bankId);
+      assignColor("color", params.color);
+      assignEnum("type", Object.values(AccountType), params.type);
+      assignBoolean("includeInTotal", params.includeInTotal);
 
-      if (id) {
-        const existing = repositories.accounts.getLocalById(String(id));
-        if (existing) {
-          return { 
-            success: true,
-            result: {
-              id,
-              name: String(name || existing.name),
-              initialBalance: Number(initialBalance || existing.initialBalance) || 0,
-              bankId: String(bankId || existing.bankId),
-              type: String(type || existing.type) as AccountType,
-            }
-          };
-        }
-      }
-
-      return {
-        success: true,
-        result: new Account(
-          "",
-          String(name),
-          Number(initialBalance) || 0,
-          String(bankId),
-          String(type) as AccountType
-        ),
-      };
+      return toResult();
     },
   };
 }

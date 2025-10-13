@@ -1,8 +1,8 @@
-import { Category } from "../Category";
-import { ModelMetadata, Result, validateDate } from "../metadata";
-import { Registry, RegistryType } from "./Registry";
+import { Transaction, RegistryType } from "./Transaction";
+import { ModelMetadata, Result } from "../metadata";
+import ModelContext from "../metadata/ModelContext";
 
-export class AccountsRegistry extends Registry {
+export class AccountsRegistry extends Transaction {
   constructor(
     id: string,
     public type: RegistryType = RegistryType.ACCOUNT,
@@ -14,7 +14,7 @@ export class AccountsRegistry extends Registry {
     tags: string[] = [],
     categoryId?: string,
     observation?: string,
-    relatedInfo?: string // is used to store info like transactionId when imported from some external source, when re-importing the same transaction can be ignored
+    relatedInfo?: string
   ) {
     super(
       id,
@@ -32,11 +32,10 @@ export class AccountsRegistry extends Registry {
 
   static metadata: ModelMetadata<AccountsRegistry> = {
     aiToolCreator: {
-      name: "checking_account_entry",
       description:
         "Registra uma movimentação em conta corrente ou equivalente. sempre valide se o usuário comprou mesmo no debito ou se comrou no crédito e use a ferramenta adequada.",
       properties: {
-        ...Registry.metadataBase.aiToolCreator.properties,
+        ...Transaction.metadataBase.aiToolCreator.properties,
         accountId: {
           type: "string",
           description:
@@ -50,40 +49,22 @@ export class AccountsRegistry extends Registry {
       },
       required: ["accountId", "value", "description", "date"],
     },
-    from: (params, repositories): Result<AccountsRegistry> => {
-      const {
-        accountId,
-        value,
-        description,
-        date,
-        paid,
-        categoryId,
-        observation,
-      } = params as Record<string, unknown>;
+    from: (params, repositories, update) => {
+      const { assignId, assignString, assignNumber, assignDate, assignBoolean, toResult } = new ModelContext(
+        repositories.accountTransactions.modelClass,
+        update
+      );
+      assignId("accountId", repositories.accounts, params.accountId);
+      assignId("categoryId", repositories.categories, params.categoryId);
+      assignDate("date", params.date)
+      assignNumber("value", params.value);
+      assignString("description", params.description);
+      assignString("observation", params.observation);
+      assignBoolean("paid", params.paid);
 
-      if (categoryId) {
-        const category = repositories.categories.getLocalById(String(categoryId));
-        if (!category) return { success: false, error: `Categoria com id ${categoryId} não encontrada.`}
-      }
-
-      const parsedDate = validateDate(date as string);
-      if (!parsedDate.success) return parsedDate;
-
-      return {
-        success: true,
-        result: new AccountsRegistry(
-          "",
-          RegistryType.ACCOUNT,
-          String(accountId),
-          Number(value),
-          String(description),
-          parsedDate.result,
-          Boolean(paid),
-          [],
-          categoryId ? String(categoryId) : undefined,
-          observation ? String(observation) : undefined
-        ),
-      };
+      return toResult(() => ({
+        'type': RegistryType.ACCOUNT,
+      }));
     },
   };
 }
