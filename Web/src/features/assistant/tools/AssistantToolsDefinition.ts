@@ -186,7 +186,7 @@ export class AssistantTools extends AssistantToolsBase {
         userInfo: (args) => `Procurando telas sobre '${args.query}'`
       },
       {
-        name: ToUserTool.ASK,
+        name: ToUserTool.SAY,
         description: "Ask user for additional information to proceed in his native language.",
         parameters: {
           type: "object", required: ["message"],

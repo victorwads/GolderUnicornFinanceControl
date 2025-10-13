@@ -296,8 +296,7 @@ export abstract class AssistantToolsBase {
 
 export enum ToUserTool {
   FINISH = "finish_conversation",
-  ONBOARDING_COMPLETE = "onboarding_complete",
-  ASK = "ask_user_aditional_info",
+  SAY = "say_to_user",
 };
 export enum DomainToolName {
   LIST_ALL = "list_domains",

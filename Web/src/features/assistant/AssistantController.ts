@@ -249,7 +249,7 @@ export default class AssistantController {
     });
 
     let result: Result<unknown>;
-    if (call.function.name === ToUserTool.ASK) {
+    if (call.function.name === ToUserTool.SAY) {
       result = await this.onAskAnditionalInfo?.(args.message)
         .then((response) => ({ success: true, result: response }))
         ?? { success: false, errors: "No onAskAnditionalInfo handler provided." };

@@ -11,7 +11,7 @@ import AIActionsParser, { AIActionHandler, AIItemData } from '@features/speech/A
 import GlassContainer from '@components/GlassContainer';
 import { Loading } from '@components/Loading';
 
-const COMMAND_EVALUATION_DELAY = 5000;
+const COMMAND_EVALUATION_DELAY = 3500;
 
 export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
   compact?: boolean;
