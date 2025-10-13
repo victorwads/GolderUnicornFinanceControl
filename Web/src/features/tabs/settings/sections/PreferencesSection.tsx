@@ -65,7 +65,7 @@ const TimelinePreferences = () => {
 
 const section: SettingsSection = {
   id: 'preferences',
-  title: 'Preferências da Linha do Tempo',
+  title: 'Timeline',
   content: <TimelinePreferences />
 };
 

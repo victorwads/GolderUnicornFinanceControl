@@ -15,7 +15,7 @@ const ptBR: Translation = {
     gohome: 'Voltar ao início',
   },
   timeline: {
-    title: 'Linha do Tempo',
+    title: 'Timeline',
     balance: 'Saldo',
     clearFilter: 'Mostrar todos',
     registryCount: 'Registros',
@@ -153,7 +153,7 @@ const ptBR: Translation = {
     availableVoices: 'Vozes Disponíveis',
   },
   dashboard: {
-    title: 'Visão Geral',
+    title: 'Home',
     messages: {
       hello: 'Olá',
       otherThings: 'Outras coisas',

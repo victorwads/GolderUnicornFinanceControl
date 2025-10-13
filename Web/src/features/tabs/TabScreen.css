@@ -9,13 +9,21 @@
 .TabViewNav > a {
     display: flex;
     flex: 1;
+    flex-direction: column;
+    /* flex-wrap: wrap-reverse; */
     justify-content: center;
     align-items: center;
-    padding: 1em 2em;
+    padding: 1em 0.2em;
     color: var(--font-color-default);
     text-decoration: none;
+    text-align: center;
+    /* white-space: nowrap; */
 }
 
 .TabViewNav > a:hover {
     background-color: var(--bg-color-default);
+}
+
+.AiMicrophoneButtonContainer {
+    /* position: absolute; */
 }

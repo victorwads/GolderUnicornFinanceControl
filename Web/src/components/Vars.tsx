@@ -2,7 +2,6 @@ import './Vars.css'
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 import getBroadcastChannel from '@utils/Broadcast';
-import { setLanguage } from '@lang';
 
 declare global {
   interface Window {
@@ -54,18 +53,21 @@ interface VarsContextProps extends ThemeSettings {
 }
 
 const VarsContext = createContext<VarsContextProps | undefined>(undefined);
+const DEFAULT_DENSITY: Density = window.innerWidth < 400 ? 'density-1' : 'density-2';
+const DENSITY_KEY = 'densityV2';
+const THEME_KEY = 'theme';
 
 export const VarsChannel = getBroadcastChannel<'change', Partial<ThemeSettings>>('theme-config');
 
 export function VarsProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => localStorage.getItem('theme') as Theme || 'theme-dark');
-  const [density, setDensityState] = useState<Density>(() => localStorage.getItem('density') as Density || 'density-2');
+  const [theme, setThemeState] = useState<Theme>(() => localStorage.getItem(THEME_KEY) as Theme || 'theme-dark');
+  const [density, setDensityState] = useState<Density>(() => localStorage.getItem(DENSITY_KEY) as Density || DEFAULT_DENSITY);
   const [lang, setLang] = useState<string>(CurrentLang);
   const [isOnline, setIsOnline] = useState<boolean>(() => readNavigatorOnline());
 
   useEffect(() => {
-    localStorage.setItem('theme', theme);
-    localStorage.setItem('density', density);
+    localStorage.setItem(THEME_KEY, theme);
+    localStorage.setItem(DENSITY_KEY, density);
   }, [theme, density]);
 
   useEffect(() => {
