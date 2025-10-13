@@ -17,9 +17,9 @@ const ignoredRepos: RepoName[] = [
 ]
 
 export abstract class AssistantToolsBase {
-  protected baseDefinitions: AssistantToolDefinition[] = [];
-  protected toolMap: Map<string, AssistantToolDefinition> = new Map();
-  protected domains: Domain<any>[] = []
+  private baseDefinitions: AssistantToolDefinition[] = [];
+  private toolMap: Map<string, AssistantToolDefinition> = new Map();
+  private domains: Domain<any>[] = []
   public sharedDomains: Set<string> = new Set<string>();
 
   constructor(
@@ -53,7 +53,7 @@ export abstract class AssistantToolsBase {
     return [
       ...this.baseDefinitions,
       ...this.domains
-        .filter(d => domains.includes(this.normalizeDomainName(d.name)))
+        .filter(d => domains.includes(this.dn(d.name)))
         .flatMap(d => Object.values(d.handlers))
     ].map((tool) => ({
       type: "function" as const,
@@ -215,7 +215,7 @@ export abstract class AssistantToolsBase {
   }
 
   protected registerDomainAction(repoName: string, action: AssistantToolDefinition) {
-    let domain = this.domains.find(d => d.name === repoName);
+    let domain = this.getDomain(repoName);
     if(!domain) {
       domain = { name: repoName, handlers: [] };
       this.domains.push(domain);
@@ -224,14 +224,22 @@ export abstract class AssistantToolsBase {
   }
 
   protected createSearchMetadata<M extends DocumentModel>(
-    metadata: ModelMetadata<M>, itemName: string, repositoryName: RepoName,
+    metadata: ModelMetadata<M>, itemName: string, repositoryNames: RepoName | RepoName[],
     selector: (item: M) => string, mapper: (item: M) => object,
     params?: {
       filter?: (item: M) => boolean
       repos?: RepoName[]
     }
   ) {
-    const domain = this.domains.find(d => d.name === repositoryName);
+    if(Array.isArray(repositoryNames)) {
+      repositoryNames.forEach(repoName => 
+        this.createSearchMetadata(metadata, itemName, repoName, selector, mapper, params)
+      );
+      return;
+    }
+    const repositoryName = repositoryNames as RepoName;
+
+    const domain = this.getDomain(repositoryName);
     if (!domain) throw new Error(`Domain '${repositoryName}' not found to create search metadata.`);
 
     const repository = this.repositories[repositoryName] as unknown as BaseRepository<M>;
@@ -269,8 +277,17 @@ export abstract class AssistantToolsBase {
     return Math.min(MAX_RESULTS, Math.max(1, Math.round(limit ?? MAX_RESULTS)));
   }
 
-  protected normalizeDomainName(name: string) {
-    return name.toLowerCase().replace(/([^a-z0-9]+)/g, '');
+  protected dn(name: string) {
+    return String(name).toLowerCase().replace(/([^a-z0-9]+)/g, '');
+  }
+
+  protected getDomainNames() {
+    return this.domains.map(d => d.name);
+  }
+
+  protected getDomain(name: string): Domain<any> | undefined {
+    name = this.dn(name);
+    return this.domains.find(d => this.dn(d.name) === name);
   }
 
   protected abstract createDefinitions(): AssistantToolDefinition[] 

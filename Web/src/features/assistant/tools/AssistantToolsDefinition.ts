@@ -26,8 +26,15 @@ export class AssistantTools extends AssistantToolsBase {
   }
 
   protected createDefinitions(): AssistantToolDefinition[] {
-    const domainNames = this.domains.map(d => this.normalizeDomainName(d.name));
+    const domainNames = this.getDomainNames();
 
+    this.createFromMetadata(Category.metadata, 'categories')
+    this.createFromMetadata(Account.metadata, 'accounts')
+    this.createFromMetadata(AccountsRegistry.metadata, 'accountTransactions')
+    this.createFromMetadata(TransferTransaction.metadata2, 'accountTransactions', `accountTransfersTransactions`)
+    this.createFromMetadata(RecurrentTransaction.metadata2, 'recurrentTransactions')
+    this.createFromMetadata(CreditCard.metadata, 'creditCards')
+    this.createFromMetadata(CreditCardRegistry.metadata, 'creditCardsTransactions')
     this.createSearchMetadata(
       Account.metadata, "Conta", 'accounts',
       (item) => `${item.name} - ${item.type}`,
@@ -52,14 +59,26 @@ export class AssistantTools extends AssistantToolsBase {
       (item) => item.name,
       ({ id, name }) => ({ id, name }),
     )
-
-    this.createFromMetadata(Category.metadata, 'categories')
-    this.createFromMetadata(Account.metadata, 'accounts')
-    this.createFromMetadata(AccountsRegistry.metadata, 'accountTransactions')
-    this.createFromMetadata(TransferTransaction.metadata2, 'accountTransactions', `accountTransfersTransactions`)
-    this.createFromMetadata(RecurrentTransaction.metadata2, 'recurrentTransactions')
-    this.createFromMetadata(CreditCard.metadata, 'creditCards')
-    this.createFromMetadata(CreditCardRegistry.metadata, 'creditCardsTransactions')
+    this.createSearchMetadata(
+      AccountsRegistry.metadata, 'Lançamento de Conta', ['accountTransactions'],
+      (item) => `${item.description}, ${item.observation} - ${item.value}`,
+      ({ id, description, value, accountId, categoryId, date }) => ({ 
+        id, description, value,
+        date: date.toISOString().split('T')[0],
+        account: this.repositories.accounts.getLocalById(accountId)?.name,
+        category: this.repositories.categories.getLocalById(categoryId)?.name,
+      }),
+    )
+    this.createSearchMetadata(
+      CreditCardRegistry.metadata, 'Lançamento de Cartão de Crédito', 'creditCardsTransactions',
+      (item) => `${item.description}, ${item.observation} - ${item.value}`,
+      ({ id, description, value, cardId, categoryId, date }) => ({ 
+        id, description, value,
+        date: date.toISOString().split('T')[0],
+        card: this.repositories.creditCards.getLocalById(cardId)?.name,
+        category: this.repositories.categories.getLocalById(categoryId)?.name,
+      }),
+    )
     this.registerDomainAction('categories',       {
       name: DomainToolName.LIST_ICONS,
       description: `Search for font awesome icons by term based on textual similarity.`,
@@ -94,14 +113,13 @@ export class AssistantTools extends AssistantToolsBase {
           additionalProperties: false,
         },
         execute: async ({ domain: domainName }: { domain: string }) => {
-          domainName = this.normalizeDomainName(domainName);
-          if (!domainNames.includes(domainName)) return { success: false, errors: `Domain '${domainName}' not found.` };
-          const domain = this.domains.find(d => this.normalizeDomainName(d.name) === domainName);
+          const domain = this.getDomain(domainName);
+          if (!domain) return { success: false, errors: `Domain '${domainName}' not found.` };
 
           this.sharedDomains.add(domainName);
           return { 
             success: true, 
-            result: domain?.handlers
+            result: domain.handlers
               .map(h => ({ name: h.name, description: h.description })) ?? [] 
           };
         },
@@ -120,17 +138,16 @@ export class AssistantTools extends AssistantToolsBase {
           additionalProperties: false,
         },
         execute: async ({ domain: domainName, query, limit }: { domain: string; query: string; limit?: number }) => {
-          domainName = this.normalizeDomainName(domainName);
-          if (!domainNames.includes(domainName)) {
+          const domain = this.getDomain(domainName);
+          if (!domain) {
             return { success: false, errors: `Domain '${domainName}' not found. Use ${DomainToolName.LIST_ALL} to obtain the list of available domains.` };
           }
-          const search = this.domains.find(d => d.name === domainName)?.search;
-          if (!search) {
+          if (!domain?.search) {
             return { success: false, errors: `Domain '${domainName}' has no search capability. Inform user that this is not possible cause you can't obtain information from this domain.` };
           }
 
           this.sharedDomains.add(domainName);
-          return search(query, limit );
+          return domain.search(query, limit);
         },
         userInfo: (args) => `Searching in '${args.domain}' for '${args.query}'`
       },
