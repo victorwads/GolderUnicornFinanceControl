@@ -9,7 +9,7 @@ interface GlassContainerProps {
 
 const GlassContainer: React.FC<GlassContainerProps> = ({ children, className = '', contentStyle }) => {
 	return (
-		<div className={`${className} ${contentStyle}`}>
+		<div className={`glass-container glass-content ${className}`} style={contentStyle}>
 			{children}
 		</div>
 	);

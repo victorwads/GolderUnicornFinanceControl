@@ -49,22 +49,27 @@ export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
 
 export default class AssistantController {
   private openai: OpenAI | null = null;
-  private mainPrompt: string = AssistantGeneralPrompt
-
+  private inOnboarding: boolean = false;
+ 
   private readonly toolRegistry: AssistantTools = new AssistantTools(
     this.repositories
   );
 
   constructor(
-    private readonly repositories: Repositories = getRepositories(),
     public onAskAnditionalInfo?: AskAnditionalInfoCallback,
     public onToolCalled?: ToolEventListener,
     public onNavigate?: (route: string, queryParams?: Record<string, string>) => void,
     public model: string = ASSISTANT_MODEL,
-  ) {}
+    private readonly repositories: Repositories = getRepositories(),
+  ) {
 
-  public switchToOnboardingPrompt() {
-    this.mainPrompt = AssistantOnboardingPrompt;
+    this.repositories.user.getUserData().then(user => {
+      this.setPrompt(!user.onboardingDone)
+    })
+  }
+
+  private setPrompt(onboarding: boolean) {
+    this.inOnboarding = onboarding;
   }
 
   private async getOpenAIClient(): Promise<OpenAI> {
@@ -113,6 +118,10 @@ export default class AssistantController {
 
         for (const call of toolCalls) {
           if (call.function.name === ToUserTool.FINISH) {
+            if (this.inOnboarding) {
+              this.inOnboarding = false;
+              await this.repositories.user.updateUserData({ onboardingDone: true });
+            }
             context.finishReason = "finished_by_assistant"; run = false;
           } else {
             await this.executeToolCall(call, context);
@@ -145,7 +154,7 @@ export default class AssistantController {
       this.model,
       "OpenRouter",
       [
-        { role: "system", content: this.mainPrompt },
+        { role: "system", content: this.inOnboarding ? AssistantOnboardingPrompt : AssistantGeneralPrompt },
         {
           role: "user",
           content: `User native language: ${userLanguage}\nCurrent DateTime: ${new Date().toISOString()}`,
@@ -242,7 +251,7 @@ export default class AssistantController {
         ?? { success: false, errors: "No onAskAnditionalInfo handler provided." };
     } else {
       result = await this.toolRegistry.execute(name, args );
-      context.sharedDomains = this.toolRegistry.sharedDomains;
+      context.sharedDomains = Array.from(this.toolRegistry.sharedDomains);
 
       if(name === AppNavigationTool.NAVIGATE && result.success === true) {
         const { route, queryParams } = args as { route: string, queryParams?: Record<string, string> };

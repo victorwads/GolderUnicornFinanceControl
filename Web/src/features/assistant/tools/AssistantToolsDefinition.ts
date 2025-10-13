@@ -1,8 +1,10 @@
-import { iconNamesList } from "@components/Icons";
+import type { AssistantToolDefinition } from "./types";
 import { Similarity } from '../utils/stringSimilarity';
 import { AppNavigationTool, navigateToRoute, RoutesDefinition, routesDefinition } from "./routesDefinition";
-import type { AssistantToolDefinition } from "./types";
+import { AssistantToolsBase, DomainToolName, MAX_RESULTS, ToUserTool } from "./AssistantToolsBase";
 
+import { iconNamesList } from "@components/Icons";
+import { Repositories } from "@repositories";
 import {
   Account,
   CreditCard,
@@ -13,9 +15,15 @@ import {
   Bank,
   RecurrentTransaction as RecurrentTransaction,
 } from "@models";
-import { AssistantToolsBase, DomainToolName, MAX_RESULTS, ToUserTool } from "./AssistantToolsBase";
 
+const emptyParamsSchema = { type: "object", properties: {  }, additionalProperties: false,};
 export class AssistantTools extends AssistantToolsBase {
+
+  constructor(repositories: Repositories) {
+    super(repositories);
+    this.setDefinitions(this.createDefinitions());
+    console.log(this);
+  }
 
   protected createDefinitions(): AssistantToolDefinition[] {
     const domainNames = this.domains.map(d => this.normalizeDomainName(d.name));
@@ -71,7 +79,7 @@ export class AssistantTools extends AssistantToolsBase {
       {
         name: DomainToolName.LIST_ALL,
         description: "List all available domains in the system.",
-        parameters: {},
+        parameters: emptyParamsSchema,
         execute: async () =>  ({ success: true, result: domainNames }),
       },
       {
@@ -88,9 +96,9 @@ export class AssistantTools extends AssistantToolsBase {
         execute: async ({ domain: domainName }: { domain: string }) => {
           domainName = this.normalizeDomainName(domainName);
           if (!domainNames.includes(domainName)) return { success: false, errors: `Domain '${domainName}' not found.` };
-          const domain = this.domains.find(d => d.name === domainName);
+          const domain = this.domains.find(d => this.normalizeDomainName(d.name) === domainName);
 
-          this.sharedDomains.push(domainName);
+          this.sharedDomains.add(domainName);
           return { 
             success: true, 
             result: domain?.handlers
@@ -121,7 +129,7 @@ export class AssistantTools extends AssistantToolsBase {
             return { success: false, errors: `Domain '${domainName}' has no search capability. Inform user that this is not possible cause you can't obtain information from this domain.` };
           }
 
-          this.sharedDomains.push(domainName);
+          this.sharedDomains.add(domainName);
           return search(query, limit );
         },
         userInfo: (args) => `Searching in '${args.domain}' for '${args.query}'`
@@ -172,7 +180,7 @@ export class AssistantTools extends AssistantToolsBase {
       {
         name: ToUserTool.FINISH,
         description: "End user conversation when all requests are completed. Confirm with user before executing it.",
-        parameters: {},
+        parameters: emptyParamsSchema,
         execute: async () => {
           return { success: true, result: "Pedido concluído contexto resetado." };
         },

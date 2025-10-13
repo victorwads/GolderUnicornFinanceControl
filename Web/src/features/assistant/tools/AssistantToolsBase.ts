@@ -17,12 +17,15 @@ const ignoredRepos: RepoName[] = [
 ]
 
 export abstract class AssistantToolsBase {
-  protected readonly baseDefinitions: AssistantToolDefinition[];
-  protected readonly toolMap: Map<string, AssistantToolDefinition>;
-  protected readonly domains: Domain<any>[] = []
-  public sharedDomains: string[] = [];
+  protected baseDefinitions: AssistantToolDefinition[] = [];
+  protected toolMap: Map<string, AssistantToolDefinition> = new Map();
+  protected domains: Domain<any>[] = []
+  public sharedDomains: Set<string> = new Set<string>();
 
-  constructor(protected readonly repositories: Repositories) {
+  constructor(
+    protected readonly repositories: Repositories,
+    
+  ) {
     this.domains = Object.entries(this.repositories)
       .filter(([key]) => !ignoredRepos.includes(key as RepoName)) 
       .map(([name, repository]) => {
@@ -32,8 +35,10 @@ export abstract class AssistantToolsBase {
           handlers: []
         };
       });
-    this.baseDefinitions = this.createDefinitions();
+  }
 
+  protected setDefinitions(definitions: AssistantToolDefinition[]) {
+    this.baseDefinitions = definitions;
     this.toolMap = new Map([
       ...this.baseDefinitions.map((tool) => [tool.name, tool]),
       ...this.domains
@@ -42,11 +47,13 @@ export abstract class AssistantToolsBase {
     ] as [string, AssistantToolDefinition][]);
   }
 
+
   buildToolSchema(): ChatCompletionFunctionTool[] {
+    const domains = Array.from(this.sharedDomains);
     return [
       ...this.baseDefinitions,
       ...this.domains
-        .filter(d => this.sharedDomains.includes(d.name))
+        .filter(d => domains.includes(this.normalizeDomainName(d.name)))
         .flatMap(d => Object.values(d.handlers))
     ].map((tool) => ({
       type: "function" as const,

@@ -146,10 +146,10 @@ const en: Translation = {
     speechRateSlow: 'Slow',
     speechRateFast: 'Fast',
     testSpeech: 'Test Speech',
+    testSpeechMessage: 'This is a test message to exemplify my speech.',
     listVoices: 'List Voices',
     hideVoices: 'Hide Voices',
     availableVoices: 'Available Voices',
-    availableLanguages: 'Available languages',
   },
   dashboard: {
     title: 'Dashboard',

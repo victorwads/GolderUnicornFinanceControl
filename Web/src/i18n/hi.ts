@@ -145,10 +145,10 @@ const hi: Translation = {
     speechRateSlow: 'धीमी',
     speechRateFast: 'तेज़',
     testSpeech: 'बोलने का परीक्षण करें',
+    testSpeechMessage: 'यह एक परीक्षण संदेश है जो मेरी बातचीत का उदाहरण देता है।',
     listVoices: 'आवाज़ें सूचीबद्ध करें',
     hideVoices: 'आवाज़ें छुपाएँ',
     availableVoices: 'उपलब्ध आवाज़ें',
-    availableLanguages: 'उपलब्ध भाषाएँ',
   },
   dashboard: {
     title: 'डैशबोर्ड',

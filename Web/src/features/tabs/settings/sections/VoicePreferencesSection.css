@@ -1,0 +1,57 @@
+.speech-rate-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.speech-rate-slider {
+  flex: 1;
+}
+
+.speech-rate-value {
+  min-width: 40px;
+  text-align: center;
+}
+
+.buttons-container {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.test-speech-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.list-voices-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.voices-list {
+  margin-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.voices-list ul {
+  margin-top: 5px;
+}
+
+.voices-list li {
+  font-size: 12px;
+  margin-bottom: 2px;
+  cursor: pointer;
+}

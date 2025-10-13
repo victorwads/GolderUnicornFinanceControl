@@ -12,6 +12,7 @@ export class AiCallContext extends DocumentModel {
     "gpt-5-mini": { input: 0.25, output: 2.0 },
     "gpt-4.1-nano": { input: 0.1, output: 0.4 },
     "gpt-4.1-mini": { input: 0.4, output: 1.6 },
+    "openai/gpt-4.1-mini": { input: 0.4, output: 1.6 },
     "@preset/gu-daily-assistant": { input: 0.4, output: 0.8 }, // Similar to gpt-4.1-mini
   };
 
@@ -73,12 +74,7 @@ export class AiCallContext extends DocumentModel {
   }
 }
 
-export type AiModel =
-  | "gpt-5-nano"
-  | "gpt-5-mini"
-  | "gpt-4.1-nano"
-  | "gpt-4.1-mini"
-  | "@preset/gu-daily-assistant";
+export type AiModel = string;
 export type AIUses<T = number, Model extends string = AiModel> = {
   [model in Model]?: AIUse<T>;
 };

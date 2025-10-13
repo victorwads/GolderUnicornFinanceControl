@@ -206,12 +206,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  padding: var(--spacing-lg);
 }
 
 .assistant-toasts > div {
   display: block;
   border-radius: 1rem;
-  padding: var(--spacing-xs);
   animation: toastIn 0.8s cubic-bezier(0.4,0,0.2,1);
 }
 

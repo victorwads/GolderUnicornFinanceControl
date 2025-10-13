@@ -143,10 +143,10 @@ export default interface Translation {
     speechRateSlow: string;
     speechRateFast: string;
     testSpeech: string;
+    testSpeechMessage: string;
     listVoices: string;
     hideVoices: string;
     availableVoices: string;
-    availableLanguages: string;
   };
   dashboard: {
     title: string;

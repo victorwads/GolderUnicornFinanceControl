@@ -135,10 +135,10 @@ const zh: Translation = {
     speechRateSlow: '慢速',
     speechRateFast: '快速',
     testSpeech: '测试语音',
+    testSpeechMessage: '这是一个测试消息，用于举例说明我的讲话。',
     listVoices: '列出语音',
     hideVoices: '隐藏语音',
     availableVoices: '可用语音',
-    availableLanguages: '可用语言',
   },
   dashboard: {
     title: '仪表板',
