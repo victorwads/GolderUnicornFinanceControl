@@ -31,11 +31,6 @@
   bottom: 15px;
 }
 
-.speech-marquee svg {
-  width: 0.9em;
-  height: 0.9em;
-}
-
 .speech-marquee-content {
   display: flex;
   flex-direction: column;
@@ -73,22 +68,29 @@
 }
 
 .microphone-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
   border: none;
   color: #fff;
   border-radius: 50%;
-  width: 1.5em;
-  height: 1.5em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 1.6rem;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18);
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
   outline: none;
-  opacity: 0.6;
 }
+.microphone-toggle svg {
+  width: 0.9em;
+  height: 0.9em;
+  min-width: 0.9em;
+  min-height: 0.9em;
+  max-width: 0.9em;
+  max-height: 0.9em;
+}
+
+
 .microphone-toggle.listening {
   background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
   animation: pulse 1.2s infinite;

@@ -17,6 +17,7 @@ export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
   compact?: boolean;
   withLoading?: boolean;
   parser: AIActionsParser<T, A>;
+  disableClick?: boolean;
   onAction?: AIActionHandler<T, A>;
   onPartialResult?: (text: string) => void;
   skipOnboarding?: boolean;
@@ -31,6 +32,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
   skipOnboarding = false,
   compact = false,
   withLoading = false,
+  disableClick = false,
 }: AIMicrophoneProps<T, A>) {
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
   const recognitionLanguage = CurrentLangInfo.short;
@@ -146,7 +148,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       </div>}
       <button
         className={`microphone-toggle${listening ? ' listening' : ''}`}
-        onClick={() => listening ? stopListening() : requestStart()}
+        onClick={disableClick ? undefined : (() => listening ? stopListening() : requestStart())}
         aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
       >
         {withLoading

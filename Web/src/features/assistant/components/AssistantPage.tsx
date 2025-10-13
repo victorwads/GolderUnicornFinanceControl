@@ -207,7 +207,7 @@ export default function AssistantPage({
   return (
     <div className="assistant-page">
       <div className="assistant-page__microphone">
-        <AIMicrophone parser={microphoneParser} />
+        <AIMicrophone parser={microphoneParser} disableClick={loading} />
       </div>
       <div className="assistant-page__content">
         <section className="assistant-section assistant-section--usage">
