@@ -9,7 +9,8 @@ import { AiCallContext, AiModel } from '@models';
 import {
   MONTHLY_AI_COST_LIMIT_BRL,
 } from './costControl';
-import { ASSISTANT_MODEL, setAssistantModel, setPendingAiContext } from './AssistantController';
+import { getAssistantModel, setAssistantModel, setPendingAiContext } from './AssistantController';
+import { get } from 'http';
 
 type Conversation = {
   id: string;
@@ -78,7 +79,7 @@ const AiCallsScreen = () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2>AI Calls</h2>
-              <select onChange={(e) => setAssistantModel(e.target.value as AiModel)} value={ASSISTANT_MODEL}>
+              <select onChange={(e) => setAssistantModel(e.target.value as AiModel)} value={getAssistantModel()}>
                 {Object.keys(AiCallContext.TOKEN_PRICES).map((model) => (
                   <option value={model}>{model}</option>
                 ))}

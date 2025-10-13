@@ -30,16 +30,19 @@ import AssistantGeneralPrompt from "./AssistantGeneral.prompt";
 import AssistantOnboardingPrompt from "./AssistantOnboarding.prompt";
 import { ToUserTool } from "./tools/AssistantToolsBase";
 
-export let ASSISTANT_MODEL: AiModel = "gpt-4.1-nano"; // "@preset/gu-daily-assistant";
+export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-4.1-nano"; // "@preset/gu-daily-assistant";
 
 const AIModelStorageKey = "assistant_model";
-const savedModel = localStorage.getItem(AIModelStorageKey);
-if (savedModel && Object.keys(AiCallContext.TOKEN_PRICES).includes(savedModel)) {
-  ASSISTANT_MODEL = savedModel as AiModel;
+
+export const getAssistantModel = (): AiModel => {
+  const savedModel = localStorage.getItem(AIModelStorageKey);
+  if (savedModel && Object.keys(AiCallContext.TOKEN_PRICES).includes(savedModel)) {
+    return savedModel as AiModel;
+  }
+  return DEFAULT_ASSISTANT_MODEL;
 }
 
 export function setAssistantModel(model: AiModel) {
-  ASSISTANT_MODEL = model;
   localStorage.setItem(AIModelStorageKey, model);
   window.location.reload();
 }
@@ -59,7 +62,7 @@ export default class AssistantController {
     public onAskAnditionalInfo?: AskAnditionalInfoCallback,
     public onToolCalled?: ToolEventListener,
     public onNavigate?: (route: string, queryParams?: Record<string, string>) => void,
-    public model: string = ASSISTANT_MODEL,
+    public model: string = getAssistantModel(),
     private readonly repositories: Repositories = getRepositories(),
   ) {
 
@@ -69,6 +72,7 @@ export default class AssistantController {
   }
 
   private setPrompt(onboarding: boolean) {
+    this.model = onboarding ? "gpt-4.1-mini" : getAssistantModel();
     this.inOnboarding = onboarding;
   }
 
@@ -106,7 +110,7 @@ export default class AssistantController {
         const completion = await this.requestCompletion(context.history, toolSchema);
         const choice = completion.choices[0];
         this.recordUsage(completion, context);
-        context.model = completion.model || context.model || ASSISTANT_MODEL;
+        context.model = completion.model || context.model || this.model;
         context.provider = (completion as any).provider || "OpenRouter";
 
         if (!choice) { context.finishReason = "no_choice_returned"; break; }
@@ -170,15 +174,15 @@ export default class AssistantController {
     messages: ChatCompletionMessageParam[],
     tools: ChatCompletionFunctionTool[]
   ) {
-    addResourceUse({ ai: { [ASSISTANT_MODEL]: { requests: 1 } } });
+    addResourceUse({ ai: { [this.model]: { requests: 1 } } });
     const openai = await this.getOpenAIClient();
     return openai.chat.completions.create({
-      model: ASSISTANT_MODEL,
+      model: this.model,
       messages,
       tools,
       tool_choice: "required",
       parallel_tool_calls: true,
-      ...(ASSISTANT_MODEL.includes("gpt-5")
+      ...(this.model.includes("gpt-5")
         ? { reasoning_effort: "low" }
         : { temperature: 0.1 }),
     });
@@ -212,7 +216,7 @@ export default class AssistantController {
     context.tokens.output += output ?? 0;
     addResourceUse({
       ai: {
-        [completion.model || ASSISTANT_MODEL]: {
+        [completion.model || this.model]: {
           input,
           output,
         },

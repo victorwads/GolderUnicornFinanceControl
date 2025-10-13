@@ -6,7 +6,7 @@ import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
 import getRepositories from "@repositories";
 
-import AssistantController, { ASSISTANT_MODEL } from "../AssistantController";
+import AssistantController, { getAssistantModel } from "../AssistantController";
 import { AssistantMicrophoneAdapter } from "../microphoneAdapter";
 import type { AssistantToolCallLog } from "../tools/types";
 import ToolCallLogList from "./ToolCallLogList";
@@ -164,12 +164,12 @@ export default function AssistantPage({
 
   const formattedCalls = useMemo(() => [...calls].reverse(), [calls]);
 
-  const modelUsage = normalizeUsage(resourcesUse.sessionUse.ai?.[ASSISTANT_MODEL]);
+  const modelUsage = normalizeUsage(resourcesUse.sessionUse.ai?.[getAssistantModel()]);
   const totalTokens = modelUsage.input + modelUsage.output;
   const assistantCosts = useMemo(
     () =>
       AiCallContext.getCurrentCosts({
-        [ASSISTANT_MODEL]: modelUsage as AIUse<number>,
+        [getAssistantModel()]: modelUsage as AIUse<number>,
       }),
     [modelUsage]
   );
@@ -183,7 +183,7 @@ export default function AssistantPage({
         <section className="assistant-section assistant-section--usage">
           <div className="assistant-usage__header">
             <h2>Uso de Tokens</h2>
-            <span className="assistant-usage__model">Modelo {ASSISTANT_MODEL}</span>
+            <span className="assistant-usage__model">Modelo {getAssistantModel()}</span>
           </div>
           <div className="assistant-usage__metrics">
             <Metric label="Requisições" value={modelUsage.requests} />
