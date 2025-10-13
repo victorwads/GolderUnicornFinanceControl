@@ -54,18 +54,17 @@ export function speak(text: string, rate?: number, volume?: number) {
   utterance.volume = volume || 1;
   utterance.pitch = 1;
 
-  return new Promise<void>((resolve) => {
+  return new Promise<void>((resolve, reject) => {
     utterance.onend = () => resolve();
-    utterance.onerror = () => resolve();
+    utterance.onerror = () => reject();
     speechSynthesis.speak(utterance);
     lastSpeakStop = () => {
       speechSynthesis.cancel();
       lastSpeakStop = null;
-      resolve();
+      reject();
     }
-  }).then((r) => {
+  }).finally(() => {
     lastSpeakStop = null;
-    return r;
   });
 }
 
