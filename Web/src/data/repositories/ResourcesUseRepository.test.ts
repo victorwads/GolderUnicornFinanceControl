@@ -32,8 +32,8 @@ describe('useUtils', () => {
         local: { queryReads: increment(0), docReads: increment(5), writes: increment(0) },
         cache: { queryReads: increment(7), docReads: increment(0), writes: increment(9) },
         ai: {
-          gpt4o: { input: increment(100), output: increment(200), requests: increment(3) },
-          gpt4o_mini: { input: increment(10), output: increment(20), requests: increment(1) },
+          "gpt-5-nano": { input: increment(100), output: increment(200), requests: increment(3) },
+          "gpt-5-mini": { input: increment(10), output: increment(20), requests: increment(1) },
         },
       });
     });
@@ -96,9 +96,10 @@ describe('useUtils', () => {
       expect(result).toEqual({
         remote: { writes: 3, docReads: 5 },
         ai: {
-          gpt4o_mini: { output: 5, requests: 1 },
-          gpt4o: { input: 110, output: 200, requests: 3 },
+          gpt4o: { input: 100, output: 200, requests: 3 },
           gpt5: { input: 0, output: 8, requests: 3 },
+          "gpt-5-nano": { input: 10 },
+          "gpt-5-mini": { output: 5, requests: 1 },
         },
       });
     });
