@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SettingsSection } from './types';
 import { getServices } from '@services';
+import FinancialMonthPeriod, { Month } from '@utils/FinancialMonthPeriod';
 
 const TimelinePreferences = () => {
   const { period } = getServices().timeline;
@@ -21,14 +22,19 @@ const TimelinePreferences = () => {
     localStorage.setItem('financeDay', String(newDay));
   };
 
-  return <div className="TimelineSettings">
-    <div>
-      <strong>{Lang.settings.timelineMode}</strong>
-      <select value={mode} onChange={handleModeChange}>
-        <option value="start">{Lang.settings.timelineModeStart}</option>
-        <option value="next">{Lang.settings.timelineModeNext}</option>
-      </select>
-    </div>
+  const monthPeriod = new FinancialMonthPeriod(day, mode);
+
+
+  const initDay = new Date();
+  initDay.setDate(day);
+  const initMonth = monthPeriod.getMonthForDate(initDay).monthLocaleName.cap();
+  const dayLocale = initDay.toLocaleDateString(CurrentLangInfo.short, { day: 'numeric', month: 'numeric' });
+
+  const prevDay = new Date(initDay);
+  prevDay.setDate(day - 1);
+  const prevMonth = monthPeriod.getMonthForDate(prevDay).monthLocaleName.cap();
+
+  return <div className="list">
     <div>
       <strong>{Lang.settings.timelineCutoffDay}</strong>
       <select value={day} onChange={handleDayChange}>
@@ -37,12 +43,29 @@ const TimelinePreferences = () => {
         ))}
       </select>
     </div>
+    <div>
+      <strong>{Lang.settings.timelineMode}</strong>
+      <select value={mode} onChange={handleModeChange}>
+        <option value="start">{Lang.settings.timelineModeStart(day)}</option>
+        <option value="next">{Lang.settings.timelineModeNext(day)}</option>
+      </select>
+      <p>
+        na sua Linha do tempo:<br />
+        <div style={{height: 5}}></div>
+        Dia {dayLocale} em diante será chamado de <strong>{initMonth}</strong>.
+        <br />
+        {day > 1 && <>
+          E antes de {dayLocale} será chamado <strong>{prevMonth}</strong>.
+          <br />
+        </>}
+      </p>
+    </div>
   </div>;
 };
 
 const section: SettingsSection = {
   id: 'preferences',
-  title: 'Preferências',
+  title: 'Preferências da Linha do Tempo',
   content: <TimelinePreferences />
 };
 

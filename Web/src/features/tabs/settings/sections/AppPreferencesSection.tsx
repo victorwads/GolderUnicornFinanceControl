@@ -6,7 +6,7 @@ import { SettingsSection } from './types';
 const PreferencesContent = () => {
   const { theme, setTheme, density, setDensity } = useCssVars();
   const [language, setCurrentLanguage] = useState<string>(SavedLang || '');
-  return <div className="ThemeSettings">
+  return <div className="list">
     <div>
       <strong>{Lang.settings.theme}</strong>
       <select value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>

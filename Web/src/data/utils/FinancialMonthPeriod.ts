@@ -125,6 +125,11 @@ export class Month {
       .toLocaleDateString(CurrentLangInfo.short, { month: 'long', year: 'numeric' })
   }
 
+  public get monthLocaleName(): string {
+    return new Date(this.year, this.month - 1)
+      .toLocaleDateString(CurrentLangInfo.short, { month: 'long' })
+  }
+
   plusOneMonth(): Month {
     let { year, month } = this;
     month++;

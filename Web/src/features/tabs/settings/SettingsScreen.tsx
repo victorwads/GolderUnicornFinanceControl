@@ -13,18 +13,21 @@ import VoicePreferencesSection from './sections/VoicePreferencesSection';
 import { SettingsSection } from './sections/types';
 import AppInfoSection from './sections/AppInfoSection';
 
+const DevOptions = window.isDevelopment || localStorage.DEV === 'true';
+
 const SettingsScreen = () => {
 
   const sections: SettingsSection[] = useMemo(() => ([
-    FinancesSection,
     AccountSection,
+    FinancesSection,
     PreferencesSection,
     VoicePreferencesSection,
-    AppInfoSection,
     AppSection,
     BetaSection,
-    DevSection,
-  ]), []);
+    AppInfoSection,
+  ].concat(
+    DevOptions ? [DevSection] : []
+  )), []);
 
   return <Container spaced className="SettingsScreen">
       <ContainerFixedContent>

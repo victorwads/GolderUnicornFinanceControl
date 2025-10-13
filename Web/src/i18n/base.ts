@@ -128,8 +128,8 @@ export default interface Translation {
     toggleEncryption: (isDisabled: boolean) => string;
     resavingWithEncryption: (filename: string, current: string, max: string) => string;
     timelineMode: string;
-    timelineModeStart: string;
-    timelineModeNext: string;
+    timelineModeStart: (day: number|string) => string;
+    timelineModeNext: (day: number|string) => string;
     timelineCutoffDay: string;
     resetOnboarding: string;
     appVersion: string;

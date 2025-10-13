@@ -6,6 +6,7 @@ import getRepositories, { Repositories } from '@repositories';
 import { DocumentModel } from '@models';
 import { Progress, SettingsSection } from './types';
 import { clearSession } from '@utils/clearSession';
+import { getCurrentUser } from '@configs';
 
 const AccountContent = () => {
   const [progress, setProgress] = React.useState<Progress | null>(null);
@@ -51,6 +52,8 @@ const AccountContent = () => {
         <progress value={progress.sub.current} max={progress.sub.max} />
       </>}
     </div>}
+    <br />
+    <span>My id: {getCurrentUser()?.uid}</span>
   </>;
 };
 

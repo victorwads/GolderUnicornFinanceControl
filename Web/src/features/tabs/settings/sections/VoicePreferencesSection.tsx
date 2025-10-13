@@ -24,8 +24,10 @@ export function getVoices() {
   return [];
 }
 
-export function speak(text: string) {
+let lastSpeakStop: (() => void) | null = null;
+export function speak(text: string, rate?: number, volume?: number) {
   if (!("speechSynthesis" in window)) return;
+  lastSpeakStop?.();
   const miniLang = CurrentLang.split("-")[0];
   const savedVoiceName = localStorage.getItem(VOICE_NAME_KEY + CurrentLang);
 
@@ -48,13 +50,22 @@ export function speak(text: string) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.voice = userLangVoice;
   utterance.lang = CurrentLang;
-  utterance.rate = getRate();
+  utterance.rate = rate || getRate();
+  utterance.volume = volume || 1;
   utterance.pitch = 1;
 
   return new Promise<void>((resolve) => {
     utterance.onend = () => resolve();
     utterance.onerror = () => resolve();
     speechSynthesis.speak(utterance);
+    lastSpeakStop = () => {
+      speechSynthesis.cancel();
+      lastSpeakStop = null;
+      resolve();
+    }
+  }).then((r) => {
+    lastSpeakStop = null;
+    return r;
   });
 }
 
@@ -85,7 +96,7 @@ const VoicePreferencesContent = () => {
   };
 
   return (
-    <div className="VoiceSettings">
+    <div className="VoiceSettings list">
       <div>
         <strong>{Lang.settings.speechRate}</strong>
         <div className="speech-rate-container">
@@ -102,6 +113,8 @@ const VoicePreferencesContent = () => {
           <span>{Lang.settings.speechRateFast}</span>
           <span className="speech-rate-value">{speechRate.toFixed(1)}x</span>
         </div>
+      </div>
+      <div>
         <div className="buttons-container">
           <button onClick={testSpeech} className="test-speech-button">
             {Lang.settings.testSpeech}

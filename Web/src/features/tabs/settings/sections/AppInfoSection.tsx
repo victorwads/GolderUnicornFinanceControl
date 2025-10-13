@@ -5,7 +5,7 @@ const AppInfoContent = () => {
   const { version, updateAvailable, checkingForUpdate, offlineReady, checkForUpdates, applyUpdate } = useAppUpdates();
 
   return (
-    <div className="AppVersionSection">
+    <div className="AppVersionSection list">
       <div>
         <strong>{Lang.settings.appVersion}</strong>
         <span>{version}</span>
