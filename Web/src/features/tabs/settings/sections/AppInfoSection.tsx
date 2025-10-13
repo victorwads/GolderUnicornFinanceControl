@@ -2,13 +2,15 @@ import { useAppUpdates } from '@components/AppUpdatesProvider';
 import { SettingsSection } from './types';
 
 let easterEggCounter = 0;
+let easterEggTimeout: NodeJS.Timeout | null = null;
 function triggerEasterEgg() {
   easterEggCounter++;
   if (easterEggCounter >= 8) {
     localStorage.DEV = 'true';
     window.location.reload();
   }
-  setTimeout(() => {
+  clearTimeout(easterEggTimeout!);
+  easterEggTimeout = setTimeout(() => {
     easterEggCounter = 0;
   }, 2000);
 }
@@ -20,7 +22,7 @@ const AppInfoContent = () => {
     <div className="AppVersionSection list">
       <div>
         <strong>{Lang.settings.appVersion}</strong>
-        <span>{version}</span>
+        <span onClick={triggerEasterEgg}>{version}</span>
       </div>
       <div className="AppVersionSection__status">
         <span>
