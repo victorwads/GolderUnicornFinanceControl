@@ -14,6 +14,21 @@ export default class ModelContext<Model extends DocumentModel> {
     public data: RawData<Model> = {}
   ) {}
 
+  ensureUnique(fieldNames: (keyof Model)[], repo: BaseRepository<Model>, values: unknown[]) {
+    if (this.update) return;
+    if (!values.length) return;
+    const value = values.map(v => String(v).trim()).join("|");
+
+    const existing = repo.getCache().find((item: any) =>
+      fieldNames.map(f => String(item[f]).trim()).join("|") === value
+    );
+    if (existing) {
+      this.errors.push(`The item with ${
+        fieldNames.map(f => `${f as string}=${String(existing[f]).trim()}`).join(", ")
+      } already exists with id ${existing.id}, use this Id.`);
+    }
+  }
+
   assignNumber = (fieldName: (keyof Model) | null, value: unknown, min?: number, max?: number): number | undefined => {
     if (!value && value !== 0) return;
     const numberValue = Number(value);

@@ -38,11 +38,12 @@ export class Category extends DocumentModel {
       required: ["name", "icon", "color"],
     },
     from: (params, repositories, update) => {
-      const { assignId, assignString, assignColor, toResult, errors } = new ModelContext(
+      const { assignId, assignString, assignColor, ensureUnique, toResult, errors } = new ModelContext(
         repositories.categories.modelClass,
         update
       );
 
+      ensureUnique(["parentId", "name"], repositories.categories, [params.parentId, params.name]);
       assignId("parentId", repositories.categories, params.parentId);
       assignString("name", params.name);
       assignString("icon", params.icon);

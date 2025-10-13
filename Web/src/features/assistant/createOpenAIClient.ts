@@ -9,7 +9,7 @@ async function getOpenRouterApiKey(): Promise<{
   url: string;
 }> {
   const storedKey = JSON.parse(sessionStorage.getItem(OPENROUTER_API_KEY_STORAGE_KEY) || 'null') as Store | null;
-  if (storedKey) {
+  if (storedKey && storedKey.key) {
     return storedKey;
   }
 

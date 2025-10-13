@@ -41,11 +41,12 @@ export class CreditCard extends DocumentModel {
       required: ["name", "limit", "brand", "closingDay", "dueDay"],
     },
     from: (params, repositories, update) => {
-      const { assignId, assignString, assignNumber, assignEnum, toResult, data } = new ModelContext(
+      const { assignId, assignString, assignNumber, assignEnum, ensureUnique, toResult, data } = new ModelContext(
         repositories.creditCards.modelClass,
         update
       );
 
+      ensureUnique(["name"], repositories.creditCards, [params.name]);
       assignId("accountId", repositories.accounts, params.accountId);
       assignString("name", params.name);
       assignNumber("limit", params.limit, 0);

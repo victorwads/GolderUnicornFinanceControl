@@ -52,11 +52,12 @@ export class Account extends DocumentModel {
       required: ["name", "bankId", "type"],
     },
     from: (params, repositories, update) => {
-      const { assignId, assignString, assignNumber, assignEnum, assignBoolean, assignColor, toResult } = new ModelContext(
+      const { assignId, assignString, assignNumber, assignEnum, assignBoolean, assignColor, ensureUnique, toResult } = new ModelContext(
         repositories.accounts.modelClass,
         update
       );
 
+      ensureUnique(["name"], repositories.accounts, [params.name]);
       assignId("bankId", repositories.banks, params.bankId);
       assignString("name", params.name);
       assignNumber("initialBalance", params.initialBalance, 0);

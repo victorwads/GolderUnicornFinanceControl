@@ -25,3 +25,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     </AppUpdatesProvider>
   </StrictMode>
 );
+
+declare global {
+  interface String {
+    cap(): string;
+  }
+}
+
+String.prototype.cap = function (this: string) {
+  return this.charAt(0).toUpperCase()
+  + this.slice(1)
+}
