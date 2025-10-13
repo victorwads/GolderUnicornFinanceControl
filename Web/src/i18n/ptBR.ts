@@ -242,6 +242,15 @@ const ptBR: Translation = {
       'Experimente converter 200 BRL em USD e lancar a diferenca para estressar conversoes.',
     ],
   },
+  assistant: {
+    onboarding: {
+      title: 'Conheça o assistente financeiro',
+      description: 'Deixe que o assistente guie você pelo setup inicial e personalize a experiência.',
+      microRequirement: 'Antes de começar, faremos um teste rápido do microfone para garantir que tudo funcione.',
+      start: 'Iniciar agora',
+      dismiss: 'Não mostrar novamente',
+    },
+  },
   recurrent: {
     title: 'Recorrências',
     empty: 'Nenhuma recorrência encontrada.',

@@ -1,4 +1,4 @@
-import { doc, getDoc } from 'firebase/firestore';
+import { deleteField, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 import { DocumentModel } from '@models';
 
@@ -36,6 +36,12 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
   public async updateUserData(data: { [key in keyof User]?: typeof User.prototype[key] }): Promise<void> {
     data.id = this.userId;
     await this.set(data as any, true, false);
+  }
+
+  public async clearOnboardingFlag(): Promise<void> {
+    await updateDoc(doc(this.ref, this.safeUserId), {
+      onboardingDone: deleteField(),
+    });
   }
 
   public async getUserData(): Promise<User> {

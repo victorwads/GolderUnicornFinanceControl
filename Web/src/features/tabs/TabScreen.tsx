@@ -9,6 +9,7 @@ import {
 } from "@components/conteiners";
 
 import AssistantAIMicrophone from "@features/assistant/components/AssistantAIMicrophone";
+import AssistantOnboardingDialog from "@features/assistant/components/AssistantOnboardingDialog";
 
 const TabScreen = () => {
   return (
@@ -17,6 +18,7 @@ const TabScreen = () => {
         <Outlet />
       </ContainerScrollContent>
       <ContainerFixedContent>
+        <AssistantOnboardingDialog />
         <div className="TabViewNav">
           <Link to="dashboard">
             <Icon size="lg" icon={Icons.faHome} />

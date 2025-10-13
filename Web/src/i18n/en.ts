@@ -241,6 +241,15 @@ const en: Translation = {
       'Experiment with convert two hundred BRL to USD and log the difference to stress conversions.',
     ],
   },
+  assistant: {
+    onboarding: {
+      title: 'Start with the finance assistant',
+      description: 'Let the assistant walk you through the initial setup and tailor the experience for you.',
+      microRequirement: 'We will first verify your microphone to ensure everything works properly.',
+      start: 'Start now',
+      dismiss: 'Don’t show again',
+    },
+  },
   recurrent: {
     title: 'Recurring entries',
     empty: 'No recurring entries found.',

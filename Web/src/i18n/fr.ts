@@ -229,6 +229,15 @@ const fr: Translation = {
       'Expérimenter la conversion de deux cents BRL en USD et l\'enregistrement de l\'écart pour éprouver les conversions.',
     ],
   },
+  assistant: {
+    onboarding: {
+      title: 'Lancer l’assistant financier',
+      description: 'Laissez l’assistant vous guider dans la configuration initiale et personnaliser votre expérience.',
+      microRequirement: 'Nous vérifierons d’abord votre microphone pour nous assurer que tout fonctionne correctement.',
+      start: 'Commencer maintenant',
+      dismiss: 'Ne plus afficher',
+    },
+  },
   recurrent: {
     title: 'Récurrences',
     empty: 'Aucune récurrence trouvée.',

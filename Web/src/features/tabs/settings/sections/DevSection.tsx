@@ -3,7 +3,9 @@ import getRepositories from '@repositories';
 import RepositoryWithCrypt from '../../../../data/repositories/RepositoryWithCrypt';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { setCompletedOnboarding } from '@components/voice/AIMicrophoneOnboarding.model';
+import { clearAIMicrophoneOnboardingFlags } from '@components/voice/AIMicrophoneOnboarding.model';
+import { clearAssistantOnboardingDismissal } from '@features/assistant/utils/onboardingStorage';
+import { dispatchAssistantEvent } from '@features/assistant/utils/assistantEvents';
 
 const CHUNK_SIZE = 100;
 
@@ -52,10 +54,22 @@ const DevContent = () => {
     setProgress(null);
   };
 
+  const resetAssistantOnboarding = async () => {
+    try {
+      await getRepositories().user.clearOnboardingFlag();
+    } catch (error) {
+      console.error('Failed to clear onboarding flag', error);
+    }
+
+    clearAssistantOnboardingDismissal();
+    clearAIMicrophoneOnboardingFlags();
+    dispatchAssistantEvent('assistant:onboarding-reset');
+  };
+
   return <>
     <div className='list'>
       <Link to="/settings/ai-calls">AI Calls</Link>
-      <a onClick={() => setCompletedOnboarding(false)}>{Lang.settings.resetOnboarding}</a>
+      <a onClick={resetAssistantOnboarding}>{Lang.settings.resetOnboarding}</a>
       <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
       <input type="text" style={{color: 'black'}} placeholder='Kill account registers' onKeyDown={(e) => {
         if (e.key === 'Enter' && e.currentTarget.value) {

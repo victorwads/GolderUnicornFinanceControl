@@ -1,6 +1,6 @@
 import './AIMicrophone.css';
 import { useSpeechRecognition } from 'react-speech-recognition';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, ForwardedRef } from 'react';
 
 import { useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
 import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
@@ -10,6 +10,7 @@ import Icon, { Icons } from '@components/Icons';
 import AIActionsParser, { AIActionHandler, AIItemData } from '@features/speech/AIParserManager';
 import GlassContainer from '@components/GlassContainer';
 import { Loading } from '@components/Loading';
+import { dispatchAssistantEvent } from '@features/assistant/utils/assistantEvents';
 
 const COMMAND_EVALUATION_DELAY = 3500;
 
@@ -25,21 +26,28 @@ export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
 
 interface ProcessingTask { id: number; text: string; startedAt: number; }
 
-export default function AIMicrophone<T extends AIItemData, A extends string>({
+export interface AIMicrophoneHandle {
+  ensureOnboardingCompleted: () => Promise<boolean>;
+}
+
+const AIMicrophone = forwardRef(<T extends AIItemData, A extends string>({
   parser,
   onAction,
   onPartialResult,
   skipOnboarding = false,
   compact = false,
   withLoading = false,
-  disableClick = false,
-}: AIMicrophoneProps<T, A>) {
+}: AIMicrophoneProps<T, A>,
+ref: ForwardedRef<AIMicrophoneHandle>
+) => {
   const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
   const recognitionLanguage = CurrentLangInfo.short;
 
   const sendTimeout = useRef<NodeJS.Timeout | null>(null);
   const [processingQueue, setProcessingQueue] = useState<ProcessingTask[]>([]);
   const taskIdRef = useRef(0);
+  const onboardingResolvers = useRef<Array<(success: boolean) => void>>([]);
+  const onboardingCompletedRef = useRef(false);
 
   const clearSendTimeout = useCallback(() => {
     if (sendTimeout.current) {
@@ -61,11 +69,61 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     isActive: onboardingActive,
     componentProps: onboardingComponentProps,
     requestStart,
+    hasCompleted,
   } = useAIMicrophoneOnboarding({
     skipOnboarding,
     resetTranscript,
     onBeginCommandListening: beginCommandListening,
   });
+
+  const resolveOnboarding = useCallback((success: boolean) => {
+    const resolvers = onboardingResolvers.current;
+    onboardingResolvers.current = [];
+    resolvers.forEach((resolve) => {
+      try {
+        resolve(success);
+      } catch (error) {
+        console.error('Error resolving microphone onboarding promise', error);
+      }
+    });
+  }, []);
+
+  const originalOnClose = onboardingComponentProps.onClose;
+  const originalOnComplete = onboardingComponentProps.onComplete;
+
+  const handleOnboardingClose = useCallback(() => {
+    originalOnClose();
+    if (!onboardingCompletedRef.current) {
+      resolveOnboarding(false);
+    }
+    onboardingCompletedRef.current = false;
+  }, [originalOnClose, resolveOnboarding]);
+
+  const handleOnboardingComplete = useCallback(() => {
+    onboardingCompletedRef.current = true;
+    originalOnComplete();
+    resolveOnboarding(true);
+    dispatchAssistantEvent('assistant:micro-onboarding-completed');
+  }, [originalOnComplete, resolveOnboarding]);
+
+  const enhancedOnboardingProps = useMemo(() => ({
+    ...onboardingComponentProps,
+    onClose: handleOnboardingClose,
+    onComplete: handleOnboardingComplete,
+  }), [handleOnboardingClose, handleOnboardingComplete, onboardingComponentProps]);
+
+  useImperativeHandle(ref, () => ({
+    ensureOnboardingCompleted: () => {
+      if (hasCompleted) {
+        return Promise.resolve(true);
+      }
+
+      return new Promise<boolean>((resolve) => {
+        onboardingResolvers.current.push(resolve);
+        requestStart({ skipOnboarding: false });
+      });
+    },
+  }), [hasCompleted, requestStart]);
 
   useEffect(() => {
     parser.onAction = (action, changes) => {
@@ -160,4 +218,6 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
     </GlassContainer>
     <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />
   </>;
-}
+});
+
+export default AIMicrophone;

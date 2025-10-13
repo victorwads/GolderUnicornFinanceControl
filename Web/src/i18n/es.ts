@@ -230,6 +230,15 @@ const es: Translation = {
       'Experimenta convirtiendo doscientos BRL a USD y registrando la diferencia para estresar las conversiones.',
     ],
   },
+  assistant: {
+    onboarding: {
+      title: 'Comienza con el asistente financiero',
+      description: 'Deja que el asistente te guíe por la configuración inicial y personalice tu experiencia.',
+      microRequirement: 'Primero verificaremos tu micrófono para asegurar que todo funcione correctamente.',
+      start: 'Iniciar ahora',
+      dismiss: 'No mostrar de nuevo',
+    },
+  },
   recurrent: {
     title: 'Recurrencias',
     empty: 'No se encontraron recurrencias.',

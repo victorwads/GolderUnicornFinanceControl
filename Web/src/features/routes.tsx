@@ -31,7 +31,7 @@ import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 export const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
   {
-    path: '/', element: withRepos(<TabScreen />), children: [
+    path: '/', element: withRepos(<TabScreen />, 'user'), children: [
       { path: 'dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: withRepos(<TimelineFilterScreen />, 'banks', 'creditCards', 'accounts', 'categories') },
       { path: 'timeline/import', element: withRepos(

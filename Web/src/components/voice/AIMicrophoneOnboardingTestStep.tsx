@@ -6,7 +6,7 @@ const SCORE_THRESHOLD = 70;
 const FAILURE_LIMIT = 5;
 const EVALUATION_DELAY = 800;
 const SUCCESS_FEEDBACK_DELAY = 1000;
-const ONBOARDING_TARGET = 4;
+const ONBOARDING_TARGET = 2;
 
 const selectRandomItems = (source: string[], count: number) => {
   const copy = [...source];

@@ -230,6 +230,15 @@ const zh: Translation = {
       '试着把二百 BRL 转成 USD 并记录差额，用于压力测试换汇流程。',
     ],
   },
+  assistant: {
+    onboarding: {
+      title: '开始使用财务助手',
+      description: '让助手带您完成初始设置并个性化您的体验。',
+      microRequirement: '开始前我们会先检测麦克风以确保一切正常。',
+      start: '立即开始',
+      dismiss: '不再显示',
+    },
+  },
   recurrent: {
     title: '循环记录',
     empty: '暂无循环记录。',

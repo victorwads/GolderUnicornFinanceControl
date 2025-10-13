@@ -215,6 +215,15 @@ export default interface Translation {
     };
     onboardingCases: () => string[];
   };
+  assistant: {
+    onboarding: {
+      title: string;
+      description: string;
+      microRequirement: string;
+      start: string;
+      dismiss: string;
+    };
+  };
   recurrent: {
     title: string;
     empty: string;
