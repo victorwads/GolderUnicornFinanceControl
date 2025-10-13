@@ -148,9 +148,25 @@ export default function AssistantPage({
     return <div className="assistant-icon">
       <AIMicrophone parser={microphoneParser} compact withLoading={loading} onPartialResult={setPartial} />
       <div className="assistant-toasts">
+        {warnings.map((warning, index) => (
+          <GlassContainer key={`${warning}-${index}`}>
+            <strong>Aviso:</strong> {warning}
+          </GlassContainer>
+        ))}
+        {calls.length > 0 && calls.filter(call => Boolean(call.userInfo)).map((call) => (
+          <GlassContainer key={call.id} className="assistant-toast assistant-toast--call">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <strong>Info:</strong>
+              <button onClick={() => setCalls(previous => previous.filter(c => c.id !== call.id))}>
+                <Icon icon={Icons.faTrash} size="xs" />
+              </button>
+            </div>
+            <pre>{call.userInfo}</pre>
+          </GlassContainer>
+        ))}
         {askUserPrompt && (
           <GlassContainer className="assistant-toast">
-            <strong>Pergunta do assistente:</strong>
+            <strong>Assistente:</strong>
             <pre>{askUserPrompt}</pre>
             <p className="assistant-ask-user__hint">
               Responda pelo microfone para continuar.
@@ -163,24 +179,11 @@ export default function AssistantPage({
             <pre>Hummm.....</pre>
           </GlassContainer>
         )}
-        {calls.length > 0 && calls.filter(call => Boolean(call.userInfo)).map((call) => (
-          <GlassContainer key={call.id} className="assistant-toast assistant-toast--call">
-            <pre>{call.userInfo}</pre>
-            <button onClick={() => setCalls(previous => previous.filter(c => c.id !== call.id))}>
-              <Icon icon={Icons.faTrash} />
-            </button>
-          </GlassContainer>
-        ))}
         {partial && (
           <GlassContainer className="assistant-toast assistant-toast--partial">
-            <pre>{partial}</pre>
+            <strong>Você:</strong> <pre>{partial}</pre>
           </GlassContainer>
         )}
-        {warnings.map((warning, index) => (
-          <GlassContainer key={`${warning}-${index}`}>
-            <strong>Aviso:</strong> {warning}
-          </GlassContainer>
-        ))}
       </div>
     </div>;
   }

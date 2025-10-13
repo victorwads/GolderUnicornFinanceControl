@@ -128,7 +128,7 @@ export abstract class AssistantToolsBase {
       },
       userInfo: (_, result) => result ? 
         typeof result === "string" ? result :
-        `(Beta) Criado ${name}\n${Object
+        `Criado ${name}\n${Object
           .entries(result)
           .map(([key, value]) => 
             `- ${key}: ${JSON.stringify(value, null, 2)}`
@@ -200,7 +200,7 @@ export abstract class AssistantToolsBase {
       },
       userInfo: (_, result) => result ? 
         typeof result === "string" ? result :
-        `(Beta) Atualizado ${name}\n${Object
+        `Atualizei ${name}\n${Object
           .entries(result)
           .map(([key, value]) => 
             `- ${key}: ${JSON.stringify(value, null, 2)}`

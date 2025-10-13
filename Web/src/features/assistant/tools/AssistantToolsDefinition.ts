@@ -123,7 +123,7 @@ export class AssistantTools extends AssistantToolsBase {
               .map(h => ({ name: h.name, description: h.description })) ?? [] 
           };
         },
-        userInfo: (args) => `Listing actions for domain '${args.domain}'`
+        userInfo: (args) => `Listando ações para '${args.domain}'`
       },
       {
         name: DomainToolName.SEARCH_IN_DOMAIN,
@@ -149,7 +149,7 @@ export class AssistantTools extends AssistantToolsBase {
           this.sharedDomains.add(this.dn(domainName));
           return domain.search(query, limit);
         },
-        userInfo: (args) => `Searching in '${args.domain}' for '${args.query}'`
+        userInfo: (args) => `Procurando em '${args.domain}' por '${args.query}'`
       },
       {
         name: AppNavigationTool.NAVIGATE,

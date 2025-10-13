@@ -1,6 +1,18 @@
 import { useAppUpdates } from '@components/AppUpdatesProvider';
 import { SettingsSection } from './types';
 
+let easterEggCounter = 0;
+function triggerEasterEgg() {
+  easterEggCounter++;
+  if (easterEggCounter >= 8) {
+    localStorage.DEV = 'true';
+    window.location.reload();
+  }
+  setTimeout(() => {
+    easterEggCounter = 0;
+  }, 2000);
+}
+
 const AppInfoContent = () => {
   const { version, updateAvailable, checkingForUpdate, offlineReady, checkForUpdates, applyUpdate } = useAppUpdates();
 
