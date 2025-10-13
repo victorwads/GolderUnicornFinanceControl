@@ -61,7 +61,7 @@ function App() {
   }, [])
 
   if (user && needPass && CryptoPassRepository.hasToken(user.uid))
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    return <div className={`App theme ${theme} ${density}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <Loading show={true} />
       {Lang.commons.loading}
     </div>;

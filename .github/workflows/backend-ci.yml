@@ -32,6 +32,7 @@ jobs:
         echo "CRYPTO_JWT_SIGN_SECRET=${{ secrets.CRYPTO_JWT_SIGN_SECRET }}" > Backend/.env
         echo "CRYPTO_JWT_ENCRYPT_SECRET=${{ secrets.CRYPTO_JWT_ENCRYPT_SECRET }}" >> Backend/.env
         echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_MASTER_API_KEY }}" >> Backend/.env
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> Backend/.env
     - run: yarn build
       working-directory: Backend
     - run: yarn test

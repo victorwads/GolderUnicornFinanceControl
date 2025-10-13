@@ -2,10 +2,13 @@ import { OpenAI } from 'openai';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getApp } from 'firebase/app';
 
-const OPENROUTER_API_KEY_STORAGE_KEY = 'openrouter_api_key';
+const OPENROUTER_API_KEY_STORAGE_KEY = 'ai_api_key';
 
-async function getOpenRouterApiKey(): Promise<string> {
-  const storedKey = sessionStorage.getItem(OPENROUTER_API_KEY_STORAGE_KEY);
+async function getOpenRouterApiKey(): Promise<{
+  key: string;
+  url: string;
+}> {
+  const storedKey = JSON.parse(sessionStorage.getItem(OPENROUTER_API_KEY_STORAGE_KEY) || 'null') as Store | null;
   if (storedKey) {
     return storedKey;
   }
@@ -15,20 +18,25 @@ async function getOpenRouterApiKey(): Promise<string> {
   const result = await createOpenRouterKey();
 
   if (result.data && typeof result.data === 'object' && 'key' in result.data) {
-    const apiKey = (result.data as { key: string }).key;
-    sessionStorage.setItem(OPENROUTER_API_KEY_STORAGE_KEY, apiKey);
-    return apiKey;
+    const storedKey = result.data as Store;
+    sessionStorage.setItem(OPENROUTER_API_KEY_STORAGE_KEY, JSON.stringify(storedKey));
+    return storedKey;
   }
 
   throw new Error('Failed to obtain OpenRouter API key');
 }
 
 export async function createOpenAIClient(): Promise<OpenAI> {
-  const apiKey = await getOpenRouterApiKey();
+  const { key, url } = await getOpenRouterApiKey();
 
   return new OpenAI({
-    baseURL: 'https://openrouter.ai/api/v1',
-    apiKey,
+    baseURL: url,
+    apiKey: key,
     dangerouslyAllowBrowser: true,
   });
+}
+
+type Store = {
+  key: string;
+  url: string;
 }

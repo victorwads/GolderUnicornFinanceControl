@@ -30,7 +30,7 @@ import AssistantGeneralPrompt from "./AssistantGeneral.prompt";
 import AssistantOnboardingPrompt from "./AssistantOnboarding.prompt";
 import { ToUserTool } from "./tools/AssistantToolsBase";
 
-export let ASSISTANT_MODEL: AiModel = "@preset/gu-daily-assistant";
+export let ASSISTANT_MODEL: AiModel = "gpt-4.1-nano"; // "@preset/gu-daily-assistant";
 
 const AIModelStorageKey = "assistant_model";
 const savedModel = localStorage.getItem(AIModelStorageKey);
