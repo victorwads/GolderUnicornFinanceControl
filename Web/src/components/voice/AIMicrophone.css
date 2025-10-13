@@ -31,6 +31,11 @@
   bottom: 15px;
 }
 
+.speech-marquee svg {
+  width: 0.9em;
+  height: 0.9em;
+}
+
 .speech-marquee-content {
   display: flex;
   flex-direction: column;

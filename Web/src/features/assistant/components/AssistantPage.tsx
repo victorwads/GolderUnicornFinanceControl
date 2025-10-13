@@ -64,7 +64,11 @@ export default function AssistantPage({
     setIsFirst(false);
     setAskUserPrompt(message);
     stopListening();
-    await speak(message);
+    try {
+      await speak(message, undefined, undefined, true);
+    } catch (error) {
+      setWarnings((previous) => [...previous, "Erro ao falar a mensagem"]);
+    }
     startListening();
 
     return new Promise<string>((resolve) => {

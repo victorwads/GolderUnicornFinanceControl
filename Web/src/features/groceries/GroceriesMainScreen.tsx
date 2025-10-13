@@ -58,7 +58,7 @@ const SpeechScreen = () => {
     <Container screen spaced className="SpeechScreen">
       <ContainerFixedContent>
         <div className="GroceryHeader">
-          <h2>{Lang.groceries.title}</h2>
+          <h2>{Lang.groceries.title} (Beta)</h2>
           <Link to="/groceries/removed" className="TrashButton">
             <Icon icon={Icons.faTrash} />
             {removedCount > 0 && <span className="TrashCount">{removedCount}</span>}

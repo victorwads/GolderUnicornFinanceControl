@@ -151,7 +151,7 @@ export default function AIMicrophone<T extends AIItemData, A extends string>({
       >
         {withLoading
           ? <Loading show />
-          : <Icon icon={listening ? Icons.faMicrophoneSlash : Icons.faMicrophone} />
+          : <Icon icon={listening ? Icons.faMicrophoneSlash : Icons.faMicrophone} size='sm' />
         }
       </button>
       <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />

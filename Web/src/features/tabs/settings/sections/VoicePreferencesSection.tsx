@@ -25,8 +25,8 @@ export function getVoices() {
 }
 
 let lastSpeakStop: (() => void) | null = null;
-export function speak(text: string, rate?: number, volume?: number) {
-  if (!("speechSynthesis" in window)) return;
+export function speak(text: string, rate?: number, volume?: number, important: boolean = false) {
+  if (!("speechSynthesis" in window)) return Promise.resolve();
   lastSpeakStop?.();
   const miniLang = CurrentLang.split("-")[0];
   const savedVoiceName = localStorage.getItem(VOICE_NAME_KEY + CurrentLang);
@@ -56,12 +56,12 @@ export function speak(text: string, rate?: number, volume?: number) {
 
   return new Promise<void>((resolve, reject) => {
     utterance.onend = () => resolve();
-    utterance.onerror = () => reject();
+    utterance.onerror = (error) => reject(error);
     speechSynthesis.speak(utterance);
-    lastSpeakStop = () => {
+    if (!important) lastSpeakStop = () => {
       speechSynthesis.cancel();
       lastSpeakStop = null;
-      reject();
+      reject(new Error("Speech cancelled"));
     }
   }).finally(() => {
     lastSpeakStop = null;
