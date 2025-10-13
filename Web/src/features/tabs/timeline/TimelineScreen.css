@@ -14,6 +14,12 @@
   font-weight: bold;
 }
 
+@media (orientation: portrait) {
+  .ScreenTitle {
+    display: none;
+  }
+}
+
 .SelectedBank {
   display: flex;
   flex-wrap: wrap;

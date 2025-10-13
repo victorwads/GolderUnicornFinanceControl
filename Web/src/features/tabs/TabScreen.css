@@ -1,29 +1,35 @@
 .TabViewNav {
-    display: flex;
-    flex-direction: row;
-    border-top: 0px solid transparent;
-    border-radius: 15px 15px 0 0;
-    background-color: var(--bg-color-highlight);
+  display: flex;
+  flex-direction: row;
+  border-top: 0px solid transparent;
+  border-radius: 15px 15px 0 0;
+  background-color: var(--bg-color-highlight);
 }
 
 .TabViewNav > a {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    /* flex-wrap: wrap-reverse; */
-    justify-content: center;
-    align-items: center;
-    padding: 1em 0.2em;
-    color: var(--font-color-default);
-    text-decoration: none;
-    text-align: center;
-    /* white-space: nowrap; */
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  /* flex-wrap: wrap-reverse; */
+  justify-content: center;
+  align-items: center;
+  padding: 1em 0.2em;
+  color: var(--font-color-default);
+  text-decoration: none;
+  text-align: center;
+  /* white-space: nowrap; */
 }
 
 .TabViewNav > a:hover {
-    background-color: var(--bg-color-default);
+  background-color: var(--bg-color-default);
 }
 
 .AiMicrophoneButtonContainer {
-    /* position: absolute; */
+  /* position: absolute; */
+}
+
+@media (orientation: portrait) {
+  .TabViewNav a > span {
+    display: none;
+  }
 }

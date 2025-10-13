@@ -8,6 +8,7 @@ import FinancialMonthPeriod, {
 } from "@utils/FinancialMonthPeriod";
 import TimelineService from "./TimelineService";
 import { Transaction } from "@models";
+import AccountsRepository from "../repositories/AccountsRepository";
 
 type Key = "all" | string;
 export interface BalanceSnapshot {
@@ -23,6 +24,7 @@ export class BalanceService {
   private cache: BalanceCache = {};
 
   constructor(
+    private accounts: AccountsRepository,
     private timeline: TimelineService,
     public readonly period = new FinancialMonthPeriod(1)
   ) {}
@@ -31,14 +33,19 @@ export class BalanceService {
     const ids = Array.isArray(accountIds) ? accountIds : [accountIds];
     const month = this.period.getMonthForDate(date);
     if(ids.length === 0)
-      return this.ensureMonthComputed(month).closingBalance
+      return this.ensureMonthComputed(month).closingBalance + this.getInitialBalance();
 
     return ids.reduce((acc, id) => {
       return acc + this.ensureMonthComputed(month, id).closingBalance;
-    }, 0);
+    }, 0) + this.getInitialBalance(ids);
   }
 
-  invalidateFrom(date: Date): void {
+  invalidateFrom(date?: Date): void {
+    if (!date) {
+      this.reset();
+      return;
+    }
+
     const ym = Month.fromDate(date).key;
     Object.keys(this.cache)
       .filter((k) => k >= ym)
@@ -49,6 +56,17 @@ export class BalanceService {
 
   reset(): void {
     this.cache = {};
+  }
+
+  private getInitialBalance(accountIds?: string[]): number {
+    if (!accountIds || accountIds.length === 0){
+      accountIds = this.accounts.getCache().map(a => a.id);
+    };
+
+    return accountIds.reduce((acc, id) => {
+      const account = this.accounts.getLocalById(id);
+      return acc + (account?.initialBalance || 0);
+    }, 0);
   }
 
   private getRegistriesForMonth(period: Period, accountId?: string): Transaction[] {

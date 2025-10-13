@@ -1,28 +1,46 @@
-import './TabScreen.css'
-import { Link, Outlet } from 'react-router-dom'
+import "./TabScreen.css";
+import { Link, Outlet } from "react-router-dom";
 
-import Icon, { Icons } from '@components/Icons'
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners'
+import Icon, { Icons } from "@components/Icons";
+import {
+  Container,
+  ContainerFixedContent,
+  ContainerScrollContent,
+} from "@components/conteiners";
 
-import AssistantAIMicrophone from '@features/assistant/components/AssistantAIMicrophone'
+import AssistantAIMicrophone from "@features/assistant/components/AssistantAIMicrophone";
 
 const TabScreen = () => {
-    return <Container wide>
-        <ContainerScrollContent>
-            <Outlet />
-        </ContainerScrollContent>
-        <ContainerFixedContent>
-            <div className='TabViewNav'>
-                <Link to="dashboard"><Icon icon={Icons.faHome} /> {Lang.dashboard.title}</Link>
-                <Link to="timeline"><Icon icon={Icons.faChartLine} /> {Lang.timeline.title}</Link>
-                <div className='AiMicrophoneButtonContainer'>
-                    <AssistantAIMicrophone />
-                </div>
-                <Link to="groceries"><Icon icon={Icons.faShoppingBasket} /> {Lang.groceries.title}</Link>
-                <Link to="settings"><Icon icon={Icons.faGear} /> {Lang.settings.title}</Link>
-            </div>
-        </ContainerFixedContent>
+  return (
+    <Container wide>
+      <ContainerScrollContent>
+        <Outlet />
+      </ContainerScrollContent>
+      <ContainerFixedContent>
+        <div className="TabViewNav">
+          <Link to="dashboard">
+            <Icon size="lg" icon={Icons.faHome} />
+            <span> {Lang.dashboard.title}</span>
+          </Link>
+          <Link to="timeline">
+            <Icon size="lg" icon={Icons.faChartLine} />
+            <span> {Lang.timeline.title}</span>
+          </Link>
+          <div className="AiMicrophoneButtonContainer">
+            <AssistantAIMicrophone />
+          </div>
+          <Link to="groceries">
+            <Icon size="lg" icon={Icons.faShoppingBasket} />
+            <span> {Lang.groceries.title}</span>
+          </Link>
+          <Link to="settings">
+            <Icon size="lg" icon={Icons.faGear} />
+            <span> {Lang.settings.title}</span>
+          </Link>
+        </div>
+      </ContainerFixedContent>
     </Container>
-}
+  );
+};
 
-export default TabScreen
+export default TabScreen;

@@ -5,6 +5,7 @@ import getRepositories from "@repositories";
 import { getServices, TimelineFilterPeriod } from "@services";
 import { Account, RegistryWithDetails } from "@models";
 import { Month, MonthKey } from "@utils/FinancialMonthPeriod";
+import { Loading } from '../../../components/Loading';
 
 export enum TimelineParam {
   MONTH = 'monthKey',
@@ -19,6 +20,7 @@ export const useTimeline = () => {
   const [accountIds, setAccountIds] = useState<string[]>([]);
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [showArchived, setShowArchived] = useState(false)
+  const [loading, setLoading] = useState(false);
   const [registries, setRegistries] = useState<RegistryWithDetails[]>([]);
   const [currentMonth, setCurrentMonth] = useState<Month>(() => Month.fromDate(period.start));
   // @legacy
@@ -27,6 +29,7 @@ export const useTimeline = () => {
 
   const { accounts, accountTransactions } = getRepositories();
   const load = useCallback(() => {
+    setLoading(true);
     const { balance, timeline } = getServices();
 
     if (accountIds?.length) {
@@ -46,6 +49,7 @@ export const useTimeline = () => {
 
     setCurrentBalance(balance.getBalance(accountIds, period.end));
     setRegistries(registries);
+    setLoading(false);
   }, [categoryIds, accountIds, showArchived, period, searchValue]);
 
   useEffect(() => {
@@ -119,6 +123,7 @@ export const useTimeline = () => {
     period,
     registries,
 
+    loading,
     hasCategoryFilter,
     categoryIds,
     searchParams,

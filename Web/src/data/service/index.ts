@@ -19,6 +19,7 @@ export type ServicesInstance = {
   instances: Services
 }
 let servicesInstances: ServicesInstance | null = null;
+let unsubscribeAll: (() => void) | null = null;
 
 export function resetServices(uid: string, repositories: Repositories): Services {
   if (servicesInstances?.uid === uid) return servicesInstances.instances;
@@ -30,15 +31,30 @@ export function resetServices(uid: string, repositories: Repositories): Services
   const timeline = new TimelineService(repositories, period);
   const instances: Services = {
     timeline,
-    balance: new BalanceService(timeline, period),
+    balance: new BalanceService(repositories.accounts, timeline, period),
   };
 
+  // TODO improve invalidation strategy
+  const invalidateFrom = () => {
+    instances.balance.invalidateFrom();
+  }
+  const subscriptions = [
+    repositories.accounts.addUpdatedEventListenner(invalidateFrom),
+    repositories.accountTransactions.addUpdatedEventListenner(invalidateFrom),
+    repositories.creditCardsInvoices.addUpdatedEventListenner(invalidateFrom),
+  ]
+
   servicesInstances = { uid, instances };
+  unsubscribeAll = () => {
+    subscriptions.forEach((un) => un());
+    unsubscribeAll = null;
+  }
   return instances;
 }
 
 export function clearServices(): void {
   servicesInstances = null;
+  unsubscribeAll?.();
 }
 
 export function getServices(): Services {

@@ -21,7 +21,7 @@ const TimelineScreen = () => {
     setShowArchived, setSearchValue, changeMonth, addCategoryFilter,
     searchValue, searchParams, showArchived, hasCategoryFilter,
 
-    registries,
+    loading, registries,
     selectedAccount, categoryIds, period,
     currentBalance, currentMonth
   } = useTimeline();
@@ -34,7 +34,7 @@ const TimelineScreen = () => {
     <ContainerFixedContent>
       <div className="ScreenHeaderRow">
         <h1 className="ScreenTitle">{Lang.timeline.title}</h1>
-        <Loading show={registries.length === 0} type="wave" />
+        <Loading show={loading} type="wave" />
         <div className="spacer"></div>
         {(selectedAccount || hasCategoryFilter) && (
           <div className="SelectedBank">
@@ -82,12 +82,12 @@ const TimelineScreen = () => {
       <div className="ScreenHeaderRow">
         <div className="ScreenTotal">
           <span>{Lang.timeline.balance}:</span>
-          <Loading show={registries.length === 0} type="wave" />
-          {registries.length !== 0 && <span className={`TotalValue ${currentBalance >= 0 ? "positive" : "negative"}`}>
+          <Loading show={loading} type="wave" />
+          {<span className={`TotalValue ${currentBalance >= 0 ? "positive" : "negative"}`}>
             {formatNumber(currentBalance)}
           </span>}
         </div>
-        {registries.length !== 0 && <span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
+        {<span className="RegistryCount">({registries.length}) {Lang.timeline.registryCount}</span>}
       </div>
       <div className="TimelineMonthNav">
         <button className="TimelineMonthNavButton" onClick={() => changeMonth(false)}>
