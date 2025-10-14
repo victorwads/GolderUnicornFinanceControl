@@ -1,6 +1,8 @@
 import './AssistantOnboardingDialog.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import Button from '@components/ui/Button';
+import Dialog, { DialogBody, DialogDescription, DialogFooter, DialogTitle } from '@components/visual/Dialog';
 import getRepositories, { User } from '@repositories';
 import { hasCompletedAIMicrophoneOnboarding } from '@components/voice/AIMicrophoneOnboarding.model';
 import {
@@ -91,33 +93,35 @@ const AssistantOnboardingDialog = () => {
     return null;
   }
 
+  const titleId = "assistant-onboarding-title";
+  const descriptionId = `${titleId}-description`;
+
   return (
-    <div className="assistant-onboarding" role="dialog" aria-modal="true" aria-labelledby="assistant-onboarding-title">
-      <div className="assistant-onboarding__backdrop" />
-      <div className="assistant-onboarding__modal">
-        <h2 id="assistant-onboarding-title">{Lang.assistant.onboarding.title}</h2>
-        <p className="assistant-onboarding__description">{Lang.assistant.onboarding.description}</p>
+    <Dialog
+      open={visible}
+      onClose={handleDismiss}
+      closeOnBackdrop={false}
+      labelledBy={titleId}
+      describedBy={descriptionId}
+      size="md"
+      contentClassName="assistant-onboarding"
+    >
+      <DialogBody className="assistant-onboarding__body">
+        <DialogTitle id={titleId}>{Lang.assistant.onboarding.title}</DialogTitle>
+        <DialogDescription id={descriptionId}>
+          {Lang.assistant.onboarding.description}
+        </DialogDescription>
         {microphoneMessage && (
           <p className="assistant-onboarding__note">{microphoneMessage}</p>
         )}
-        <div className="assistant-onboarding__actions">
-          <button
-            type="button"
-            className="assistant-onboarding__button assistant-onboarding__button--primary"
-            onClick={handleStart}
-          >
-            {Lang.assistant.onboarding.start}
-          </button>
-          <button
-            type="button"
-            className="assistant-onboarding__button assistant-onboarding__button--secondary"
-            onClick={handleDismiss}
-          >
-            {Lang.assistant.onboarding.dismiss}
-          </button>
-        </div>
-      </div>
-    </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button onClick={handleStart}>{Lang.assistant.onboarding.start}</Button>
+        <Button variant="secondary" onClick={handleDismiss}>
+          {Lang.assistant.onboarding.dismiss}
+        </Button>
+      </DialogFooter>
+    </Dialog>
   );
 };
 

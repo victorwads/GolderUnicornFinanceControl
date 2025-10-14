@@ -1,0 +1,98 @@
+.ui-button {
+  --ui-button-bg: var(--bg-step-2);
+  --ui-button-border: transparent;
+  --ui-button-color: var(--font-color-default);
+  --ui-button-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  border: 1px solid var(--ui-button-border);
+  border-radius: 14px;
+  background: var(--ui-button-bg);
+  color: var(--ui-button-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: var(--spacing-sm) calc(var(--spacing-lg) * 1.1);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: var(--ui-button-shadow);
+  text-decoration: none;
+}
+
+.ui-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.ui-button--full {
+  width: 100%;
+}
+
+.ui-button--sm {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: 0.85rem;
+  border-radius: 10px;
+}
+
+.ui-button--lg {
+  padding: calc(var(--spacing-md) * 0.9) calc(var(--spacing-lg) * 1.4);
+  font-size: 1.05rem;
+  border-radius: 16px;
+}
+
+.ui-button--primary {
+  --ui-button-bg: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
+  --ui-button-color: #fff;
+  --ui-button-shadow: 0 16px 26px rgba(0, 0, 0, 0.25);
+}
+
+.ui-button--primary:not(:disabled):hover,
+.ui-button--primary:not(:disabled):focus-visible {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.ui-button--secondary {
+  --ui-button-bg: color-mix(in srgb, var(--bg-step-2) 85%, transparent);
+  --ui-button-border: color-mix(in srgb, var(--divider-color-soft) 75%, transparent);
+}
+
+.ui-button--secondary:not(:disabled):hover,
+.ui-button--secondary:not(:disabled):focus-visible {
+  --ui-button-bg: color-mix(in srgb, var(--bg-step-2) 100%, transparent);
+}
+
+.ui-button--ghost {
+  --ui-button-bg: transparent;
+  --ui-button-border: transparent;
+  --ui-button-color: var(--font-color-link);
+  border-radius: 999px;
+  padding: var(--spacing-xs) var(--spacing-md);
+}
+
+.ui-button--ghost:not(:disabled):hover,
+.ui-button--ghost:not(:disabled):focus-visible {
+  background: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  color: #fff;
+}
+
+.ui-button--danger {
+  --ui-button-bg: color-mix(in srgb, var(--color-danger) 90%, var(--color-danger) 70%);
+  --ui-button-color: #fff;
+  --ui-button-shadow: 0 12px 24px rgba(255, 64, 64, 0.3);
+}
+
+.ui-button--danger:not(:disabled):hover,
+.ui-button--danger:not(:disabled):focus-visible {
+  filter: brightness(1.06);
+}
+
+.ui-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 45%, transparent);
+}
+

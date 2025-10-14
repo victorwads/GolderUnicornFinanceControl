@@ -60,34 +60,12 @@
   margin-top: var(--spacing-sm);
 }
 
-.crypto-pass-buttons > button {
+.crypto-pass-buttons .ui-button {
   flex: 1;
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: filter 0.2s ease;
 }
 
-.crypto-pass-buttons > button:disabled {
-  cursor: not-allowed;
-  filter: grayscale(0.35);
-  opacity: 0.85;
-}
-
-.crypto-pass-buttons > button:not(:disabled):hover {
-  filter: brightness(1.05);
-}
-
-.crypto-pass-buttons > .cancel {
-  flex: 0.5;
-  background: var(--bg-step-2);
-  color: var(--font-color-default);
+.crypto-pass-buttons .ui-button:first-child {
+  flex: 0.6;
 }
 
 .crypto-pass-error {
