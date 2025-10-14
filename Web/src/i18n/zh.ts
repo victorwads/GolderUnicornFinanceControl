@@ -110,6 +110,22 @@ const zh: Translation = {
     exportData: '导出我的数据',
     exportingData: (filename: string, current: string, max: string) =>
       `正在导出 ${filename} (${current}/${max})%`,
+    exportDataError: '未能导出你的数据，请重试。',
+    deleteData: '删除我所有的数据',
+    deleteDataConfirm: '确定吗？系统会先导出然后永久删除你的数据。',
+    deleteDataPrompt: (phrase: string) => `请输入“${phrase}”以确认。`,
+    deleteDataMismatch: '输入的短语不匹配，未删除任何内容。',
+    deleteDataSuccess: '已删除你所有的数据，你将随后被登出。',
+    deleteDataError: '未能完成数据删除，请重试。',
+    deleteDataPhrases: () => [
+      '我同意删除我所有的数据',
+      '我要永久删除我的数据',
+      '我理解这个操作无法撤销',
+      '请移除与我账户有关的一切',
+      '是的，现在删除我所有的数据',
+    ],
+    deletingData: (filename: string, current: string, max: string) =>
+      `正在删除 ${filename} (${current}/${max})...`,
     auth: '认证',
     logout: '登出',
     clearLocalCaches: '清除本地缓存',

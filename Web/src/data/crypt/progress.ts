@@ -3,5 +3,5 @@ export interface Progress {
   current: number;
   max: number;
   sub?: { max: number; current: number };
-  type: 'export' | 'resave';
+  type: 'export' | 'resave' | 'delete';
 }
