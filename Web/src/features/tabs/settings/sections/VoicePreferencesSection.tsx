@@ -3,14 +3,20 @@ import { ProjectStorage } from '@utils/ProjectStorage';
 
 import { SettingsSection } from "./types";
 import "./VoicePreferencesSection.css";
+import Icon, { Icons } from "@components/Icons";
 
 const SPEECH_RATE_KEY = "speechRate";
 const VOICE_NAME_KEY = "voiceNameV2";
+const USE_SPEECH_KEY = "useSpeech";
 
 function getRate(): number {
   const rate = Number(ProjectStorage.get(SPEECH_RATE_KEY + CurrentLang));
   if (!isNaN(rate) && rate >= 0.5 && rate <= 2.0) return rate;
   return 1.3;
+}
+
+function isUsingSpeech(): boolean {
+  return ProjectStorage.get(USE_SPEECH_KEY) === 'true';
 }
 
 export function getVoices() {
@@ -27,14 +33,16 @@ export function getVoices() {
   return [];
 }
 
-// if has internet
-if (navigator.onLine) {
-  // Fetch voices from the server
+type SpeakOptions = {
+  rate?: number, volume?: number, important?: boolean, force?: boolean
 }
 
 let lastSpeakStop: (() => void) | null = null;
-export function speak(text: string, rate?: number, volume?: number, important: boolean = false) {
-  if (!("speechSynthesis" in window)) return Promise.resolve();
+export function speak(
+  text: string,
+  { rate, volume, important = false, force = false }: SpeakOptions = {}
+): Promise<void> {
+  if (!("speechSynthesis" in window) || (!isUsingSpeech() && !force)) return Promise.resolve();
   lastSpeakStop?.();
   const savedVoiceName = ProjectStorage.get(VOICE_NAME_KEY + CurrentLang);
 
@@ -71,6 +79,7 @@ export function speak(text: string, rate?: number, volume?: number, important: b
 }
 
 const VoicePreferencesContent = () => {
+  const [usingSpeech, setUsingSpeech] = useState<boolean>(isUsingSpeech());
   const [speechRate, setSpeechRate] = useState<number>(getRate());
   const [availableVoices, setAvailableVoices] = useState<
     SpeechSynthesisVoice[]
@@ -93,7 +102,9 @@ const VoicePreferencesContent = () => {
 
   const toggleVoicesList = () => setShowVoices(!showVoices);
   const testSpeech = () => {
-    speak(Lang.settings.testSpeechMessage);
+    speak(Lang.settings.testSpeechMessage, { force: true }).then(() => {
+      ProjectStorage.set(USE_SPEECH_KEY, String(true));
+    });
   };
 
   return (
@@ -117,9 +128,20 @@ const VoicePreferencesContent = () => {
       </div>
       <div>
         <div className="buttons-container">
-          <button onClick={testSpeech} className="test-speech-button">
-            {Lang.settings.testSpeech}
+          <button onClick={() => {
+            const newUsingSpeech = !usingSpeech;
+            setUsingSpeech(newUsingSpeech);
+            if (newUsingSpeech) {
+              testSpeech();
+            } else {
+              ProjectStorage.remove(USE_SPEECH_KEY);
+            }
+          }}>
+            <Icon icon={usingSpeech ? Icons.faVolumeHigh : Icons.faVolumeMute} />
           </button>
+          {usingSpeech && <button onClick={testSpeech} className="test-speech-button">
+            {Lang.settings.testSpeech}
+          </button>}
           <button onClick={toggleVoicesList} className="list-voices-button">
             {showVoices ? Lang.settings.hideVoices : Lang.settings.listVoices}
           </button>
@@ -138,7 +160,7 @@ const VoicePreferencesContent = () => {
                       VOICE_NAME_KEY + CurrentLang,
                       voice.name
                     );
-                    speak("Ok.");
+                    testSpeech();
                   }}
                 >
                   <strong>{voice.name}</strong>

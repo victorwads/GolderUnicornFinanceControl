@@ -70,7 +70,7 @@ export default function AssistantPage({
     stopListening();
     try {
       setSpeaking(true);
-      await speak(message, undefined, undefined, true);
+      await speak(message, { important: true });
     } catch (error) {
       setWarnings((previous) => [...previous, "Erro ao falar a mensagem"]);
     } finally {
@@ -91,12 +91,12 @@ export default function AssistantPage({
     if (loading && !askUserPrompt) {
       const init = isFirst
         ? Promise.resolve() 
-        : speak("OK", 1.4)
-          ?.then(() => speak("ta", 1.2))
+        : speak("OK", { rate: 1.4 })
+          ?.then(() => speak("ta", { rate: 1.2 }))
       init
-        ?.then(() => speak("humm, hum hum, hum hum", 0.01, 0.03))
+        ?.then(() => speak("humm, hum hum, hum hum", { rate: 0.01, volume: 0.03 }))
         ?.then(() =>
-          isFirst ? Promise.resolve() : speak("ah", 0.8, 0.25)
+          isFirst ? Promise.resolve() : speak("ah", { rate: 0.8, volume: 0.25 })
         )
     };
   }, [loading, isFirst, askUserPrompt]);
