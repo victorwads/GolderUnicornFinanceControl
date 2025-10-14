@@ -73,7 +73,7 @@ function Selector<T>({
         {selected ? renderOption(selected, true) : (Lang.commons.selectOption(label))}
       </div>
     </Row>
-    <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)} size="full">
+    <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <Container spaced>
         <ContainerFixedContent>
           <SearchBar value={searchValue} onSearchEach={setSearchValue} onClose={() => setIsOpen(false)} />
