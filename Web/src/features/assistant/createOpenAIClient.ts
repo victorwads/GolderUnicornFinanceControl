@@ -1,6 +1,8 @@
 import { OpenAI } from 'openai';
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getApp } from 'firebase/app';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
+import { ProjectStorage } from '@utils/ProjectStorage';
 
 const OPENROUTER_API_KEY_STORAGE_KEY = 'ai_api_key';
 
@@ -8,7 +10,7 @@ async function getOpenRouterApiKey(): Promise<{
   key: string;
   url: string;
 }> {
-  const storedKey = JSON.parse(sessionStorage.getItem(OPENROUTER_API_KEY_STORAGE_KEY) || 'null') as Store | null;
+  const storedKey = JSON.parse(ProjectStorage.getSession(OPENROUTER_API_KEY_STORAGE_KEY) || 'null') as Store | null;
   if (storedKey && storedKey.key) {
     return storedKey;
   }
@@ -19,7 +21,7 @@ async function getOpenRouterApiKey(): Promise<{
 
   if (result.data && typeof result.data === 'object' && 'key' in result.data) {
     const storedKey = result.data as Store;
-    sessionStorage.setItem(OPENROUTER_API_KEY_STORAGE_KEY, JSON.stringify(storedKey));
+    ProjectStorage.setSession(OPENROUTER_API_KEY_STORAGE_KEY, JSON.stringify(storedKey));
     return storedKey;
   }
 

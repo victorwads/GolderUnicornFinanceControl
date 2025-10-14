@@ -1,6 +1,7 @@
 import { httpsCallable } from 'firebase/functions';
 
 import { functions, getCurrentUser } from '@configs';
+import { ProjectStorage } from '@utils/ProjectStorage';
 
 import { Progress } from '../crypt/progress';
 import Encryptor, { Hash } from '../crypt/Encryptor';
@@ -37,16 +38,16 @@ export default class CryptoPassRepository {
 
   public static isAvailable(uid?: string): boolean {
     if(!uid) return false;
-    return sessionStorage.getItem(SESSION_SECRET_KEY + uid) !== null;
+    return ProjectStorage.getSession(SESSION_SECRET_KEY + uid) !== null;
   }
 
   public static hasToken(uid?: string): boolean {
     if(!uid) return false;
-    return localStorage.getItem(TOKEN_KEY + uid) !== null;
+    return ProjectStorage.get(TOKEN_KEY + uid) !== null;
   }
 
   public static getSyncHash(uid: string): Hash | null {
-    let sessionHashHex = sessionStorage.getItem(SESSION_SECRET_KEY + uid);
+    let sessionHashHex = ProjectStorage.getSession(SESSION_SECRET_KEY + uid);
     if (sessionHashHex)
       return Encryptor.hashFromHex(sessionHashHex);
     return null;
@@ -58,15 +59,13 @@ export default class CryptoPassRepository {
       return sessionHashHex;
     }
 
-    const token = localStorage.getItem(this.STORAGE_TOKEN_KEY);
+    const token = ProjectStorage.get(this.STORAGE_TOKEN_KEY);
     if (!token) return null;
 
     try {
       return await this.decryptHash(token);
     } catch (error) {
       console.error('Failed to decrypt stored hash', error);
-      localStorage.removeItem(this.STORAGE_TOKEN_KEY);
-      sessionStorage.removeItem(this.SESSION_SECRET_KEY);
       return null;
     }
   }
@@ -86,14 +85,9 @@ export default class CryptoPassRepository {
       throw new Error('Senha de criptografia inválida.');
     }
 
-    sessionStorage.setItem(this.SESSION_SECRET_KEY, secretHash.hex);
+    ProjectStorage.setSession(this.SESSION_SECRET_KEY, secretHash.hex);
     this.encryptPassword(secretHash.hex)
-      .then(token => localStorage.setItem(this.STORAGE_TOKEN_KEY, token));
-  }
-
-  public clear(): void {
-    localStorage.removeItem(this.STORAGE_TOKEN_KEY);
-    sessionStorage.removeItem(this.SESSION_SECRET_KEY);
+      .then(token => ProjectStorage.set(this.STORAGE_TOKEN_KEY, token));
   }
 
   private async encryptPassword(secretHash: string): Promise<string> {
@@ -108,7 +102,7 @@ export default class CryptoPassRepository {
     const secretHash = response.data?.secretHash;
     if (!secretHash) throw new Error('Função de descriptografia não retornou o hash secreto.');
 
-    sessionStorage.setItem(this.SESSION_SECRET_KEY, secretHash);
+    ProjectStorage.setSession(this.SESSION_SECRET_KEY, secretHash);
 
     return Encryptor.hashFromHex(secretHash);
   }

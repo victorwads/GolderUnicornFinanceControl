@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { Langs } from '@lang';
 import { useCssVars } from '@components/Vars';
+import { ProjectStorage } from '@utils/ProjectStorage';
+import { subscribeAssistantEvent } from '@features/assistant/utils/assistantEvents';
 
 import {
   AIMicrophoneOnboardingComponentProps,
@@ -9,12 +12,22 @@ import {
 } from './AIMicrophoneOnboarding.types';
 import { stopListening } from './microfone';
 
-const getOnboardingStorageKey = () => `ai-mic-onboarding-${CurrentLang}`;
+export const AI_MIC_ONBOARDING_STORAGE_PREFIX = 'ai-mic-onboarding-';
 
-const hasCompletedOnboarding = () => localStorage.getItem(getOnboardingStorageKey()) === 'true';
+const getOnboardingStorageKey = () => `${AI_MIC_ONBOARDING_STORAGE_PREFIX}${CurrentLang}`;
+
+const hasCompletedOnboarding = () => ProjectStorage.get(getOnboardingStorageKey()) === 'true';
+
+export const hasCompletedAIMicrophoneOnboarding = () => hasCompletedOnboarding();
 
 export const setCompletedOnboarding = (completed: boolean) => {
-  localStorage.setItem(getOnboardingStorageKey(), String(completed));
+  ProjectStorage.set(getOnboardingStorageKey(), String(completed));
+};
+
+export const clearAIMicrophoneOnboardingFlags = () => {
+  Object.keys(Langs).forEach((lang) => {
+    ProjectStorage.remove(`${AI_MIC_ONBOARDING_STORAGE_PREFIX}${lang}`);
+  });
 };
 
 export const useAIMicrophoneOnboarding = ({
@@ -37,6 +50,12 @@ export const useAIMicrophoneOnboarding = ({
   useEffect(() => {
     setHasCompleted(hasCompletedOnboarding());
   }, [currentCssLang]);
+
+  useEffect(() => {
+    return subscribeAssistantEvent('assistant:onboarding-reset', () => {
+      setHasCompleted(hasCompletedOnboarding());
+    });
+  }, []);
 
   const requestStart = useCallback((options?: StartListeningOptions) => {
     const shouldSkip = options?.skipOnboarding ?? skipOnboarding ?? false;
@@ -82,6 +101,7 @@ export const useAIMicrophoneOnboarding = ({
     requestStart,
     isActive: isOpen,
     componentProps,
+    hasCompleted,
   };
 };
 

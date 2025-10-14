@@ -8,6 +8,7 @@ import {
   ChatCompletionMessageToolCall,
 } from "openai/resources/index";
 
+import { ProjectStorage } from '@utils/ProjectStorage';
 import getRepositories, { Repositories } from "@repositories";
 import { AiCallContext, type AiModel } from "@models";
 import { addResourceUse } from "@resourceUse";
@@ -35,7 +36,7 @@ export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-4.1-nano"; // "@preset/gu-d
 const AIModelStorageKey = "assistant_model";
 
 export const getAssistantModel = (): AiModel => {
-  const savedModel = localStorage.getItem(AIModelStorageKey);
+  const savedModel = ProjectStorage.get(AIModelStorageKey);
   if (savedModel && AiCallContext.PriceModels.includes(savedModel)) {
     return savedModel as AiModel;
   }
@@ -43,7 +44,7 @@ export const getAssistantModel = (): AiModel => {
 }
 
 export function setAssistantModel(model: AiModel) {
-  localStorage.setItem(AIModelStorageKey, model);
+  ProjectStorage.set(AIModelStorageKey, model);
   window.location.reload();
 }
 

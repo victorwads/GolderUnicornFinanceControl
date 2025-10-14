@@ -1,14 +1,18 @@
-import { SettingsSection, Progress } from './types';
-import getRepositories from '@repositories';
-import RepositoryWithCrypt from '../../../../data/repositories/RepositoryWithCrypt';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { setCompletedOnboarding } from '@components/voice/AIMicrophoneOnboarding.model';
+
+import { ProjectStorage } from '@utils/ProjectStorage';
+import getRepositories, { RepositoryWithCrypt } from '@repositories';
+
+import { clearAIMicrophoneOnboardingFlags } from '@components/voice/AIMicrophoneOnboarding.model';
+import { clearAssistantOnboardingDismissal } from '@features/assistant/utils/onboardingStorage';
+import { dispatchAssistantEvent } from '@features/assistant/utils/assistantEvents';
+import { SettingsSection, Progress } from './types';
 
 const CHUNK_SIZE = 100;
 
 const DevContent = () => {
-  const [encryptionDisabled, setEncryptionDisabled] = React.useState<boolean>(localStorage.getItem('disableEncryption') === 'true');
+  const [encryptionDisabled, setEncryptionDisabled] = React.useState<boolean>(ProjectStorage.get('disableEncryption') === 'true');
   const [progress, setProgress] = React.useState<Progress | null>(null);
 
   const killAccountRegisters = async (accountId: string) => {
@@ -29,7 +33,7 @@ const DevContent = () => {
 
   const toggleEncryption = async () => {
     const newValue = !encryptionDisabled;
-    localStorage.setItem('disableEncryption', newValue ? 'true' : 'false');
+    ProjectStorage.set('disableEncryption', newValue ? 'true' : 'false');
     setEncryptionDisabled(newValue);
     const allRepos = getRepositories();
     const repos = Object.entries(allRepos).filter(([, repo]) => repo instanceof RepositoryWithCrypt);
@@ -52,10 +56,22 @@ const DevContent = () => {
     setProgress(null);
   };
 
+  const resetAssistantOnboarding = async () => {
+    try {
+      await getRepositories().user.clearOnboardingFlag();
+    } catch (error) {
+      console.error('Failed to clear onboarding flag', error);
+    }
+
+    clearAssistantOnboardingDismissal();
+    clearAIMicrophoneOnboardingFlags();
+    dispatchAssistantEvent('assistant:onboarding-reset');
+  };
+
   return <>
     <div className='list'>
       <Link to="/settings/ai-calls">AI Calls</Link>
-      <a onClick={() => setCompletedOnboarding(false)}>{Lang.settings.resetOnboarding}</a>
+      <a onClick={resetAssistantOnboarding}>{Lang.settings.resetOnboarding}</a>
       <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
       <input type="text" style={{color: 'black'}} placeholder='Kill account registers' onKeyDown={(e) => {
         if (e.key === 'Enter' && e.currentTarget.value) {

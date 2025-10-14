@@ -1,8 +1,10 @@
 import "./SettingsScreen.css";
 import { useMemo } from "react";
 
+import { ProjectStorage } from '@utils/ProjectStorage';
 import { Container, ContainerFixedContent, ContainerScrollContent } from "@components/conteiners";
 import Card from "@components/visual/Card";
+
 import FinancesSection from './sections/QuickAccessSection';
 import AppSection from './sections/AppPreferencesSection';
 import AccountSection from './sections/AccountSection';
@@ -13,7 +15,8 @@ import VoicePreferencesSection from './sections/VoicePreferencesSection';
 import { SettingsSection } from './sections/types';
 import AppInfoSection from './sections/AppInfoSection';
 
-const DevOptions = window.isDevelopment || localStorage.DEV === 'true';
+
+const DevOptions = window.isDevelopment || ProjectStorage.get('DEV') === 'true';
 
 const SettingsScreen = () => {
 

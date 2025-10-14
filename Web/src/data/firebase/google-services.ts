@@ -1,9 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { connectAuthEmulator, getAuth, signOut, User } from "firebase/auth";
+import { connectAuthEmulator, getAuth, User } from "firebase/auth";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { clearIndexedDbPersistence, getFirestore, terminate } from "firebase/firestore";
 import { CACHE_SIZE_UNLIMITED, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+
+import { ProjectStorage } from '@utils/ProjectStorage';
 
 declare global {
   interface Window { isDevelopment: boolean; isSsl: boolean; port: number }
@@ -63,10 +65,10 @@ auth.useDeviceLanguage();
 export const AUTH_CACHE_KEY = 'firebase:authUser:synccache';
 export function getCurrentUser(): User | null {
   return auth.currentUser || JSON.parse(
-    localStorage.getItem(AUTH_CACHE_KEY) || 'null'
+    ProjectStorage.get(AUTH_CACHE_KEY) || 'null'
   );
 }
 
 export function saveUser(user?: User | null) {
-  localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(user || null));
+  ProjectStorage.set(AUTH_CACHE_KEY, JSON.stringify(user || null));
 }

@@ -1,3 +1,4 @@
+import { ProjectStorage } from '@utils/ProjectStorage';
 import { useAppUpdates } from '@components/AppUpdatesProvider';
 import { SettingsSection } from './types';
 
@@ -6,7 +7,7 @@ let easterEggTimeout: NodeJS.Timeout | null = null;
 function triggerEasterEgg() {
   easterEggCounter++;
   if (easterEggCounter >= 8) {
-    localStorage.DEV = 'true';
+    ProjectStorage.set('DEV', 'true');
     window.location.reload();
   }
   clearTimeout(easterEggTimeout!);

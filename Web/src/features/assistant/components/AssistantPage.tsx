@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AIMicrophone, { type AIMicrophoneProps } from "@components/voice/AIMicrophone";
+import AIMicrophone, { type AIMicrophoneHandle, type AIMicrophoneProps } from "@components/voice/AIMicrophone";
 import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
 import getRepositories from "@repositories";
@@ -17,6 +17,7 @@ import GlassContainer from "@components/GlassContainer";
 import { startListening, stopListening } from "@components/voice/microfone";
 import { AiCallContext, AIUse } from "@models";
 import { speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
+import { subscribeAssistantEvent } from "../utils/assistantEvents";
 
 export default function AssistantPage({
   compact = false,
@@ -31,6 +32,8 @@ export default function AssistantPage({
   const [warnings, setWarnings] = useState<string[]>([]);
   const pendingAskResolver = useRef<((answer: string) => void) | null>(null);
   const resourcesUse = useMemo(() => getRepositories().resourcesUse, []);
+  const microphoneRef = useRef<AIMicrophoneHandle | null>(null);
+  const onboardingFlowRef = useRef(false);
 
   const normalizeUsage = useCallback(
     (usage?: AIUse<number> | null) => ({
@@ -152,9 +155,36 @@ export default function AssistantPage({
     string
   >["parser"];
 
+  useEffect(() => {
+    return subscribeAssistantEvent('assistant:start-onboarding', async () => {
+      if (onboardingFlowRef.current) return;
+      onboardingFlowRef.current = true;
+      try {
+        const microphone = microphoneRef.current;
+        const micReady = microphone
+          ? await microphone.ensureOnboardingCompleted()
+          : true;
+
+        if (micReady) {
+          await processText('init', CurrentLangInfo.short);
+        }
+      } catch (error) {
+        console.error('Failed to start assistant onboarding flow', error);
+      } finally {
+        onboardingFlowRef.current = false;
+      }
+    });
+  }, [processText]);
+
   if (compact) {
     return <div className="assistant-icon">
-      <AIMicrophone parser={microphoneParser} compact withLoading={loading} onPartialResult={setPartial} />
+      <AIMicrophone
+        ref={microphoneRef}
+        parser={microphoneParser}
+        compact
+        withLoading={loading}
+        onPartialResult={setPartial}
+      />
       <div className="assistant-toasts">
         {speaking && <>
           <GlassContainer>
@@ -216,7 +246,7 @@ export default function AssistantPage({
   return (
     <div className="assistant-page">
       <div className="assistant-page__microphone">
-        <AIMicrophone parser={microphoneParser} disableClick={loading} />
+        <AIMicrophone ref={microphoneRef} parser={microphoneParser} disableClick={loading} />
       </div>
       <div className="assistant-page__content">
         <section className="assistant-section assistant-section--usage">
