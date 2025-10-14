@@ -18,7 +18,7 @@ const TabScreen = () => {
         <Outlet />
       </ContainerScrollContent>
       <ContainerFixedContent>
-        <AssistantOnboardingDialog />
+        {/* <AssistantOnboardingDialog /> */}
         <div className="TabViewNav">
           <Link to="dashboard">
             <Icon size="lg" icon={Icons.faHome} />

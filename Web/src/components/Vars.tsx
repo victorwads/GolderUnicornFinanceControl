@@ -2,6 +2,7 @@ import './Vars.css'
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 import getBroadcastChannel from '@utils/Broadcast';
+import { ProjectStorage } from '@utils/ProjectStorage';
 
 declare global {
   interface Window {
@@ -60,14 +61,14 @@ const THEME_KEY = 'theme';
 export const VarsChannel = getBroadcastChannel<'change', Partial<ThemeSettings>>('theme-config');
 
 export function VarsProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => localStorage.getItem(THEME_KEY) as Theme || 'theme-dark');
-  const [density, setDensityState] = useState<Density>(() => localStorage.getItem(DENSITY_KEY) as Density || DEFAULT_DENSITY);
+  const [theme, setThemeState] = useState<Theme>(() => ProjectStorage.get(THEME_KEY) as Theme || 'theme-dark');
+  const [density, setDensityState] = useState<Density>(() => ProjectStorage.get(DENSITY_KEY) as Density || DEFAULT_DENSITY);
   const [lang, setLang] = useState<string>(CurrentLang);
   const [isOnline, setIsOnline] = useState<boolean>(() => readNavigatorOnline());
 
   useEffect(() => {
-    localStorage.setItem(THEME_KEY, theme);
-    localStorage.setItem(DENSITY_KEY, density);
+    ProjectStorage.set(THEME_KEY, theme);
+    ProjectStorage.set(DENSITY_KEY, density);
   }, [theme, density]);
 
   useEffect(() => {

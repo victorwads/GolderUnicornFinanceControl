@@ -5,6 +5,7 @@ import {
 } from "firebase/firestore";
 
 import { DocumentModel } from "@models";
+import { ProjectStorage } from '@utils/ProjectStorage';
 
 import Encryptor from "../crypt/Encryptor";
 import BaseRepository from "./BaseRepository";
@@ -19,7 +20,7 @@ export default abstract class RepositoryWithCrypt<Model extends DocumentModel> e
   }
 
   private encryptionDisabled(): boolean {
-    return window.isDevelopment && localStorage.getItem('disableEncryption') === 'true';
+    return window.isDevelopment && ProjectStorage.get('disableEncryption') === 'true';
   }
 
   protected override async createQuery(fields: Partial<Model>): Promise<Query<Model, DocumentData>> {

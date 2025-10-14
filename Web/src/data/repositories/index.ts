@@ -22,6 +22,7 @@ import AiCallsRepository from "./AiCallsRepository";
 import RecurrentTransactionsRepository from "./RecurrentRegistryRepository";
 export { default as AiCallsRepository } from './AiCallsRepository';
 export { default as CryptoPassRepository } from './CryptoPassRepository';
+export { default as RepositoryWithCrypt } from './RepositoryWithCrypt';
 export { default as BaseRepository } from './BaseRepository';
 
 export class Repositories {
@@ -103,9 +104,6 @@ export function getEncryptor(): Encryptor {
 }
 
 export function clearRepositories(): void {
-  if (repositorieInstances) {
-    new CryptoPassRepository(repositorieInstances.uid).clear();
-  }
   repositorieInstances = null;
 }
 

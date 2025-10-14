@@ -1,8 +1,10 @@
+import { getCurrentUser } from "@configs";
+import { ProjectStorage } from '@utils/ProjectStorage';
 import getRepositories, { Repositories } from "@repositories";
+
 import { BalanceService } from "./BalanceService";
 import TimelineService from "./TimelineService";
 import FinancialMonthPeriod from "../utils/FinancialMonthPeriod";
-import { getCurrentUser } from "@configs";
 
 export type Services = {
   timeline: TimelineService;
@@ -24,8 +26,8 @@ let unsubscribeAll: (() => void) | null = null;
 export function resetServices(uid: string, repositories: Repositories): Services {
   if (servicesInstances?.uid === uid) return servicesInstances.instances;
 
-  const cutOff = parseInt(localStorage.getItem('financeDay') || '1');
-  const mode = (localStorage.getItem('financeMode') as "start" | "next") || 'start';
+  const cutOff = parseInt(ProjectStorage.get('financeDay') || '1');
+  const mode = (ProjectStorage.get('financeMode') as "start" | "next") || 'start';
   const period = new FinancialMonthPeriod(cutOff, mode);
 
   const timeline = new TimelineService(repositories, period);

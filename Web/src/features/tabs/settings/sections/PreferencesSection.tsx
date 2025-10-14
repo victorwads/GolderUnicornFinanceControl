@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { SettingsSection } from './types';
+
+import FinancialMonthPeriod from '@utils/FinancialMonthPeriod';
+import { ProjectStorage } from '@utils/ProjectStorage';
 import { getServices } from '@services';
-import FinancialMonthPeriod, { Month } from '@utils/FinancialMonthPeriod';
+
+import { SettingsSection } from './types';
 
 const TimelinePreferences = () => {
   const { period } = getServices().timeline;
@@ -12,14 +15,14 @@ const TimelinePreferences = () => {
     const newMode = e.target.value as 'start' | 'next';
     setMode(newMode);
     period.setConfig({ displayType: newMode });
-    localStorage.setItem('financeMode', newMode);
+    ProjectStorage.set('financeMode', newMode);
   };
 
   const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newDay = parseInt(e.target.value, 10);
     setDay(newDay);
     period.setConfig({ cutOffDay: newDay });
-    localStorage.setItem('financeDay', String(newDay));
+    ProjectStorage.set('financeDay', String(newDay));
   };
 
   const monthPeriod = new FinancialMonthPeriod(day, mode);

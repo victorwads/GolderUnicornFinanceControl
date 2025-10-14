@@ -1,9 +1,10 @@
 import { doc, getDoc, getDocs, increment } from "firebase/firestore";
 
-import getBroadcastChannel from "@utils/Broadcast";
+import { ProjectStorage } from '@utils/ProjectStorage';
 
 import BaseRepository from "./BaseRepository";
 import { Collections } from "../firebase/Collections";
+
 import { 
   ResourceUsage, FirestoreDatabasesUse, ResourcesUseRepository as Interface, 
   ResourceUseNode, setInstance, ResourcesUseModel, ResourceUseChannel
@@ -76,16 +77,16 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
   }
 
   private saveSendCache() {
-    localStorage.setItem(this.cacheKey, JSON.stringify(this.toSendCache));
+    ProjectStorage.set(this.cacheKey, JSON.stringify(this.toSendCache));
   }
 
   private clearSendCache() {
     this.toSendCache = {};
-    localStorage.setItem(this.cacheKey, "{}");
+    ProjectStorage.set(this.cacheKey, "{}");
   }
 
   private async initCaches() {
-    this.toSendCache = JSON.parse(localStorage.getItem(this.cacheKey) || "{}");
+    this.toSendCache = JSON.parse(ProjectStorage.get(this.cacheKey) || "{}");
 
     const bdUse = await getDoc(doc(this.ref, this.safeUserId));
     this.add({ db: { remote: { docReads: 1 } } });

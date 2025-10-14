@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { ProjectStorage } from '@utils/ProjectStorage';
+
 import { SettingsSection } from "./types";
 import "./VoicePreferencesSection.css";
 
@@ -6,7 +8,7 @@ const SPEECH_RATE_KEY = "speechRate";
 const VOICE_NAME_KEY = "voiceNameV2";
 
 function getRate(): number {
-  const rate = Number(localStorage.getItem(SPEECH_RATE_KEY + CurrentLang));
+  const rate = Number(ProjectStorage.get(SPEECH_RATE_KEY + CurrentLang));
   if (!isNaN(rate) && rate >= 0.5 && rate <= 2.0) return rate;
   return 1.3;
 }
@@ -17,37 +19,33 @@ export function getVoices() {
     return speechSynthesis
       .getVoices()
       .filter(
-        (voice) =>
-          voice.lang.startsWith(CurrentLang) || voice.lang.startsWith(miniLang)
+        ({lang, localService}) =>
+          (navigator.onLine || localService) &&
+          (lang.startsWith(CurrentLang) || lang.startsWith(miniLang))
       );
   }
   return [];
+}
+
+// if has internet
+if (navigator.onLine) {
+  // Fetch voices from the server
 }
 
 let lastSpeakStop: (() => void) | null = null;
 export function speak(text: string, rate?: number, volume?: number, important: boolean = false) {
   if (!("speechSynthesis" in window)) return Promise.resolve();
   lastSpeakStop?.();
-  const miniLang = CurrentLang.split("-")[0];
-  const savedVoiceName = localStorage.getItem(VOICE_NAME_KEY + CurrentLang);
+  const savedVoiceName = ProjectStorage.get(VOICE_NAME_KEY + CurrentLang);
 
-  const voices = speechSynthesis.getVoices();
+  const voices = getVoices()
+  if (voices.length === 0) return Promise.resolve();
   const userLangVoice =
-    voices.find((voice) => voice.name === savedVoiceName) ||
-    voices.find((voice) => voice.default) ||
-    voices.find((voice) => !voice.localService) ||
-    voices.find(
-      (voice) =>
-        voice.name.toLocaleLowerCase().includes("google") &&
-        voice.lang.includes(CurrentLang)
-    ) ||
-    voices.find(
-      (voice) =>
-        voice.name.toLocaleLowerCase().includes("google") &&
-        voice.lang.startsWith(miniLang)
-    ) ||
-    voices.find((voice) => voice.lang.includes(CurrentLang)) ||
-    voices.find((voice) => voice.lang.startsWith(miniLang)) ||
+    voices.find(({name}) => name === savedVoiceName) ||
+    // Apple best Portuguese voice
+    voices.find(({name}) => name.toLocaleLowerCase().includes('fernanda')) ||
+    voices.find(({localService}) => !localService) ||
+    voices.find((lang) => lang.default) ||
     voices[0];
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.voice = userLangVoice;
@@ -90,7 +88,7 @@ const VoicePreferencesContent = () => {
   const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newRate = parseFloat(e.target.value);
     setSpeechRate(newRate);
-    localStorage.setItem(SPEECH_RATE_KEY + CurrentLang, newRate.toString());
+    ProjectStorage.set(SPEECH_RATE_KEY + CurrentLang, newRate.toString());
   };
 
   const toggleVoicesList = () => setShowVoices(!showVoices);
@@ -136,7 +134,7 @@ const VoicePreferencesContent = () => {
                 <li
                   key={index}
                   onClick={() => {
-                    localStorage.setItem(
+                    ProjectStorage.set(
                       VOICE_NAME_KEY + CurrentLang,
                       voice.name
                     );

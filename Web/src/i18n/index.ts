@@ -1,3 +1,5 @@
+import { ProjectStorage } from '@utils/ProjectStorage';
+
 import Translation from './base';
 import ptBR from './ptBR';
 import en from './en';
@@ -28,9 +30,9 @@ const getCurrentLangInfo = (): LangInfo => {
 
 export function setLanguage(language?: Lang) {
   if(language)
-    localStorage.setItem('lang', language);
+    ProjectStorage.set('lang', language);
   else
-    localStorage.removeItem('lang');
+    ProjectStorage.remove('lang');
   window.SavedLang = language;
 
   if (!language) {
@@ -47,7 +49,7 @@ export function setLanguage(language?: Lang) {
   window.ThemeSettings?.setLang(language);
 }
 
-setLanguage(localStorage.getItem('lang') as Lang);
+setLanguage(ProjectStorage.get('lang') as Lang);
 
 declare global {
   var Lang: Translation;

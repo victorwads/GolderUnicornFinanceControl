@@ -1,11 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { AssistantTools } from './AssistantToolsDefinition';
-import getRepositories, { BaseRepository, Repositories, resetRepositories } from '@repositories';
-import { CreditCard, Category, Account, Bank } from '@models';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Disable encryption for tests
+import { ProjectStorage } from '@utils/ProjectStorage';
+import { CreditCard, Category, Bank } from '@models';
+import getRepositories, { BaseRepository, Repositories, resetRepositories } from '@repositories';
+
+import { AssistantTools } from './AssistantToolsDefinition';
+
 Object.defineProperty(window, 'isDevelopment', { value: true, writable: true });
-localStorage.setItem('disableEncryption', 'true');
+ProjectStorage.set('disableEncryption', 'true');
 
 BaseRepository.prototype.getAll = async function<T>(): Promise<T[]> {
   return [];
