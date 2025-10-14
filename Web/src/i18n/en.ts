@@ -121,6 +121,22 @@ const en: Translation = {
     exportData: 'Export My Data',
     exportingData: (filename: string, current: string, max: string) =>
       `Exporting ${filename} (${current}/${max})%`,
+    exportDataError: 'We could not export your data. Please try again.',
+    deleteData: 'Delete all my data',
+    deleteDataConfirm: 'Are you sure? Your data will be exported and permanently deleted.',
+    deleteDataPrompt: (phrase: string) => `Type "${phrase}" to confirm.`,
+    deleteDataMismatch: 'The confirmation phrase did not match. Nothing was deleted.',
+    deleteDataSuccess: 'All of your data has been deleted. You will be signed out next.',
+    deleteDataError: 'We could not complete the data deletion. Please try again.',
+    deleteDataPhrases: () => [
+      'I accept deleting all my data',
+      'Delete all of my account data',
+      'I understand this action is irreversible',
+      'Remove everything about my account',
+      'Yes, erase all my data now',
+    ],
+    deletingData: (filename: string, current: string, max: string) =>
+      `Deleting ${filename} (${current}/${max})...`,
     auth: 'Auth',
     logout: 'Logout',
     clearLocalCaches: 'Clear local caches',

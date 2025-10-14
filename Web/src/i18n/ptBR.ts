@@ -122,6 +122,22 @@ const ptBR: Translation = {
     exportData: 'Exportar Meus Dados',
     exportingData: (filename: string, current: string, max: string) =>
       `Exportando ${filename} (${current}/${max})%`,
+    exportDataError: 'Não foi possível exportar seus dados. Tente novamente.',
+    deleteData: 'Excluir todos os meus dados',
+    deleteDataConfirm: 'Tem certeza? Seus dados serão exportados e excluídos permanentemente.',
+    deleteDataPrompt: (phrase: string) => `Digite "${phrase}" para confirmar.`,
+    deleteDataMismatch: 'A frase digitada está incorreta. Nenhum dado foi excluído.',
+    deleteDataSuccess: 'Todos os seus dados foram excluídos. Você será desconectado em seguida.',
+    deleteDataError: 'Não foi possível concluir a exclusão dos dados. Tente novamente.',
+    deleteDataPhrases: () => [
+      'Eu aceito excluir todos os meus dados',
+      'Quero remover definitivamente meus dados',
+      'Estou ciente de que isso é irreversível',
+      'Autorizo apagar permanentemente meus dados',
+      'Sim, desejo apagar tudo da minha conta',
+    ],
+    deletingData: (filename: string, current: string, max: string) =>
+      `Excluindo ${filename} (${current}/${max})...`,
     auth: 'Autenticação',
     logout: 'Sair',
     clearLocalCaches: 'Limpar caches locais',

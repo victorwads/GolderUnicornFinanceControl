@@ -110,6 +110,22 @@ const es: Translation = {
     exportData: 'Exportar Mis Datos',
     exportingData: (filename: string, current: string, max: string) =>
       `Exportando ${filename} (${current}/${max})%`,
+    exportDataError: 'No pudimos exportar tus datos. Inténtalo de nuevo.',
+    deleteData: 'Eliminar todos mis datos',
+    deleteDataConfirm: '¿Estás seguro? Tus datos se exportarán y se eliminarán permanentemente.',
+    deleteDataPrompt: (phrase: string) => `Escribe "${phrase}" para confirmar.`,
+    deleteDataMismatch: 'La frase ingresada no coincide. No se eliminó nada.',
+    deleteDataSuccess: 'Todos tus datos se eliminaron. Tu sesión se cerrará enseguida.',
+    deleteDataError: 'No pudimos completar la eliminación de datos. Inténtalo de nuevo.',
+    deleteDataPhrases: () => [
+      'Acepto eliminar todos mis datos',
+      'Quiero borrar definitivamente mis datos',
+      'Entiendo que esta acción es irreversible',
+      'Deseo remover todo sobre mi cuenta',
+      'Sí, borra todos mis datos ahora',
+    ],
+    deletingData: (filename: string, current: string, max: string) =>
+      `Eliminando ${filename} (${current}/${max})...`,
     auth: 'Autenticación',
     logout: 'Cerrar sesión',
     clearLocalCaches: 'Borrar cachés locales',
