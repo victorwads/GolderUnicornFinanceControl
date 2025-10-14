@@ -6,6 +6,9 @@ import AIMicrophoneOnboardingLanguageStep from './AIMicrophoneOnboardingLanguage
 import AIMicrophoneOnboardingSuccessStep from './AIMicrophoneOnboardingSuccessStep';
 import AIMicrophoneOnboardingTestStep from './AIMicrophoneOnboardingTestStep';
 import { AIMicrophoneOnboardingComponentProps, OnboardingStepKey } from './AIMicrophoneOnboarding.types';
+import Dialog, { DialogBody } from '@components/visual/Dialog';
+import Button from '@components/ui/Button';
+import './AIMicrophoneOnboarding.css';
 
 const SUCCESS_DISPLAY_TIME = 8000;
 
@@ -136,19 +139,40 @@ export default function AIMicrophoneOnboarding({
   }
 
   return (
-    <div className="ai-mic-onboarding">
-      <div className="ai-mic-onboarding__backdrop" />
-      <div className="ai-mic-onboarding__modal" role="dialog" aria-modal="true" aria-labelledby={modalTitleId}>
-        <div className='ai-mic-onboarding__header'>
-        {step === 'test' ? <button type="button" onClick={() => { onComplete(); handleClose(); }} >
-          {Lang.aiMic.onboarding.actions.imDone}
-        </button> : <div />}
-        <button type="button" onClick={handleClose} >
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      labelledBy={modalTitleId}
+      size="lg"
+      closeOnBackdrop={false}
+      contentClassName="ai-mic-onboarding"
+    >
+      <div className="ai-mic-onboarding__header">
+        {step === 'test' ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              onComplete();
+              handleClose();
+            }}
+          >
+            {Lang.aiMic.onboarding.actions.imDone}
+          </Button>
+        ) : <span className="ai-mic-onboarding__spacer" />}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleClose}
+        >
           {Lang.aiMic.onboarding.actions.close}
-        </button>
-        </div>
-        {content}
+        </Button>
       </div>
-    </div>
+      <DialogBody scrollable className="ai-mic-onboarding__body">
+        {content}
+      </DialogBody>
+    </Dialog>
   );
 }

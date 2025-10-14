@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 
 import './CryptoPassSetupScreen.css';
 import { Loading } from '@components/Loading';
+import Button from '@components/ui/Button';
 
 import { clearSession } from '@utils/clearSession';
 import { CryptoPassRepository, User } from '@repositories';
@@ -106,10 +107,16 @@ export default function CryptoPassSetupScreen({ onCompleted, user, onProgress }:
         </label>}
 
         <div className='crypto-pass-buttons'>
-          <button type='reset' onClick={() => clearSession()} className='cancel'>Sair</button>
-          <button type="submit" disabled={loading}>
+          <Button
+            type='reset'
+            variant='secondary'
+            onClick={() => clearSession()}
+          >
+            Sair
+          </Button>
+          <Button type="submit" disabled={loading}>
             {loading ? 'Salvando…' : 'Entrar'}
-          </button>
+          </Button>
         </div>
 
         {error && <div className="crypto-pass-error">{error}</div>}

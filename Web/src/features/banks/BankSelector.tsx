@@ -43,7 +43,7 @@ const BankSelector: React.FC<BankSelectorParams> = ({ label, bank, onChange }) =
     <Row>
       <BankInfo onClick={() => setIsOpen(true)} bank={bank || selectBank} />
     </Row>
-    <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
+    <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)} size="full">
       <Container spaced>
         <ContainerFixedContent>
           <SearchBar value={searchValue} onSearchEach={search} onClose={() => setIsOpen(false)} />
