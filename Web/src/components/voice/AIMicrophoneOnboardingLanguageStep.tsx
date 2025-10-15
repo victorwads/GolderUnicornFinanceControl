@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import Button from '@components/ui/Button';
 import { Langs, setLanguage } from '@lang';
 
 interface AIMicrophoneOnboardingLanguageStepProps {
@@ -57,13 +56,21 @@ export default function AIMicrophoneOnboardingLanguageStep({
           ))}
         </select>
       </div>
-      <div className="ui-dialog__actions ui-dialog__actions--space-between">
-        <Button variant="secondary" onClick={onBack}>
+      <div className="ai-mic-onboarding__actions ai-mic-onboarding__actions--split">
+        <button
+          type="button"
+          className="ai-mic-onboarding__button ai-mic-onboarding__button--secondary"
+          onClick={onBack}
+        >
           {Lang.aiMic.onboarding.actions.back}
-        </Button>
-        <Button onClick={handleConfirm}>
+        </button>
+        <button
+          type="button"
+          className="ai-mic-onboarding__button ai-mic-onboarding__button--primary"
+          onClick={handleConfirm}
+        >
           {Lang.aiMic.onboarding.actions.confirm}
-        </Button>
+        </button>
       </div>
     </>
   );
