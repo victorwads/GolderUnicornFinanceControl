@@ -1,7 +1,7 @@
 import type { AssistantToolDefinition } from "./types";
 import { Similarity } from '../utils/stringSimilarity';
 import { AppNavigationTool, navigateToRoute, RoutesDefinition, routesDefinition } from "./routesDefinition";
-import { AssistantToolsBase, DomainToolName, MAX_RESULTS, ToUserTool } from "./AssistantToolsBase";
+import { AssistantToolsBase, DomainToolName, emptyParamsSchema, MAX_RESULTS, ToUserTool } from "./AssistantToolsBase";
 
 import { iconNamesList } from "@components/Icons";
 import { Repositories } from "@repositories";
@@ -16,8 +16,9 @@ import {
   RecurrentTransaction as RecurrentTransaction,
 } from "@models";
 
-const emptyParamsSchema = { type: "object", properties: {  }, additionalProperties: false,};
 export class AssistantTools extends AssistantToolsBase {
+
+  public isOnboarding: boolean = false;
 
   constructor(repositories: Repositories) {
     super(repositories);
@@ -153,14 +154,14 @@ export class AssistantTools extends AssistantToolsBase {
       },
       {
         name: AppNavigationTool.NAVIGATE,
-        description: `Use when the user wants to "go to" or "see something". Use ${AppNavigationTool.LIST_SCREENS} to obtain the routes to show in the user interface.`,
+        description: `Use when the user wants to "go to" or "see something". Use ${AppNavigationTool.LIST_SCREENS} to obtain the routes url to show in the user interface.`,
         parameters: {
           type: "object",
           properties: {
-            route: { type: "string", description: "Term to search a screen. use words related to the screen in english" },
+            url: { type: "string", description: "The built url path to navigate to a screen." },
             queryParams: { 
               type: "object",
-              description: "query parameters for the screen",
+              description: "query parameters to be added to the url to filter or config the screen.",
               additionalProperties: true,
             }
           }
@@ -169,17 +170,17 @@ export class AssistantTools extends AssistantToolsBase {
       },
       {
         name: AppNavigationTool.LIST_SCREENS,
-        description: "List the available routes and their parameters when user wants to navigate or see something or go somewhere. (search in english)",
+        description: "List the available routes urls and their parameters to use when user wants to see something. (search in english)",
         parameters: this.createSearchParamsSchemema(),
         execute: async ({ query }) => {
-          const similarity = new Similarity<RoutesDefinition>(({ name, description, queryParams, pathParams, domains}) => 
+          const similarity = new Similarity<RoutesDefinition>(({ url: name, description, queryParams, pathParams, domains}) => 
             `${name} - ${description}:\n - ${JSON.stringify({ queryParams, pathParams, domains }) }`);
           return {
             success: true,
             result: similarity
               .rank(query, routesDefinition, 5)
-              .map(({item: { name, description, queryParams, pathParams}}) => 
-                ({ name, description, queryParams, pathParams})
+              .map(({item: { url: name, domains, description, queryParams, pathParams}}) => 
+                ({ name, domains, description, queryParams, pathParams})
               ),
           }
         },
@@ -202,6 +203,14 @@ export class AssistantTools extends AssistantToolsBase {
           return { success: true, result: "Pedido concluído contexto resetado." };
         },
       },
+      ...(this.isOnboarding ? [{
+        name: ToUserTool.FINISH_ONBOARDING,
+        description: "End user conversation when all onboarding are completed. Confirm with user before executing it.",
+        parameters: emptyParamsSchema,
+        execute: async () => {
+          return { success: true, result: "Pedido concluído contexto resetado." };
+        },
+      }]:[]),
     ]
   }
 

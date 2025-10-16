@@ -14,7 +14,8 @@ import {
 export const MAX_RESULTS = 5;
 const ignoredRepos: RepoName[] = [
   'products', 'resourcesUse', 'aiCalls', 'groceries', 'user', 'creditCardsInvoices'
-]
+];
+export const emptyParamsSchema = { type: "object", properties: {  }, additionalProperties: false,};
 
 export abstract class AssistantToolsBase {
   private baseDefinitions: AssistantToolDefinition[] = [];
@@ -208,6 +209,22 @@ export abstract class AssistantToolsBase {
         }` : undefined
     };
 
+    const counter: AssistantToolDefinition =  {
+      name: repoName + '_count',
+      description: `Count the number of ${name} items the user has registered in this domain.`,
+      parameters: emptyParamsSchema,
+      execute: async (args) => {
+        const repository = this.getRepository<T>(repoName);
+        await repository.waitUntilReady();
+        return { success: true, result: {
+          count: repository.getCache().length,
+          someRandomItems: repository.getCache().sort(() => 0.5 - Math.random())
+            .slice(0, 3).map(item => ({ id: item.id, info: (item.name||item.description) }))
+        } }
+      }
+    }
+
+    this.registerDomainAction(name, counter);
     this.registerDomainAction(name, creator);
     this.registerDomainAction(name, updator);
 
@@ -296,6 +313,7 @@ export abstract class AssistantToolsBase {
 
 export enum ToUserTool {
   FINISH = "finish_conversation",
+  FINISH_ONBOARDING = "finish_onboarding",
   SAY = "say_to_user",
 };
 export enum DomainToolName {

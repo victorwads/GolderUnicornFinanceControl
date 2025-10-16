@@ -21,7 +21,7 @@ Rules:
 - When you finish all actions requested by the user, you should call the ${ToUserTool.FINISH} tool to end the session. Please confirm with the user that all actions were completed.
 - Do not call ${ToUserTool.FINISH} before finishing all orchestration required by the user.
 - Only talk with the user in his native language, which is provided in the first user message.
-- Before you finish, you can optionally move to the screen about the action that you just did like view the "edit/view screen" of that domain.
+- Add navigation tool calls to navigate to some domain's screen BEFORE create or update domain data, this way the user can see what your doing in real time.
 `.trim();
 
 export default SYSTEM_PROMPT;

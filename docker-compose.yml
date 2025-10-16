@@ -46,11 +46,11 @@ services:
     build:
       context: ./Firebase
     volumes:
-      - ./Firebase:/app/emulators
       - ./.firebaserc:/app/.firebaserc
+      - ./firebase.json:/app/firebase.json
+      - ./Firebase:/app/Firebase
       - ./Backend:/app/Backend
       - ./Backend/.env.local:/app/.env.local
-      - ./firebase.json:/app/firebase.json
     ports:
       - "8004:8004" # Auth
       - "8006:8006" # Functions
@@ -61,7 +61,7 @@ services:
       - "4500:4500" # Other reserved ports
       - "9150:9150" # Other reserved ports
       - "9299:9299" # ???
-    command: firebase emulators:start --import=./emulators/data --export-on-exit=./emulators/data
+    command: firebase emulators:start --import=./Firebase/data --export-on-exit=./Firebase/data
 
 volumes:
   proxy_node_modules:

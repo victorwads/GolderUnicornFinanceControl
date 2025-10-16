@@ -53,10 +53,9 @@ export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
 
 export default class AssistantController {
   private openai: OpenAI | null = null;
-  private inOnboarding: boolean = false;
  
   private readonly toolRegistry: AssistantTools = new AssistantTools(
-    this.repositories
+    this.repositories,
   );
 
   constructor(
@@ -74,7 +73,7 @@ export default class AssistantController {
 
   private setPrompt(onboarding: boolean) {
     this.model = onboarding ? "gpt-4.1-mini" : getAssistantModel();
-    this.inOnboarding = onboarding;
+    this.toolRegistry.isOnboarding = onboarding;
   }
 
   private async getOpenAIClient(): Promise<OpenAI> {
@@ -122,12 +121,14 @@ export default class AssistantController {
         if (!toolCalls.length) {context.finishReason = "assistant_no_tool_calls"; break; }
 
         for (const call of toolCalls) {
-          if (call.function.name === ToUserTool.FINISH) {
-            if (this.inOnboarding) {
-              this.inOnboarding = false;
+          if (call.function.name === ToUserTool.FINISH || call.function.name === ToUserTool.FINISH_ONBOARDING) {
+            context.finishReason = "finished_by_assistant";
+            run = false;
+            if (call.function.name === ToUserTool.FINISH_ONBOARDING) {
+              this.toolRegistry.isOnboarding = false;
               await this.repositories.user.updateUserData({ onboardingDone: true });
+              context.finishReason += "_onboarding";
             }
-            context.finishReason = "finished_by_assistant"; run = false;
           } else {
             await this.executeToolCall(call, context);
           }
@@ -159,7 +160,7 @@ export default class AssistantController {
       this.model,
       "OpenRouter",
       [
-        { role: "system", content: this.inOnboarding ? AssistantOnboardingPrompt : AssistantGeneralPrompt },
+        { role: "system", content: this.toolRegistry.isOnboarding ? AssistantOnboardingPrompt : AssistantGeneralPrompt },
         {
           role: "user",
           content: `User native language: ${userLanguage}\nCurrent DateTime: ${new Date().toISOString()}`,
@@ -260,8 +261,8 @@ export default class AssistantController {
       context.sharedDomains = Array.from(this.toolRegistry.sharedDomains);
 
       if(name === AppNavigationTool.NAVIGATE && result.success === true) {
-        const { route, queryParams } = args as { route: string, queryParams?: Record<string, string> };
-        this.onNavigate?.(route, queryParams);
+        const { url, queryParams } = args as { url: string, queryParams?: Record<string, string> };
+        this.onNavigate?.(url, queryParams);
       }
     }
 
