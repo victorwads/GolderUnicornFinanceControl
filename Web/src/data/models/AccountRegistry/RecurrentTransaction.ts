@@ -68,7 +68,17 @@ export class RecurrentTransaction extends Transaction {
     from: (params, repositories, update) => {
       if (update) {
         // TODO: fix update logic with metadata update
-        return { success: false, errors: "Updating Recurrent Transactions using assistant is not supported yet." };
+        
+        const updateableFields = ['categoryId', 'description', 'observation', 'value'];
+        const hasNotUpdatableField =  undefined !== Object
+          .keys(params)
+          .find(k => !updateableFields.includes(k) && k !== 'id');
+
+        if(hasNotUpdatableField) {
+          return { success: false, errors: `The only supported fields for update are: ${updateableFields.join(", ")}.
+            Informe the user that the other fields are not updatable yet on assistant, but they will become available soon.`
+          };
+        }
       }
 
       const { assignId, assignString, assignNumber, assignDate, toResult, data } = new ModelContext(

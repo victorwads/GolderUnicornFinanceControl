@@ -46,7 +46,7 @@ Finishing the Onboarding
   2. Only after the user confirms, finish the onboarding.
   3. To finishing, perform 3 tool calls in the same response:
     - Add a warm goodbye message with ${ToUserTool.SAY} informing that there are available subscriptions,
-    - Navigate to the subscriptions page using ${AppNavigationTool.NAVIGATE} with route="/subscriptions"
+    - Navigate to the subscriptions page using ${AppNavigationTool.NAVIGATE} with url="/subscriptions"
     - Finish the onboarding with ${ToUserTool.FINISH_ONBOARDING}
 
 Data Management

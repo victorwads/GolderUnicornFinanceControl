@@ -1,7 +1,7 @@
 import { AiCallContext } from "@models";
 import getRepositories, { type Repositories } from "@repositories";
 
-export const MONTHLY_AI_COST_LIMIT_BRL = 15;
+export const MONTHLY_AI_COST_LIMIT_BRL = 5;
 export const MONTHLY_LIMIT_REACHED_MESSAGE =
   "Você atingiu o limite de uso da sua conta deste mês. O limite é resetado no último dia do mês.";
 

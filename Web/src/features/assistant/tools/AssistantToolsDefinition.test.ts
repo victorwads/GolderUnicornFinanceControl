@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { ProjectStorage } from '@utils/ProjectStorage';
-import { CreditCard, Category, Bank } from '@models';
+import { CreditCard, Category, Bank, Result } from '@models';
 import getRepositories, { BaseRepository, Repositories, resetRepositories } from '@repositories';
 
 import { AssistantTools } from './AssistantToolsDefinition';
@@ -26,18 +26,21 @@ describe('AssistantTools - Domain and Action Listings', async () => {
 
   describe('execute() method calls', () => {
     it('should return correct domain list when calling list_domains', async () => {
-      const result = await assistantTools.execute('list_domains', {});
+      const result = await assistantTools.execute('list_domains', {}) as Result<string[]>;
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.result).toEqual([
+        expect(result.result.sort()).toEqual([
           'banks',
           'categories',
           'accounts',
           'accountTransactions',
           'recurrentTransactions',
           'creditCards',
-          'creditCardsTransactions'
-        ]);
+          'creditCardsTransactions',
+          'creditCardsInvoices',
+          'aiCalls',
+          'resourcesUse',
+        ].sort());
       }
     });
 
@@ -268,7 +271,7 @@ describe('AssistantTools - Domain and Action Listings', async () => {
 
     it('should return error for domain without search capability', async () => {
       const result = await assistantTools.execute('search_id_in_domain', { 
-        domain: 'recurrenttransactions', 
+        domain: 'creditCardsInvoices', 
         query: 'test' 
       });
       

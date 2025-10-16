@@ -13,7 +13,7 @@ import {
 
 export const MAX_RESULTS = 5;
 const ignoredRepos: RepoName[] = [
-  'products', 'resourcesUse', 'aiCalls', 'groceries', 'user', 'creditCardsInvoices'
+  'products', 'groceries', 'user'//, 'resourcesUse', 'aiCalls', 'creditCardsInvoices'
 ];
 export const emptyParamsSchema = { type: "object", properties: {  }, additionalProperties: false,};
 

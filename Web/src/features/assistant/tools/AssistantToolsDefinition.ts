@@ -80,7 +80,21 @@ export class AssistantTools extends AssistantToolsBase {
         category: this.repositories.categories.getLocalById(categoryId)?.name,
       }),
     )
-    this.registerDomainAction('categories',       {
+    this.createSearchMetadata(
+      RecurrentTransaction.metadata2, 'Lançamento recorrente', 'recurrentTransactions',
+      (item) => `${item.description}, ${item.observation} - ${item.value}`,
+      ({ id, description, value, categoryId, recurrentMetadata: { isCreditCard, recurrentId, recurrentDay } }) => ({ 
+        id, description, value,
+        day: recurrentDay,
+        ...(isCreditCard ?{
+          card: this.repositories.creditCards.getLocalById(recurrentId)?.name,
+        } : {
+          account: this.repositories.accounts.getLocalById(recurrentId)?.name,
+        }),
+        category: this.repositories.categories.getLocalById(categoryId)?.name,
+      }),
+    )
+    this.registerDomainAction('categories', {
       name: DomainToolName.LIST_ICONS,
       description: `Search for font awesome icons by term based on textual similarity.`,
       parameters: this.createSearchParamsSchemema(),
