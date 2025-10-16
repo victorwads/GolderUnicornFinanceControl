@@ -19,6 +19,9 @@ class BanksRepository extends BaseRepository<Bank> {
         bank.fullName.prepareCompare().includes(search.prepareCompare())
     );
   }
+
+  public override async deleteAll(): Promise<void> {
+  }
 }
 
 export default BanksRepository;

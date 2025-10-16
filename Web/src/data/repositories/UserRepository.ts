@@ -48,4 +48,8 @@ export default class UserRepository extends RepositoryWithCrypt<User> {
     const user = await getDoc(doc(this.ref, this.safeUserId));
     return await this.fromFirestore(user.id, user.data());
   }
+
+  public override async deleteAll(): Promise<void> {
+    await this.delete(this.safeUserId, false);
+  }
 }

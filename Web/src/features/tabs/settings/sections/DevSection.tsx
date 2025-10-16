@@ -71,6 +71,7 @@ const DevContent = () => {
   return <>
     <div className='list'>
       <Link to="/settings/ai-calls">AI Calls</Link>
+      <Link to={'/subscriptions'}>Subscriptions <small>(Only Informative)</small></Link>
       <a onClick={resetAssistantOnboarding}>{Lang.settings.resetOnboarding}</a>
       <a onClick={toggleEncryption}>{Lang.settings.toggleEncryption(encryptionDisabled)}</a>
       <input type="text" style={{color: 'black'}} placeholder='Kill account registers' onKeyDown={(e) => {

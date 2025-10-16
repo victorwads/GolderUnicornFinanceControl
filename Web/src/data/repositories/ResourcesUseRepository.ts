@@ -32,6 +32,10 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
     );
   }
 
+  public override async deleteAll(): Promise<void> {
+    this.delete(this.safeUserId, false);
+  }
+
   public get currentUse() {
     return this.totalCache;
   }

@@ -83,8 +83,11 @@ const AccountContent = () => {
     const exported = await runExport({ skipConfirm: true });
     if (!exported) return;
 
-    const repositories = getRepositories();
-    const entries = Object.entries(repositories) as [RepoName, Repositories[RepoName]][];
+    const ignored: RepoName[] = ['banks'];
+    const entries = Object.entries(getRepositories())
+      .filter(
+        ([key]) => !ignored.includes(key as RepoName)
+    ) as [RepoName, Repositories[RepoName]][];
     let currentProgress: Progress = { current: 0, max: entries.length, filename: '', type: 'delete' };
 
     const emitProgress = (overrides?: Partial<Progress>) => {
@@ -97,37 +100,9 @@ const AccountContent = () => {
     try {
       for (const [key, repo] of entries) {
         emitProgress({ filename: key, sub: undefined });
-
-        try {
-          if (!repo.isReady) await repo.waitUntilReady();
-          await repo.getAll();
-        } catch (error) {
-          console.error('Failed to prepare repository for deletion', key, error);
-          throw error;
-        }
-
-        if (key === 'user') {
-          const uid = getCurrentUser()?.uid;
-          if (uid) {
-            await repo.delete(uid, false);
-          }
-        } else {
-          const items = repo.getCache(true).filter((item): item is DocumentModel => Boolean(item && item.id));
-          if (items.length > 0) {
-            let sub = { current: 0, max: items.length };
-            emitProgress({ sub });
-            for (const item of items) {
-              await repo.delete(item.id, false);
-              sub = { ...sub, current: sub.current + 1 };
-              emitProgress({ sub });
-            }
-            emitProgress({ sub: undefined });
-          }
-        }
-
+        await repo.deleteAll();
         emitProgress({ current: currentProgress.current + 1 });
       }
-
       window.alert(Lang.settings.deleteDataSuccess);
       await clearSession();
     } catch (error) {
@@ -142,7 +117,6 @@ const AccountContent = () => {
     <div className='list'>
       <Link to="/resource-usage">Ver uso de recursos</Link>
       <a onClick={handleExportClick}>{Lang.settings.exportData}</a>
-      <a onClick={handleDeleteData} className='danger'>{Lang.settings.deleteData}</a>
       <a onClick={() => clearSession()}>{Lang.settings.logout}</a>
     </div>
     {progress && <div className="progress-box">
@@ -159,8 +133,10 @@ const AccountContent = () => {
         <progress value={progress.sub.current} max={progress.sub.max} />
       </>}
     </div>}
-    <br />
-    <span>My id: {getCurrentUser()?.uid}</span>
+    <p>My id: {getCurrentUser()?.uid}</p>
+    <div className='list'>
+      <a onClick={handleDeleteData}>{Lang.settings.deleteData}</a>
+    </div>
   </>;
 };
 

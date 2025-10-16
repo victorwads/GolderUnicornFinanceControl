@@ -342,4 +342,17 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     });
     return unsubscribe;
   }
+
+  public async deleteAll(): Promise<void> {
+    const batch = writeBatch(this.db);
+
+    await this.waitUntilReady();
+    const items = this.getCache(true);
+    for (const item of items) {
+      const docRef = doc(this.ref, item.id);
+      batch.delete(docRef);
+    }
+
+    await batch.commit();
+  }
 }

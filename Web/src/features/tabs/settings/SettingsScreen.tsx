@@ -8,7 +8,6 @@ import Card from "@components/visual/Card";
 import FinancesSection from './sections/QuickAccessSection';
 import AppSection from './sections/AppPreferencesSection';
 import AccountSection from './sections/AccountSection';
-import BetaSection from './sections/BetaSection';
 import DevSection from './sections/DevSection';
 import PreferencesSection from './sections/PreferencesSection';
 import VoicePreferencesSection from './sections/VoicePreferencesSection';
@@ -21,12 +20,11 @@ const DevOptions = window.isDevelopment || ProjectStorage.get('DEV') === 'true';
 const SettingsScreen = () => {
 
   const sections: SettingsSection[] = useMemo(() => ([
-    AccountSection,
     FinancesSection,
     PreferencesSection,
+    AccountSection,
     VoicePreferencesSection,
     AppSection,
-    BetaSection,
     AppInfoSection,
   ].concat(
     DevOptions ? [DevSection] : []
