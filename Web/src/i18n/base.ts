@@ -118,6 +118,15 @@ export default interface Translation {
     myData: string;
     exportData: string;
     exportingData: (filename: string, current: string, max: string) => string;
+    exportDataError: string;
+    deleteData: string;
+    deleteDataConfirm: string;
+    deleteDataPrompt: (phrase: string) => string;
+    deleteDataMismatch: string;
+    deleteDataSuccess: string;
+    deleteDataError: string;
+    deleteDataPhrases: () => string[];
+    deleteDataFinalizing: string;
     auth: string;
     logout: string;
     clearLocalCaches: string;

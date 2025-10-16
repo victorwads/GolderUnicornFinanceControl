@@ -5,10 +5,11 @@ import test from 'node:test';
 import type {CallableRequest, Request as HttpsRequest} from 'firebase-functions/v2/https';
 import firebaseFunctionsTest from 'firebase-functions-test';
 
-import {cryptoPassEncrypt, cryptoPassDecrypt} from './index';
+import {cryptoPassEncrypt, cryptoPassDecrypt, deleteAccountData} from './index';
 
 type EncryptRequest = CallableRequest<{ secretHash: string }>;
 type DecryptRequest = CallableRequest<{ token: string }>;
+type DeleteRequest = CallableRequest<Record<string, never>>;
 
 function buildEncryptRequest(uid: string, secretHash: string): EncryptRequest {
   return {
@@ -26,6 +27,15 @@ function buildDecryptRequest(uid: string, token: string): DecryptRequest {
     rawRequest: {} as HttpsRequest,
     acceptsStreaming: false,
   } as DecryptRequest;
+}
+
+function buildDeleteRequest(auth?: { uid: string }): DeleteRequest {
+  return {
+    data: {},
+    auth: auth ? { uid: auth.uid, token: {} as any } : undefined,
+    rawRequest: {} as HttpsRequest,
+    acceptsStreaming: false,
+  } as DeleteRequest;
 }
 
 process.env.NODE_ENV = 'test';
@@ -61,5 +71,11 @@ void test('cryptoPassDecrypt rejeita quando o token é usado com outro usuário'
 
   await assert.rejects(
     () => testEnv.wrap(cryptoPassDecrypt)(buildDecryptRequest(otherUid, encryptResponse.token)),
+  );
+});
+
+void test('deleteAccountData exige autenticação', async () => {
+  await assert.rejects(
+    () => testEnv.wrap(deleteAccountData)(buildDeleteRequest()),
   );
 });

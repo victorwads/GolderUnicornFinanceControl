@@ -83,6 +83,14 @@
   background: var(--bg-step-1);
   transition: background 0.2s, transform 0.1s;
 }
+.SettingsScreen .list a.danger {
+  background: var(--danger-bg, #ffeaea);
+  color: var(--danger-color, #b00020);
+  border: 1px solid rgba(176, 0, 32, 0.2);
+}
+.SettingsScreen .list a.danger:hover {
+  background: var(--danger-hover-bg, #ffd4d4);
+}
 .SettingsScreen li:hover {
   background: var(--bg-step-2);
 }
