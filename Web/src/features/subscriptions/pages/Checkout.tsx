@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import EmptyScreen from '@features/commons/EmptyScreen';
-import Button from '@components/common/Button';
+import Button from '@componentsDeprecated/common/Button';
 
 const Checkout: React.FC = () => {
   const { plan } = useParams<{ plan: string }>();

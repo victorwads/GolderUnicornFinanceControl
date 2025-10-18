@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import Badge from '@components/common/Badge';
-import Button from '@components/common/Button';
+import Badge from '@componentsDeprecated/common/Badge';
+import Button from '@componentsDeprecated/common/Button';
 import './PlanCard.css';
 
 interface PlanCardProps {

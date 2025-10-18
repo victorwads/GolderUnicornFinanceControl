@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react"
 import { Link } from "react-router-dom"
 
-import Card from "@components/visual/Card"
+import Card from "@componentsDeprecated/visual/Card"
 import BankInfo from "../banks/BankInfo"
 
 import getRepositories from "@repositories"
-import { WithRepo } from "@components/WithRepo"
+import { WithRepo } from "@componentsDeprecated/WithRepo"
 import { CreditCardWithInfos } from "src/data/repositories/CreditcardsRepository"
 
 const CreditCardsCard: React.FC<{}> = () => {

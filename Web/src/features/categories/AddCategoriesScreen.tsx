@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
-import Row from "@components/visual/Row";
-import Button from "@components/Button";
-import Field from "@components/fields/Field";
-import SelectField from "@components/fields/SelectField";
-import { ModalScreen } from "@components/conteiners/ModalScreen";
+import Row from "@componentsDeprecated/visual/Row";
+import Button from "@componentsDeprecated/Button";
+import Field from "@componentsDeprecated/fields/Field";
+import SelectField from "@componentsDeprecated/fields/SelectField";
+import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
 
 import { Category } from "@models";
 import getRepositories from "@repositories";

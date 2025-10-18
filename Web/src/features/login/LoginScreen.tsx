@@ -1,5 +1,5 @@
-import './LoginScreen.css'
 import { OAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import Login from '@layouts/auth/Login';
 
 function loginIn(providerName: string) {
   let provider: OAuthProvider
@@ -30,10 +30,10 @@ function loginIn(providerName: string) {
 
 const LoginScreen = () => {
 
-    return <div className="LoginScreen">
-        <a className='long-button' onClick={() => loginIn("google.com")}>{Lang.login.loginWithGoogle}</a>
-        <a className='long-button' onClick={() => loginIn("apple.com")}>{Lang.login.loginWithApple}</a>
-    </div>
+  return <Login model={{
+    handleGoogleLogin: () => loginIn("google.com"),
+    handleAppleLogin: () => loginIn("apple.com")
+  }} />
 }
 
 export default LoginScreen

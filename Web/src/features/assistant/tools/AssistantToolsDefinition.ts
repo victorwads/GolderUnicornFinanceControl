@@ -3,7 +3,7 @@ import { Similarity } from '../utils/stringSimilarity';
 import { AppNavigationTool, navigateToRoute, RoutesDefinition, routesDefinition } from "./routesDefinition";
 import { AssistantToolsBase, DomainToolName, emptyParamsSchema, MAX_RESULTS, ToUserTool } from "./AssistantToolsBase";
 
-import { iconNamesList } from "@components/Icons";
+import { iconNamesList } from "@componentsDeprecated/Icons";
 import { Repositories } from "@repositories";
 import {
   Account,

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AIMicrophone, { type AIMicrophoneHandle, type AIMicrophoneProps } from "@components/voice/AIMicrophone";
+import AIMicrophone, { type AIMicrophoneHandle, type AIMicrophoneProps } from "@componentsDeprecated/voice/AIMicrophone";
 import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
 import getRepositories from "@repositories";
@@ -12,9 +12,9 @@ import type { AssistantToolCallLog } from "../tools/types";
 import ToolCallLogList from "./ToolCallLogList";
 
 import "./AssistantPage.css";
-import Icon, { Icons } from "@components/Icons";
-import GlassContainer from "@components/GlassContainer";
-import { startListening, stopListening } from "@components/voice/microfone";
+import Icon, { Icons } from "@componentsDeprecated/Icons";
+import GlassContainer from "@componentsDeprecated/GlassContainer";
+import { startListening, stopListening } from "@componentsDeprecated/voice/microfone";
 import { AiCallContext, AIUse } from "@models";
 import { speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
 import { subscribeAssistantEvent } from "../utils/assistantEvents";

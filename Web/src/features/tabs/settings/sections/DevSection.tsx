@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ProjectStorage } from '@utils/ProjectStorage';
 import getRepositories, { RepositoryWithCrypt } from '@repositories';
 
-import { clearAIMicrophoneOnboardingFlags } from '@components/voice/AIMicrophoneOnboarding.model';
+import { clearAIMicrophoneOnboardingFlags } from '@componentsDeprecated/voice/AIMicrophoneOnboarding.model';
 import { clearAssistantOnboardingDismissal } from '@features/assistant/utils/onboardingStorage';
 import { dispatchAssistantEvent } from '@features/assistant/utils/assistantEvents';
 import { SettingsSection, Progress } from './types';

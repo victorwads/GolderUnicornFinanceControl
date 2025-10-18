@@ -1,4 +1,4 @@
-import { iconNamesList } from '@components/Icons';
+import { iconNamesList } from '@componentsDeprecated/Icons';
 import { DocumentModel } from './DocumentModel';
 import { ModelMetadata } from './metadata';
 import ModelContext from './metadata/ModelContext';

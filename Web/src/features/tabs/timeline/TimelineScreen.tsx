@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 import "./TimelineScreen.css";
 
 import routes from "@features/navigate";
-import { Container, ContainerFixedContent } from "@components/conteiners";
-import { ContainerScrollContent } from '@components/conteiners';
-import { Loading } from "@components/Loading";
-import Icon, { Icons } from '@components/Icons';
-import SearchBar from '@components/fields/SearchBar';
+import { Container, ContainerFixedContent } from "@componentsDeprecated/conteiners";
+import { ContainerScrollContent } from '@componentsDeprecated/conteiners';
+import { Loading } from "@componentsDeprecated/Loading";
+import Icon, { Icons } from '@componentsDeprecated/Icons';
+import SearchBar from '@componentsDeprecated/fields/SearchBar';
 
 import RegistryItem from "./RegistryItem";
 import { useTimeline } from "./TimelineScreen.model";

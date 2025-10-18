@@ -2,9 +2,9 @@ import './CreditCardsScreen.css';
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import Card from "@components/visual/Card";
-import Icon, { Icons } from "@components/Icons";
-import { ModalScreen } from "@components/conteiners/ModalScreen";
+import Card from "@componentsDeprecated/visual/Card";
+import Icon, { Icons } from "@componentsDeprecated/Icons";
+import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
 
 import { Bank, CreditCard } from "@models";
 import getRepositories from "@repositories";

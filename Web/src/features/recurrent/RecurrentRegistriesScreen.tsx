@@ -3,8 +3,8 @@ import '@features/tabs/timeline/RegistryItem.css';
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
-import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@componentsDeprecated/conteiners';
+import Icon, { getIconByCaseInsensitiveName } from '@componentsDeprecated/Icons';
 import { RecurrentTransaction, Category } from '@models';
 import getRepositories from '@repositories';
 

@@ -4,8 +4,8 @@ import './CreditCardsInvoices.css';
 
 import routes from "../navigate";
 import RegistryItem from '../tabs/timeline/RegistryItem';
-import { ModalScreen } from "@components/conteiners/ModalScreen";
-import Icon, { Icons } from "@components/Icons";
+import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import Icon, { Icons } from "@componentsDeprecated/Icons";
 
 import getRepositories from "@repositories";
 import { CreditCard, CreditCardInvoice, RegistryWithDetails } from "@models";

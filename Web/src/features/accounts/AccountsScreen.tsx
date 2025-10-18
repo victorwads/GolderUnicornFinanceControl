@@ -6,9 +6,9 @@ import { Bank, WithInfoAccount } from "@models"
 import { getServices } from "@services"
 import getRepositories from "@repositories"
 
-import Card from "@components/visual/Card"
-import Icon, { Icons } from "@components/Icons"
-import { ModalScreen } from "@components/conteiners/ModalScreen"
+import Card from "@componentsDeprecated/visual/Card"
+import Icon, { Icons } from "@componentsDeprecated/Icons"
+import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen"
 
 import BankInfo from "../banks/BankInfo"
 

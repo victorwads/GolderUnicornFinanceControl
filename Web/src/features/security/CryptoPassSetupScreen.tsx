@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 
 import './CryptoPassSetupScreen.css';
-import { Loading } from '@components/Loading';
+import { Loading } from '@componentsDeprecated/Loading';
 
 import { clearSession } from '@utils/clearSession';
 import { CryptoPassRepository, User } from '@repositories';

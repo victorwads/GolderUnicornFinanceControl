@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import Button from "@components/Button";
-import { ModalScreen } from "@components/conteiners/ModalScreen";
-import Field from "@components/fields/Field";
-import PriceField from "@components/fields/PriceField";
-import { DatePicker } from "@components/inputs";
-import Selector, { SelectorSection } from "@components/Selector";
+import Button from "@componentsDeprecated/Button";
+import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import Field from "@componentsDeprecated/fields/Field";
+import PriceField from "@componentsDeprecated/fields/PriceField";
+import { DatePicker } from "@componentsDeprecated/inputs";
+import Selector, { SelectorSection } from "@componentsDeprecated/Selector";
 
 import { CreditCardRegistry, Category } from "@models";
 import getRepositories from "@repositories";

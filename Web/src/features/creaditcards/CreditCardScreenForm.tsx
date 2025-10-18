@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ModalScreen } from "@components/conteiners/ModalScreen";
-import Field from "@components/fields/Field";
-import PriceField from "@components/fields/PriceField";
-import SelectField from "@components/fields/SelectField";
-import Row from "@components/visual/Row";
-import Button from "@components/Button";
+import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import Field from "@componentsDeprecated/fields/Field";
+import PriceField from "@componentsDeprecated/fields/PriceField";
+import SelectField from "@componentsDeprecated/fields/SelectField";
+import Row from "@componentsDeprecated/visual/Row";
+import Button from "@componentsDeprecated/Button";
 
 import { CreditCard } from "@models";
 import getRepositories from "@repositories";

@@ -32,7 +32,7 @@
     padding: 0 var(--spacing-md);
 }
 
-.container-content.fixed {
+.container-content.fixed-deprecated {
     flex: 0 1 auto;
 }
 

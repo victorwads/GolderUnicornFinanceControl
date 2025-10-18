@@ -6,10 +6,10 @@ import { useAIMicrophoneOnboarding } from './AIMicrophoneOnboarding.model';
 import AIMicrophoneOnboarding from './AIMicrophoneOnboarding';
 import { startListening, stopListening } from './microfone';
 
-import Icon, { Icons } from '@components/Icons';
+import Icon, { Icons } from '@componentsDeprecated/Icons';
 import AIActionsParser, { AIActionHandler, AIItemData } from '@features/speech/AIParserManager';
-import GlassContainer from '@components/GlassContainer';
-import { Loading } from '@components/Loading';
+import GlassContainer from '@componentsDeprecated/GlassContainer';
+import { Loading } from '@componentsDeprecated/Loading';
 import { dispatchAssistantEvent } from '@features/assistant/utils/assistantEvents';
 
 const COMMAND_EVALUATION_DELAY = 3500;

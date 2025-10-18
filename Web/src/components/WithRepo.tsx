@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Loading } from '@components/Loading';
+import { Loading } from '@componentsDeprecated/Loading';
 import { isAllReady, RepoName, waitUntilReady } from '@repositories';
 
 interface WithRepoProps {

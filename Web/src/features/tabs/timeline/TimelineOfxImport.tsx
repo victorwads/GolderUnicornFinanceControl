@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./TimelineOfxImport.css";
 
-import Button from "@components/Button";
-import Icon, { Icons } from "@components/Icons";
+import Button from "@componentsDeprecated/Button";
+import Icon, { Icons } from "@componentsDeprecated/Icons";
 import { AccountsRegistry, CreditCard, CreditCardRegistry, RegistryType } from "@models";
 
 import getRepositories from "@repositories";

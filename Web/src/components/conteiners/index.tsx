@@ -39,7 +39,7 @@ interface ContainerContentProps {
 }
 
 export function ContainerFixedContent({ children, spaced }: ContainerContentProps) {
-  return <div className={clsx("container-content fixed", { spaced })}>
+  return <div className={clsx("container-content fixed-deprecated", { spaced })}>
     {children}
   </div>;
 }

@@ -5,7 +5,7 @@ import { cn } from "@lib/utils";
 const tabs = [
   { name: "Home", path: "/", icon: Home },
   { name: "Timeline", path: "/timeline", icon: Clock },
-  { name: "More", path: "/more", icon: MoreHorizontal },
+  { name: "More", path: "/settings", icon: MoreHorizontal },
 ];
 
 export const TabBar = () => {

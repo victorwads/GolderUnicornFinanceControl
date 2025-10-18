@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { GroceryItemModel } from '@models';
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners';
-import AIMicrophone from '@components/voice/AIMicrophone';
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@componentsDeprecated/conteiners';
+import AIMicrophone from '@componentsDeprecated/voice/AIMicrophone';
 import getRepositories from '@repositories';
-import Icon, { Icons } from '@components/Icons';
+import Icon, { Icons } from '@componentsDeprecated/Icons';
 
 import GroceryList from './GroceryList';
 import AIActionsParser, { AIActionHandler } from '../speech/AIParserManager';

@@ -7,15 +7,15 @@ import getRepositories, {
   clearRepositories, CryptoPassRepository, getCurrentRepositoryUserId, resetRepositories,
   User
 } from '@repositories';
-import { useCssVars } from '@components/Vars';
+import { useCssVars } from '@componentsDeprecated/Vars';
 import { clearServices, resetServices } from '@services';
 import { getCurrentUser, saveUser } from '@configs';
 
 import CryptoPassSetupScreen from '@features/security/CryptoPassSetupScreen';
 import { privateRouter, publicRouter } from '@features/routes';
 import { Progress } from './data/crypt/progress';
-import { FloatingProgress } from '@components/progress/FloatingProgress';
-import { Loading } from '@components/Loading';
+import { FloatingProgress } from '@componentsDeprecated/progress/FloatingProgress';
+import { Loading } from '@componentsDeprecated/Loading';
 
 let userID = getCurrentRepositoryUserId();
 

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import './TimelineFilterScreen.css';
 
-import Button from '@components/Button';
-import SelectField from '@components/fields/SelectField';
-import { ModalScreen } from '@components/conteiners/ModalScreen';
-import { DatePicker } from '@components/inputs';
+import Button from '@componentsDeprecated/Button';
+import SelectField from '@componentsDeprecated/fields/SelectField';
+import { ModalScreen } from '@componentsDeprecated/conteiners/ModalScreen';
+import { DatePicker } from '@componentsDeprecated/inputs';
 
 import getRepositories from '@repositories';
 import CategoryListItem from '@features/categories/CategoryListItem';

@@ -3,7 +3,7 @@ import { ProjectStorage } from '@utils/ProjectStorage';
 
 import { SettingsSection } from "./types";
 import "./VoicePreferencesSection.css";
-import Icon, { Icons } from "@components/Icons";
+import Icon, { Icons } from "@componentsDeprecated/Icons";
 
 const SPEECH_RATE_KEY = "speechRate";
 const VOICE_NAME_KEY = "voiceNameV2";

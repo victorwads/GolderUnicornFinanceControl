@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { Container, ContainerFixedContent } from "@components/conteiners";
+import { Container, ContainerFixedContent } from "@componentsDeprecated/conteiners";
 
 import TimelineOfxImport from "./TimelineOfxImport";
 

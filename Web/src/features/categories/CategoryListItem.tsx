@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
+import Icon, { getIconByCaseInsensitiveName } from '@componentsDeprecated/Icons';
 import { Category } from '@models';
 
 interface CategoryListItemProps {

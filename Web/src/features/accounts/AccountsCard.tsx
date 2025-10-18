@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import Card from "@components/visual/Card"
+import Card from "@componentsDeprecated/visual/Card"
 import BankInfo from "../banks/BankInfo"
 
 import getRepositories from "@repositories"
 import { waitUntilReady } from '@repositories';
-import { WithRepo } from "@components/WithRepo"
+import { WithRepo } from "@componentsDeprecated/WithRepo"
 import { getServices } from "@services"
 import { WithInfoAccount } from "@models"
 

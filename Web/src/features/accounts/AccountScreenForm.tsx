@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ModalScreen } from "@components/conteiners/ModalScreen";
-import PriceField from "@components/fields/PriceField";
-import Button from "@components/Button";
-import Field from "@components/fields/Field";
-import Row from "@components/visual/Row";
-import Selector from "@components/Selector";
-import SelectField from "@components/fields/SelectField";
-import CheckboxField from "@components/fields/CheckboxField";
+import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import PriceField from "@componentsDeprecated/fields/PriceField";
+import Button from "@componentsDeprecated/Button";
+import Field from "@componentsDeprecated/fields/Field";
+import Row from "@componentsDeprecated/visual/Row";
+import Selector from "@componentsDeprecated/Selector";
+import SelectField from "@componentsDeprecated/fields/SelectField";
+import CheckboxField from "@componentsDeprecated/fields/CheckboxField";
 import BankInfo from "@features/banks/BankInfo";
 
 import { Bank, Account, AccountType } from "@models";

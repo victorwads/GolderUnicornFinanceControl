@@ -4,11 +4,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import getRepositories from '@repositories';
 import { GroceryItemModel, ProductModel } from '@models';
 
-import Button from '@components/Button';
-import Field from '@components/fields/Field';
-import { DatePicker } from '@components/inputs';
-import PriceField from '@components/fields/PriceField';
-import { ModalScreen } from '@components/conteiners/ModalScreen';
+import Button from '@componentsDeprecated/Button';
+import Field from '@componentsDeprecated/fields/Field';
+import { DatePicker } from '@componentsDeprecated/inputs';
+import PriceField from '@componentsDeprecated/fields/PriceField';
+import { ModalScreen } from '@componentsDeprecated/conteiners/ModalScreen';
 import BarcodeScanner from './BarcodeScanner';
 
 const GroceryItemForm = () => {

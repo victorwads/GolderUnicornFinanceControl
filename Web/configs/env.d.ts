@@ -4,10 +4,17 @@
 declare module '@models/*';
 declare module '@repositories/*';
 declare module '@utils/*';
-declare module '@components/*';
+declare module '@componentsDeprecated/*';
 declare module '@features/*';
 declare module '@lang/*';
 declare module '@resourceUse';
+
+declare module "@layouts/*";
+declare module "@components/*";
+declare module "@lib/*";
+declare module "@hooks/*";
+declare module "@contexts/*";
+
 
 // Globals de teste definidos em vitest.setup.ts
 import type en from '../src/i18n/en';

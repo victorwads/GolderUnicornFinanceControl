@@ -1,5 +1,5 @@
 import "./BankInfo.css"
-import { Loading } from "@components/Loading"
+import { Loading } from "@componentsDeprecated/Loading"
 import { Bank } from "@models"
 
 let banksResourceUrl = 'https://goldenunicornfc.firebaseapp.com/resources/banks/'

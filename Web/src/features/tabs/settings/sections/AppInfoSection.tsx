@@ -1,5 +1,5 @@
 import { ProjectStorage } from '@utils/ProjectStorage';
-import { useAppUpdates } from '@components/AppUpdatesProvider';
+import { useAppUpdates } from '@componentsDeprecated/AppUpdatesProvider';
 import { SettingsSection } from './types';
 
 let easterEggCounter = 0;

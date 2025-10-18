@@ -11,9 +11,16 @@ export const alias = {
   '@services': resolve(projectRoot, 'src/data/service'),
   '@resourceUse': resolve(projectRoot, 'src/data/repositories/ResourcesUseRepositoryShared.ts'),
   '@utils': resolve(projectRoot, 'src/data/utils'),
-  '@components': resolve(projectRoot, 'src/components'),
+  '@componentsDeprecated': resolve(projectRoot, 'src/components'),
   '@features': resolve(projectRoot, 'src/features'),
   '@lang': resolve(projectRoot, 'src/i18n'),
+
+  "@layouts": resolve(projectRoot, "src/visual/layouts"),
+  "@components": resolve(projectRoot, "src/visual/components"),
+  "@lib": resolve(projectRoot, "src/visual/lib"),
+  "@hooks": resolve(projectRoot, "src/visual/hooks"),
+  "@contexts": resolve(projectRoot, "src/visual/contexts"),
+
 } as const;
 
 export type AliasKey = keyof typeof alias;

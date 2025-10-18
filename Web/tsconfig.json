@@ -27,9 +27,16 @@
       "@resourceUse": ["src/data/repositories/ResourcesUseRepositoryShared.ts"],
       "@configs": ["src/data/firebase/google-services.ts"],
       "@utils/*": ["src/data/utils/*"],
-      "@components/*": ["src/components/*"],
+      "@componentsDeprecated/*": ["src/components/*"],
       "@features/*": ["src/features/*"],
-      "@lang": ["src/i18n"]
+      "@lang": ["src/i18n"],
+
+      "@layouts": ["src/visual/layouts/*"],
+      "@components": ["src/visual/components/*"],
+      "@lib": ["src/visual/lib/*"],
+      "@hooks": ["src/visual/hooks/*"],
+      "@contexts": ["src/visual/contexts/*"],
+
     }
   },
   "include": [

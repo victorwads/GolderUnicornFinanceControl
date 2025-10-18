@@ -1,19 +1,39 @@
 import "dotenv"
-import "./index.css";
+import { StrictMode } from "react";
+import { ThemeProvider } from "next-themes";
 import ReactDOM from "react-dom/client";
+
+import "./index.css";
+import './visual/shared.css';
+
+import { Toaster } from "@components/ui/toaster";
+import { Toaster as Sonner } from "@components/ui/sonner";
+import { TooltipProvider } from "@components/ui/tooltip";
+import { DensityProvider } from "@contexts/DensityContext";
+import { ThemeColorProvider } from "@contexts/ThemeColorContext";
+
+import { AppUpdatesProvider } from "@componentsDeprecated/AppUpdatesProvider";
+import { VarsProvider } from "@componentsDeprecated/Vars";
 
 import "./global";
 import "./data/firebase/google-services";
-import { AppUpdatesProvider } from "@components/AppUpdatesProvider";
-import { VarsProvider } from "@components/Vars";
 import App from "./App";
-import { StrictMode } from "react";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
     <AppUpdatesProvider>
       <VarsProvider>
-        <App />
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <ThemeColorProvider>
+          <DensityProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <App />
+          </TooltipProvider>
+        </DensityProvider>
+        </ThemeColorProvider>
+      </ThemeProvider>
         <svg style={{ display: "none" }}>
           <filter id="lg-dist" x="0%" y="0%" width="100%" height="100%">
             <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />

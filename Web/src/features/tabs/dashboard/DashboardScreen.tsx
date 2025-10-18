@@ -1,9 +1,9 @@
 import './DashboardScreen.css'
 
-import Card from '@components/visual/Card'
+import Card from '@componentsDeprecated/visual/Card'
 import AccountsCard from '../../accounts/AccountsCard'
 import CreditCardsCard from '../../accounts/CreditCardsCard'
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@components/conteiners'
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@componentsDeprecated/conteiners'
 import { getCurrentUser } from '@configs'
 
 const DashboardScreen = () => {

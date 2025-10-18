@@ -3,7 +3,7 @@ import "./RegistryItem.css";
 import { useNavigate } from "react-router-dom";
 import routes from "../../navigate";
 
-import Icon, { getIconByCaseInsensitiveName } from '@components/Icons';
+import Icon, { getIconByCaseInsensitiveName } from '@componentsDeprecated/Icons';
 import { InvoiceTransaction, AccountsRegistry, RegistryType, RegistryWithDetails, CreditCardRegistry} from '@models';
 
 interface RegistryItemProps {

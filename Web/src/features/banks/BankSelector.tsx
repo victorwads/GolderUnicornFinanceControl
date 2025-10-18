@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from "react"
 
-import { Container, ContainerFixedContent, ContainerScrollContent } from "@components/conteiners";
-import SearchBar from "@components/fields/SearchBar"
-import BaseField from "@components/fields/BaseField"
-import Dialog from "@components/visual/Dialog"
-import Row from "@components/visual/Row"
+import { Container, ContainerFixedContent, ContainerScrollContent } from "@componentsDeprecated/conteiners";
+import SearchBar from "@componentsDeprecated/fields/SearchBar"
+import BaseField from "@componentsDeprecated/fields/BaseField"
+import Dialog from "@componentsDeprecated/visual/Dialog"
+import Row from "@componentsDeprecated/visual/Row"
 import BankInfo from "./BankInfo"
 
 import { Bank, selectBank } from "@models"

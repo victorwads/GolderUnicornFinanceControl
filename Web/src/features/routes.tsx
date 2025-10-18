@@ -1,6 +1,6 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 
-import { withRepos } from '@components/WithRepo';
+import { withRepos } from '@componentsDeprecated/WithRepo';
 
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';

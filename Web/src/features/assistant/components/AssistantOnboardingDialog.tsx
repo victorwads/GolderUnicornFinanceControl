@@ -2,7 +2,7 @@ import './AssistantOnboardingDialog.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import getRepositories, { User } from '@repositories';
-import { hasCompletedAIMicrophoneOnboarding } from '@components/voice/AIMicrophoneOnboarding.model';
+import { hasCompletedAIMicrophoneOnboarding } from '@componentsDeprecated/voice/AIMicrophoneOnboarding.model';
 import {
   dismissAssistantOnboarding,
   isAssistantOnboardingDismissed,

@@ -6,7 +6,7 @@ import { ResourcesUseModel, ResourceUsage, ResourceUseChannel } from "@resourceU
 import { ProjectStorage } from '@utils/ProjectStorage';
 import getRepositories from "@repositories";
 
-import { Container, ContainerScrollContent } from "@components/conteiners";
+import { Container, ContainerScrollContent } from "@componentsDeprecated/conteiners";
 import ResourceUsageView from "./ResourceUsageView";
 import { getCurrentMonthAiCostBRL, MONTHLY_AI_COST_LIMIT_BRL } from "../../assistant/costControl";
 

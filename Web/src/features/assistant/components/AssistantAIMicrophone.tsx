@@ -1,4 +1,4 @@
-import { withRepos } from '@components/WithRepo'
+import { withRepos } from '@componentsDeprecated/WithRepo'
 import AssistantPage from './AssistantPage'
 
 const AssistantAIMicrophone = () => {

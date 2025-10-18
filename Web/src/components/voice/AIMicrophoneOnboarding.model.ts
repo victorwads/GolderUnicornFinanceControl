@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Langs } from '@lang';
-import { useCssVars } from '@components/Vars';
+import { useCssVars } from '@componentsDeprecated/Vars';
 import { ProjectStorage } from '@utils/ProjectStorage';
 import { subscribeAssistantEvent } from '@features/assistant/utils/assistantEvents';
 

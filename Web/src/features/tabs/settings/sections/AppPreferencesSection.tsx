@@ -1,5 +1,5 @@
 import { Langs, setLanguage } from '../../../../i18n';
-import { Density, Theme, useCssVars } from '@components/Vars';
+import { Density, Theme, useCssVars } from '@componentsDeprecated/Vars';
 import { useState } from 'react';
 import { SettingsSection } from './types';
 
