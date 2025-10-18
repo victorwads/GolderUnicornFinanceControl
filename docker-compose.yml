@@ -1,4 +1,17 @@
 services:
+
+  prototype:
+    restart: always
+    build:
+      context: ./Web/configs
+    volumes:
+      - ../vibe-financas-magicas:/app
+      - prototype_node_modules:/app/node_modules
+    command:
+      - sh
+      - -c
+      - yarn install && yarn dev
+ 
   web:
     restart: always
     build:
@@ -66,4 +79,5 @@ services:
 volumes:
   proxy_node_modules:
   web_node_modules:
+  prototype_node_modules:
   backend_node_modules:

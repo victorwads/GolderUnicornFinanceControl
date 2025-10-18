@@ -1,4 +1,4 @@
-import { getCerts, RouteTable } from "./commons";
+import { getCerts } from "./commons";
 import { setFirebaseHost } from "./plugins/firebase";
 import { parseArgs } from "./process";
 import { ProxyManager, Plugin, ServiceRules } from "./proxy";
@@ -6,7 +6,7 @@ import { ProxyManager, Plugin, ServiceRules } from "./proxy";
 const isDocker = !process.argv.includes("--local");
 const defaultConfig = Promise.resolve({
   routeTable: {
-    default: `http://${isDocker ? "web" : "localhost"}:3000`,
+    default: `http://192.168.0.0:3000`,
   },
   serviceRules: {},
 });
