@@ -1,10 +1,10 @@
-import http, { IncomingMessage } from "http";
+import http, { ClientRequest, IncomingMessage, ServerResponse } from "http";
 import https from "https";
 import ProxyServer from "http-proxy";
 
 import plugins from "./plugins/index.js";
 import { addDomainsToConfigFile, getCerts } from "./commons.js";
-import type { CertResult, Domain, RouteTable } from "./commons.js";
+import type { CertResult, Domain, OverrideRules, RouteTable } from "./commons.js";
 
 const oldConsole = console.log;
 console.log = async (...args: any) => oldConsole(...args);
@@ -17,6 +17,7 @@ type ProxyInstance = {
 export type Plugin = Promise<{
   routeTable: RouteTable;
   serviceRules: ServiceRules;
+  override: OverrideRules
 }>;
 
 export type ServiceRules = Record<
@@ -28,10 +29,10 @@ export class ProxyManager {
   private plugins: Plugin[];
   private routeTable: RouteTable
   private serviceRules: ServiceRules
+  private overrides: OverrideRules[] = [];
   private proxies: ProxyInstance[] = [];
   private routeProxies: Record<string, ProxyServer> = {};
   private lastDomain: Domain = "";
-  private manifestCached: string[] = [];
   private knownDomains: Domain[];
   public static readonly requestPerDomain: Record<
     string,
@@ -45,6 +46,7 @@ export class ProxyManager {
     this.knownDomains = certInfo?.domains || [];
     this.routeTable = {};
     this.serviceRules = {};
+
     this.plugins = [defaultConfig, ...plugins];
     this.loadPlugins();
   }
@@ -57,6 +59,9 @@ export class ProxyManager {
         plugin = await pluginPromise;
         this.routeTable = { ...this.routeTable, ...plugin.routeTable };
         this.serviceRules = { ...this.serviceRules, ...plugin.serviceRules };
+        if (plugin.override) {
+          this.overrides.push(plugin.override);
+        }
       } catch (error) {
         console.error("❌ Error loading plugin:", error, plugin);
       }
@@ -135,7 +140,7 @@ export class ProxyManager {
         secure: false,
       });
 
-      proxy.on("proxyReq", (proxyReq, req, res) => {
+      proxy.on("proxyReq", (proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
         const domain = this.logDomainChange(req);
 
         if (!ProxyManager.requestPerDomain[domain])
@@ -143,13 +148,10 @@ export class ProxyManager {
         ProxyManager.requestPerDomain[domain][targetName] =
           (ProxyManager.requestPerDomain[domain][targetName] || 0) + 1;
 
-        if (this.isManifest(req)) {
-          if (this.needIntercept(req, res)) {
-            proxyReq.removeHeader("If-Modified-Since");
-            proxyReq.removeHeader("If-None-Match");
-          } else {
-            proxyReq.destroy();
-          }
+        const override = this.overrides
+          .find(rule => rule.matches({req: proxyReq}, req, res))
+        if (override && override.onProxyReq) {
+          override.onProxyReq(proxyReq, req, res)
         } else {
           if (this.shouldLogRequest(req)) {
           const { method, headers, url } = req || {};
@@ -160,8 +162,10 @@ export class ProxyManager {
       });
 
       proxy.on("proxyRes", (proxyRes, req, res) => {
-        if (this.isManifest(req))
-          this.handleManifestModification(proxyRes, req, res);
+        const override = this.overrides
+          .find(rule => rule.matches({res: proxyRes}, req, res))
+        if (override && override.onProxyRes)
+          override.onProxyRes(proxyRes, req, res);
       });
 
       proxy.on("error", (err, req, res) => {
@@ -241,83 +245,6 @@ export class ProxyManager {
     }
     this.proxies = [];
     this.routeProxies = {};
-  }
-
-  private isManifest(req: IncomingMessage): boolean {
-    return req?.url?.endsWith("manifest.json") || false;
-  }
-
-  private needIntercept(
-    req: IncomingMessage,
-    res: http.ServerResponse
-  ): boolean {
-    const eTag = req?.headers["if-none-match"];
-    if (!eTag) return false;
-
-    const hasSended = this.manifestCached.includes(eTag);
-    if (hasSended) {
-      res.writeHead(304, { "Content-Type": "application/json" });
-      res.end();
-      return false;
-    }
-
-    return true;
-  }
-
-  private handleManifestModification(
-    proxyRes: http.IncomingMessage,
-    req: IncomingMessage,
-    res: http.ServerResponse
-  ): void {
-    proxyRes.pipe = (() => {}) as any;
-
-    const sourceDomain = this.getHostName(req);
-    let body = "";
-
-    proxyRes.on("data", (chunk) => {
-      body += chunk.toString();
-      console.log("📦 Received chunk of manifest.json");
-    });
-
-    proxyRes.on("end", () => {
-      try {
-        const manifest = JSON.parse(body);
-        manifest.name += " - " + sourceDomain;
-        manifest.short_name = sourceDomain;
-
-        const modifiedBody = JSON.stringify(manifest, null, 2);
-        const eTag = `W/"${Buffer.byteLength(modifiedBody)}-${Date.now()}"`;
-        this.manifestCached.push(eTag);
-
-        res.writeHead(200, {
-          ...proxyRes.headers,
-          ETag: eTag,
-          "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(modifiedBody),
-        });
-        res.end(modifiedBody);
-
-        console.log(
-          "📝 Manifest.json modificado e enviado:",
-          eTag,
-          modifiedBody
-        );
-      } catch (err) {
-        console.error("❌ Erro ao modificar o manifest.json:", body, err);
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Erro ao processar manifest.json");
-      }
-    });
-
-    proxyRes.on("error", (err) => {
-      console.error("❌ Erro no proxyRes:", err);
-      if (!res.headersSent) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Erro interno ao processar a resposta.");
-      }
-    });
-
-    console.log("📝 Interceptando manifest.json from " + sourceDomain);
   }
 
   private shouldLogRequest(req: IncomingMessage): boolean {

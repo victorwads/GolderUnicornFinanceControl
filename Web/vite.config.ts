@@ -38,6 +38,9 @@ export default defineConfig({
         navigateFallback: 'index.html',
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // Example: increase to 10 MiB
       },
+      devOptions: {
+        enabled: true
+      }
     }),
     viteStaticCopy({
       targets: [

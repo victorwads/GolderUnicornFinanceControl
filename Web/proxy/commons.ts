@@ -5,6 +5,7 @@ import fs from "fs";
 export { fs, path };
 
 import { fileURLToPath } from "url";
+import { ClientRequest, IncomingMessage, ServerResponse } from "http";
 
 // Get the equivalent of __dirname in ES modules
 export const __filename = fileURLToPath(import.meta.url);
@@ -26,6 +27,14 @@ export type CertResult = {
   domains: Domain[];
   generated: boolean;
 };
+export abstract class OverrideRules {
+  abstract matches(proxy: {
+    req?: ClientRequest
+    res?: IncomingMessage
+  }, req: IncomingMessage, res: ServerResponse<IncomingMessage>): boolean;
+  abstract onProxyReq?(proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse<IncomingMessage>): void;
+  abstract onProxyRes?(proxyRes: IncomingMessage, req: IncomingMessage, res: ServerResponse<IncomingMessage>): void;
+}
 
 function getDomainsConfigFile(existingDomains: Domain[] = []): Domain[] {
   const domains: Domain[] = existingDomains;
