@@ -16,6 +16,7 @@ import { privateRouter, publicRouter } from '@features/routes';
 import { Progress } from './data/crypt/progress';
 import { FloatingProgress } from '@componentsDeprecated/progress/FloatingProgress';
 import { Loading } from '@componentsDeprecated/Loading';
+import AppLoading from '@layouts/core/AppLoading';
 
 let userID = getCurrentRepositoryUserId();
 
@@ -61,20 +62,15 @@ function App() {
   }, [])
 
   if (user && needPass && CryptoPassRepository.hasToken(user.uid))
-    return <div className={`App theme ${theme} ${density}`}>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Loading show={true} />
-        {Lang.commons.loading}
-      </div>
-    </div>;
+    return <AppLoading />;
 
-  return <div className={`App theme ${theme} ${density}`}>
+  return <>
     <FloatingProgress progress={progress} />
     {needPass && user && dbUser
       ? <CryptoPassSetupScreen user={dbUser} onProgress={setProgress} onCompleted={() => setNeedPass(false)} />
       : <RouterProvider router={user ? privateRouter : publicRouter} />
     }
-  </div>;
+  </>;
 }
 
 export default App;

@@ -27,7 +27,10 @@ import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 
-import LoginScreen from '@pages/auth/LoginScreen';
+import LoginScreen from '@pages/auth/LoginScreen.page';
+import MorePage from '@pages/settings/More.page';
+import ConnectedAccountsPage from '@pages/settings/ConnectedAccounts.page';
+import SettingsPage from '@pages/settings/Settings.page';
 
 export const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -43,12 +46,16 @@ export const privateRouter = createBrowserRouter([
         <TimelineScreen />,
         'accountTransactions', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
       ) },
-      { path: 'recurrent', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentTransactions', 'accounts', 'creditCards', 'categories') },
+      { path: 'recurrents', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentTransactions', 'accounts', 'creditCards', 'categories') },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
-      { path: 'settings', element: <SettingsScreen /> },
-      { path: 'ai-calls/:userId?', element: withRepos(<AiCallsScreen />, 'aiCalls') },
-      { path: 'resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
+      { path: 'assistant/:userId?', element: withRepos(<AiCallsScreen />, 'aiCalls') },
+      { path: 'me/linkedaccounts', element: <ConnectedAccountsPage /> },
+      { path: 'me/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
+      { path: 'settings', element: <MorePage /> },
+      { path: 'settings/app', element: <SettingsPage /> },
+      { path: 'old/settings', element: <SettingsScreen /> },
+      { path: 'old/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
       { path: '/accounts', element: withRepos(<AccountsScreen />, 'accounts', 'banks') },
       { path: '/accounts/create', element: withRepos(<AccountScreenForm />, 'banks') },
       { path: '/accounts/:id/edit', element: withRepos(<AccountScreenForm />, 'accounts', 'banks') },

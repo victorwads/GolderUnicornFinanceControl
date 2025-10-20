@@ -1,0 +1,31 @@
+.loader.pulse {
+  width: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0 0 hsl(var(--primary) / 0.6);
+  animation: l2 1.5s infinite linear;
+  position: relative;
+}
+
+.loader.pulse:before,
+.loader.pulse:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0 0 hsl(var(--primary) / 0.6);
+  animation: inherit;
+  animation-delay: -0.5s;
+}
+
+.loader.pulse:after {
+  animation-delay: -1s;
+}
+
+@keyframes l2 {
+  100% {
+    box-shadow: 0 0 0 15px transparent;
+  }
+}

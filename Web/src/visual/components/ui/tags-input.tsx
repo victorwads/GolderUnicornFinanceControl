@@ -1,7 +1,8 @@
 import * as React from "react";
 import { cn } from "@lib/utils";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
 
 export interface TagsInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value?: string[];
@@ -12,17 +13,29 @@ const TagsInput = React.forwardRef<HTMLInputElement, TagsInputProps>(
   ({ className, value = [], onChange, ...props }, ref) => {
     const [inputValue, setInputValue] = React.useState("");
 
+    const addTag = () => {
+      const trimmed = inputValue.trim();
+      if (trimmed && !value.includes(trimmed)) {
+        onChange?.([...value, trimmed]);
+        setInputValue("");
+      }
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter" || e.key === ",") {
+      if (e.key === "Enter") {
         e.preventDefault();
-        const trimmed = inputValue.trim();
-        if (trimmed && !value.includes(trimmed)) {
-          onChange?.([...value, trimmed]);
-          setInputValue("");
-        }
+        e.stopPropagation();
+        addTag();
+      } else if (e.key === ",") {
+        e.preventDefault();
+        addTag();
       } else if (e.key === "Backspace" && !inputValue && value.length > 0) {
         onChange?.(value.slice(0, -1));
       }
+    };
+
+    const handleBlur = () => {
+      addTag();
     };
 
     const removeTag = (tagToRemove: string) => {
@@ -54,9 +67,21 @@ const TagsInput = React.forwardRef<HTMLInputElement, TagsInputProps>(
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
           className="flex-1 min-w-[120px] bg-transparent outline-none placeholder:text-muted-foreground"
           {...props}
         />
+        {inputValue && (
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={addTag}
+            className="h-6 w-6 shrink-0"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     );
   }
