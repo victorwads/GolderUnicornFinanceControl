@@ -18,7 +18,7 @@ export default class CardsImporter extends Importer<CreditCard, Cartoes> {
   }
 
   async process(): Promise<void> {
-    await this.loadExistentes();
+    await this.loadExistents();
     const data = this.readJsonFile(CartoesFile) as Cartoes[];
 
     const batch = this.db.batch();

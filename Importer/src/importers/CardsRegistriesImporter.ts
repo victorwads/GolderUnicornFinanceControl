@@ -20,7 +20,7 @@ export default class CardsRegistriesImporter extends Importer<CreditCardRegistry
   }
 
   async process(): Promise<void> {
-    await this.loadExistentes();
+    await this.loadExistents();
     const data = this.readJsonFile(DespesasDeCartaoFile);
     if (!data) {
       console.error('Arquivo de despesas de cartão não encontrado.');

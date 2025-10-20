@@ -25,7 +25,7 @@ export default class AccountRegistriesImporter extends Importer<AccountsRegistry
   }
 
   async process(): Promise<void> {
-    await this.loadExistentes();
+    await this.loadExistents();
     await this.processFile(DespesasFile, -1);
     await this.processFile(ReceitasFile, 1);
     await this.processFile(TransferenciasFile, 0, RegistryType.TRANSFER);

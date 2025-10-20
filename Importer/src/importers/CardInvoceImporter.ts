@@ -19,7 +19,7 @@ export default class CardInvoceImporter extends Importer<CreditCardInvoice, Fatu
   }
 
   async process(): Promise<void> {
-    await this.loadExistentes();
+    await this.loadExistents();
     const data = this.readJsonFile(FaturasFile) as Faturas[];
 
     const batch = this.db.batch();

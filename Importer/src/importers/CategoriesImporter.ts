@@ -19,7 +19,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
   }
 
   async process(): Promise<void> {
-    await this.loadExistentes();
+    await this.loadExistents();
 
     const data = this.readJsonFile(CategoriasFile) as Categorias[];
     await this.processRoot(data.filter(d => !d.categoria_pai));
@@ -43,7 +43,7 @@ export default class CategoriesImporter extends Importer<Category, Categorias> {
     );
   }
 
-  protected override async loadExistentes() {
+  protected override async loadExistents() {
     const snapshot = await this.collection.get();
     for (const doc of snapshot.docs) {
       const data = await this.fromFirestore(doc.id, doc.data());

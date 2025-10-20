@@ -25,7 +25,7 @@ export default class AccountsImporter extends Importer<Account, Contas> {
   }
 
   async process(): Promise<void> {
-    await this.loadExistentes();
+    await this.loadExistents();
     const data = this.readJsonFile(ContasFile) as Contas[];
 
     const batch = this.db.batch();

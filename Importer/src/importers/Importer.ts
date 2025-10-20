@@ -24,7 +24,7 @@ export default abstract class Importer<T extends DocumentModel, JT> {
 
   abstract process(): Promise<void>;
 
-  protected async loadExistentes() {
+  protected async loadExistents() {
     const snapshot = await this.collection.get();
     for (const doc of snapshot.docs) {
       const data = await this.fromFirestore(doc.id, doc.data());
@@ -72,7 +72,7 @@ export default abstract class Importer<T extends DocumentModel, JT> {
       _updatedAt: new Date(),
     } as any;
     delete data.id;
-    if(this.encrypt === false) return data;
+    if (this.encrypt === false || !this.encryptor) return data;
     data = await this.encryptor.encrypt(data);
     return data
   }
