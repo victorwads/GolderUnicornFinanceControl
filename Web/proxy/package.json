@@ -8,8 +8,8 @@
     "mkcert": "^3.2.0"
   },
   "scripts": {
-    "proxy": "yarn tsx index.ts",
-    "proxy:debug": "yarn tsx --inspect=0.0.0.0:9230 index.ts",
+    "proxy": "npx tsx index.ts",
+    "proxy:debug": "npx tsx --inspect=0.0.0.0:9230 index.ts",
     "trust": "bash trust-rootCA.sh"
   },
   "devDependencies": {

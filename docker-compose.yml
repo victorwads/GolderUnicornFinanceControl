@@ -1,21 +1,25 @@
 services:
 
   prototype:
-    restart: always
-    build:
-      context: ./Web/configs
+    image: node:22
+    working_dir: /app
     volumes:
       - ../vibe-financas-magicas:/app
       - prototype_node_modules:/app/node_modules
-    command:
-      - sh
-      - -c
-      - yarn install && yarn dev
- 
+    tty: true
+    stdin_open: true
+    command: >
+      sh -c "
+        if [ ! -d node_modules ]; then
+          echo '📦 Installing dependencies...' &&
+          npm install;
+        fi &&
+        echo '🚀 Starting dev server...' &&
+        exec npm run dev
+      " 
   web:
-    restart: always
-    build:
-      context: ./Web/configs
+    image: node:22
+    working_dir: /app
     volumes:
       - ./Web:/app
       - .git:/app/.git
@@ -24,29 +28,24 @@ services:
       - sh
       - -c
       - yarn install && yarn start
-    depends_on:
-      - firebase
 
   proxy:
     restart: always
-    build:
-      context: ./Web/configs
+    image: node:22
+    working_dir: /app
     volumes:
-      - ./Web:/app
-      - ./firebase.json:/app/firebase.json
       - proxy_node_modules:/app/node_modules
+      - ./firebase.json:/app/firebase.json
+      - ./Web/proxy:/app
     ports:
       - "443:4433"
       - "80:8080"
-    depends_on:
-      - web
     command:
       - sh
       - -c
       - yarn install && yarn proxy
 
   backend-builder:
-    restart: always
     image: node:22
     working_dir: /app
     volumes:
@@ -55,7 +54,6 @@ services:
     command: yarn docker
 
   firebase:
-    restart: always
     build:
       context: ./Firebase
     volumes:

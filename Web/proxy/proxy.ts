@@ -162,8 +162,10 @@ export class ProxyManager {
       });
 
       proxy.on("proxyRes", (proxyRes, req, res) => {
-        res.setHeader('X-Proxy-To', `${target}${req?.url}`);
-        res.setHeader('X-Proxy-Rule', String(rule));
+        if (!res.headersSent) {
+          res.setHeader('X-Proxy-To', `${target}${req?.url}`);
+          res.setHeader('X-Proxy-Rule', String(rule));
+        }
         const override = this.overrides
           .find(rule => rule.matches({res: proxyRes}, req, res))
         if (override && override.onProxyRes)
