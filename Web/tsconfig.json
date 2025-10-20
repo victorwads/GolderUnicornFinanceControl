@@ -31,12 +31,12 @@
       "@features/*": ["src/features/*"],
       "@lang": ["src/i18n"],
 
-      "@layouts": ["src/visual/layouts/*"],
-      "@components": ["src/visual/components/*"],
-      "@lib": ["src/visual/lib/*"],
-      "@hooks": ["src/visual/hooks/*"],
-      "@contexts": ["src/visual/contexts/*"],
-
+      "@pages/*": ["src/pages/*"],
+      "@layouts/*": ["src/visual/layouts/*"],
+      "@components/*": ["src/visual/components/*"],
+      "@lib/*": ["src/visual/lib/*"],
+      "@hooks/*": ["src/visual/hooks/*"],
+      "@contexts/*": ["src/visual/contexts/*"],
     }
   },
   "include": [

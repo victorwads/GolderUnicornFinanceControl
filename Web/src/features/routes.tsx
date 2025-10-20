@@ -4,7 +4,6 @@ import { withRepos } from '@componentsDeprecated/WithRepo';
 
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
-import LoginScreen from '@features/login/LoginScreen';
 import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
 import TimelineImportScreen from '@features/tabs/timeline/TimelineImportScreen';
 import TimelineFilterScreen from '@features/tabs/timeline/TimelineFilterScreen';
@@ -27,6 +26,8 @@ import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
+
+import LoginScreen from '@pages/auth/LoginScreen';
 
 export const privateRouter = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" replace /> },

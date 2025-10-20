@@ -15,6 +15,7 @@ export const alias = {
   '@features': resolve(projectRoot, 'src/features'),
   '@lang': resolve(projectRoot, 'src/i18n'),
 
+  "@pages": resolve(projectRoot, "src/pages"),
   "@layouts": resolve(projectRoot, "src/visual/layouts"),
   "@components": resolve(projectRoot, "src/visual/components"),
   "@lib": resolve(projectRoot, "src/visual/lib"),
