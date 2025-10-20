@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct CreateAccountScreen: View {
-    
+    @EnvironmentObject var repos: RepositoriesProvider
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel = CreateAccountViewModel()
     
@@ -36,6 +36,7 @@ struct CreateAccountScreen: View {
             .buttonStyle(.borderedProminent)
         }.padding()
         .navigationTitle("Criar Conta")
+        .onAppear { viewModel.provider = repos }
     }
 }
 

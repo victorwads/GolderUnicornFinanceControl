@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct CreditCardsCard: View {
-    
-    @ObservedObject var viewModel = CreditCardsCardViewModel()
+    @EnvironmentObject var repos: RepositoriesProvider
+    @StateObject var viewModel = CreditCardsCardViewModel()
     
     var body: some View {
         Text("Cartões")
@@ -24,21 +24,15 @@ struct CreditCardsCard: View {
             }
         }
         .accessibilityIdentifier("Dashboard.CreditCards.List")
-        .onAppear {
-            viewModel.load()
-        }
+        .onAppear { viewModel.load(provider: repos) }
     }
 }
 
 class CreditCardsCardViewModel: ObservableObject {
     
     @Published var creditCards: [CreditCard] = []
-    private let repo = CreditCardsRepository()
-
-    func load() {
-        repo.getAll { cards in
-            self.creditCards = cards
-        }
+    func load(provider: RepositoriesProvider?) {
+        provider?.loadCreditCards { self.creditCards = $0 }
     }
     
 }

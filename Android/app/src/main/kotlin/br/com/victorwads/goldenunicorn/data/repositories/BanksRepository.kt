@@ -4,7 +4,7 @@ import br.com.victorwads.goldenunicorn.data.firebase.Collections
 import br.com.victorwads.goldenunicorn.data.models.Bank
 import br.com.victorwads.goldenunicorn.prepareCompare
 
-class BanksRepository: BaseRepository<Bank>(Bank::class.java) {
+internal class BanksRepository: BaseRepository<Bank>(Bank::class.java) {
 
     override val cacheDuration = 2592000000// 30 * 24 * 60 * 60 * 1000;
     override val ref = bd.collection(Collections.Banks)
