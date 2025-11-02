@@ -15,7 +15,6 @@ import CryptoPassSetupScreen from '@features/security/CryptoPassSetupScreen';
 import { privateRouter, publicRouter } from '@features/routes';
 import { Progress } from './data/crypt/progress';
 import { FloatingProgress } from '@componentsDeprecated/progress/FloatingProgress';
-import { Loading } from '@componentsDeprecated/Loading';
 import AppLoading from '@layouts/core/AppLoading';
 
 let userID = getCurrentRepositoryUserId();

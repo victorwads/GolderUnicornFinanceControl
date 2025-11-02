@@ -1,9 +1,11 @@
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Input } from "@components/ui/input";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, Trash2 } from "lucide-react";
 import { MicButton } from "@components/MicButton";
 import { TabBar } from "@components/TabBar";
+import { DataProgress } from "@components/DataProgress";
+import type { DataProgressInfo } from "@components/DataProgress";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +22,7 @@ interface DeleteAccountProps {
 }
 
 export default function DeleteAccount({ model }: DeleteAccountProps) {
-  const { navigate, confirmText, setConfirmText, showDialog, setShowDialog, handleDelete, confirmDelete } = model;
+  const { navigate, deleteProgress, confirmText, setConfirmText, showDeleteDialog, setShowDeleteDialog, handleDelete, confirmDelete } = model;
 
   return (
     <div className="min-h-screen bg-background pb-36">
@@ -30,7 +32,7 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(new ToMoreRoute())}
+              onClick={() => navigate("/privacy")}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -73,13 +75,15 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
                   onChange={(e) => setConfirmText(e.target.value)}
                   placeholder="Digite EXCLUIR"
                   className="mb-3"
+                  disabled={!!deleteProgress}
                 />
                 <Button
                   variant="destructive"
                   className="w-full"
                   onClick={handleDelete}
-                  disabled={confirmText !== "EXCLUIR"}
+                  disabled={confirmText !== "EXCLUIR" || !!deleteProgress}
                 >
+                  <Trash2 className="h-4 w-4 mr-2" />
                   Excluir Conta Permanentemente
                 </Button>
               </div>
@@ -92,7 +96,9 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
         </div>
       </div>
 
-      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+      <DataProgress progress={deleteProgress} type="delete" />
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
@@ -116,17 +122,13 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
   );
 }
 
-// Navigation Routes
-export class DeleteAccountRoute {}
-
-export class ToMoreRoute extends DeleteAccountRoute {}
-
 export interface DeleteAccountViewModel {
-  navigate: (route: DeleteAccountRoute) => void;
+  navigate: (path: string) => void;
+  deleteProgress: DataProgressInfo | null;
   confirmText: string;
   setConfirmText: (text: string) => void;
-  showDialog: boolean;
-  setShowDialog: (show: boolean) => void;
+  showDeleteDialog: boolean;
+  setShowDeleteDialog: (show: boolean) => void;
   handleDelete: () => void;
   confirmDelete: () => void;
 }

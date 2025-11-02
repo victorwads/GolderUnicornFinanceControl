@@ -3,6 +3,7 @@ import { WithInvoiceTime, CreditCardInvoice } from "@models";
 import getRepositories from ".";
 import RepositoryWithCrypt from './RepositoryWithCrypt';
 import { Collections } from "../firebase/Collections";
+import { Month } from "@utils/FinancialMonthPeriod";
 
 export default class CreditCardInvoicesRepository extends RepositoryWithCrypt<CreditCardInvoice> {
   constructor() {
@@ -13,8 +14,17 @@ export default class CreditCardInvoicesRepository extends RepositoryWithCrypt<Cr
     );
   }
 
-  public getNextInvoices(): CreditCardInvoice[] {
-    return [];
+  public getNextInvoice(cardId: string): CreditCardInvoice {
+    const currentMonth = Month.fromDate(new Date());
+    return this.getCache().find(invoice =>
+      invoice.cardId === cardId &&
+      invoice.year === currentMonth.year &&
+      invoice.month === currentMonth.month
+    ) ??
+    new CreditCardInvoice(
+      '', '', new Date(),
+      currentMonth.year, currentMonth.month, 0
+    );
   }
 
   public getInvoices(cardId: string): CreditCardInvoice[] {

@@ -23,7 +23,7 @@ export function Container({ children, wide = false, spaced = false, screen = fal
     }
   });
 
-  return <div className={clsx('container', className, {
+  return <div className={clsx('lg-container', className, {
     'wide': wide,
     'spaced': spaced,
     'screen': screen,
@@ -48,7 +48,7 @@ ContainerFixedContent.displayName = 'ContainerFixedContent';
 export function ContainerScrollContent({ children, spaced, autoScroll = false }: ContainerContentProps) {
   // Se autoScroll desativado, render simples
   if (!autoScroll) {
-    return <div className={clsx("container-content scroll", { spaced })}>{children}</div>;
+    return <div className={clsx("lg-container-content scroll", { spaced })}>{children}</div>;
   }
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -83,7 +83,7 @@ export function ContainerScrollContent({ children, spaced, autoScroll = false }:
     ref={ref}
     onScroll={handleScroll}
     data-autoscroll={stickToBottom ? 'stick' : 'free'}
-    className={clsx("container-content scroll", { spaced })}>
+    className={clsx("lg-container-content scroll", { spaced })}>
     {children}
   </div>;
 }

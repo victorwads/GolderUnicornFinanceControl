@@ -1,42 +1,42 @@
-.container {
+.lg-container {
     display: flex;
     flex-direction: column;
     max-height: 100%;
     position: relative;
 }
 
-.container.full {
+.lg-container.full {
     height: 100%;
 }
 
-.container.spaced {
+.lg-container.spaced {
     padding: var(--spacing-md);
     padding-bottom: 0;
 }
 
-.container.screen {
+.lg-container.screen {
     height: 100%;
     padding: var(--spacing-sm) var(--spacing-md);
 }
 
-.container.wide {
+.lg-container.wide {
     max-width: 1800px;
     width: 100%;
 }
 
-.container-content {
+.lg-container-content {
     box-sizing: border-box;
 }
 
-.container-content.spaced {
+.lg-container-content.spaced {
     padding: 0 var(--spacing-md);
 }
 
-.container-content.fixed-deprecated {
+.lg-container-content.fixed-deprecated {
     flex: 0 1 auto;
 }
 
-.container-content.scroll {
+.lg-container-content.scroll {
     flex: 1;
     overflow-y: auto;
     scroll-behavior: smooth;

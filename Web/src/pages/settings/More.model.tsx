@@ -33,7 +33,7 @@ export function useMoreModel(): MoreViewModel {
       id: user?.uid || "",
       email: user?.email || "user@example.com",
       name: user?.displayName || "",
-      imageURL: user?.photoURL || "https://example.com/user.jpg",
+      imageURL: user?.photoURL || undefined,
     },
     appVersion: version,
     sections: [

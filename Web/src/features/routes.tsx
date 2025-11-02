@@ -31,12 +31,18 @@ import LoginScreen from '@pages/auth/LoginScreen.page';
 import MorePage from '@pages/settings/More.page';
 import ConnectedAccountsPage from '@pages/settings/ConnectedAccounts.page';
 import SettingsPage from '@pages/settings/Settings.page';
+import HomePage from '@pages/core/Home.page';
+import PrivacyPage from '@pages/privacy/Privacy.page';
+import DeleteAccountPage from '@pages/privacy/DeleteAccount.page';
+import ExportDataPage from '@pages/privacy/ExportData.page';
+import PolicyPage from '@pages/privacy/Policy.page';
+import TermsPage from '@pages/privacy/Terms.page';
 
 export const privateRouter = createBrowserRouter([
-  { path: "/", element: <Navigate to="/dashboard" replace /> },
   {
     path: '/', element: withRepos(<TabScreen />, 'user'), children: [
-      { path: 'dashboard', element: <DashboardScreen />},
+      { path: '/', element: <HomePage />},
+      { path: 'old/dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: withRepos(<TimelineFilterScreen />, 'banks', 'creditCards', 'accounts', 'categories') },
       { path: 'timeline/import', element: withRepos(
         <TimelineImportScreen />,
@@ -52,6 +58,9 @@ export const privateRouter = createBrowserRouter([
       { path: 'assistant/:userId?', element: withRepos(<AiCallsScreen />, 'aiCalls') },
       { path: 'me/linkedaccounts', element: <ConnectedAccountsPage /> },
       { path: 'me/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
+      { path: 'me/privacy', element: <PrivacyPage /> },
+      { path: 'me/privacy/delete', element: <DeleteAccountPage /> },
+      { path: 'me/privacy/export', element: <ExportDataPage /> },
       { path: 'settings', element: <MorePage /> },
       { path: 'settings/app', element: <SettingsPage /> },
       { path: 'old/settings', element: <SettingsScreen /> },
@@ -78,11 +87,16 @@ export const privateRouter = createBrowserRouter([
       { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
     ]
   },
+  { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
+  { path: '/privacy/terms', element: <TermsPage /> },
+  { path: '/privacy/policy', element: <PolicyPage /> },
   { path: '*', element: <EmptyScreen title='Not Found' /> },
 ])
 
 export const publicRouter = createBrowserRouter([
   { path: '/', element: <LoginScreen /> },
   { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
+  { path: '/privacy/terms', element: <TermsPage /> },
+  { path: '/privacy/policy', element: <PolicyPage /> },
   { path: '*', element: <LoginScreen /> },
 ])

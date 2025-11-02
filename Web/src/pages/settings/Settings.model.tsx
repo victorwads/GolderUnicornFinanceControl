@@ -15,7 +15,7 @@ export function useSettingsModel(): SettingsViewModel {
   function navigate(route: SettingsRoute) {
     switch (true) {
       case route instanceof ToMoreRoute:
-        router("/more");
+        router("/settings");
         break;
 
       case route instanceof ToLanguageRoute:

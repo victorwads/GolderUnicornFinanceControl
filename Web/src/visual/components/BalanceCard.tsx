@@ -2,14 +2,15 @@ import { TrendingUp, TrendingDown, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@components/ui/card";
 import { cn } from "@lib/utils";
+import { Skeleton } from "@components/ui/skeleton";
 
 interface BalanceCardProps {
   accountsCount: number;
+  totalBalance: number | null;
 }
 
-export const BalanceCard = ({ accountsCount }: BalanceCardProps) => {
+export const BalanceCard = ({ accountsCount, totalBalance }: BalanceCardProps) => {
   const [isVisible, setIsVisible] = useState(true);
-  const balance = 12450.80;
   const change = 8.5;
   const isPositive = change >= 0;
 
@@ -30,9 +31,11 @@ export const BalanceCard = ({ accountsCount }: BalanceCardProps) => {
         </div>
 
         <div className="mb-2">
-          {isVisible ? (
+          {totalBalance === null ? (
+            <Skeleton className="h-9 w-48 bg-white/20" />
+          ) : isVisible ? (
             <h2 className="text-3xl font-bold tracking-tight">
-              R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </h2>
           ) : (
             <div className="flex gap-2">

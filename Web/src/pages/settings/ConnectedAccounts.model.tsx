@@ -39,7 +39,7 @@ export function useConnectedAccountsModel(): ConnectedAccountsViewModel {
   function navigate(route: ConnectedAccountsRoute) {
     switch (true) {
       case route instanceof ToMoreRoute:
-        router("/more");
+        router("/settings");
         break;
 
       default:
