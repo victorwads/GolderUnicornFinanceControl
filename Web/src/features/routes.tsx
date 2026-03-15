@@ -24,6 +24,7 @@ import CreateBankAccountPage from '@pages/accounts/CreateBankAccount.page';
 import MorePage from '@pages/settings/More.page';
 import ConnectedAccountsPage from '@pages/settings/ConnectedAccounts.page';
 import SettingsPage from '@pages/settings/Settings.page';
+import ResourceUsagePage from '@pages/settings/ResourceUsage.page';
 import HomePage from '@pages/core/Home.page';
 import TimelinePage from '@pages/core/Timeline.page';
 import CreateRecurrentPage from '@pages/transactions/CreateRecurrent.page';
@@ -55,7 +56,7 @@ export const privateRouter = createBrowserRouter([
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
       { path: 'assistant/:userId?', element: withRepos(<AiCallsScreen />, 'aiCalls') },
       { path: 'me/linkedaccounts', element: <ConnectedAccountsPage /> },
-      { path: 'me/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
+      { path: 'me/resource-usage', element: withRepos(<ResourceUsagePage />,  'resourcesUse', 'aiCalls') },
       { path: 'me/privacy', element: <PrivacyPage /> },
       { path: 'me/privacy/delete', element: <DeleteAccountPage /> },
       { path: 'me/privacy/export', element: <ExportDataPage /> },

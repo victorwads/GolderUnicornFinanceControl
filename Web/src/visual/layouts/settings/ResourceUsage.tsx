@@ -1,4 +1,4 @@
-import { ArrowLeft, Activity, Zap, MessageSquare, BarChart3 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { Progress } from "@components/ui/progress";
@@ -9,7 +9,13 @@ interface ResourceUsageProps {
 }
 
 export default function ResourceUsage({ model }: ResourceUsageProps) {
-  const { navigate, aiModels } = model;
+  const {
+    navigate,
+    aiModels,
+    databases,
+    monthlyUsage,
+    summary,
+  } = model;
 
   return (
     <div className="min-h-screen bg-background pb-8">
@@ -40,9 +46,16 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground">Consumo mensal de IA</h3>
-                <span className="text-sm font-medium text-foreground">R$ 1,90 de R$ 5,00</span>
+                <span className="text-sm font-medium text-foreground">
+                  {formatCurrencyBRL(monthlyUsage.currentCostBRL)} de {formatCurrencyBRL(monthlyUsage.limitBRL)}
+                </span>
               </div>
-              <Progress value={38} className="h-2" />
+              <Progress value={monthlyUsage.progressPercent} className="h-2" />
+              {monthlyUsage.exceededAmountBRL !== null && (
+                <p className="text-xs font-medium text-destructive">
+                  Limite excedido em {formatCurrencyBRL(monthlyUsage.exceededAmountBRL)}
+                </p>
+              )}
             </div>
           </Card>
 
@@ -50,53 +63,36 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-foreground">Database</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Local DB */}
-              <Card className="p-5 border-border/50 bg-card/50">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold text-foreground">Local</h4>
-                    <Badge variant="outline" className="text-xs">DB</Badge>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Reads</p>
-                      <p className="text-lg font-bold text-foreground">13753</p>
+              {databases.map((database) => (
+                <Card key={database.name} className="p-5 border-border/50 bg-card/50">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-foreground">{database.name}</h4>
+                      <Badge variant="outline" className="text-xs">DB</Badge>
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Writes</p>
-                      <p className="text-lg font-bold text-foreground">1583</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Query Reads</p>
-                      <p className="text-lg font-bold text-foreground">800</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Remote DB */}
-              <Card className="p-5 border-border/50 bg-card/50">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold text-foreground">Remote</h4>
-                    <Badge variant="outline" className="text-xs">DB</Badge>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Reads</p>
-                      <p className="text-lg font-bold text-foreground">743</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Writes</p>
-                      <p className="text-lg font-bold text-foreground">1583</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Query Reads</p>
-                      <p className="text-lg font-bold text-foreground">437</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Reads</p>
+                        <p className="text-lg font-bold text-foreground">
+                          {formatNumber(database.reads)}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Writes</p>
+                        <p className="text-lg font-bold text-foreground">
+                          {formatNumber(database.writes)}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Query Reads</p>
+                        <p className="text-lg font-bold text-foreground">
+                          {formatNumber(database.queryReads)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              ))}
             </div>
           </div>
 
@@ -105,7 +101,7 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
             <h3 className="text-lg font-semibold text-foreground">AI Models</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {aiModels.map((model, index) => (
-                <Card key={index} className="p-4 border-border/50 bg-card/50">
+                <Card key={model.name || index} className="p-4 border-border/50 bg-card/50">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-semibold text-foreground truncate">
@@ -123,13 +119,13 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
                       {model.tokensIn !== null && (
                         <div>
                           <p className="text-xs text-muted-foreground">Tokens In</p>
-                          <p className="text-lg font-bold text-foreground">{model.tokensIn.toLocaleString()}</p>
+                          <p className="text-lg font-bold text-foreground">{formatNumber(model.tokensIn)}</p>
                         </div>
                       )}
                       {model.tokensOut !== null && (
                         <div>
                           <p className="text-xs text-muted-foreground">Tokens Out</p>
-                          <p className="text-lg font-bold text-foreground">{model.tokensOut.toLocaleString()}</p>
+                          <p className="text-lg font-bold text-foreground">{formatNumber(model.tokensOut)}</p>
                         </div>
                       )}
                     </div>
@@ -143,19 +139,19 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Total Requests</p>
-                  <p className="text-xl font-bold text-foreground">162</p>
+                  <p className="text-xl font-bold text-foreground">{formatNumber(summary.totalRequests)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Tokens Input</p>
-                  <p className="text-xl font-bold text-foreground">816,378</p>
+                  <p className="text-xl font-bold text-foreground">{formatNumber(summary.tokensIn)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Tokens Output</p>
-                  <p className="text-xl font-bold text-foreground">7,556</p>
+                  <p className="text-xl font-bold text-foreground">{formatNumber(summary.tokensOut)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Estimated Cost</p>
-                  <p className="text-xl font-bold text-primary">R$ 1,868</p>
+                  <p className="text-xl font-bold text-primary">{formatCurrencyBRL(summary.estimatedCostBRL)}</p>
                 </div>
               </div>
             </Card>
@@ -186,7 +182,45 @@ export interface AIModel {
   tokensOut: number | null;
 }
 
+export interface DatabaseUsageCard {
+  name: string;
+  reads: number;
+  writes: number;
+  queryReads: number;
+}
+
+export interface MonthlyUsageSummary {
+  currentCostBRL: number;
+  limitBRL: number;
+  progressPercent: number;
+  exceededAmountBRL: number | null;
+}
+
+export interface ResourceUsageSummary {
+  totalRequests: number;
+  tokensIn: number;
+  tokensOut: number;
+  estimatedCostBRL: number;
+}
+
 export interface ResourceUsageViewModel {
   navigate: (route: ResourceUsageRoute) => void;
   aiModels: AIModel[];
+  databases: DatabaseUsageCard[];
+  monthlyUsage: MonthlyUsageSummary;
+  summary: ResourceUsageSummary;
+}
+
+function formatNumber(value: number): string {
+  return value.toLocaleString(CurrentLangInfo.short);
+}
+
+function formatCurrencyBRL(value: number): string {
+  if (!Number.isFinite(value)) return "R$\u00a00,00";
+  return value.toLocaleString(CurrentLangInfo.short, {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: value > 1 ? 2 : 4,
+    maximumFractionDigits: 4,
+  });
 }
