@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Receipt, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 import getRepositories, { waitUntilReady } from "@repositories";
-import { Category as CategoryModel } from "@models";
+import { Category as CategoryModel, RootCategory } from "@models";
 import Icon, { getIconByCaseInsensitiveName } from "@components/Icons";
 import {
   Category,
+  CategoryTreeNode,
   CategoriesListViewModel,
   CategoriesRoute,
   ToCreateCategoryRoute,
@@ -22,48 +23,42 @@ function makeCategoryIcon(iconName?: string): LucideIcon {
   return CategoryIcon as LucideIcon;
 }
 
-function buildTransactionCountByCategoryId() {
+function toVisualCategory(category: CategoryModel): Category {
   const repositories = getRepositories();
-  const counts = new Map<string, number>();
-  const allTransactions = [
-    ...repositories.accountTransactions.getCache(),
-    ...repositories.creditCardsTransactions.getCache(),
-    ...repositories.creditCardsInvoices.getCache().map((invoice) => ({
-      categoryId: invoice.categoryId,
-    })),
-  ];
+  const parent = category.parentId ? repositories.categories.getLocalById(category.parentId) : undefined;
+  const color = category.color || parent?.color || "#64748b";
+  const iconName = category.icon || parent?.icon;
 
-  allTransactions.forEach((transaction) => {
-    if (!transaction.categoryId) return;
-    counts.set(transaction.categoryId, (counts.get(transaction.categoryId) || 0) + 1);
-  });
-
-  return counts;
+  return {
+    id: String(category.id),
+    name: category.name,
+    icon: makeCategoryIcon(iconName),
+    color,
+    parentId: category.parentId,
+  };
 }
 
-function toVisualCategories(categories: CategoryModel[]): Category[] {
-  const repositories = getRepositories();
-  const transactionCountByCategoryId = buildTransactionCountByCategoryId();
+function toCategoryTreeNode(category: RootCategory): CategoryTreeNode {
+  return {
+    ...toVisualCategory(category),
+    children: category.children
+      .map((child) => toVisualCategory(child))
+      .sort((left, right) => left.name.localeCompare(right.name)),
+  };
+}
 
-  return categories.map((category) => {
-    const parent = category.parentId ? repositories.categories.getLocalById(category.parentId) : undefined;
-    const color = category.color || parent?.color || "#64748b";
-    const iconName = category.icon || parent?.icon;
-
-    return {
-      id: String(category.id),
-      name: parent ? `${parent.name} / ${category.name}` : category.name,
-      icon: makeCategoryIcon(iconName),
-      color,
-      transactionCount: transactionCountByCategoryId.get(category.id) || 0,
-    };
-  }).sort((left, right) => left.name.localeCompare(right.name));
+function toVisualCategories(): CategoryTreeNode[] {
+  return getRepositories()
+    .categories
+    .getAllRoots()
+    .map((category) => toCategoryTreeNode(category))
+    .sort((left, right) => left.name.localeCompare(right.name));
 }
 
 export function useCategoriesListModel(): CategoriesListViewModel {
   const router = useNavigate();
   const { id } = useParams<{ id?: string }>();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryTreeNode[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -71,12 +66,11 @@ export function useCategoriesListModel(): CategoriesListViewModel {
 
     const sync = () => {
       if (!active) return;
-      const repositories = getRepositories();
-      setCategories(toVisualCategories(repositories.categories.getCache()));
+      setCategories(toVisualCategories());
     };
 
     const load = async () => {
-      await waitUntilReady("categories", "accountTransactions", "creditCardsTransactions", "creditCardsInvoices");
+      await waitUntilReady("categories");
       if (!active) return;
 
       sync();
@@ -84,9 +78,6 @@ export function useCategoriesListModel(): CategoriesListViewModel {
       const repositories = getRepositories();
       dispose = [
         repositories.categories.addUpdatedEventListenner(sync),
-        repositories.accountTransactions.addUpdatedEventListenner(sync),
-        repositories.creditCardsTransactions.addUpdatedEventListenner(sync),
-        repositories.creditCardsInvoices.addUpdatedEventListenner(sync),
       ];
     };
 
@@ -105,7 +96,9 @@ export function useCategoriesListModel(): CategoriesListViewModel {
         break;
 
       case route instanceof ToCreateCategoryRoute:
-        router("/categories/create");
+        router(route.parentCategoryId
+          ? `/categories/create?parentCategory=${encodeURIComponent(route.parentCategoryId)}`
+          : "/categories/create");
         break;
 
       case route instanceof ToEditCategoryRoute:

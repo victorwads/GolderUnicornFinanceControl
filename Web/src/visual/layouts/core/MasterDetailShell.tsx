@@ -27,9 +27,9 @@ export default function MasterDetailShell({
   }
 
   return (
-    <div className="relative min-h-screen w-full px-4 py-4 lg:px-6">
+    <div className="relative h-[100dvh] w-full overflow-hidden px-4 py-4 lg:px-6">
       <div
-        className="grid min-h-[calc(100vh-2rem)] w-full transition-[grid-template-columns] ease-out"
+        className="grid h-full min-h-0 w-full transition-[grid-template-columns] ease-out"
         style={{
           gridTemplateColumns: isDetailOpen
             ? "minmax(360px, 38%) minmax(0, 62%)"
@@ -37,7 +37,7 @@ export default function MasterDetailShell({
           transitionDuration: `${MASTER_DETAIL_TRANSITION_MS}ms`,
         }}
       >
-        <section className="min-w-0 overflow-hidden">
+        <section className="min-h-0 min-w-0 overflow-hidden">
           <div
             className={cn(
               "h-full overflow-hidden rounded-3xl border border-border/60 bg-card transition-[border-radius,box-shadow] ease-out",
@@ -47,7 +47,7 @@ export default function MasterDetailShell({
           >
             <div
               className={cn(
-                "h-full overflow-y-auto transition-[max-width] ease-out",
+                "h-full min-h-0 overflow-y-auto overscroll-contain transition-[max-width] ease-out",
                 isDetailOpen ? "max-w-none" : "mx-auto w-full"
               )}
               style={{ transitionDuration: `${MASTER_DETAIL_TRANSITION_MS}ms` }}
@@ -59,13 +59,13 @@ export default function MasterDetailShell({
 
         <section
           className={cn(
-            "min-w-0 overflow-hidden pl-0 transition-[opacity,transform,padding] ease-out",
+            "min-h-0 min-w-0 overflow-hidden pl-0 transition-[opacity,transform,padding] ease-out",
             isDetailOpen ? "translate-x-0 pl-4 opacity-100" : "pointer-events-none translate-x-8 opacity-0"
           )}
           style={{ transitionDuration: `${MASTER_DETAIL_TRANSITION_MS}ms` }}
         >
           <div className="h-full overflow-hidden rounded-3xl border border-border/60 bg-background shadow-sm">
-            <div className="h-full overflow-y-auto">
+            <div className="h-full min-h-0 overflow-y-auto overscroll-contain">
               {isDetailOpen ? outlet : null}
             </div>
           </div>

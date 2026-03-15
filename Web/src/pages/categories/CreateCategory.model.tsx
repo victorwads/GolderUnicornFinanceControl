@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { SelectListOption } from "@components/ui/select-list";
 import { Category } from "@models";
@@ -28,6 +28,7 @@ function buildCategoryOptions(currentCategoryId?: string): SelectListOption[] {
 export function useCreateCategoryModel(): CreateCategoryViewModel {
   const router = useNavigate();
   const { id } = useParams<{ id?: string }>();
+  const [searchParams] = useSearchParams();
   const isEdit = !!id;
   const [categories, setCategories] = useState<SelectListOption[]>([]);
 
@@ -49,10 +50,19 @@ export function useCreateCategoryModel(): CreateCategoryViewModel {
 
       const repositories = getRepositories();
       const existingCategory = id ? repositories.categories.getLocalById(id) : undefined;
+      const selectedParentCategoryId = searchParams.get("parentCategory") || "";
 
       setCategories(buildCategoryOptions(id));
 
-      if (!existingCategory) return;
+      if (!existingCategory) {
+        reset({
+          name: "",
+          icon: "folder",
+          color: "#3b82f6",
+          parentCategory: selectedParentCategoryId,
+        });
+        return;
+      }
 
       const parent = existingCategory.parentId
         ? repositories.categories.getLocalById(existingCategory.parentId)
@@ -71,7 +81,7 @@ export function useCreateCategoryModel(): CreateCategoryViewModel {
     return () => {
       active = false;
     };
-  }, [id, reset]);
+  }, [id, reset, searchParams]);
 
   async function onSubmit(data: CategoryForm) {
     const name = data.name.trim();
