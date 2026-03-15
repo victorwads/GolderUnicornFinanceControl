@@ -41,13 +41,14 @@ export default function More({ model }: MoreProps) {
           </Card>
 
           {sections.map((section) => 
-          <div className="space-y-3">
+          <div key={section.title} className="space-y-3">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
               {section.title}
             </h3>
             <Card className="divide-y divide-border/50 border-border/50 overflow-hidden">
               {section.items.map((item) =>
               <div 
+                key={item.label}
                 className="flex items-center justify-between p-4 hover:bg-accent/50 transition-colors cursor-pointer"
                 onClick={() => navigate(item.route)}
               >

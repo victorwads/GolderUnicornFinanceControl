@@ -10,8 +10,6 @@ import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScree
 import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
 import AiCallsScreen from '@features/assistant/AiCallsScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
-import CategoriesScreen from '@features/categories/CategoriesScreen';
-import AddCategoriesScreen from '@features/categories/AddCategoriesScreen';
 import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
 import CreditCardRegistryScreen from '@features/creaditcards/CreditCardRegistryScreen';
 import CreditCardsScreen from '@features/creaditcards/CreditCardsScreen';
@@ -38,6 +36,8 @@ import DeleteAccountPage from '@pages/privacy/DeleteAccount.page';
 import ExportDataPage from '@pages/privacy/ExportData.page';
 import PolicyPage from '@pages/privacy/Policy.page';
 import TermsPage from '@pages/privacy/Terms.page';
+import CategoriesListPage from '@pages/categories/CategoriesList.page';
+import CreateCategoryPage from '@pages/categories/CreateCategory.page';
 
 export const privateRouter = createBrowserRouter([
   {
@@ -81,8 +81,9 @@ export const privateRouter = createBrowserRouter([
       ) },
       { path: '/creditcards/transaction/add', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards') },
       { path: '/creditcards/transaction/:id/edit', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards', 'creditCardsTransactions') },
-      { path: '/categories', element: <CategoriesScreen /> },
-      { path: '/categories/create', element: <AddCategoriesScreen /> },
+      { path: '/categories', element: <CategoriesListPage /> },
+      { path: '/categories/create', element: <CreateCategoryPage /> },
+      { path: '/categories/edit/:id', element: <CreateCategoryPage /> },
       { path: '/groceries/create', element: <GroceryItemForm /> },
       { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
       { path: '/recurrents/create', element: <CreateRecurrentPage /> },
