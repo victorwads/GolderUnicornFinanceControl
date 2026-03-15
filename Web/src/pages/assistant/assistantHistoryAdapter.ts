@@ -143,6 +143,18 @@ function buildTimelineEntries(context: AiCallContext): AssistantTimelineEntry[] 
     }
   });
 
+  const internalErrors = (Array.isArray(context.warnings) ? context.warnings : [])
+    .filter((warning): warning is string => typeof warning === "string" && warning.startsWith("internal_error:"));
+
+  internalErrors.forEach((warning, index) => {
+    entries.push({
+      id: `system-internal-error-${index}`,
+      type: "system",
+      timestamp: buildEntryTimestamp(baseDate, history.length + index),
+      content: formatInternalErrorWarning(warning),
+    });
+  });
+
   return entries;
 }
 
@@ -266,6 +278,10 @@ function formatMessageContent(content: unknown): string {
   }
   if (content == null) return "";
   return JSON.stringify(content, null, 2);
+}
+
+function formatInternalErrorWarning(warning: string): string {
+  return warning.replace(/^internal_error:\s*/i, "Internal error: ");
 }
 
 function isMetadataUserEntry(content: string): boolean {

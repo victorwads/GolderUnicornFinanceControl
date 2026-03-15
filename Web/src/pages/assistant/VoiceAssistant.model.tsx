@@ -36,7 +36,7 @@ export function useVoiceAssistantModel(): VoiceAssistantViewModel {
     isVisible: true,
     isListening,
     hasSession,
-    closeLabel: Lang.aiMic.onboarding.actions.close,
+    closeLabel: "encerrar assistente",
     onToggleMicrophone: () => {
       if (!hasSession) {
         setHasSession(true);

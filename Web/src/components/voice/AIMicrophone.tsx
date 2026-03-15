@@ -24,6 +24,7 @@ export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
   onPartialResult?: (text: string) => void;
   onListeningChange?: (listening: boolean) => void;
   skipOnboarding?: boolean;
+  autoProcessDelayMs?: number | null;
 }
 
 interface ProcessingTask { id: number; text: string; startedAt: number; }
@@ -33,6 +34,7 @@ export interface AIMicrophoneHandle {
   startListening: () => void;
   stopListening: () => void;
   toggleListening: () => void;
+  clearTranscript: () => void;
 }
 
 const AIMicrophone = forwardRef(<T extends AIItemData, A extends string>({
@@ -41,6 +43,7 @@ const AIMicrophone = forwardRef(<T extends AIItemData, A extends string>({
   onPartialResult,
   onListeningChange,
   skipOnboarding = false,
+  autoProcessDelayMs = COMMAND_EVALUATION_DELAY,
   compact = false,
   hideChrome = false,
   withLoading = false,
@@ -143,7 +146,11 @@ ref: ForwardedRef<AIMicrophoneHandle>
       }
       requestStart({ skipOnboarding: false });
     },
-  }), [hasCompleted, listening, requestStart]);
+    clearTranscript: () => {
+      clearSendTimeout();
+      resetTranscript();
+    },
+  }), [clearSendTimeout, hasCompleted, listening, requestStart, resetTranscript]);
 
   useEffect(() => {
     parser.onAction = (action, changes) => {
@@ -172,6 +179,12 @@ ref: ForwardedRef<AIMicrophoneHandle>
       };
     }
 
+    if (autoProcessDelayMs == null) {
+      return () => {
+        clearSendTimeout();
+      };
+    }
+
     sendTimeout.current = setTimeout(async () => {
       const textToProcess = trimmedTranscript;
       if (!textToProcess) return;
@@ -186,12 +199,12 @@ ref: ForwardedRef<AIMicrophoneHandle>
       } finally {
         setProcessingQueue((queue) => queue.filter((task) => task.id !== id));
       }
-    }, COMMAND_EVALUATION_DELAY);
+    }, autoProcessDelayMs);
 
     return () => {
       clearSendTimeout();
     };
-  }, [transcript, onboardingActive, parser, recognitionLanguage, resetTranscript, clearSendTimeout]);
+  }, [autoProcessDelayMs, transcript, onboardingActive, parser, recognitionLanguage, resetTranscript, clearSendTimeout]);
 
   if (!browserSupportsSpeechRecognition) {
     return <span>{Lang.speech.browserNotSupported}</span>;

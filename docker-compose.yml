@@ -48,10 +48,10 @@ services:
 
   backend-builder:
     image: node:22
-    working_dir: /app
+    working_dir: /app/Backend
     volumes:
-      - ./Backend:/app
-      - backend_node_modules:/app/node_modules
+      - ./Backend:/app/Backend
+      - backend_node_modules:/app/Backend/node_modules
     command: yarn docker
 
   firebase:
@@ -63,6 +63,7 @@ services:
       - ./Firebase:/app/Firebase
       - ./Backend:/app/Backend
       - ./Backend/.env.local:/app/.env.local
+      - backend_node_modules:/app/Backend/node_modules
     ports:
       - "8004:8004" # Auth
       - "8006:8006" # Functions
@@ -73,7 +74,7 @@ services:
       - "4500:4500" # Other reserved ports
       - "9150:9150" # Other reserved ports
       - "9299:9299" # ???
-    command: firebase emulators:start --import=./Firebase/data --export-on-exit=./Firebase/data
+    command: sh /app/Firebase/start-emulators.sh
 
 volumes:
   proxy_node_modules:

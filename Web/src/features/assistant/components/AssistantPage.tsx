@@ -1,6 +1,7 @@
 import {
   forwardRef,
   useCallback,
+  useEffectEvent,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -10,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import AIMicrophone, { type AIMicrophoneHandle, type AIMicrophoneProps } from "@componentsDeprecated/voice/AIMicrophone";
+import AssistantVoiceOverlay, { type AssistantVoiceOverlayState, type InfoBalloon } from "@components/AssistantVoiceOverlay";
 import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
 import getRepositories from "@repositories";
@@ -26,6 +28,7 @@ import { startListening, stopListening } from "@componentsDeprecated/voice/micro
 import { AiCallContext, AIUse } from "@models";
 import { speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
 import { subscribeAssistantEvent } from "../utils/assistantEvents";
+import { getAssistantMode } from "../preferences";
 
 export interface AssistantPageHandle {
   startListening: () => void;
@@ -44,11 +47,17 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
   showTrigger = true,
   onListeningChange,
 }, ref) {
+  const AUTO_SEND_DELAY_MS = 2400;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [isFirst, setIsFirst] = useState(true);
   const [partial, setPartial] = useState('');
+  const [draftText, setDraftText] = useState('');
+  const [voiceState, setVoiceState] = useState<AssistantVoiceOverlayState>('idle');
+  const [assistantMessage, setAssistantMessage] = useState<string | null>(null);
+  const [autoSendProgress, setAutoSendProgress] = useState(0);
+  const [isLiveMode, setIsLiveMode] = useState(() => getAssistantMode() === "live");
   const [calls, setCalls] = useState<AssistantToolCallLog[]>([]);
   const [askUserPrompt, setAskUserPrompt] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -56,6 +65,13 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
   const resourcesUse = useMemo(() => getRepositories().resourcesUse, []);
   const microphoneRef = useRef<AIMicrophoneHandle | null>(null);
   const onboardingFlowRef = useRef(false);
+  const isListeningRef = useRef(false);
+  const partialRef = useRef("");
+  const draftTextRef = useRef("");
+  const manualEditRef = useRef(false);
+  const autoSendTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSendIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const loadingRef = useRef(false);
 
   const normalizeUsage = useCallback(
     (usage?: AIUse<number> | null) => ({
@@ -69,6 +85,58 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
   useEffect(() => {
     resourcesUse.clearSessionUse();
   }, [normalizeUsage, resourcesUse]);
+
+  const cancelAutoSend = useCallback(() => {
+    if (autoSendTimeoutRef.current) {
+      clearTimeout(autoSendTimeoutRef.current);
+      autoSendTimeoutRef.current = null;
+    }
+    if (autoSendIntervalRef.current) {
+      clearInterval(autoSendIntervalRef.current);
+      autoSendIntervalRef.current = null;
+    }
+    setAutoSendProgress(0);
+  }, []);
+
+  const processVoiceTurn = useEffectEvent(async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    cancelAutoSend();
+    manualEditRef.current = false;
+    setVoiceState("sending");
+    setAssistantMessage("Hmm...");
+    setDraftText("");
+    draftTextRef.current = "";
+    setPartial("");
+    partialRef.current = "";
+    microphoneRef.current?.stopListening();
+    microphoneRef.current?.clearTranscript();
+    await processText(trimmed, CurrentLangInfo.short);
+  });
+
+  const scheduleAutoSend = useCallback((text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || !isLiveMode || manualEditRef.current) {
+      setVoiceState(trimmed ? "paused" : "idle");
+      return;
+    }
+
+    cancelAutoSend();
+    setVoiceState("paused");
+    setAutoSendProgress(0);
+
+    const startedAt = Date.now();
+    autoSendIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+      setAutoSendProgress(Math.min(100, (elapsed / AUTO_SEND_DELAY_MS) * 100));
+    }, 80);
+
+    autoSendTimeoutRef.current = setTimeout(() => {
+      cancelAutoSend();
+      void processVoiceTurn(trimmed);
+    }, AUTO_SEND_DELAY_MS);
+  }, [cancelAutoSend, isLiveMode, processVoiceTurn]);
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
     // if (!event.result) return;
@@ -210,7 +278,67 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
     },
   }), []);
 
+  useEffect(() => {
+    if (!compact) {
+      return;
+    }
+
+    if (partial && isListeningRef.current && !manualEditRef.current) {
+      draftTextRef.current = partial;
+      setDraftText(partial);
+      setVoiceState("listening");
+    }
+
+    if (!partial && !isListeningRef.current && !loadingRef.current && !askUserPrompt && !draftText.trim()) {
+      setVoiceState(assistantMessage ? "responded" : "idle");
+    }
+  }, [askUserPrompt, assistantMessage, compact, draftText, partial]);
+
+  useEffect(() => {
+    const wasLoading = loadingRef.current;
+    loadingRef.current = loading;
+
+    if (!compact) {
+      return;
+    }
+
+    if (loading) {
+      cancelAutoSend();
+      setVoiceState("thinking");
+      setAssistantMessage("Hmm...");
+      return;
+    }
+
+    if (wasLoading && !loading) {
+      setVoiceState("responded");
+      if (askUserPrompt) {
+        setAssistantMessage(askUserPrompt);
+      } else {
+        setAssistantMessage("Pronto. Continue por voz ou escreva para seguir.");
+      }
+      setIsLiveMode(getAssistantMode() === "live");
+    }
+  }, [askUserPrompt, cancelAutoSend, compact, loading]);
+
+  useEffect(() => {
+    if (!compact || !askUserPrompt) {
+      return;
+    }
+
+    setAssistantMessage(askUserPrompt);
+  }, [askUserPrompt, compact]);
+
+  useEffect(() => () => cancelAutoSend(), [cancelAutoSend]);
+
   if (compact) {
+    const infoBalloons: InfoBalloon[] = calls
+      .filter((call) => Boolean(call.userInfo))
+      .slice(-4)
+      .map((call, index) => ({
+        id: `${call.id}-${index}`,
+        text: call.userInfo as string,
+      }));
+
     return <div className="assistant-icon">
       <AIMicrophone
         ref={microphoneRef}
@@ -218,52 +346,72 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         compact
         hideChrome={!showTrigger}
         withLoading={loading}
-        onListeningChange={onListeningChange}
-        onPartialResult={setPartial}
+        autoProcessDelayMs={null}
+        onPartialResult={(text) => {
+          partialRef.current = text;
+          setPartial(text);
+        }}
+        onListeningChange={(listening) => {
+          isListeningRef.current = listening;
+          onListeningChange?.(listening);
+
+          if (listening) {
+            manualEditRef.current = false;
+            setIsLiveMode(getAssistantMode() === "live");
+            cancelAutoSend();
+            setVoiceState("listening");
+            return;
+          }
+
+          const nextDraft = (manualEditRef.current ? draftTextRef.current : partialRef.current).trim();
+          if (!nextDraft) {
+            setVoiceState(assistantMessage ? "responded" : "idle");
+            return;
+          }
+
+          scheduleAutoSend(nextDraft);
+        }}
       />
-      <div className="assistant-toasts">
-        {speaking && <>
-          <GlassContainer>
-            <strong>Aviso:</strong> estou falando, aumente o volume do seu dispositivo.
-          </GlassContainer>
-        </>}
-        {warnings.map((warning, index) => (
-          <GlassContainer key={`${warning}-${index}`}>
-            <strong>Aviso:</strong> {warning}
-          </GlassContainer>
-        ))}
-        {calls.length > 0 && calls.filter(call => Boolean(call.userInfo)).map((call) => (
-          <GlassContainer key={call.id} className="assistant-toast assistant-toast--call">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <strong>Info:</strong>
-              <button onClick={() => setCalls(previous => previous.filter(c => c.id !== call.id))}>
-                <Icon icon={Icons.faTrash} size="xs" />
-              </button>
-            </div>
-            <pre>{call.userInfo}</pre>
-          </GlassContainer>
-        ))}
-        {askUserPrompt && (
-          <GlassContainer className="assistant-toast">
-            <strong>Assistente:</strong>
-            <pre>{askUserPrompt}</pre>
-            <p className="assistant-ask-user__hint">
-              Responda pelo microfone para continuar.
-            </p>
-          </GlassContainer>
-        )}
-        {loading && !askUserPrompt && (
-          <GlassContainer className="assistant-toast">
-            <strong>Assistente pensando, aguarde:</strong>
-            <pre>Hummm.....</pre>
-          </GlassContainer>
-        )}
-        {partial && (
-          <GlassContainer className="assistant-toast assistant-toast--partial">
-            <strong>Você:</strong> <pre>{partial}</pre>
-          </GlassContainer>
-        )}
-      </div>
+      <AssistantVoiceOverlay
+        state={voiceState}
+        userText={draftText}
+        assistantText={speaking ? "Estou falando. Aumente o volume do dispositivo se necessario." : (assistantMessage || "")}
+        infoBalloons={infoBalloons}
+        autoSendProgress={autoSendProgress}
+        isAssistantThinking={voiceState === "thinking"}
+        hasStarted={voiceState !== "idle"}
+        assistantHasAppeared={Boolean(assistantMessage) || voiceState === "thinking" || Boolean(askUserPrompt)}
+        isLiveMode={isLiveMode}
+        onUserTextChange={(value) => {
+          manualEditRef.current = true;
+          cancelAutoSend();
+          setIsLiveMode(false);
+          draftTextRef.current = value;
+          setDraftText(value);
+          setVoiceState(value.trim() ? "paused" : "idle");
+        }}
+        onUserTextClick={() => {
+          if (!isLiveMode) return;
+          cancelAutoSend();
+          setIsLiveMode(false);
+        }}
+        onStopOrClear={() => {
+          if (voiceState === "listening") {
+            microphoneRef.current?.stopListening();
+            return;
+          }
+
+          cancelAutoSend();
+          draftTextRef.current = "";
+          partialRef.current = "";
+          setDraftText("");
+          setPartial("");
+          setVoiceState(assistantMessage ? "responded" : "idle");
+        }}
+        onSend={() => {
+          void processVoiceTurn(draftText);
+        }}
+      />
     </div>;
   }
 
