@@ -79,50 +79,63 @@ O Principal desafio é fazer com que num projeto OpenSource e de baixo custo de 
 
 O [Plano base para Desenvolvimento](./docs/DevelopmentPlan.md) das features detalha um pouco sobre a organização para desenvolve-las
 
-## Estrutura do Repositórios
+## Estrutura do Repositório
 
-Este repositório contém diversos subprojetos relacionados ao aplicativo. Cada subprojeto está organizado em seu próprio diretório e configurado como um submódulo Git.
+Este repositório funciona na prática como um monorepo leve. Os diretórios principais ficam lado a lado dentro do mesmo repositório Git, mas nem todos possuem o mesmo nível de prioridade atualmente.
 
-### Subprojetos e Diretórios
+### Visão Geral
 
-#### `/`
-Aqui estão as configurações e definições de infraestrutura para os serviços Firebase utilizados nos subprojetos.
+#### `/Web`
+É a versão principal do produto e o foco atual de desenvolvimento. O app Web usa React + Vite + TypeScript e concentra tanto a lógica de finanças quanto a evolução do assistente com IA/voz.
 
-#### `/android`
-Este diretório contém o subprojeto Android. Desenvolvido com Kotlin e Android Compose.
+#### `/Web/src/visual`
+Esta pasta merece atenção especial: ela espelha a camada visual compartilhada do repositório `vibe-financas-magicas`. O remoto `visual` aponta para `git@github.com:victorwads/vibe-financas-magicas.git`, mas o fluxo operacional atual de sincronização deve usar `shared:export` e `shared:import`.
 
-#### `/ios`
-Aqui está o subprojeto iOS, construído com Swift e SwiftUI.
+Na prática isso significa:
 
-#### `/web`
-Este diretório é dedicado ao subprojeto Web, desenvolvido com React e Deno.
+- `Web/` não é um submódulo Git
+- o repositório raiz rastreia normalmente os arquivos dentro de `Web/`
+- a camada visual nova mora em `Web/src/visual`
+- parte da base antiga ainda existe em `Web/src/components` e `Web/src/features`, convivendo com a migração para o novo layout
 
-#### `/backend`
-Contém todas as funções e configurações do backend, potencialmente usando Firebase Cloud Functions.
+#### `/Site`
+Site institucional e assets públicos auxiliares.
 
-#### `/site`
-Aqui esta o subprojeto do site institucional e spa buildado.
+#### `/Backend`
+Backend enxuto para necessidades específicas do app, incluindo integrações simples e suporte ao ecossistema Firebase.
 
-### Uso de Submódulos Git
+#### `/Firebase`
+Configurações, dados auxiliares e estrutura de suporte ao Firebase.
 
-Cada um desses diretórios é um submódulo Git. Submódulos permitem que repositórios Git sejam incorporados dentro de um repositório pai como referências. Isso é útil para manter cada parte do projeto isolada e gerenciável, permitindo o desenvolvimento independente em subprojetos.
+#### `/Importer`
+Ferramentas de importação e processamento de dados financeiros.
 
-Quando trabalhar dentro de um submódulo, lembre-se de que ele é um repositório Git independente. Mudanças feitas dentro de um submódulo não afetam o repositório pai até que sejam explicitamente commitadas e atualizadas no repositório pai.
+#### `/Android` e `/iOS`
+Clientes móveis nativos. Existem no repositório, mas hoje não são o foco principal e podem estar parcialmente descontinuados em relação ao Web.
 
-#### Como Clonar com Submódulos
+#### `/LanguageConverter`
+Ferramentas auxiliares de conversão/manipulação de linguagem usadas no ecossistema do projeto.
 
-Para clonar o repositório principal incluindo todos os submódulos, use o seguinte comando Git:
-```
-git clone --recurse-submodules [URL do Repositório]
-```
+### Estado Atual da Arquitetura
 
-#### Atualizando Submódulos
+O projeto nasceu como um app de controle financeiro pessoal e evoluiu para uma direção de assistente financeiro agêntico. Hoje a principal linha de evolução do produto combina:
 
-Para atualizar os submódulos após mudanças, utilize:
+- gestão financeira pessoal
+- interface Web como plataforma principal
+- nova camada visual em `Web/src/visual`
+- recursos de IA para voz, navegação, interpretação de intenção e execução assistida de tarefas
 
-```
-git submodule update --remote
-```
+### Observações Importantes sobre Git
+
+Apesar de existir uma pasta vazia `Web/.git`, o diretório `Web/` atualmente resolve para o mesmo repositório Git da raiz. Ou seja, o fluxo real de trabalho é o do repositório principal, não de um submódulo independente.
+
+Por isso:
+
+- `git clone --recurse-submodules` não é necessário para o estado atual do projeto
+- `git submodule update --remote` não é a estratégia correta para atualizar a camada visual
+- o fluxo correto de sincronização visual é via `shared:export` e `shared:import` no repositório `vibe-financas-magicas`
+- primeiro altera-se e commita-se em um lado, depois sincroniza-se para o outro lado
+- não se deve misturar os dois fluxos no mesmo ciclo de trabalho
 
 ## Contribuições
 - Instruções para contribuições externas (TODO).

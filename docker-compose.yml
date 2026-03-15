@@ -35,7 +35,7 @@ services:
     working_dir: /app
     volumes:
       - proxy_node_modules:/app/node_modules
-      - ./firebase.json:/app/firebase.json
+      - ./firebase.json:/firebase.json:ro
       - ./Web/proxy:/app
     ports:
       - "443:4433"
