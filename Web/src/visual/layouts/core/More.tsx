@@ -1,6 +1,4 @@
 import { ChevronRight, User, Lock, HelpCircle, Info, Wallet, CreditCard, Receipt, Calendar, Settings as SettingsIcon, FileText, Download, Trash2, Link2, Repeat, Sparkles, LogOut } from "lucide-react";
-import { MicButton } from "@components/MicButton";
-import { TabBar } from "@components/TabBar";
 import { Card } from "@components/ui/card";
 import {
   Accordion,
@@ -19,7 +17,7 @@ export default function More({ model }: MoreProps) {
   const { navigate, handleLogout, sections = [], lang = {} as MoreLang, user, handleUpdateCheck, checkingForUpdate } = model;
 
   return (
-    <div className="min-h-screen bg-background pb-36">
+    <div className="min-h-full bg-background">
       <div className="max-w-4xl mx-auto">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
           <h1 className="text-2xl font-bold text-foreground">{lang.title || "Mais"}</h1>
@@ -119,9 +117,6 @@ export default function More({ model }: MoreProps) {
           </div>
         </div>
       </div>
-
-      <MicButton />
-      <TabBar />
     </div>
   );
 }

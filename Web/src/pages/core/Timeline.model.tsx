@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import getRepositories, { waitUntilReady } from "@repositories";
 import { getServices } from "@services";
@@ -12,7 +12,7 @@ import {
   TransferTransaction,
 } from "@models";
 import routes from "@features/navigate";
-import { Month, MonthKey } from "@utils/FinancialMonthPeriod";
+import FinancialMonthPeriod, { Month, MonthKey } from "@utils/FinancialMonthPeriod";
 import { SelectListOption } from "@components/ui/select-list";
 import { buildHierarchicalCategoryOptions } from "@pages/categories/categorySelectOptions";
 import {
@@ -48,8 +48,8 @@ function parseOptionalDate(value: string | null): Date | undefined {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 }
 
-function buildTimelinePath(accountId?: string) {
-  return `/timeline${accountId ? `/${accountId}` : ""}`;
+function buildTimelinePath() {
+  return "/timeline";
 }
 
 function buildTimelineSearch(params: URLSearchParams): string {
@@ -57,19 +57,19 @@ function buildTimelineSearch(params: URLSearchParams): string {
   return query ? `?${query}` : "";
 }
 
-function getTransactionRoute(item: RegistryWithDetails): string {
+function getTransactionRoute(item: RegistryWithDetails, search: string): string {
   const { registry } = item;
 
   if (registry instanceof InvoiceTransaction) {
-    return routes.invoice(registry.cardId, registry.name);
+    return routes.timelineInvoice(registry.cardId, registry.name, search);
   }
   if (registry instanceof TransferTransaction || registry.type === RegistryType.TRANSFER) {
-    return `/accounts/transfers/${registry.id}/edit`;
+    return routes.timelineTransfer(registry.id, search);
   }
   if (registry instanceof CreditCardRegistry) {
-    return `/creditcards/transaction/${registry.id}/edit`;
+    return routes.timelineCredit(registry.id, search);
   }
-  return routes.debit(registry.id);
+  return routes.timelineDebit(registry.id, search);
 }
 
 function getTransactionType(item: RegistryWithDetails): Transaction["transactionType"] {
@@ -89,7 +89,6 @@ function getTransactionType(item: RegistryWithDetails): Transaction["transaction
 export function useTimelineModel(): TimelineViewModel {
   const navigate = useNavigate();
   const location = useLocation();
-  const { accountId: accountIdParam } = useParams<{ accountId?: string }>();
   const [searchParams] = useSearchParams();
 
   const [timelineData, setTimelineData] = useState<TimelineData | null>(null);
@@ -111,23 +110,30 @@ export function useTimelineModel(): TimelineViewModel {
   const isFilterModalOpen = location.pathname === "/timeline/filters";
 
   const routeState = useMemo<RouteState>(() => {
-    const services = getServices();
+    let fallbackPeriod = new FinancialMonthPeriod();
+
+    try {
+      fallbackPeriod = getServices().timeline.period;
+    } catch {
+      // The timeline route can render before repositories bootstrap on refresh.
+    }
+
     const monthParam = searchParams.get(TimelineParam.MONTH);
     const since = parseOptionalDate(searchParams.get(TimelineParam.FROM));
     const until = parseOptionalDate(searchParams.get(TimelineParam.TO));
-    const fallbackMonth = services.timeline.period.getMonthForDate(new Date());
+    const fallbackMonth = fallbackPeriod.getMonthForDate(new Date());
     const month = monthParam ? Month.fromKey(monthParam as MonthKey) : since ? Month.fromDate(since) : fallbackMonth;
 
     return {
-      accountId: accountIdParam || searchParams.get(FILTER_ACCOUNT_PARAM) || "",
+      accountId: searchParams.get(FILTER_ACCOUNT_PARAM) || "",
       month,
-      period: since && until ? { start: since, end: until } : services.balance.period.getMonthPeriod(month),
+      period: since && until ? { start: since, end: until } : fallbackPeriod.getMonthPeriod(month),
       filterSince: since,
       filterUntil: until,
       categoryIds: searchParams.get(TimelineParam.CATEGORY)?.split(",").filter(Boolean) ?? [],
       tags: searchParams.get(TimelineParam.TAGS)?.split(",").filter(Boolean) ?? [],
     };
-  }, [accountIdParam, searchParams]);
+  }, [searchParams]);
 
   useEffect(() => {
     localStorage.setItem("timeline-compact-mode", JSON.stringify(isCompact));
@@ -173,6 +179,7 @@ export function useTimelineModel(): TimelineViewModel {
     syncReferenceData();
 
     const { timeline, balance } = getServices();
+    const currentSearch = buildTimelineSearch(new URLSearchParams(searchParams));
     const registries = timeline.getAccountItems({
       period: searchText ? undefined : routeState.period,
       accountIds: routeState.accountId ? [routeState.accountId] : [],
@@ -182,7 +189,7 @@ export function useTimelineModel(): TimelineViewModel {
     });
 
     const grouped = registries.reduce<TimelineData>((acc, item) => {
-      const targetRoute = getTransactionRoute(item);
+      const targetRoute = getTransactionRoute(item, currentSearch);
       routeTargetsRef.current[item.registry.id] = targetRoute;
 
       const key = item.registry.date.toLocaleDateString(locale, {
@@ -226,32 +233,36 @@ export function useTimelineModel(): TimelineViewModel {
       expense,
       balance: balance.getBalance(routeState.accountId ? [routeState.accountId] : [], routeState.period.end),
     });
-  }, [locale, routeState, searchText, syncReferenceData]);
+  }, [locale, routeState, searchParams, searchText, syncReferenceData]);
 
   useEffect(() => {
     let active = true;
+    let unsubscribe: Array<() => void> = [];
 
     const run = async () => {
+      await waitUntilReady("accounts", "categories", "accountTransactions", "creditCards", "creditCardsInvoices");
+      if (!active) return;
+
       await loadTimeline();
       if (!active) return;
+
+      const repositories = getRepositories();
+      unsubscribe = [
+        repositories.accounts.addUpdatedEventListenner(() => {
+          syncReferenceData();
+          loadTimeline();
+        }),
+        repositories.categories.addUpdatedEventListenner(() => {
+          syncReferenceData();
+          loadTimeline();
+        }),
+        repositories.accountTransactions.addUpdatedEventListenner(loadTimeline),
+        repositories.creditCards.addUpdatedEventListenner(loadTimeline),
+        repositories.creditCardsInvoices.addUpdatedEventListenner(loadTimeline),
+      ];
     };
 
     run();
-
-    const repositories = getRepositories();
-    const unsubscribe = [
-      repositories.accounts.addUpdatedEventListenner(() => {
-        syncReferenceData();
-        loadTimeline();
-      }),
-      repositories.categories.addUpdatedEventListenner(() => {
-        syncReferenceData();
-        loadTimeline();
-      }),
-      repositories.accountTransactions.addUpdatedEventListenner(loadTimeline),
-      repositories.creditCards.addUpdatedEventListenner(loadTimeline),
-      repositories.creditCardsInvoices.addUpdatedEventListenner(loadTimeline),
-    ];
 
     return () => {
       active = false;
@@ -265,13 +276,13 @@ export function useTimelineModel(): TimelineViewModel {
     params.delete(TimelineParam.FROM);
     params.delete(TimelineParam.TO);
     params.delete(FILTER_ACCOUNT_PARAM);
-    navigate(`${buildTimelinePath(routeState.accountId)}${buildTimelineSearch(params)}`);
+    navigate(`${buildTimelinePath()}${buildTimelineSearch(params)}`);
   }
 
   function closeFilters() {
     const params = new URLSearchParams(searchParams);
     params.delete(FILTER_ACCOUNT_PARAM);
-    navigate(`${buildTimelinePath(routeState.accountId)}${buildTimelineSearch(params)}`);
+    navigate(`${buildTimelinePath()}${buildTimelineSearch(params)}`);
   }
 
   function applyFilters() {
@@ -283,7 +294,8 @@ export function useTimelineModel(): TimelineViewModel {
     if (filterUntil) params.set(TimelineParam.TO, filterUntil.toISOString().slice(0, 10));
     if (!filterSince || !filterUntil) params.set(TimelineParam.MONTH, routeState.month.key);
 
-    navigate(`${buildTimelinePath(filterAccount)}${buildTimelineSearch(params)}`);
+    if (filterAccount) params.set(FILTER_ACCOUNT_PARAM, filterAccount);
+    navigate(`${buildTimelinePath()}${buildTimelineSearch(params)}`);
   }
 
   function clearFilters() {
@@ -292,7 +304,7 @@ export function useTimelineModel(): TimelineViewModel {
     setFilterUntil(undefined);
     setFilterCategories([]);
     setFilterTags([]);
-    navigate(buildTimelinePath(routeState.accountId));
+    navigate(buildTimelinePath());
   }
 
   function handleNavigation(route: TimelineRoute) {

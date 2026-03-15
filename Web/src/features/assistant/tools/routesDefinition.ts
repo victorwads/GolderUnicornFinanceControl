@@ -37,13 +37,11 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     domains: timeLineDomains,
-    url: '/timeline/{accountId?:string}',
+    url: '/timeline',
     description: 'See transactions history of financial records, you mainlly use month key to filter the transactions by month, but you can also use other filters like categories, accounts and date range.',
-    pathParams: {
-      accountId: { description: 'use only if user explicitly asks for a specific account name, then search the id in accounts domain. Otherwise dont use it in url', required: false},
-    },
     queryParams: {
       [TimelineParam.MONTH]: { description: 'View a specific month period, value should be a "month key" (e.g., 2024-09) YYYY-MM', required: false },
+      account: { description: 'Account ID to filter the timeline', required: false },
       [TimelineParam.CATEGORY]: { description: 'categories IDs to filter, separated by commas', required: false },
       [TimelineParam.FROM]: { description: 'filter register since date x YYYY-MM-DD, should be used with `until` param', required: false },
       [TimelineParam.TO]: { description: 'filter register until date y YYYY-MM-DD, should be used with `from` param', required: false },
@@ -98,11 +96,6 @@ export const routesDefinition: RoutesDefinition[] = [
   //   pathParams: { id: { description: 'ID da conta bancária', required: true } },
   // },
   {
-    url: '/accounts/registry/{id:string}',
-    description: 'See a bank account transaction or edit it manually',
-    pathParams: { id: { description: 'ID of the account registry', required: true } }
-  },
-  {
     domains: ['creditCards'],
     url: '/creditcards',
     description: 'View credit cards list for managing and viewing details like limits, due dates and etc...',
@@ -122,16 +115,61 @@ export const routesDefinition: RoutesDefinition[] = [
     }
   },
   {
+    domains: ['accounts', 'accountTransactions'],
+    url: '/timeline/entry/account/{id:string}',
+    description: 'Open an account registry inside timeline detail view',
+    pathParams: { id: { description: 'ID of the account registry', required: true } }
+  },
+  {
+    domains: ['accounts', 'categories'],
+    url: '/timeline/entry/account/expense/create',
+    description: 'Create a new expense inside the timeline detail view',
+    queryParams: {
+      account: { description: 'Account ID preselected in the form', required: false },
+      category: { description: 'Category ID preselected in the form', required: false },
+      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
+    }
+  },
+  {
+    domains: ['accounts', 'categories'],
+    url: '/timeline/entry/account/income/create',
+    description: 'Create a new income inside the timeline detail view',
+    queryParams: {
+      account: { description: 'Account ID preselected in the form', required: false },
+      category: { description: 'Category ID preselected in the form', required: false },
+      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
+    }
+  },
+  {
     domains: ['creditCards', 'creditCardsTransactions'],
-    url: '/creditcards/transaction/{id:string}/edit',
-    description: 'View some credit card transaction registry or edit it manually',
+    url: '/timeline/entry/credit/{id:string}',
+    description: 'Open a credit card transaction inside timeline detail view',
     pathParams: { id: { description: 'ID of the credit card registry', required: true } }
   },
   {
+    domains: ['creditCards', 'categories'],
+    url: '/timeline/entry/credit/create',
+    description: 'Create a new credit card transaction inside the timeline detail view',
+    queryParams: {
+      card: { description: 'Credit card ID preselected in the form', required: false },
+      category: { description: 'Category ID preselected in the form', required: false },
+      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
+    }
+  },
+  {
     domains: ['accounts', 'accountTransactions'],
-    url: '/accounts/transfers/{id:string}/edit',
-    description: 'View an account transfer or edit it manually',
+    url: '/timeline/entry/transfer/{id:string}',
+    description: 'Open an account transfer inside timeline detail view',
     pathParams: { id: { description: 'ID of the transfer registry', required: true } }
+  },
+  {
+    domains: ['accounts'],
+    url: '/timeline/entry/transfer/create',
+    description: 'Create a new account transfer inside the timeline detail view',
+    queryParams: {
+      account: { description: 'Origin account ID preselected in the form', required: false },
+      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
+    }
   },
   {
     url: '/categories',

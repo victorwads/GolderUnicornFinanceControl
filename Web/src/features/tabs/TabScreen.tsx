@@ -5,18 +5,18 @@ import {
   Container,
   ContainerFixedContent,
   ContainerScrollContent,
-} from "@componentsDeprecated/conteiners";
+} from "@containers";
 
 import { TabBar } from "@components/TabBar";
 
 const TabScreen = () => {
   return (
-    <Container wide>
+    <Container wide full>
       <ContainerScrollContent>
         <Outlet />
       </ContainerScrollContent>
       <ContainerFixedContent>
-        <TabBar />
+          <TabBar />
       </ContainerFixedContent>
     </Container>
   );

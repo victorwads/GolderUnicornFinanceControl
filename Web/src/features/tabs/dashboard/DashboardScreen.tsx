@@ -3,7 +3,7 @@ import './DashboardScreen.css'
 import Card from '@componentsDeprecated/visual/Card'
 import AccountsCard from '../../accounts/AccountsCard'
 import CreditCardsCard from '../../accounts/CreditCardsCard'
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@componentsDeprecated/conteiners'
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@containers'
 import { getCurrentUser } from '@configs'
 
 const DashboardScreen = () => {

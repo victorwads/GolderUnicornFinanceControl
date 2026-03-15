@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Button from "@componentsDeprecated/Button";
-import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import { ModalScreen } from "@containers/ModalScreen";
 import Field from "@componentsDeprecated/fields/Field";
 import PriceField from "@componentsDeprecated/fields/PriceField";
 import { DatePicker } from "@componentsDeprecated/inputs";
@@ -138,4 +138,3 @@ const CreditCardRegistryScreen = () => {
 };
 
 export default CreditCardRegistryScreen;
-

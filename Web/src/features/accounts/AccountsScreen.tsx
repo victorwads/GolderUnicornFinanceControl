@@ -8,7 +8,7 @@ import getRepositories from "@repositories"
 
 import Card from "@componentsDeprecated/visual/Card"
 import Icon, { Icons } from "@componentsDeprecated/Icons"
-import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen"
+import { ModalScreen } from "@containers/ModalScreen"
 
 import BankInfo from "../banks/BankInfo"
 

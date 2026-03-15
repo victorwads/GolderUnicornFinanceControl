@@ -4,8 +4,10 @@ import { TabBar } from "@components/TabBar";
 
 const AppContainer = () => {
   return (
-    <div className="min-h-screen bg-background pb-36">
-      <Outlet />
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-background">
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <Outlet />
+      </main>
       <MicButton />
       <TabBar />
     </div>

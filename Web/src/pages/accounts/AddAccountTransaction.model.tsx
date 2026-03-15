@@ -7,6 +7,7 @@ import { AccountTransactionForm, AccountTransactionRoute, AccountTransactionView
 import getRepositories, { waitUntilReady } from "@repositories";
 import { AccountsRegistry, RegistryType } from "@models";
 import { buildHierarchicalCategoryOptions } from "@pages/categories/categorySelectOptions";
+import { buildTimelineReturnPath, isTimelineDetailPath } from "@pages/core/timelineDetailNavigation";
 
 function toDateInputValue(date: Date): string {
   return new Date(date.getTime() - (date.getTimezoneOffset() * 60_000)).toISOString().slice(0, 10);
@@ -92,10 +93,19 @@ export function useAccountTransactionModel(): AccountTransactionViewModel {
     return isExplicitIncomeRoute;
   }, [isExplicitIncomeRoute, registry]);
 
+  const navigateBack = () => {
+    if (isTimelineDetailPath(location.pathname)) {
+      navigate(buildTimelineReturnPath(location.search));
+      return;
+    }
+
+    navigate(-1);
+  };
+
   function onNavigate(route: AccountTransactionRoute) {
     switch (true) {
       case route instanceof ToPreviousRoute:
-        navigate(-1);
+        navigateBack();
         break;
 
       default:
@@ -127,6 +137,11 @@ export function useAccountTransactionModel(): AccountTransactionViewModel {
     );
 
     await getRepositories().accountTransactions.set(nextRegistry);
+    if (isTimelineDetailPath(location.pathname)) {
+      navigate(buildTimelineReturnPath(location.search));
+      return;
+    }
+
     navigate("/timeline");
   }
 

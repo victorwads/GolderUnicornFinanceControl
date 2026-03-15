@@ -28,6 +28,8 @@
       "@configs": ["src/data/firebase/google-services.ts"],
       "@utils/*": ["src/data/utils/*"],
       "@componentsDeprecated/*": ["src/components/*"],
+      "@containers": ["src/components/conteiners/index.tsx"],
+      "@containers/*": ["src/components/conteiners/*"],
       "@features/*": ["src/features/*"],
       "@lang": ["src/i18n"],
 

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import Card from "@componentsDeprecated/visual/Card";
 import Icon, { Icons } from "@componentsDeprecated/Icons";
-import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import { ModalScreen } from "@containers/ModalScreen";
 
 import { Bank, CreditCard } from "@models";
 import getRepositories from "@repositories";

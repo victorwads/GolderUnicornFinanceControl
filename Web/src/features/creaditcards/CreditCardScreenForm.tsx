@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import { ModalScreen } from "@containers/ModalScreen";
 import Field from "@componentsDeprecated/fields/Field";
 import PriceField from "@componentsDeprecated/fields/PriceField";
 import SelectField from "@componentsDeprecated/fields/SelectField";

@@ -13,10 +13,10 @@ interface Action {
 }
 
 const allActions: Action[] = [
-  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "text-blue-600", route: "/accounts/transfers/create" },
-  { id: "income", icon: TrendingUp, label: "Entrada na conta", color: "text-success", route: "/accounts/income/add" },
-  { id: "expense", icon: TrendingDown, label: "Gasto na conta", color: "text-destructive", route: "/accounts/expense/add" },
-  { id: "credit-card", icon: CreditCard, label: "Gasto no cartão", color: "text-orange-600", route: "/creditcards/transaction/add" },
+  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "text-blue-600", route: "/timeline/entry/transfer/create" },
+  { id: "income", icon: TrendingUp, label: "Entrada na conta", color: "text-success", route: "/timeline/entry/account/income/create" },
+  { id: "expense", icon: TrendingDown, label: "Gasto na conta", color: "text-destructive", route: "/timeline/entry/account/expense/create" },
+  { id: "credit-card", icon: CreditCard, label: "Gasto no cartão", color: "text-orange-600", route: "/timeline/entry/credit/create" },
   { id: "recurring", icon: Calendar, label: "Nova recorrência", color: "text-purple-600", route: "/recurrents/create" },
   { id: "pay", icon: DollarSign, label: "Pagar", color: "text-warning", route: "/pay" },
 ];

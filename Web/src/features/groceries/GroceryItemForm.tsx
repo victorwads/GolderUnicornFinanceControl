@@ -8,7 +8,7 @@ import Button from '@componentsDeprecated/Button';
 import Field from '@componentsDeprecated/fields/Field';
 import { DatePicker } from '@componentsDeprecated/inputs';
 import PriceField from '@componentsDeprecated/fields/PriceField';
-import { ModalScreen } from '@componentsDeprecated/conteiners/ModalScreen';
+import { ModalScreen } from '@containers/ModalScreen';
 import BarcodeScanner from './BarcodeScanner';
 
 const GroceryItemForm = () => {

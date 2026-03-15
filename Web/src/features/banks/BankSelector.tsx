@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react"
 
-import { Container, ContainerFixedContent, ContainerScrollContent } from "@componentsDeprecated/conteiners";
+import { Container, ContainerFixedContent, ContainerScrollContent } from "@containers";
 import SearchBar from "@componentsDeprecated/fields/SearchBar"
 import BaseField from "@componentsDeprecated/fields/BaseField"
 import Dialog from "@componentsDeprecated/visual/Dialog"

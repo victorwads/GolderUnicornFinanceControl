@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, use, useCallback } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import './CreditCardsInvoices.css';
 
 import routes from "../navigate";
 import RegistryItem from '../tabs/timeline/RegistryItem';
-import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import { ModalScreen } from "@containers/ModalScreen";
 import Icon, { Icons } from "@componentsDeprecated/Icons";
 
 import getRepositories from "@repositories";
@@ -23,7 +23,9 @@ function fetchData(id?: string): { creditCard?: CreditCard, invoices: CreditCard
 
 const CreditCardsInvoices: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id, selected } = useParams<{ id: string, selected: string }>();
+  const timelineSearch = location.pathname.startsWith("/timeline") ? location.search : "";
 
   const [data, setData] = useState(() => fetchData(id));
   const [selectedInvoice, setSelectedInvoiceModel] = useState<CreditCardInvoice | null>();
@@ -110,7 +112,7 @@ const CreditCardsInvoices: React.FC = () => {
     </div>
     {id && (
       <div className="FloatButton">
-        <Link to={`/creditcards/transaction/add?card=${id}`}>
+        <Link to={routes.timelineCreateCredit(`${timelineSearch}${timelineSearch ? "&" : "?"}card=${id}`)}>
           <Icon icon={Icons.faPlus} size="2x" />
         </Link>
       </div>

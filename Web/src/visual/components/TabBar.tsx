@@ -12,7 +12,7 @@ export const TabBar = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 pb-safe">
+    <nav className="shrink-0 border-t border-border bg-card pb-safe">
       <div className="grid grid-cols-3 items-center h-16 max-w-lg mx-auto">
         {tabs.map((tab, index) => {
           const isActive = location.pathname === tab.path;

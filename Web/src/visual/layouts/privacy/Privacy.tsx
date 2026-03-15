@@ -2,8 +2,6 @@ import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Input } from "@components/ui/input";
 import { ArrowLeft, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2 } from "lucide-react";
-import { MicButton } from "@components/MicButton";
-import { TabBar } from "@components/TabBar";
 import { DataProgress } from "@components/DataProgress";
 import type { DataProgressInfo } from "@components/DataProgress";
 import {
@@ -37,7 +35,7 @@ export default function Privacy({ model }: PrivacyProps) {
   } = model;
 
   return (
-    <div className="min-h-screen bg-background pb-36">
+    <div className="min-h-full bg-background">
       <div className="max-w-4xl mx-auto">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
           <div className="flex items-center gap-3">
@@ -227,9 +225,6 @@ export default function Privacy({ model }: PrivacyProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <MicButton />
-      <TabBar />
     </div>
   );
 }

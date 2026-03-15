@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import Button from "@componentsDeprecated/Button";
-import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import { ModalScreen } from "@containers/ModalScreen";
 import CheckboxField from "@componentsDeprecated/fields/CheckboxField";
 import Field from "@componentsDeprecated/fields/Field";
 import { DatePicker } from "@componentsDeprecated/inputs";
@@ -11,6 +11,7 @@ import Selector, { SelectorSection } from "@componentsDeprecated/Selector";
 
 import { AccountsRegistry, RegistryType, Category} from "@models";
 import getRepositories from "@repositories";
+import { buildTimelineReturnPath, isTimelineDetailPath } from "@pages/core/timelineDetailNavigation";
 
 import BankInfo from "../banks/BankInfo";
 import CategoryListItem from "../categories/CategoryListItem";
@@ -36,8 +37,10 @@ const RegistryScreenForm = () => {
   const [accountId, setAccountId] = useState<string | undefined>();
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const isTimelineDetail = isTimelineDetailPath(location.pathname);
   useEffect(() => {
     if (id) return;
 
@@ -81,6 +84,11 @@ const RegistryScreenForm = () => {
     );
 
     await getRepositories().accountTransactions.set(newRegistry);
+    if (isTimelineDetail) {
+      navigate(buildTimelineReturnPath(location.search));
+      return;
+    }
+
     navigate(-1);
   };
 
@@ -122,7 +130,13 @@ const RegistryScreenForm = () => {
       <CheckboxField label={Lang.registry.paid} checked={paid} onChange={setPaid} />
       </>}
       <div>
-        <Button text={Lang.commons.cancel} onClick={() => navigate(-1)} />
+        <Button text={Lang.commons.cancel} onClick={() => {
+          if (isTimelineDetail) {
+            navigate(buildTimelineReturnPath(location.search));
+            return;
+          }
+          navigate(-1);
+        }} />
         <Button text={Lang.commons.save} onClick={saveRegistry} />
       </div>
     </ModalScreen>

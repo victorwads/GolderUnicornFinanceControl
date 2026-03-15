@@ -12,6 +12,7 @@ export const alias = {
   '@resourceUse': resolve(projectRoot, 'src/data/repositories/ResourcesUseRepositoryShared.ts'),
   '@utils': resolve(projectRoot, 'src/data/utils'),
   '@componentsDeprecated': resolve(projectRoot, 'src/components'),
+  '@containers': resolve(projectRoot, 'src/components/conteiners'),
   '@features': resolve(projectRoot, 'src/features'),
   '@lang': resolve(projectRoot, 'src/i18n'),
 

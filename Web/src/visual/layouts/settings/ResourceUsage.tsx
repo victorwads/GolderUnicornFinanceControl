@@ -18,7 +18,7 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
   } = model;
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="min-h-full bg-background">
       <div className="max-w-4xl mx-auto">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
           <div className="flex items-center gap-3">

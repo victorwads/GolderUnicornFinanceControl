@@ -2,7 +2,7 @@ import "./SettingsScreen.css";
 import { useMemo } from "react";
 
 import { ProjectStorage } from '@utils/ProjectStorage';
-import { Container, ContainerFixedContent, ContainerScrollContent } from "@componentsDeprecated/conteiners";
+import { Container, ContainerFixedContent, ContainerScrollContent } from "@containers";
 import Card from "@componentsDeprecated/visual/Card";
 
 import FinancesSection from './sections/QuickAccessSection';

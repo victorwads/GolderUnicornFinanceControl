@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { SelectListOption } from "@components/ui/select-list";
 import {
@@ -10,6 +10,7 @@ import {
   TransferForm,
 } from "@layouts/transactions/CreateTransfer";
 import { TransferTransaction } from "@models";
+import { buildTimelineReturnPath, isTimelineDetailPath } from "@pages/core/timelineDetailNavigation";
 import getRepositories, { waitUntilReady } from "@repositories";
 
 function toDateInputValue(date: Date): string {
@@ -31,6 +32,7 @@ function buildAccountOptions(): SelectListOption[] {
 
 export function useCreateTransferModel(): CreateTransferViewModel {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [accounts, setAccounts] = useState<SelectListOption[]>([]);
 
@@ -100,12 +102,21 @@ export function useCreateTransferModel(): CreateTransferViewModel {
     );
 
     await getRepositories().accountTransactions.saveAll(transfer.toTuple());
+    if (isTimelineDetailPath(location.pathname)) {
+      navigate(buildTimelineReturnPath(location.search));
+      return;
+    }
+
     navigate("/timeline");
   }
 
   function onNavigate(route: CreateTransferRoute) {
     switch (true) {
       case route instanceof ToPreviousRoute:
+        if (isTimelineDetailPath(location.pathname)) {
+          navigate(buildTimelineReturnPath(location.search));
+          break;
+        }
         navigate(-1);
         break;
 

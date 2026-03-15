@@ -4,7 +4,7 @@ import './TimelineFilterScreen.css';
 
 import Button from '@componentsDeprecated/Button';
 import SelectField from '@componentsDeprecated/fields/SelectField';
-import { ModalScreen } from '@componentsDeprecated/conteiners/ModalScreen';
+import { ModalScreen } from '@containers/ModalScreen';
 import { DatePicker } from '@componentsDeprecated/inputs';
 
 import getRepositories from '@repositories';
@@ -85,4 +85,3 @@ const TimelineFilterScreen = () => {
 };
 
 export default TimelineFilterScreen;
-

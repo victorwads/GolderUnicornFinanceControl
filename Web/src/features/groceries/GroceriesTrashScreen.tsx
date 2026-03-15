@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@componentsDeprecated/conteiners';
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@containers';
 import Icon, { Icons } from '@componentsDeprecated/Icons';
 import getRepositories from '@repositories';
 import { GroceryItemModel } from '@models';
@@ -62,4 +62,3 @@ const GroceriesTrashScreen = () => {
 };
 
 export default GroceriesTrashScreen;
-

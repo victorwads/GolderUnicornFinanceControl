@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { SelectListOption } from "@components/ui/select-list";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@layouts/credit-cards/AddCreditCardTransaction";
 import { CreditCardRegistry } from "@models";
 import { buildHierarchicalCategoryOptions } from "@pages/categories/categorySelectOptions";
+import { buildTimelineReturnPath, isTimelineDetailPath } from "@pages/core/timelineDetailNavigation";
 import getRepositories, { waitUntilReady } from "@repositories";
 
 function toInvoiceMonthValue(month: number, year: number) {
@@ -38,6 +39,7 @@ function buildCardOptions(): SelectListOption[] {
 
 export function useAddCreditCardTransactionModel(): AddCreditCardTransactionViewModel {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
   const isEdit = !!id;
@@ -140,6 +142,15 @@ export function useAddCreditCardTransactionModel(): AddCreditCardTransactionView
     return previews;
   }, [amount, installments, invoiceMonth, isInstallment]);
 
+  const navigateBack = () => {
+    if (isTimelineDetailPath(location.pathname)) {
+      navigate(buildTimelineReturnPath(location.search));
+      return;
+    }
+
+    navigate(-1);
+  };
+
   async function onSubmit(data: CreditCardTransactionForm) {
     if (!data.card || !data.description.trim() || !data.amount) {
       window.alert(Lang.commons.fillAllFields);
@@ -162,13 +173,13 @@ export function useAddCreditCardTransactionModel(): AddCreditCardTransactionView
     );
 
     await getRepositories().creditCardsTransactions.set(nextRegistry);
-    navigate(-1);
+    navigateBack();
   }
 
   function onNavigate(route: AddCreditCardTransactionRoute) {
     switch (true) {
       case route instanceof ToPreviousRoute:
-        navigate(-1);
+        navigateBack();
         break;
 
       default:

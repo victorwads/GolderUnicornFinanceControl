@@ -44,9 +44,9 @@ Em termos práticos, ele funciona como "source of truth" da camada visual.
 
 ### Symlink local para descoberta
 
-Na raiz deste repositório existe um symlink local:
+Na raiz deste repositório existe uma pasta operacional para consultar o protótipo visual:
 
-- `prototype_source_code_repo -> ../vibe-financas-magicas/`
+- `prototype_source_code_repo`
 
 Esse symlink existe para facilitar a navegação e a análise do protótipo visual sem confundir:
 
@@ -152,7 +152,7 @@ Ambientes padrão:
 
 Correspondência exata:
 
-- `https://layout.local.wads.dev/` serve o código do protótipo visual em `prototype_source_code_repo`, que aponta para `../vibe-financas-magicas/`
+- `https://layout.local.wads.dev/` serve o código do protótipo visual em `prototype_source_code_repo`
 - `https://finance.local.wads.dev/` serve o código da aplicação real em `Web/`
 
 Regra prática:

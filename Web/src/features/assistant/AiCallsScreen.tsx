@@ -2,7 +2,7 @@ import './AiCallsScreen.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@componentsDeprecated/conteiners';
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@containers';
 import getRepositories, { AiCallsRepository } from '@repositories';
 import { AiCallContext, AiModel } from '@models';
 

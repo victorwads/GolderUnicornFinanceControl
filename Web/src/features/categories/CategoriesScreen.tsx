@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { RootCategory } from '@models';
 import getRepositories from '@repositories';
 
-import { ModalScreen } from '@componentsDeprecated/conteiners/ModalScreen';
+import { ModalScreen } from '@containers/ModalScreen';
 import CategoryListItem from './CategoryListItem';
 import { WithRepo } from '@componentsDeprecated/WithRepo';
 

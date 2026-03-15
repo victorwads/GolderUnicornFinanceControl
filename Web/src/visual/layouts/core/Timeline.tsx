@@ -23,9 +23,10 @@ import {
 
 interface TimelineProps {
   model: TimelineViewModel;
+  embedded?: boolean;
 }
 
-export default function Timeline({ model }: TimelineProps) {
+export default function Timeline({ model, embedded = false }: TimelineProps) {
   const {
     texts,
     locale,
@@ -61,8 +62,76 @@ export default function Timeline({ model }: TimelineProps) {
     clearFilters,
   } = model;
 
+  const content = (
+    <div className="p-4 space-y-6 animate-fade-in pb-24">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-3 p-5 bg-gradient-card border border-border/50">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">{texts.summaryIncomeLabel}</p>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-success" />
+                {summary === null ? (
+                  <Skeleton className="h-7 w-28" />
+                ) : (
+                  <p className="text-xl font-bold text-success">R$ {summary.income.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">{texts.summaryExpenseLabel}</p>
+              <div className="flex items-center gap-2">
+                <TrendingDown className="h-4 w-4 text-expense" />
+                {summary === null ? (
+                  <Skeleton className="h-7 w-28" />
+                ) : (
+                  <p className="text-xl font-bold text-expense">R$ {summary.expense.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+                )}
+              </div>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-xs text-muted-foreground mb-1">{texts.summaryBalanceLabel}</p>
+              {summary === null ? (
+                <Skeleton className="h-8 w-32" />
+              ) : (
+                <p className="text-2xl font-bold text-foreground">R$ {summary.balance.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        <div className="lg:col-span-3 space-y-6">
+          {timelineData === null ? (
+            <div className="space-y-6">
+              {[1, 2, 3].map((item) => (
+                <div key={item} className="space-y-2">
+                  <Skeleton className="h-4 w-32 mb-3" />
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            Object.entries(timelineData).map(([period, transactions]) => (
+              <section key={period}>
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+                  {period}
+                </h2>
+                <div className="space-y-2">
+                  {transactions.map((transaction) => (
+                    <TransactionItem key={transaction.id} {...transaction} compact={isCompact} onClick={() => navigate(new ToEditTransactionRoute(transaction.id, transaction.type, transaction.transactionType))} />
+                  ))}
+                </div>
+              </section>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className={cn(embedded ? "relative flex h-full min-h-0 flex-col" : "relative mx-auto max-w-7xl")}>
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-[4px] border-b border-border/50">
         <div className="p-4 space-y-3">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 gap-y-2 max-[720px]:grid-cols-[1fr_auto]">
@@ -152,73 +221,13 @@ export default function Timeline({ model }: TimelineProps) {
         </div>
       </header>
 
-      <div className="p-4 space-y-6 animate-fade-in">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-3 p-5 bg-gradient-card border border-border/50">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">{texts.summaryIncomeLabel}</p>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-success" />
-                  {summary === null ? (
-                    <Skeleton className="h-7 w-28" />
-                  ) : (
-                    <p className="text-xl font-bold text-success">R$ {summary.income.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
-                  )}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">{texts.summaryExpenseLabel}</p>
-                <div className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-expense" />
-                  {summary === null ? (
-                    <Skeleton className="h-7 w-28" />
-                  ) : (
-                    <p className="text-xl font-bold text-expense">R$ {summary.expense.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
-                  )}
-                </div>
-              </div>
-              <div className="md:col-span-2">
-                <p className="text-xs text-muted-foreground mb-1">{texts.summaryBalanceLabel}</p>
-                {summary === null ? (
-                  <Skeleton className="h-8 w-32" />
-                ) : (
-                  <p className="text-2xl font-bold text-foreground">R$ {summary.balance.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          <div className="lg:col-span-3 space-y-6">
-            {timelineData === null ? (
-              <div className="space-y-6">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="space-y-2">
-                    <Skeleton className="h-4 w-32 mb-3" />
-                    <Skeleton className="h-20 w-full" />
-                    <Skeleton className="h-20 w-full" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              Object.entries(timelineData).map(([period, transactions]) => (
-                <section key={period}>
-                  <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
-                    {period}
-                  </h2>
-                  <div className="space-y-2">
-                    {transactions.map((transaction) => (
-                      <TransactionItem key={transaction.id} {...transaction} compact={isCompact} onClick={() => navigate(new ToEditTransactionRoute(transaction.id, transaction.type, transaction.transactionType))} />
-                    ))}
-                  </div>
-                </section>
-              ))
-            )}
-          </div>
+      {embedded ? (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {content}
         </div>
-      </div>
+      ) : content}
 
-      <SpeedDial />
+      <SpeedDial embedded={embedded} />
 
       <Dialog open={isFilterModalOpen} onOpenChange={(value) => !value && closeFilters()}>
         <DialogContent className="max-w-md">

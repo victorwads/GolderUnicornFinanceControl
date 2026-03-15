@@ -4,7 +4,7 @@ import Row from "@componentsDeprecated/visual/Row";
 import Button from "@componentsDeprecated/Button";
 import Field from "@componentsDeprecated/fields/Field";
 import SelectField from "@componentsDeprecated/fields/SelectField";
-import { ModalScreen } from "@componentsDeprecated/conteiners/ModalScreen";
+import { ModalScreen } from "@containers/ModalScreen";
 
 import { Category } from "@models";
 import getRepositories from "@repositories";

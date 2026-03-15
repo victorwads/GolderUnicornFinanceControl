@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { GroceryItemModel } from '@models';
-import { Container, ContainerFixedContent, ContainerScrollContent } from '@componentsDeprecated/conteiners';
+import { Container, ContainerFixedContent, ContainerScrollContent } from '@containers';
 import AIMicrophone from '@componentsDeprecated/voice/AIMicrophone';
 import getRepositories from '@repositories';
 import Icon, { Icons } from '@componentsDeprecated/Icons';

@@ -115,7 +115,7 @@ URLs padrão de validação:
 
 Correspondência exata:
 
-- `https://layout.local.wads.dev/` roda o código do protótipo visual em `prototype_source_code_repo` (symlink para `../vibe-financas-magicas/`)
+- `https://layout.local.wads.dev/` roda o código do protótipo visual em `prototype_source_code_repo`
 - `https://finance.local.wads.dev/` roda o código da aplicação real em `Web/`
 
 Uso esperado:

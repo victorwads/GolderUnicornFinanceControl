@@ -1,6 +1,6 @@
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 
-import { ModalScreen } from '@componentsDeprecated/conteiners/ModalScreen';
+import { ModalScreen } from '@containers/ModalScreen';
 import Button from '@componentsDeprecated/Button';
 
 interface EmptyScreenProps {

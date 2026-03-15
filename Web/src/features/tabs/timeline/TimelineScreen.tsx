@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import "./TimelineScreen.css";
 
 import routes from "@features/navigate";
-import { Container, ContainerFixedContent } from "@componentsDeprecated/conteiners";
-import { ContainerScrollContent } from '@componentsDeprecated/conteiners';
+import { Container, ContainerFixedContent } from "@containers";
+import { ContainerScrollContent } from '@containers';
 import { Loading } from "@componentsDeprecated/Loading";
 import Icon, { Icons } from '@componentsDeprecated/Icons';
 import SearchBar from '@componentsDeprecated/fields/SearchBar';
@@ -107,10 +107,10 @@ const TimelineScreen = () => {
       </div>
       <SearchBar value={searchValue} onSearchEach={setSearchValue} onClose={() => setSearchValue('')} />
       <div className="FloatButton">
-        <Link to={'/accounts/expense/add?'
-          + (selectedAccount ? `&account=${selectedAccount.id}` : '')
-          + (categoryIds.length === 1 ? `&category=${categoryIds[0]}` : '')
-        }>
+        <Link to={routes.timelineCreateExpense(`?${new URLSearchParams({
+          ...(selectedAccount ? { account: selectedAccount.id } : {}),
+          ...(categoryIds.length === 1 ? { category: categoryIds[0] } : {}),
+        }).toString()}`.replace(/\?$/, ""))}>
           <Icon icon={Icons.faPlus} size="2x" />
         </Link>
       </div>
