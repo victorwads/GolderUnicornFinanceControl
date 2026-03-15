@@ -2,8 +2,6 @@ import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Input } from "@components/ui/input";
 import { ArrowLeft, AlertCircle, Trash2 } from "lucide-react";
-import { MicButton } from "@components/MicButton";
-import { TabBar } from "@components/TabBar";
 import { DataProgress } from "@components/DataProgress";
 import type { DataProgressInfo } from "@components/DataProgress";
 import {
@@ -25,75 +23,73 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
   const { navigate, deleteProgress, confirmText, setConfirmText, showDeleteDialog, setShowDeleteDialog, handleDelete, confirmDelete } = model;
 
   return (
-    <div className="min-h-screen bg-background pb-36">
-      <div className="max-w-4xl mx-auto">
-        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/privacy")}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Excluir Conta</h1>
-              <p className="text-sm text-muted-foreground">Remova permanentemente sua conta</p>
-            </div>
+    <div className="max-w-4xl mx-auto">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/privacy")}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Excluir Conta</h1>
+            <p className="text-sm text-muted-foreground">Remova permanentemente sua conta</p>
           </div>
-        </header>
-
-        <div className="p-4 space-y-6 animate-fade-in">
-          <Card className="border-destructive/50 bg-destructive/5">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-destructive" />
-                <CardTitle className="text-destructive">Zona de Perigo</CardTitle>
-              </div>
-              <CardDescription>
-                Esta ação é irreversível. Por favor, tenha certeza antes de prosseguir.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <h3 className="font-medium text-foreground">O que será excluído:</h3>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>Todas as suas transações financeiras</li>
-                  <li>Contas bancárias e cartões de crédito cadastrados</li>
-                  <li>Categorias personalizadas</li>
-                  <li>Configurações e preferências</li>
-                  <li>Dados de sincronização na nuvem</li>
-                </ul>
-              </div>
-
-              <div className="p-3 bg-background rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground mb-2">
-                  Para confirmar, digite <span className="font-mono font-bold text-foreground">EXCLUIR</span> no campo abaixo:
-                </p>
-                <Input
-                  value={confirmText}
-                  onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder="Digite EXCLUIR"
-                  className="mb-3"
-                  disabled={!!deleteProgress}
-                />
-                <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={handleDelete}
-                  disabled={confirmText !== "EXCLUIR" || !!deleteProgress}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Excluir Conta Permanentemente
-                </Button>
-              </div>
-
-              <p className="text-xs text-center text-muted-foreground">
-                Esta ação não pode ser desfeita. Todos os seus dados serão permanentemente removidos de nossos servidores.
-              </p>
-            </CardContent>
-          </Card>
         </div>
+      </header>
+
+      <div className="p-4 space-y-6 animate-fade-in">
+        <Card className="border-destructive/50 bg-destructive/5">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              <CardTitle className="text-destructive">Zona de Perigo</CardTitle>
+            </div>
+            <CardDescription>
+              Esta ação é irreversível. Por favor, tenha certeza antes de prosseguir.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="font-medium text-foreground">O que será excluído:</h3>
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                <li>Todas as suas transações financeiras</li>
+                <li>Contas bancárias e cartões de crédito cadastrados</li>
+                <li>Categorias personalizadas</li>
+                <li>Configurações e preferências</li>
+                <li>Dados de sincronização na nuvem</li>
+              </ul>
+            </div>
+
+            <div className="p-3 bg-background rounded-lg border border-border">
+              <p className="text-sm text-muted-foreground mb-2">
+                Para confirmar, digite <span className="font-mono font-bold text-foreground">EXCLUIR</span> no campo abaixo:
+              </p>
+              <Input
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="Digite EXCLUIR"
+                className="mb-3"
+                disabled={!!deleteProgress}
+              />
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={handleDelete}
+                disabled={confirmText !== "EXCLUIR" || !!deleteProgress}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir Conta Permanentemente
+              </Button>
+            </div>
+
+            <p className="text-xs text-center text-muted-foreground">
+              Esta ação não pode ser desfeita. Todos os seus dados serão permanentemente removidos de nossos servidores.
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <DataProgress progress={deleteProgress} type="delete" />
@@ -115,9 +111,6 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <MicButton />
-      <TabBar />
     </div>
   );
 }

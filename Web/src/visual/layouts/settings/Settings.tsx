@@ -2,8 +2,6 @@ import { Slider } from "@components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { Label } from "@components/ui/label";
 import { ChevronRight, Mic, Zap, Languages, ArrowLeft, Palette } from "lucide-react";
-import { MicButton } from "@components/MicButton";
-import { TabBar } from "@components/TabBar";
 import { Card } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import {
@@ -186,9 +184,6 @@ export default function Settings({ model }: SettingsProps) {
           </div>
         </div>
       </div>
-
-      <MicButton />
-      <TabBar />
     </div>
   );
 }

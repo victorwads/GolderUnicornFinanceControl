@@ -1,7 +1,5 @@
 import { Button } from "@components/ui/button";
 import { ArrowLeft, Plus, TrendingUp, TrendingDown } from "lucide-react";
-import { MicButton } from "@components/MicButton";
-import { TabBar } from "@components/TabBar";
 import { TransactionItem } from "@components/TransactionItem";
 
 export default function RecurrentsList({

@@ -1,12 +1,10 @@
 import { TransactionItem } from "@components/TransactionItem";
-import { TabBar } from "@components/TabBar";
-import { SpeedDial } from "@components/SpeedDial";
 import { Card } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { Filter, TrendingUp, TrendingDown, Search, MoreVertical, Download, Upload, Trash2, BarChart3, Rows3 } from "lucide-react";
+import { Filter, TrendingUp, TrendingDown, Search, MoreVertical, Download, Upload, Trash2, BarChart3, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
 import { Skeleton } from "@components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@components/ui/dialog";
 import { Label } from "@components/ui/label";
 import { SelectList, SelectListOption } from "@components/ui/select-list";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
@@ -14,9 +12,6 @@ import { Calendar } from "@components/ui/calendar";
 import { CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@lib/utils";
-import { useState } from "react";
-import { categories } from "../../../data/categories";
-import { Icons } from "@components/Icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,198 +25,217 @@ interface TimelineProps {
 }
 
 export default function Timeline({ model }: TimelineProps) {
-  const { isCompact, setIsCompact, timelineData, summary, isFilterModalOpen, setIsFilterModalOpen, handleFilter, handleClearFilters } = model;
-  
-  const accountOptions: SelectListOption[] = [
-    { label: "Nubank", value: "nubank", iconName: "piggy-bank", backgroundColor: "#8A05BE" },
-    { label: "Inter", value: "inter", iconInstance: Icons.faLandmark, backgroundColor: "#FF7A00" },
-    { label: "Itaú", value: "itau", iconInstance: Icons.faLandmark, backgroundColor: "#EC7000" },
-  ];
-
-  const [filterAccount, setFilterAccount] = useState<string>("");
-  const [filterSince, setFilterSince] = useState<Date>();
-  const [filterUntil, setFilterUntil] = useState<Date>();
-  const [filterCategories, setFilterCategories] = useState<string[]>([]);
-
-  const handleApplyFilter = () => {
-    handleFilter({
-      account: filterAccount,
-      since: filterSince,
-      until: filterUntil,
-      categories: filterCategories,
-    });
-  };
-
-  const handleClearFilterForm = () => {
-    setFilterAccount("");
-    setFilterSince(undefined);
-    setFilterUntil(undefined);
-    setFilterCategories([]);
-    handleClearFilters();
-  };
-
-  const toggleCategory = (categoryValue: string) => {
-    setFilterCategories(prev => 
-      prev.includes(categoryValue)
-        ? prev.filter(c => c !== categoryValue)
-        : [...prev, categoryValue]
-    );
-  };
+  const {
+    texts,
+    locale,
+    navigate,
+    isCompact,
+    toggleCompact,
+    monthLabel,
+    monthRange,
+    goToPreviousMonth,
+    goToNextMonth,
+    isSearchOpen,
+    toggleSearch,
+    timelineData,
+    summary,
+    searchText,
+    setSearchText,
+    isFilterModalOpen,
+    closeFilters,
+    filterAccount,
+    setFilterAccount,
+    filterSince,
+    setFilterSince,
+    filterUntil,
+    setFilterUntil,
+    filterCategories,
+    toggleFilterCategory,
+    accountOptions,
+    categoryOptions,
+    applyFilters,
+    clearFilters,
+  } = model;
 
   return (
-    <div className="min-h-screen bg-background pb-36">
-      <div className="max-w-7xl mx-auto">
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-[4px] border-b border-border/50">
-          <div className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Timeline</h1>
-                <p className="text-sm text-muted-foreground">Histórico de transações</p>
+    <div className="max-w-7xl mx-auto">
+      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-[4px] border-b border-border/50">
+        <div className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg font-bold text-foreground">{texts.title}</h1>
+
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToPreviousMonth}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-center min-w-[140px]">
+                <p className="text-sm font-semibold text-foreground leading-tight">{monthLabel}</p>
+                <p className="text-[11px] text-muted-foreground leading-tight">{monthRange}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={cn("h-9 w-9", isCompact && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}
-                  onClick={() => setIsCompact(!isCompact)}
-                  title="Alternar visualização compacta"
-                >
-                  <Rows3 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9"
-                  onClick={() => setIsFilterModalOpen(true)}
-                  title="Filtros"
-                >
-                  <Filter className="h-4 w-4" />
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-9 w-9">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Importar transações
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Download className="h-4 w-4 mr-2" />
-                      Exportar transações
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      Ver estatísticas
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Limpar histórico
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToNextMonth}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar transações..."
-                className="pl-9 bg-background"
-              />
+
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-8 w-8", isSearchOpen && "bg-accent")}
+                onClick={toggleSearch}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-8 w-8", isCompact && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}
+                onClick={toggleCompact}
+                title={texts.compactViewTitle}
+              >
+                <Rows3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => navigate(new ToOpenFiltersRoute())}
+                title={texts.filtersButtonTitle}
+              >
+                <Filter className="h-4 w-4" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-9 w-9">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate(new ToImportRoute())}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    {texts.importTransactionsLabel}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(new ToExportRoute())}>
+                    <Download className="h-4 w-4 mr-2" />
+                    {texts.exportTransactionsLabel}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(new ToStatisticsRoute())}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    {texts.statisticsLabel}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive" onClick={() => navigate(new ToClearHistoryRoute())}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {texts.clearHistoryLabel}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
-        </header>
 
-        <div className="p-4 space-y-6 animate-fade-in">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-3 p-5 bg-gradient-card border border-border/50">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Receitas</p>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-success" />
-                    {summary === null ? (
-                      <Skeleton className="h-7 w-28" />
-                    ) : (
-                      <p className="text-xl font-bold text-success">R$ {summary.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Despesas</p>
-                  <div className="flex items-center gap-2">
-                    <TrendingDown className="h-4 w-4 text-expense" />
-                    {summary === null ? (
-                      <Skeleton className="h-7 w-28" />
-                    ) : (
-                      <p className="text-xl font-bold text-expense">R$ {summary.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-xs text-muted-foreground mb-1">Balanço do mês</p>
+          {isSearchOpen && (
+            <div className="relative animate-fade-in">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={texts.searchPlaceholder}
+                value={searchText}
+                onChange={(event) => setSearchText(event.target.value)}
+                className="pl-9 bg-background"
+                autoFocus
+              />
+            </div>
+          )}
+        </div>
+      </header>
+
+      <div className="p-4 space-y-6 animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-3 p-5 bg-gradient-card border border-border/50">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">{texts.summaryIncomeLabel}</p>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-success" />
                   {summary === null ? (
-                    <Skeleton className="h-8 w-32" />
+                    <Skeleton className="h-7 w-28" />
                   ) : (
-                    <p className="text-2xl font-bold text-foreground">R$ {summary.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    <p className="text-xl font-bold text-success">R$ {summary.income.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
                   )}
                 </div>
               </div>
-            </Card>
-
-            <div className="lg:col-span-3 space-y-6">
-              {timelineData === null ? (
-                <div className="space-y-6">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="space-y-2">
-                      <Skeleton className="h-4 w-32 mb-3" />
-                      <Skeleton className="h-20 w-full" />
-                      <Skeleton className="h-20 w-full" />
-                    </div>
-                  ))}
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">{texts.summaryExpenseLabel}</p>
+                <div className="flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4 text-expense" />
+                  {summary === null ? (
+                    <Skeleton className="h-7 w-28" />
+                  ) : (
+                    <p className="text-xl font-bold text-expense">R$ {summary.expense.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+                  )}
                 </div>
-              ) : (
-                Object.entries(timelineData).map(([period, transactions]) => (
-                  <section key={period}>
-                    <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
-                      {period}
-                    </h2>
-                    <div className="space-y-2">
-                      {transactions.map((transaction) => (
-                        <TransactionItem key={transaction.id} {...transaction} compact={isCompact} />
-                      ))}
-                    </div>
-                  </section>
-                ))
-              )}
+              </div>
+              <div className="md:col-span-2">
+                <p className="text-xs text-muted-foreground mb-1">{texts.summaryBalanceLabel}</p>
+                {summary === null ? (
+                  <Skeleton className="h-8 w-32" />
+                ) : (
+                  <p className="text-2xl font-bold text-foreground">R$ {summary.balance.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+                )}
+              </div>
             </div>
+          </Card>
+
+          <div className="lg:col-span-3 space-y-6">
+            {timelineData === null ? (
+              <div className="space-y-6">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="space-y-2">
+                    <Skeleton className="h-4 w-32 mb-3" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              Object.entries(timelineData).map(([period, transactions]) => (
+                <section key={period}>
+                  <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+                    {period}
+                  </h2>
+                  <div className="space-y-2">
+                    {transactions.map((transaction) => (
+                      <TransactionItem key={transaction.id} {...transaction} compact={isCompact} onClick={() => navigate(new ToEditTransactionRoute(transaction.id, transaction.type, transaction.transactionType))} />
+                    ))}
+                  </div>
+                </section>
+              ))
+            )}
           </div>
         </div>
       </div>
 
-      <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+      <Dialog open={isFilterModalOpen} onOpenChange={(value) => !value && closeFilters()}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Filtros</DialogTitle>
+            <DialogTitle>{texts.filtersTitle}</DialogTitle>
+            <DialogDescription className="sr-only">
+              {texts.filtersTitle}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="account">Conta</Label>
+              <Label htmlFor="account">{texts.filtersAccountLabel}</Label>
               <SelectList
                 options={accountOptions}
                 value={filterAccount}
                 onChange={setFilterAccount}
-                placeholder="Selecione uma conta"
+                placeholder={texts.selectAccountPlaceholder}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Desde</Label>
+                <Label>{texts.filtersSinceLabel}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -232,7 +246,7 @@ export default function Timeline({ model }: TimelineProps) {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterSince ? format(filterSince, "dd/MM/yyyy") : "Selecione"}
+                      {filterSince ? format(filterSince, "dd/MM/yyyy") : texts.selectDatePlaceholder}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -248,7 +262,7 @@ export default function Timeline({ model }: TimelineProps) {
               </div>
 
               <div>
-                <Label>Até</Label>
+                <Label>{texts.filtersUntilLabel}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -259,7 +273,7 @@ export default function Timeline({ model }: TimelineProps) {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterUntil ? format(filterUntil, "dd/MM/yyyy") : "Selecione"}
+                      {filterUntil ? format(filterUntil, "dd/MM/yyyy") : texts.selectDatePlaceholder}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -276,93 +290,36 @@ export default function Timeline({ model }: TimelineProps) {
             </div>
 
             <div>
-              <Label>Categorias</Label>
-              <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-2">
-                {categories.map((category) => (
-                  <div key={category.value}>
-                    <button
-                      type="button"
-                      onClick={() => toggleCategory(category.value)}
-                      className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                        filterCategories.includes(category.value)
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-accent"
-                      )}
-                    >
-                      <div 
-                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: category.backgroundColor }}
-                      >
-                        <span className="text-white text-xs">
-                          {category.iconName && <span>📦</span>}
-                        </span>
-                      </div>
-                      <span className="text-left flex-1">{category.label}</span>
-                      {filterCategories.includes(category.value) && <X className="h-4 w-4" />}
-                    </button>
-                    {category.subOptions && filterCategories.includes(category.value) && (
-                      <div className="ml-4 mt-1 space-y-1">
-                        {category.subOptions.map((sub) => (
-                          <button
-                            key={sub.value}
-                            type="button"
-                            onClick={() => toggleCategory(sub.value)}
-                            className={cn(
-                              "w-full flex items-center gap-3 px-3 py-1.5 rounded-md text-xs transition-colors",
-                              filterCategories.includes(sub.value)
-                                ? "bg-primary/80 text-primary-foreground"
-                                : "hover:bg-accent"
-                            )}
-                          >
-                            <div 
-                              className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                              style={{ backgroundColor: sub.backgroundColor }}
-                            >
-                              <span className="text-white text-xs">
-                                {sub.iconName && <span>📦</span>}
-                              </span>
-                            </div>
-                            <span className="text-left flex-1">{sub.label}</span>
-                            {filterCategories.includes(sub.value) && <X className="h-3 w-3" />}
-                          </button>
-                        ))}
-                      </div>
+              <Label>{texts.filtersCategoriesLabel}</Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {categoryOptions.map((category) => (
+                  <Button
+                    key={category.id}
+                    type="button"
+                    variant={filterCategories.includes(category.value) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleFilterCategory(category.value)}
+                    className="h-8"
+                  >
+                    {filterCategories.includes(category.value) && (
+                      <X className="h-3 w-3 mr-1" />
                     )}
-                  </div>
+                    {category.label}
+                  </Button>
                 ))}
               </div>
-              {filterCategories.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {filterCategories.map((catValue) => {
-                    const cat = categories.find(c => c.value === catValue) || 
-                               categories.flatMap(c => c.subOptions || []).find(s => s.value === catValue);
-                    return (
-                      <div key={catValue} className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-md flex items-center gap-1">
-                        {cat?.label}
-                        <button onClick={() => toggleCategory(catValue)} className="hover:text-primary-foreground">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={handleClearFilterForm}>
-              Limpar
+            <Button variant="outline" onClick={clearFilters}>
+              {texts.clearFiltersLabel}
             </Button>
-            <Button onClick={handleApplyFilter}>
-              Filtrar
+            <Button onClick={applyFilters}>
+              {texts.applyFiltersLabel}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <SpeedDial />
-      <TabBar />
     </div>
   );
 }
@@ -375,9 +332,11 @@ export interface FilterData {
 }
 
 export interface Transaction {
-  id: number;
+  id: string;
   title: string;
   category: string;
+  categoryIconName?: string;
+  categoryColor?: string;
   amount: number;
   date: string;
   type: "income" | "expense";
@@ -391,14 +350,81 @@ export interface TimelineData {
   [key: string]: Transaction[];
 }
 
+export interface TimelineCategoryOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface TimelineTexts {
+  title: string;
+  subtitle: string;
+  searchPlaceholder: string;
+  compactViewTitle: string;
+  filtersButtonTitle: string;
+  importTransactionsLabel: string;
+  exportTransactionsLabel: string;
+  statisticsLabel: string;
+  clearHistoryLabel: string;
+  summaryIncomeLabel: string;
+  summaryExpenseLabel: string;
+  summaryBalanceLabel: string;
+  filtersTitle: string;
+  filtersAccountLabel: string;
+  filtersSinceLabel: string;
+  filtersUntilLabel: string;
+  filtersCategoriesLabel: string;
+  selectAccountPlaceholder: string;
+  selectDatePlaceholder: string;
+  clearFiltersLabel: string;
+  applyFiltersLabel: string;
+}
+
 export interface TimelineViewModel {
-  navigate: (path: string) => void;
+  navigate: (route: TimelineRoute) => void;
+  texts: TimelineTexts;
+  locale: string;
   isCompact: boolean;
-  setIsCompact: (value: boolean) => void;
+  toggleCompact: () => void;
+  monthKey: string;
+  monthLabel: string;
+  monthRange: string;
+  goToPreviousMonth: () => void;
+  goToNextMonth: () => void;
+  isSearchOpen: boolean;
+  toggleSearch: () => void;
   timelineData: TimelineData | null;
   summary: { income: number; expense: number; balance: number } | null;
+  searchText: string;
+  setSearchText: (value: string) => void;
   isFilterModalOpen: boolean;
-  setIsFilterModalOpen: (value: boolean) => void;
-  handleFilter: (filters: FilterData) => void;
-  handleClearFilters: () => void;
+  closeFilters: () => void;
+  filterAccount: string;
+  setFilterAccount: (value: string) => void;
+  filterSince?: Date;
+  setFilterSince: (value?: Date) => void;
+  filterUntil?: Date;
+  setFilterUntil: (value?: Date) => void;
+  filterCategories: string[];
+  toggleFilterCategory: (value: string) => void;
+  accountOptions: SelectListOption[];
+  categoryOptions: TimelineCategoryOption[];
+  applyFilters: () => void;
+  clearFilters: () => void;
+}
+
+export class TimelineRoute {}
+export class ToOpenFiltersRoute extends TimelineRoute {}
+export class ToImportRoute extends TimelineRoute {}
+export class ToExportRoute extends TimelineRoute {}
+export class ToStatisticsRoute extends TimelineRoute {}
+export class ToClearHistoryRoute extends TimelineRoute {}
+export class ToEditTransactionRoute extends TimelineRoute {
+  constructor(
+    public readonly transactionId: string,
+    public readonly type: "income" | "expense",
+    public readonly transactionType: "debit" | "credit" | "recurring" | "invoice" | "transfer" | undefined
+  ) {
+    super();
+  }
 }

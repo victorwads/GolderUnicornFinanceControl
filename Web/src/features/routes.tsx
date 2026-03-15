@@ -1,12 +1,10 @@
-import { Navigate, createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 
 import { withRepos } from '@componentsDeprecated/WithRepo';
 
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
-import TimelineScreen from '@features/tabs/timeline/TimelineScreen';
 import TimelineImportScreen from '@features/tabs/timeline/TimelineImportScreen';
-import TimelineFilterScreen from '@features/tabs/timeline/TimelineFilterScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
 import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
@@ -32,6 +30,7 @@ import MorePage from '@pages/settings/More.page';
 import ConnectedAccountsPage from '@pages/settings/ConnectedAccounts.page';
 import SettingsPage from '@pages/settings/Settings.page';
 import HomePage from '@pages/core/Home.page';
+import TimelinePage from '@pages/core/Timeline.page';
 import PrivacyPage from '@pages/privacy/Privacy.page';
 import DeleteAccountPage from '@pages/privacy/DeleteAccount.page';
 import ExportDataPage from '@pages/privacy/ExportData.page';
@@ -43,15 +42,12 @@ export const privateRouter = createBrowserRouter([
     path: '/', element: withRepos(<TabScreen />, 'user'), children: [
       { path: '/', element: <HomePage />},
       { path: 'old/dashboard', element: <DashboardScreen />},
-      { path: 'timeline/filters', element: withRepos(<TimelineFilterScreen />, 'banks', 'creditCards', 'accounts', 'categories') },
+      { path: 'timeline/filters', element: <TimelinePage /> },
       { path: 'timeline/import', element: withRepos(
         <TimelineImportScreen />,
         'accountTransactions', 'creditCardsTransactions', 'creditCards', 'accounts'
       ) },
-      { path: 'timeline/:accountId?', element: withRepos(
-        <TimelineScreen />,
-        'accountTransactions', 'creditCardsInvoices', 'creditCards', 'accounts', 'categories'
-      ) },
+      { path: 'timeline/:accountId?', element: <TimelinePage /> },
       { path: 'recurrents', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentTransactions', 'accounts', 'creditCards', 'categories') },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
