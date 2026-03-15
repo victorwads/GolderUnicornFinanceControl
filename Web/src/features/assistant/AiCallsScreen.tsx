@@ -27,6 +27,7 @@ const AiCallsScreen = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { userId } = useParams<{ userId?: string }>();
+  const LocalLang = Lang.visual.assistant;
 
   useEffect(() => {
     let repo = getRepositories().aiCalls;
@@ -77,7 +78,7 @@ const AiCallsScreen = () => {
         <header className="AiCallsScreen__header">
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2>AI Calls</h2>
+              <h2>{LocalLang.aiCallsTitle}</h2>
               <select onChange={(e) => setAssistantModel(e.target.value as AiModel)} value={getAssistantModel()}>
                 {AiCallContext.PriceModels.map((model) => (
                   <option value={model}>{model}</option>
@@ -85,7 +86,7 @@ const AiCallsScreen = () => {
               </select>
             </div>
             <p className="AiCallsScreen__subtitle">
-              Visualize os registros completos das execuções do assistente.
+              {LocalLang.aiCallsSubtitle}
             </p>
           </div>
         </header>

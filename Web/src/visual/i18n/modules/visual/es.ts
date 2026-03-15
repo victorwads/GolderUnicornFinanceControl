@@ -28,6 +28,7 @@ const es: VisualModuleTranslation = {
       categories: "Categorias",
       recurrents: "Gastos e Entradas Recorrentes",
       assistant: "Assistente",
+      assistantHistory: "Historial del Asistente",
       settings: "Configurações",
       settingsDescription: "Preferências do aplicativo",
       connectedAccounts: "Contas conectadas",
@@ -202,8 +203,8 @@ const es: VisualModuleTranslation = {
       deleteDialogConfirm: "Excluir meus dados"
     },
     assistant: {
-      aiCallsTitle: "Chamadas de IA",
-      aiCallsSubtitle: "Histórico e custo das interações com o assistente"
+      aiCallsTitle: "Historial del Asistente",
+      aiCallsSubtitle: "Historial y costo de tus interacciones con el asistente"
     }
   }
 };

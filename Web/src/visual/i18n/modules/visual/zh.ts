@@ -28,6 +28,7 @@ const zh: VisualModuleTranslation = {
       categories: "分类",
       recurrents: "周期性收支",
       assistant: "助手",
+      assistantHistory: "助手历史",
       settings: "设置",
       settingsDescription: "应用偏好",
       connectedAccounts: "已连接账户",
@@ -202,8 +203,8 @@ const zh: VisualModuleTranslation = {
       deleteDialogConfirm: "删除我的数据"
     },
     assistant: {
-      aiCallsTitle: "AI Calls",
-      aiCallsSubtitle: "History and cost of assistant interactions"
+      aiCallsTitle: "助手历史",
+      aiCallsSubtitle: "你与助手交互的历史和成本"
     }
   }
 };

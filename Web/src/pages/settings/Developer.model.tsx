@@ -37,7 +37,6 @@ export function useDeveloperModel(): DeveloperViewModel {
     killAccountId,
     setKillAccountId,
     resaveProgress,
-    openAiCalls: () => navigate("/ai-calls"),
     openSubscriptions: () => navigate("/subscriptions"),
     resetAssistantOnboarding: async () => {
       await resetAssistantOnboarding();

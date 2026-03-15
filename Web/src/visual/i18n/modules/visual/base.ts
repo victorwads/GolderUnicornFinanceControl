@@ -28,6 +28,7 @@ export default interface VisualModuleTranslation extends Translation {
       categories: string;
       recurrents: string;
       assistant: string;
+      assistantHistory: string;
       settings: string;
       settingsDescription: string;
       connectedAccounts: string;

@@ -18,7 +18,6 @@ export default function Developer({ model }: DeveloperProps) {
     killAccountId,
     setKillAccountId,
     resaveProgress,
-    openAiCalls,
     openSubscriptions,
     resetAssistantOnboarding,
     resetMicrophoneOnboarding,
@@ -44,15 +43,11 @@ export default function Developer({ model }: DeveloperProps) {
 
         <div className="p-4 space-y-6 animate-fade-in">
           <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle>{LocalLang.toolsTitle}</CardTitle>
-              <CardDescription>{LocalLang.toolsDescription}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start h-14" onClick={openAiCalls}>
-                <Bot className="h-4 w-4 mr-3" />
-                {LocalLang.aiCalls}
-              </Button>
+          <CardHeader>
+            <CardTitle>{LocalLang.toolsTitle}</CardTitle>
+            <CardDescription>{LocalLang.toolsDescription}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start h-14" onClick={openSubscriptions}>
                 <Sparkles className="h-4 w-4 mr-3" />
                 {LocalLang.subscriptions}
@@ -152,7 +147,6 @@ export interface DeveloperViewModel {
   killAccountId: string;
   setKillAccountId: (value: string) => void;
   resaveProgress: DataProgressInfo | null;
-  openAiCalls: () => void;
   openSubscriptions: () => void;
   resetAssistantOnboarding: () => Promise<void>;
   resetMicrophoneOnboarding: () => void;

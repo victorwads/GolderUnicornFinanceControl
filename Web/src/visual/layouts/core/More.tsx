@@ -46,7 +46,7 @@ export default function More({ model }: MoreProps) {
       case "/recurrents":
         return LocalLang.recurrents;
       case "/assistant":
-        return LocalLang.assistant;
+        return LocalLang.assistantHistory;
       case "/connected-accounts":
       case "/me/linkedaccounts":
         return LocalLang.connectedAccounts;

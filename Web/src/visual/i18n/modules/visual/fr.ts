@@ -28,6 +28,7 @@ const fr: VisualModuleTranslation = {
       categories: "Categories",
       recurrents: "Recurring expenses and income",
       assistant: "Assistant",
+      assistantHistory: "Historique de l'assistant",
       settings: "Settings",
       settingsDescription: "App preferences",
       connectedAccounts: "Connected accounts",
@@ -202,8 +203,8 @@ const fr: VisualModuleTranslation = {
       deleteDialogConfirm: "Delete my data"
     },
     assistant: {
-      aiCallsTitle: "AI Calls",
-      aiCallsSubtitle: "History and cost of assistant interactions"
+      aiCallsTitle: "Historique de l'assistant",
+      aiCallsSubtitle: "Historique et coût de vos interactions avec l'assistant"
     }
   }
 };
