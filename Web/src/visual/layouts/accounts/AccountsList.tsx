@@ -2,6 +2,7 @@ import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Plus, Wallet, ChevronRight } from "lucide-react";
 import { resolveBankResourceUrl } from "@lib/assetUrls";
+import { cn } from "@lib/utils";
 
 function getColorProps(color: string) {
   if (color.startsWith("#") || color.startsWith("rgb") || color.startsWith("hsl")) {
@@ -21,12 +22,15 @@ export default function AccountsList({
   model: {
     navigate,
     accounts,
-  }
+    selectedAccountId,
+  },
+  embedded = false,
 }: {
-  model: AccountsListViewModel
+  model: AccountsListViewModel;
+  embedded?: boolean;
 }) {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={cn("mx-auto", embedded ? "min-h-full" : "max-w-4xl")}>
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -55,7 +59,10 @@ export default function AccountsList({
         {accounts.map((account) => (
           <Card
             key={account.id}
-            className="p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50"
+            className={cn(
+              "p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50",
+              selectedAccountId === account.id ? "border-primary/50 bg-accent/60 ring-1 ring-primary/20" : ""
+            )}
             onClick={() => navigate(new ToEditAccountRoute(account.id.toString()))}
           >
             <div
@@ -97,7 +104,7 @@ export default function AccountsList({
 }
 
 export interface Account {
-  id: number;
+  id: string;
   name: string;
   bank: string;
   bankLogoUrl?: string;
@@ -108,6 +115,7 @@ export interface Account {
 export interface AccountsListViewModel {
   navigate: (route: AccountsRoute) => void;
   accounts: Account[];
+  selectedAccountId?: string;
 }
 
 // Navigation Routes

@@ -16,6 +16,10 @@ import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
+import MasterDetailShell, {
+  MasterDetailPlaceholder,
+  ResponsiveMasterDetailIndex,
+} from '@layouts/core/MasterDetailShell';
 
 import LoginScreen from '@pages/auth/LoginScreen.page';
 import AddAccountTransactionPage from '@pages/accounts/AddAccountTransaction.page';
@@ -64,26 +68,83 @@ export const privateRouter = createBrowserRouter([
       { path: 'settings/app', element: <SettingsPage /> },
       { path: 'old/settings', element: <SettingsScreen /> },
       { path: 'old/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
-      { path: '/accounts', element: <AccountsListPage /> },
-      { path: '/accounts/create', element: <CreateBankAccountPage /> },
-      { path: '/accounts/:id', element: <CreateBankAccountPage /> },
+      {
+        path: 'accounts',
+        element: <MasterDetailShell listPane={<AccountsListPage embedded />} />,
+        children: [
+          {
+            index: true,
+            element: (
+              <ResponsiveMasterDetailIndex
+                portraitContent={<AccountsListPage />}
+                landscapeContent={
+                  <MasterDetailPlaceholder
+                    title="Selecione uma conta"
+                    description="Escolha uma conta na lista para editar ou crie uma nova conta."
+                  />
+                }
+              />
+            ),
+          },
+          { path: 'create', element: <CreateBankAccountPage /> },
+          { path: ':id', element: <CreateBankAccountPage /> },
+        ],
+      },
       { path: '/accounts/expense/add', element: <AddAccountTransactionPage /> },
       { path: '/accounts/income/add', element: <AddAccountTransactionPage /> },
       { path: '/accounts/registry/:id', element: <AddAccountTransactionPage /> },
       { path: '/accounts/transfers/create', element: <CreateTransferPage /> },
       { path: '/accounts/transfers/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
-      { path: '/creditcards', element: <CreditCardsListPage /> },
-      { path: '/creditcards/create', element: <CreateCreditCardPage /> },
-      { path: '/creditcards/:id', element: <CreateCreditCardPage /> },
+      {
+        path: 'creditcards',
+        element: <MasterDetailShell listPane={<CreditCardsListPage embedded />} />,
+        children: [
+          {
+            index: true,
+            element: (
+              <ResponsiveMasterDetailIndex
+                portraitContent={<CreditCardsListPage />}
+                landscapeContent={
+                  <MasterDetailPlaceholder
+                    title="Selecione um cartao"
+                    description="Escolha um cartao na lista para editar ou crie um novo cartao."
+                  />
+                }
+              />
+            ),
+          },
+          { path: 'create', element: <CreateCreditCardPage /> },
+          { path: ':id', element: <CreateCreditCardPage /> },
+        ],
+      },
       { path: '/creditcards/:id/invoices/:selected?', element: withRepos(
         <CreditCardsInvoices />,
         'creditCardsInvoices', 'creditCardsTransactions', 'categories', 'creditCards'
       ) },
       { path: '/creditcards/transaction/add', element: <AddCreditCardTransactionPage /> },
       { path: '/creditcards/transaction/:id/edit', element: <AddCreditCardTransactionPage /> },
-      { path: '/categories', element: <CategoriesListPage /> },
-      { path: '/categories/create', element: <CreateCategoryPage /> },
-      { path: '/categories/:id', element: <CreateCategoryPage /> },
+      {
+        path: 'categories',
+        element: <MasterDetailShell listPane={<CategoriesListPage embedded />} />,
+        children: [
+          {
+            index: true,
+            element: (
+              <ResponsiveMasterDetailIndex
+                portraitContent={<CategoriesListPage />}
+                landscapeContent={
+                  <MasterDetailPlaceholder
+                    title="Selecione uma categoria"
+                    description="Escolha uma categoria na lista para editar ou crie uma nova categoria."
+                  />
+                }
+              />
+            ),
+          },
+          { path: 'create', element: <CreateCategoryPage /> },
+          { path: ':id', element: <CreateCategoryPage /> },
+        ],
+      },
       { path: '/groceries/create', element: <GroceryItemForm /> },
       { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
       { path: '/recurrents/create', element: <CreateRecurrentPage /> },

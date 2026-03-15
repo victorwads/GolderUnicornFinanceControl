@@ -170,6 +170,31 @@ O que validar com Playwright:
 - estado vazio, loading e estados com dados quando aplicável
 - erros de console ou overlays de build
 - URLs finais após cliques importantes
+
+## Padrões Visuais de Migração
+
+### Logo Fill Mode
+
+Use este nome quando a tarefa envolver logos de banco, bandeira de cartão, conta vinculada ou qualquer asset semelhante vindo de `/resources/banks`.
+
+Objetivo:
+
+- evitar o efeito visual de "quadrado preto/branco dentro de um círculo" causado por logos não transparentes
+
+Como aplicar:
+
+- não usar `<img>` pequena centralizada para esse tipo de asset
+- usar `background-image` no próprio container arredondado
+- preferir `background-size: cover`, `background-position: center` e `background-repeat: no-repeat`
+- resolver o asset pelo util compartilhado `Web/src/visual/lib/assetUrls.ts`
+- quando a tela usar o `SelectList`, manter o mesmo padrão no ícone da opção selecionada e na lista de opções
+
+Checklist de revisão:
+
+- a logo ocupa o container arredondado
+- o container continua com borda arredondada correta
+- não há fallback para URL de produção quando o asset for local
+- cards e selectors usam o mesmo comportamento visual
 ## Arquitetura Base
 
 ### Camada legada

@@ -1,17 +1,21 @@
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Plus, ChevronRight, LucideIcon } from "lucide-react";
+import { cn } from "@lib/utils";
 
 export default function CategoriesList({
   model: {
     navigate,
     categories,
-  }
+    selectedCategoryId,
+  },
+  embedded = false,
 }: {
-  model: CategoriesListViewModel
+  model: CategoriesListViewModel;
+  embedded?: boolean;
 }) {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={cn("mx-auto", embedded ? "min-h-full" : "max-w-4xl")}>
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -42,7 +46,10 @@ export default function CategoriesList({
           return (
             <Card
               key={category.id}
-              className="p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50"
+              className={cn(
+                "p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50",
+                selectedCategoryId === category.id ? "border-primary/50 bg-accent/60 ring-1 ring-primary/20" : ""
+              )}
               onClick={() => navigate(new ToEditCategoryRoute(category.id.toString()))}
             >
               <div 
@@ -67,7 +74,7 @@ export default function CategoriesList({
 }
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   icon: LucideIcon;
   color: string;
@@ -77,6 +84,7 @@ export interface Category {
 export interface CategoriesListViewModel {
   navigate: (route: CategoriesRoute) => void;
   categories: Category[];
+  selectedCategoryId?: string;
 }
 
 // Navigation Routes

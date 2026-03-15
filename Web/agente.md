@@ -119,12 +119,24 @@ Este documento serve como guia para agentes de IA que operam exclusivamente na p
 - Sempre utilize repositórios para acesso a dados
 - Siga o padrão de internacionalização
 - Utilize ícones apenas via `Icons.ts`
+- Para logos de banco, conta e bandeira não transparentes, use o padrão `Logo Fill Mode`
 - Atualize mapeamentos de rotas e ferramentas ao adicionar novas telas ou features
 - Documente novas entidades e modelos em `models/`
 
+## 12. Logo Fill Mode
+
+`Logo Fill Mode` é o nome operacional do padrão usado para logos visuais de banco, bandeira e conta quando o asset não é transparente.
+
+Regras:
+
+- resolver assets locais com `resolveBankResourceUrl` em `src/visual/lib/assetUrls.ts`
+- usar `background-image` no container arredondado em vez de `<img>` pequena centralizada
+- manter `background-size: cover`, `background-position: center` e `background-repeat: no-repeat`
+- aplicar o mesmo padrão em listas, cards e componentes de seleção
+
 ---
 
-## 12. Referências Rápidas
+## 13. Referências Rápidas
 
 - **Aliases principais:**
   - `@models` → `src/data/models`
@@ -139,6 +151,6 @@ Este documento serve como guia para agentes de IA que operam exclusivamente na p
   - Ícones: `src/components/Icons.ts`
   - IA: `src/features/assistant/AssistantController.ts`, `src/features/assistant/tools/AssistantTools.ts`, `src/data/models/AiCall.ts`
 
-## 13. Contribuição Automatica
+## 14. Contribuição Automatica
 
 Agentes de IA podem atualizar este documento quando identificarem melhorias, correções ou novos padrões que facilitem o entendimento do projeto. Mantenha o texto claro, conciso e coerente com os demais itens.

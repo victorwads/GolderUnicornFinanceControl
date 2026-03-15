@@ -72,6 +72,19 @@ Ao trabalhar em UI:
 - verificar se a mudança pertence à camada nova em `Web/src/visual`
 - evitar duplicar componentes entre a camada legada e a camada visual
 - documentar quando uma tela foi migrada do legado para a nova estrutura
+- aplicar o padrão `Logo Fill Mode` para logos de banco, bandeira e conta quando a arte não for transparente
+
+### Logo Fill Mode
+
+Nome operacional para o padrão visual de logos retangulares ou não transparentes.
+
+Regra prática:
+
+- não renderizar essas logos como `<img>` pequena centralizada dentro de um círculo ou quadrado colorido
+- renderizar a logo como `background-image` ocupando o container arredondado
+- usar `background-position: center`, `background-repeat: no-repeat` e `background-size: cover`
+- usar `resolveBankResourceUrl` em `Web/src/visual/lib/assetUrls.ts` para resolver paths locais como `/resources/banks/...`
+- aplicar esse padrão em cards, listas, selectors e qualquer avatar visual de conta, banco ou bandeira
 
 ## Documentação Existente
 

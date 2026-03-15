@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import getRepositories, { waitUntilReady } from "@repositories";
 import {
@@ -47,7 +47,7 @@ function toVisualCreditCards(): CreditCard[] {
     .creditCards
     .getCache()
     .map((card) => ({
-      id: card.id as unknown as number,
+      id: String(card.id),
       name: card.name,
       brand: card.brand,
       brandLogoUrl: getBrandLogoUrl(card.brand),
@@ -59,6 +59,7 @@ function toVisualCreditCards(): CreditCard[] {
 
 export function useCreditCardsListModel(): CreditCardsListViewModel {
   const router = useNavigate();
+  const { id } = useParams<{ id?: string }>();
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
 
   useEffect(() => {
@@ -109,5 +110,6 @@ export function useCreditCardsListModel(): CreditCardsListViewModel {
   return {
     navigate,
     creditCards,
+    selectedCreditCardId: id,
   };
 }

@@ -2,6 +2,7 @@ import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Plus, CreditCard, ChevronRight } from "lucide-react";
 import { resolveBankResourceUrl } from "@lib/assetUrls";
+import { cn } from "@lib/utils";
 
 function getColorProps(color: string) {
   if (color.startsWith("#") || color.startsWith("rgb") || color.startsWith("hsl")) {
@@ -21,12 +22,15 @@ export default function CreditCardsList({
   model: {
     navigate,
     creditCards,
-  }
+    selectedCreditCardId,
+  },
+  embedded = false,
 }: {
-  model: CreditCardsListViewModel
+  model: CreditCardsListViewModel;
+  embedded?: boolean;
 }) {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={cn("mx-auto", embedded ? "min-h-full" : "max-w-4xl")}>
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -55,7 +59,10 @@ export default function CreditCardsList({
         {creditCards.map((card) => (
           <Card
             key={card.id}
-            className="p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50"
+            className={cn(
+              "p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50",
+              selectedCreditCardId === card.id ? "border-primary/50 bg-accent/60 ring-1 ring-primary/20" : ""
+            )}
             onClick={() => navigate(new ToEditCreditCardRoute(card.id.toString()))}
           >
             <div
@@ -97,7 +104,7 @@ export default function CreditCardsList({
 }
 
 export interface CreditCard {
-  id: number;
+  id: string;
   name: string;
   brand: string;
   brandLogoUrl?: string;
@@ -108,6 +115,7 @@ export interface CreditCard {
 export interface CreditCardsListViewModel {
   navigate: (route: CreditCardsRoute) => void;
   creditCards: CreditCard[];
+  selectedCreditCardId?: string;
 }
 
 // Navigation Routes

@@ -6,6 +6,8 @@ import { ColorPicker } from "@components/ui/color-picker";
 import { SelectList, SelectListOption } from "@components/ui/select-list";
 import { Checkbox } from "@components/ui/checkbox";
 import { DescriptionField } from "@components/ui/description-field";
+import { useIsLandscapeLayout } from "@hooks/use-mobile";
+import { cn } from "@lib/utils";
 
 export default function CreateBankAccount({
   model: {
@@ -22,8 +24,10 @@ export default function CreateBankAccount({
 }: {
   model: BankAccountViewModel
 }) {
+  const isLandscapeLayout = useIsLandscapeLayout();
+
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className={cn("bg-background", isLandscapeLayout ? "min-h-full" : "min-h-screen pb-20")}>
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/80">
         <div className="flex h-14 items-center gap-4 px-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
@@ -35,7 +39,7 @@ export default function CreateBankAccount({
         </div>
       </header>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className={cn("space-y-6 p-4", isLandscapeLayout ? "mx-auto max-w-3xl pb-6" : "")}>
         <DescriptionField label="Nome da Conta">
           <Input {...register("name")} placeholder="Ex: Conta Principal" />
         </DescriptionField>
@@ -85,7 +89,7 @@ export default function CreateBankAccount({
           </div>
         </DescriptionField>
 
-        <div className="flex gap-3 pt-4">
+        <div className={cn("flex gap-3 pt-4", isLandscapeLayout ? "sticky bottom-0 border-t bg-background/95 py-4 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/80" : "")}>
           <Button
             type="button"
             variant="outline"

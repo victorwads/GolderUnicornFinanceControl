@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import getRepositories, { waitUntilReady } from "@repositories";
 import { getServices } from "@services";
@@ -17,7 +17,7 @@ function toVisualAccounts(accounts: WithInfoAccount[]): Account[] {
   const { balance } = getServices();
 
   return accounts.map((account) => ({
-    id: account.id as unknown as number,
+    id: String(account.id),
     name: account.name,
     bank: account.bank.name,
     bankLogoUrl: account.bank.logoUrl,
@@ -28,6 +28,7 @@ function toVisualAccounts(accounts: WithInfoAccount[]): Account[] {
 
 export function useAccountsListModel(): AccountsListViewModel {
   const router = useNavigate();
+  const { id } = useParams<{ id?: string }>();
   const [accounts, setAccounts] = useState<Account[]>([]);
 
   useEffect(() => {
@@ -84,5 +85,6 @@ export function useAccountsListModel(): AccountsListViewModel {
   return {
     navigate,
     accounts,
+    selectedAccountId: id,
   };
 }

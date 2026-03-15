@@ -6,6 +6,8 @@ import { SelectList, SelectListOption } from "@components/ui/select-list";
 import { IconSearch } from "@components/ui/icon-search";
 import { DescriptionField } from "@components/ui/description-field";
 import Icon, { iconNamesList, getIconByCaseInsensitiveName } from "@components/Icons";
+import { useIsLandscapeLayout } from "@hooks/use-mobile";
+import { cn } from "@lib/utils";
 
 export default function CreateCategory({
   model: {
@@ -21,8 +23,10 @@ export default function CreateCategory({
 }: {
   model: CreateCategoryViewModel
 }) {
+  const isLandscapeLayout = useIsLandscapeLayout();
+
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className={cn("bg-background", isLandscapeLayout ? "min-h-full" : "min-h-screen pb-20")}>
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/80">
         <div className="flex h-14 items-center gap-4 px-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
@@ -34,7 +38,7 @@ export default function CreateCategory({
         </div>
       </header>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className={cn("space-y-6 p-4", isLandscapeLayout ? "mx-auto max-w-3xl pb-28" : "")}>
         <DescriptionField label="Nome">
           <Input {...register("name")} placeholder="Ex: Restaurantes" />
         </DescriptionField>
@@ -68,8 +72,11 @@ export default function CreateCategory({
         </DescriptionField>
       </form>
 
-      <div className="fixed bottom-0 left-0 right-0 z-30 border-t bg-background/95 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/80 p-4">
-        <div className="max-w-4xl mx-auto flex gap-3">
+      <div className={cn(
+        "z-30 border-t bg-background/95 p-4 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/80",
+        isLandscapeLayout ? "sticky bottom-0" : "fixed bottom-0 left-0 right-0"
+      )}>
+        <div className={cn("mx-auto flex gap-3", isLandscapeLayout ? "max-w-3xl" : "max-w-4xl")}>
           <Button
             type="button"
             variant="outline"

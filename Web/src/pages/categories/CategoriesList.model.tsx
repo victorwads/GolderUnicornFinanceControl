@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Receipt, type LucideIcon } from "lucide-react";
 
 import getRepositories, { waitUntilReady } from "@repositories";
@@ -51,7 +51,7 @@ function toVisualCategories(categories: CategoryModel[]): Category[] {
     const iconName = category.icon || parent?.icon;
 
     return {
-      id: category.id as unknown as number,
+      id: String(category.id),
       name: parent ? `${parent.name} / ${category.name}` : category.name,
       icon: makeCategoryIcon(iconName),
       color,
@@ -62,6 +62,7 @@ function toVisualCategories(categories: CategoryModel[]): Category[] {
 
 export function useCategoriesListModel(): CategoriesListViewModel {
   const router = useNavigate();
+  const { id } = useParams<{ id?: string }>();
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -120,5 +121,6 @@ export function useCategoriesListModel(): CategoriesListViewModel {
   return {
     navigate,
     categories,
+    selectedCategoryId: id,
   };
 }
