@@ -1,5 +1,10 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { Langs, setLanguage } from "@lang";
+import { Density, useCssVars } from "@componentsDeprecated/Vars";
+import { useDensity } from "@contexts/DensityContext";
+import { getServices } from "@services";
+import { ProjectStorage } from "@utils/ProjectStorage";
 import {
   SettingsRoute,
   ToMoreRoute,
@@ -9,8 +14,14 @@ import {
 
 export function useSettingsModel(): SettingsViewModel {
   const router = useNavigate();
-  const [monthStartDay, setMonthStartDay] = useState([15]);
-  const [monthNameMode, setMonthNameMode] = useState("current");
+  const { density, setDensity: setCssDensity } = useCssVars();
+  const { setDensity: setVisualDensity } = useDensity();
+  const { period } = getServices().timeline;
+  const monthStartDay = [period.getCutOffDay()];
+  const monthNameMode = period.getDisplayType();
+  const selectedLanguage = SavedLang || "";
+
+  const currentDensity = Number(density.split("-")[1] || 2);
 
   function navigate(route: SettingsRoute) {
     switch (true) {
@@ -31,8 +42,28 @@ export function useSettingsModel(): SettingsViewModel {
   return {
     navigate,
     monthStartDay,
-    setMonthStartDay,
+    setMonthStartDay: (value) => {
+      const nextDay = value[0];
+      period.setConfig({ cutOffDay: nextDay });
+      ProjectStorage.set("financeDay", String(nextDay));
+    },
     monthNameMode,
-    setMonthNameMode,
+    setMonthNameMode: (value) => {
+      const nextMode = value as "start" | "next";
+      period.setConfig({ displayType: nextMode });
+      ProjectStorage.set("financeMode", nextMode);
+    },
+    currentLanguageLabel: selectedLanguage
+      ? Langs[selectedLanguage]?.name ?? CurrentLangInfo.name
+      : `Padrão do dispositivo (${navigator.language})`,
+    density: currentDensity,
+    setDensity: (value) => {
+      const densityValue = `density-${value}` as Density;
+      setCssDensity(densityValue);
+      setVisualDensity(value);
+    },
+    syncLanguage: (value) => {
+      setLanguage((value || undefined) as keyof typeof Langs | undefined);
+    },
   };
 }

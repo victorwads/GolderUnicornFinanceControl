@@ -16,7 +16,7 @@ interface MoreProps {
 }
 
 export default function More({ model }: MoreProps) {
-  const { navigate, handleLogout, sections = [], lang = {} as MoreLang, user } = model;
+  const { navigate, handleLogout, sections = [], lang = {} as MoreLang, user, handleUpdateCheck, checkingForUpdate } = model;
 
   return (
     <div className="min-h-screen bg-background pb-36">
@@ -73,8 +73,10 @@ export default function More({ model }: MoreProps) {
                 variant="outline" 
                 size="sm"
                 className="h-7 text-xs"
+                onClick={handleUpdateCheck}
+                disabled={checkingForUpdate}
               >
-                {lang.appInfo?.searchUpdates || "Buscar atualizações"}
+                {checkingForUpdate ? "Buscando..." : lang.appInfo?.searchUpdates || "Buscar atualizações"}
               </Button>
             </div>
             <Card className="divide-y divide-border/50 border-border/50 overflow-hidden">
@@ -163,5 +165,6 @@ export interface MoreViewModel {
   }[];
   navigate: (route: MoreRoute | string) => void;
   handleUpdateCheck: () => void;
+  checkingForUpdate?: boolean;
   handleLogout: () => void;
 }

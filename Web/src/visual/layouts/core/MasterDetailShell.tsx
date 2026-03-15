@@ -1,31 +1,78 @@
 import { ReactNode } from "react";
-import { Outlet } from "react-router-dom";
+import { matchPath, useLocation, useOutlet } from "react-router-dom";
 
 import { useIsLandscapeLayout } from "@hooks/use-mobile";
+import { cn } from "@lib/utils";
 
 interface MasterDetailShellProps {
   listPane: ReactNode;
+  basePath: string;
+  idleContent?: ReactNode;
 }
 
-export default function MasterDetailShell({ listPane }: MasterDetailShellProps) {
+export default function MasterDetailShell({
+  listPane,
+  basePath,
+  idleContent,
+}: MasterDetailShellProps) {
   const isLandscapeLayout = useIsLandscapeLayout();
+  const location = useLocation();
+  const outlet = useOutlet();
+
+  const isIdleState = !!matchPath({ path: basePath, end: true }, location.pathname);
+  const isDetailOpen = !isIdleState;
 
   if (!isLandscapeLayout) {
-    return <Outlet />;
+    return outlet;
   }
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-7xl gap-0 px-4 py-4 lg:px-6">
-      <aside className="w-full max-w-[420px] shrink-0 overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
-        <div className="h-full overflow-y-auto">
-          {listPane}
+    <div className="relative min-h-screen w-full px-4 py-4 lg:px-6">
+      <div
+        className="grid min-h-[calc(100vh-2rem)] w-full transition-[grid-template-columns] duration-200 ease-out"
+        style={{
+          gridTemplateColumns: isDetailOpen
+            ? "minmax(360px, 38%) minmax(0, 62%)"
+            : "minmax(0, 1fr) 0px",
+        }}
+      >
+        <section className="min-w-0 overflow-hidden">
+          <div
+            className={cn(
+              "h-full overflow-hidden rounded-3xl border border-border/60 bg-card transition-[border-radius,box-shadow] duration-200 ease-out",
+              isDetailOpen ? "shadow-sm" : "shadow-none"
+            )}
+          >
+            <div
+              className={cn(
+                "h-full overflow-y-auto transition-[max-width] duration-200 ease-out",
+                isDetailOpen ? "max-w-none" : "mx-auto w-full"
+              )}
+            >
+              {listPane}
+            </div>
+          </div>
+        </section>
+
+        <section
+          className={cn(
+            "min-w-0 overflow-hidden pl-0 transition-[opacity,transform,padding] duration-200 ease-out",
+            isDetailOpen ? "translate-x-0 pl-4 opacity-100" : "pointer-events-none translate-x-8 opacity-0"
+          )}
+        >
+          <div className="h-full overflow-hidden rounded-3xl border border-border/60 bg-background shadow-sm">
+            <div className="h-full overflow-y-auto">
+              {isDetailOpen ? outlet : null}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {!isDetailOpen && idleContent ? (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-8 py-16">
+          {idleContent}
         </div>
-      </aside>
-      <main className="min-w-0 flex-1 overflow-hidden rounded-3xl border border-border/60 bg-background shadow-sm">
-        <div className="h-full overflow-y-auto">
-          <Outlet />
-        </div>
-      </main>
+      ) : null}
     </div>
   );
 }
@@ -38,23 +85,11 @@ export function MasterDetailPlaceholder({
   description: string;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center p-8">
-      <div className="mx-auto max-w-md text-center">
+    <div className="rounded-3xl border border-border/60 bg-background/95 p-8 text-center shadow-lg backdrop-blur-sm">
+      <div className="mx-auto max-w-md">
         <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
         <p className="mt-3 text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
   );
-}
-
-export function ResponsiveMasterDetailIndex({
-  portraitContent,
-  landscapeContent,
-}: {
-  portraitContent: ReactNode;
-  landscapeContent: ReactNode;
-}) {
-  const isLandscapeLayout = useIsLandscapeLayout();
-
-  return isLandscapeLayout ? landscapeContent : portraitContent;
 }

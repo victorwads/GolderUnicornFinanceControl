@@ -49,7 +49,7 @@ export function useDeleteAccountModel(): DeleteAccountViewModel {
 
     setDeleteProgress(null);
     localStorage.removeItem("isLoggedIn");
-    navigate("/login");
+    navigate("/");
   };
 
   const handleDelete = () => {

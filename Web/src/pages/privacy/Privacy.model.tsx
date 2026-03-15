@@ -2,72 +2,75 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { PrivacyViewModel } from "@layouts/privacy/Privacy";
 import type { DataProgressInfo } from "@components/DataProgress";
-
-const domains = [
-  { name: "Transações", items: 5420 },
-  { name: "Contas", items: 12 },
-  { name: "Cartões", items: 8 },
-  { name: "Categorias", items: 45 },
-  { name: "Configurações", items: 1 },
-];
+import { useToast } from "@hooks/use-toast";
+import { deleteAllUserData, exportUserData } from "@features/settings/settingsActions";
 
 export function usePrivacyModel(): PrivacyViewModel {
   const navigate = useNavigate();
-  const [exportProgress, setExportProgress] = useState<DataProgressInfo | null>(null);
-
-  const simulateExportProgress = async () => {
-    for (let i = 0; i < domains.length; i++) {
-      const domain = domains[i];
-      
-      // Update main progress
-      setExportProgress({
-        domain: domain.name,
-        current: i + 1,
-        max: domains.length,
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      // Simulate sub-progress
-      const batchSize = 500;
-      const batches = Math.ceil(domain.items / batchSize);
-      
-      for (let j = 0; j < batches; j++) {
-        const current = Math.min((j + 1) * batchSize, domain.items);
-        setExportProgress({
-          domain: domain.name,
-          current: i + 1,
-          max: domains.length,
-          sub: {
-            current,
-            max: domain.items,
-          },
-        });
-        await new Promise(resolve => setTimeout(resolve, 200 + Math.random() * 300));
-      }
-    }
-
-    // Finish
-    setExportProgress(null);
-    
-    // Simulate download
-    const blob = new Blob([JSON.stringify({ exported: "data" })], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `financas-export-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const { toast } = useToast();
+  const [progress, setProgress] = useState<DataProgressInfo | null>(null);
+  const [progressType, setProgressType] = useState<"export" | "delete">("export");
+  const [showDeleteDataDialog, setShowDeleteDataDialog] = useState(false);
+  const [deleteDataConfirmation, setDeleteDataConfirmation] = useState("");
+  const [deleteDataPhrase, setDeleteDataPhrase] = useState("");
 
   const handleExport = async (format: "json" | "csv") => {
-    console.log(`Exporting as ${format}`);
-    await simulateExportProgress();
+    try {
+      setProgressType("export");
+      await exportUserData(format, setProgress);
+      toast({
+        title: "Exportação concluída",
+        description: "Seus dados foram exportados com sucesso.",
+      });
+    } catch (error) {
+      console.error("Failed to export data", error);
+      toast({
+        variant: "destructive",
+        title: "Falha ao exportar dados",
+        description: Lang.settings.exportDataError,
+      });
+    }
   };
 
   return {
     navigate,
-    exportProgress,
+    progress,
+    progressType,
     handleExport,
+    showDeleteDataDialog,
+    setShowDeleteDataDialog,
+    deleteDataPhrase,
+    deleteDataConfirmation,
+    setDeleteDataConfirmation,
+    openDeleteDataDialog: () => {
+      const phrases = Lang.settings.deleteDataPhrases();
+      const phrase = phrases[Math.floor(Math.random() * phrases.length)] || phrases[0] || Lang.settings.deleteData;
+      setDeleteDataPhrase(phrase);
+      setDeleteDataConfirmation("");
+      setShowDeleteDataDialog(true);
+    },
+    confirmDeleteData: async () => {
+      if (deleteDataConfirmation.trim() !== deleteDataPhrase) {
+        toast({
+          variant: "destructive",
+          title: "Confirmação inválida",
+          description: Lang.settings.deleteDataMismatch,
+        });
+        return;
+      }
+
+      try {
+        setShowDeleteDataDialog(false);
+        setProgressType("delete");
+        await deleteAllUserData(setProgress);
+      } catch (error) {
+        console.error("Failed to delete user data", error);
+        toast({
+          variant: "destructive",
+          title: "Falha ao excluir dados",
+          description: Lang.settings.deleteDataError,
+        });
+      }
+    },
   };
 }

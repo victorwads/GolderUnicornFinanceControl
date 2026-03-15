@@ -44,9 +44,10 @@ const densityOptions = [
 
 interface ThemeCustomizerProps {
   applyImmediately?: boolean;
+  showDensity?: boolean;
 }
 
-export default function ThemeCustomizer({ applyImmediately = true }: ThemeCustomizerProps) {
+export default function ThemeCustomizer({ applyImmediately = true, showDensity = true }: ThemeCustomizerProps) {
   const { theme, setTheme } = useTheme();
   const { colorTheme, setColorTheme } = useThemeColor();
   const { density, setDensity } = useDensity();
@@ -131,31 +132,32 @@ export default function ThemeCustomizer({ applyImmediately = true }: ThemeCustom
         </div>
       </div>
 
-      {/* Density Selection */}
-      <div className="space-y-4">
-        <h3 className="font-medium">Densidade</h3>
-        <div className="grid grid-cols-4 gap-3">
-          {densityOptions.map((densityOption) => (
-            <Card
-              key={densityOption.id}
-              className={`p-4 cursor-pointer transition-all hover:border-primary ${
-                density === densityOption.id ? "border-primary bg-primary/5" : ""
-              }`}
-              onClick={() => handleDensityChange(densityOption.id)}
-            >
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <span className="font-medium text-sm">{densityOption.name}</span>
-                  {density === densityOption.id && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
+      {showDensity && (
+        <div className="space-y-4">
+          <h3 className="font-medium">Densidade</h3>
+          <div className="grid grid-cols-4 gap-3">
+            {densityOptions.map((densityOption) => (
+              <Card
+                key={densityOption.id}
+                className={`p-4 cursor-pointer transition-all hover:border-primary ${
+                  density === densityOption.id ? "border-primary bg-primary/5" : ""
+                }`}
+                onClick={() => handleDensityChange(densityOption.id)}
+              >
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="font-medium text-sm">{densityOption.name}</span>
+                    {density === densityOption.id && (
+                      <Check className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{densityOption.description}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">{densityOption.description}</p>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

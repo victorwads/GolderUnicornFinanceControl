@@ -29,7 +29,7 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/privacy")}
+            onClick={() => navigate("/me/privacy")}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>

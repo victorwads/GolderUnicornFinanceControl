@@ -18,7 +18,6 @@ import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 import MasterDetailShell, {
   MasterDetailPlaceholder,
-  ResponsiveMasterDetailIndex,
 } from '@layouts/core/MasterDetailShell';
 
 import LoginScreen from '@pages/auth/LoginScreen.page';
@@ -28,6 +27,8 @@ import CreateBankAccountPage from '@pages/accounts/CreateBankAccount.page';
 import MorePage from '@pages/settings/More.page';
 import ConnectedAccountsPage from '@pages/settings/ConnectedAccounts.page';
 import SettingsPage from '@pages/settings/Settings.page';
+import LanguagePage from '@pages/settings/Language.page';
+import DeveloperPage from '@pages/settings/Developer.page';
 import ResourceUsagePage from '@pages/settings/ResourceUsage.page';
 import HomePage from '@pages/core/Home.page';
 import TimelinePage from '@pages/core/Timeline.page';
@@ -59,6 +60,7 @@ export const privateRouter = createBrowserRouter([
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
       { path: 'assistant/:userId?', element: withRepos(<AiCallsScreen />, 'aiCalls') },
+      { path: 'ai-calls', element: withRepos(<AiCallsScreen />, 'aiCalls') },
       { path: 'me/linkedaccounts', element: <ConnectedAccountsPage /> },
       { path: 'me/resource-usage', element: withRepos(<ResourceUsagePage />,  'resourcesUse', 'aiCalls') },
       { path: 'me/privacy', element: <PrivacyPage /> },
@@ -66,26 +68,26 @@ export const privateRouter = createBrowserRouter([
       { path: 'me/privacy/export', element: <ExportDataPage /> },
       { path: 'settings', element: <MorePage /> },
       { path: 'settings/app', element: <SettingsPage /> },
+      { path: 'settings/language', element: <LanguagePage /> },
+      { path: 'settings/developer', element: <DeveloperPage /> },
       { path: 'old/settings', element: <SettingsScreen /> },
       { path: 'old/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
       {
         path: 'accounts',
-        element: <MasterDetailShell listPane={<AccountsListPage embedded />} />,
-        children: [
-          {
-            index: true,
-            element: (
-              <ResponsiveMasterDetailIndex
-                portraitContent={<AccountsListPage />}
-                landscapeContent={
-                  <MasterDetailPlaceholder
-                    title="Selecione uma conta"
-                    description="Escolha uma conta na lista para editar ou crie uma nova conta."
-                  />
-                }
+        element: (
+          <MasterDetailShell
+            basePath="/accounts"
+            listPane={<AccountsListPage embedded />}
+            idleContent={
+              <MasterDetailPlaceholder
+                title="Selecione uma conta"
+                description="Escolha uma conta na lista para editar ou crie uma nova conta."
               />
-            ),
-          },
+            }
+          />
+        ),
+        children: [
+          { index: true, element: <AccountsListPage /> },
           { path: 'create', element: <CreateBankAccountPage /> },
           { path: ':id', element: <CreateBankAccountPage /> },
         ],
@@ -97,22 +99,20 @@ export const privateRouter = createBrowserRouter([
       { path: '/accounts/transfers/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
       {
         path: 'creditcards',
-        element: <MasterDetailShell listPane={<CreditCardsListPage embedded />} />,
-        children: [
-          {
-            index: true,
-            element: (
-              <ResponsiveMasterDetailIndex
-                portraitContent={<CreditCardsListPage />}
-                landscapeContent={
-                  <MasterDetailPlaceholder
-                    title="Selecione um cartao"
-                    description="Escolha um cartao na lista para editar ou crie um novo cartao."
-                  />
-                }
+        element: (
+          <MasterDetailShell
+            basePath="/creditcards"
+            listPane={<CreditCardsListPage embedded />}
+            idleContent={
+              <MasterDetailPlaceholder
+                title="Selecione um cartao"
+                description="Escolha um cartao na lista para editar ou crie um novo cartao."
               />
-            ),
-          },
+            }
+          />
+        ),
+        children: [
+          { index: true, element: <CreditCardsListPage /> },
           { path: 'create', element: <CreateCreditCardPage /> },
           { path: ':id', element: <CreateCreditCardPage /> },
         ],
@@ -125,22 +125,20 @@ export const privateRouter = createBrowserRouter([
       { path: '/creditcards/transaction/:id/edit', element: <AddCreditCardTransactionPage /> },
       {
         path: 'categories',
-        element: <MasterDetailShell listPane={<CategoriesListPage embedded />} />,
-        children: [
-          {
-            index: true,
-            element: (
-              <ResponsiveMasterDetailIndex
-                portraitContent={<CategoriesListPage />}
-                landscapeContent={
-                  <MasterDetailPlaceholder
-                    title="Selecione uma categoria"
-                    description="Escolha uma categoria na lista para editar ou crie uma nova categoria."
-                  />
-                }
+        element: (
+          <MasterDetailShell
+            basePath="/categories"
+            listPane={<CategoriesListPage embedded />}
+            idleContent={
+              <MasterDetailPlaceholder
+                title="Selecione uma categoria"
+                description="Escolha uma categoria na lista para editar ou crie uma nova categoria."
               />
-            ),
-          },
+            }
+          />
+        ),
+        children: [
+          { index: true, element: <CategoriesListPage /> },
           { path: 'create', element: <CreateCategoryPage /> },
           { path: ':id', element: <CreateCategoryPage /> },
         ],

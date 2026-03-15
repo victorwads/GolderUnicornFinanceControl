@@ -1,7 +1,7 @@
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Input } from "@components/ui/input";
-import { ArrowLeft, AlertCircle, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2 } from "lucide-react";
+import { ArrowLeft, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2 } from "lucide-react";
 import { MicButton } from "@components/MicButton";
 import { TabBar } from "@components/TabBar";
 import { DataProgress } from "@components/DataProgress";
@@ -24,8 +24,16 @@ interface PrivacyProps {
 export default function Privacy({ model }: PrivacyProps) {
   const { 
     navigate, 
-    exportProgress, 
+    progress,
+    progressType,
     handleExport,
+    showDeleteDataDialog,
+    setShowDeleteDataDialog,
+    deleteDataPhrase,
+    deleteDataConfirmation,
+    setDeleteDataConfirmation,
+    openDeleteDataDialog,
+    confirmDeleteData,
   } = model;
 
   return (
@@ -65,7 +73,7 @@ export default function Privacy({ model }: PrivacyProps) {
                   variant="outline"
                   className="w-full justify-start h-16"
                   onClick={() => handleExport('json')}
-                  disabled={!!exportProgress}
+                  disabled={!!progress}
                 >
                   <FileJson className="h-5 w-5 mr-3" />
                   <div className="text-left">
@@ -78,7 +86,7 @@ export default function Privacy({ model }: PrivacyProps) {
                   variant="outline"
                   className="w-full justify-start h-16"
                   onClick={() => handleExport('csv')}
-                  disabled={!!exportProgress}
+                  disabled={!!progress}
                 >
                   <FileSpreadsheet className="h-5 w-5 mr-3" />
                   <div className="text-left">
@@ -94,6 +102,31 @@ export default function Privacy({ model }: PrivacyProps) {
                   Seus dados são seus e você pode exportá-los a qualquer momento.
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle>Excluir meus dados</CardTitle>
+              <CardDescription>
+                Apaga seus dados financeiros mantendo a autenticação como conta ativa.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                variant="outline"
+                className="w-full justify-start h-14 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={openDeleteDataDialog}
+                disabled={!!progress}
+              >
+                <Trash2 className="h-4 w-4 mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">Excluir apenas meus dados</p>
+                  <p className="text-xs text-muted-foreground">
+                    Faz backup automático antes de limpar seus dados locais e remotos.
+                  </p>
+                </div>
+              </Button>
             </CardContent>
           </Card>
 
@@ -148,7 +181,7 @@ export default function Privacy({ model }: PrivacyProps) {
                 variant="outline"
                 className="w-full justify-start h-14 text-destructive hover:text-destructive hover:bg-destructive/10"
                 onClick={() => navigate("/me/privacy/delete")}
-                disabled={!!exportProgress}
+                disabled={!!progress}
               >
                 <Trash2 className="h-4 w-4 mr-3" />
                 <div className="text-left">
@@ -161,7 +194,39 @@ export default function Privacy({ model }: PrivacyProps) {
         </div>
       </div>
 
-      <DataProgress progress={exportProgress} type="export" />
+      <DataProgress progress={progress} type={progressType} />
+
+      <AlertDialog open={showDeleteDataDialog} onOpenChange={setShowDeleteDataDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir apenas os seus dados</AlertDialogTitle>
+            <AlertDialogDescription>
+              Seus dados serão exportados antes da exclusão. Para continuar, digite a frase abaixo exatamente como aparece.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="space-y-3">
+            <div className="rounded-lg border border-border bg-muted/50 p-3 text-sm font-mono text-foreground">
+              {deleteDataPhrase}
+            </div>
+            <Input
+              value={deleteDataConfirmation}
+              onChange={(event) => setDeleteDataConfirmation(event.target.value)}
+              placeholder="Digite a frase de confirmação"
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteData}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir meus dados
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <MicButton />
       <TabBar />
@@ -171,6 +236,14 @@ export default function Privacy({ model }: PrivacyProps) {
 
 export interface PrivacyViewModel {
   navigate: (path: string) => void;
-  exportProgress: DataProgressInfo | null;
+  progress: DataProgressInfo | null;
+  progressType: "export" | "delete";
   handleExport: (format: 'json' | 'csv') => void;
+  showDeleteDataDialog: boolean;
+  setShowDeleteDataDialog: (open: boolean) => void;
+  deleteDataPhrase: string;
+  deleteDataConfirmation: string;
+  setDeleteDataConfirmation: (value: string) => void;
+  openDeleteDataDialog: () => void;
+  confirmDeleteData: () => void;
 }

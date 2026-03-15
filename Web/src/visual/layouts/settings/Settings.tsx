@@ -1,7 +1,7 @@
 import { Slider } from "@components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { Label } from "@components/ui/label";
-import { ChevronRight, Mic, Zap, Languages, ArrowLeft, Palette } from "lucide-react";
+import { Check, ChevronRight, Mic, Zap, Languages, ArrowLeft, Palette } from "lucide-react";
 import { Card } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import {
@@ -20,6 +20,12 @@ interface SettingsProps {
 
 export default function Settings({ model }: SettingsProps) {
   const { navigate, monthStartDay, setMonthStartDay, monthNameMode, setMonthNameMode } = model;
+  const densityOptions = [
+    { id: 1, name: "Compacto", description: "87.5%" },
+    { id: 2, name: "Normal", description: "100%" },
+    { id: 3, name: "Confortável", description: "112.5%" },
+    { id: 4, name: "Espaçoso", description: "125%" },
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-36">
@@ -61,7 +67,7 @@ export default function Settings({ model }: SettingsProps) {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
-                    <ThemeCustomizer applyImmediately={true} />
+                    <ThemeCustomizer applyImmediately={true} showDensity={false} />
                   </AccordionContent>
                 </Card>
               </AccordionItem>
@@ -78,10 +84,36 @@ export default function Settings({ model }: SettingsProps) {
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-medium text-foreground">Idioma</p>
-                    <p className="text-xs text-muted-foreground">Escolher idioma do app</p>
+                    <p className="text-xs text-muted-foreground">{model.currentLanguageLabel}</p>
                   </div>
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </div>
+            </Card>
+
+            <Card className="p-4 space-y-4 border-border/50">
+              <div>
+                <p className="text-sm font-medium text-foreground">Densidade</p>
+                <p className="text-xs text-muted-foreground">Ajuste o espaço visual do app.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {densityOptions.map((option) => (
+                  <Card
+                    key={option.id}
+                    className={`cursor-pointer p-4 transition-all hover:border-primary ${
+                      model.density === option.id ? "border-primary bg-primary/5" : "border-border/50"
+                    }`}
+                    onClick={() => model.setDensity(option.id)}
+                  >
+                    <div className="flex flex-col items-center gap-2 text-center">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{option.name}</span>
+                        {model.density === option.id && <Check className="h-4 w-4 text-primary" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{option.description}</p>
+                    </div>
+                  </Card>
+                ))}
               </div>
             </Card>
           </div>
@@ -158,8 +190,8 @@ export default function Settings({ model }: SettingsProps) {
                 <RadioGroup value={monthNameMode} onValueChange={setMonthNameMode} className="space-y-3">
                   <Card className="p-3 border-border/50">
                     <div className="flex items-start gap-3">
-                      <RadioGroupItem value="current" id="current" className="mt-1" />
-                      <Label htmlFor="current" className="text-sm cursor-pointer flex-1">
+                      <RadioGroupItem value="start" id="start" className="mt-1" />
+                      <Label htmlFor="start" className="text-sm cursor-pointer flex-1">
                         <div className="font-medium text-foreground mb-1">Mês atual ao dia escolhido</div>
                         <div className="text-xs text-muted-foreground">
                           Dia 15/10 em diante será chamado de Outubro. Antes de 15/10 será chamado Setembro.
@@ -200,4 +232,8 @@ export interface SettingsViewModel {
   setMonthStartDay: (value: number[]) => void;
   monthNameMode: string;
   setMonthNameMode: (value: string) => void;
+  currentLanguageLabel: string;
+  density: number;
+  setDensity: (value: number) => void;
+  syncLanguage: (value: string) => void;
 }

@@ -9,7 +9,7 @@ import {
   ToSettingsRoute,
   MoreViewModel
 } from "@layouts/core/More";
-import { Calendar, CreditCard, FileText, Link2, Receipt, Sparkles, Wallet, Lock } from "lucide-react";
+import { Calendar, CreditCard, FileCode2, FileText, Link2, Receipt, Sparkles, Wallet, Lock, Bot } from "lucide-react";
 
 export function useMoreModel(): MoreViewModel {
   const router = useNavigate();
@@ -25,7 +25,7 @@ export function useMoreModel(): MoreViewModel {
     }
   }
 
-  const { version, checkForUpdates } = useAppUpdates();
+  const { version, checkForUpdates, checkingForUpdate } = useAppUpdates();
   const user = getCurrentUser();
 
   return {
@@ -49,6 +49,7 @@ export function useMoreModel(): MoreViewModel {
       {
         title: "Minha Conta",
         items: [
+          { label: "Assistente", icon: Bot, route: "/assistant" },
           { label: "Contas Conectadas", icon: Link2, route: "/me/linkedaccounts" },
           { label: "Uso de Recursos", icon: FileText, route: "/me/resource-usage" },
           { label: "Privacidade e Segurança", icon: Lock, route: "/me/privacy" },
@@ -57,12 +58,15 @@ export function useMoreModel(): MoreViewModel {
       {
         title: "Developer Options / Beta",
         items: [
+          { label: "AI Calls", icon: Bot, route: "/ai-calls" },
           { label: "Subscrições", icon: Sparkles, route: "/subscriptions" },
+          { label: "Utilitários de Desenvolvedor", icon: FileCode2, route: "/settings/developer" },
         ],
       },
     ],
     navigate,
     handleLogout: clearSession,
     handleUpdateCheck: checkForUpdates,
+    checkingForUpdate,
   };
 }
