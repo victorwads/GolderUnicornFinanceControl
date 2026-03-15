@@ -65,10 +65,10 @@ export default function Timeline({ model }: TimelineProps) {
     <div className="max-w-7xl mx-auto">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-[4px] border-b border-border/50">
         <div className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-bold text-foreground">{texts.title}</h1>
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 gap-y-2 max-[720px]:grid-cols-[1fr_auto]">
+            <h1 className="text-lg font-bold text-foreground shrink-0 justify-self-start">{texts.title}</h1>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center justify-center gap-1 justify-self-center max-[720px]:col-span-2 max-[720px]:row-start-2 max-[720px]:w-full max-[720px]:pt-1">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToPreviousMonth}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -81,7 +81,7 @@ export default function Timeline({ model }: TimelineProps) {
               </Button>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0 justify-self-end">
               <Button
                 variant="ghost"
                 size="icon"
