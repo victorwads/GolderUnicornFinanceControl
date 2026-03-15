@@ -189,6 +189,12 @@ export default interface VisualModuleTranslation extends Translation {
       exportSuccessCount: (count: number) => string;
       exportErrorCount: (count: number) => string;
       exportFileLabel: (fileName: string) => string;
+      importJsonTitle: string;
+      importJsonDescription: string;
+      importSuccessTitle: string;
+      importSuccessCount: (count: number) => string;
+      importFileLabel: (fileName: string) => string;
+      importDomainLabel: (domain: string) => string;
       deleteDataTitle: string;
       deleteDataDescription: string;
       deleteOnlyDataTitle: string;
@@ -210,6 +216,34 @@ export default interface VisualModuleTranslation extends Translation {
     assistant: {
       aiCallsTitle: string;
       aiCallsSubtitle: string;
+      historyOverviewLabel: string;
+      historyOverviewDescription: string;
+      userModeLabel: string;
+      userModeShort: string;
+      userModeDescription: string;
+      developerModeLabel: string;
+      developerModeShort: string;
+      developerModeDescription: string;
+      costLabel: string;
+      actionsLabel: string;
+      tokenLabel: string;
+      summaryLabel: string;
+      finishReasonLabel: string;
+      inputTokensLabel: string;
+      outputTokensLabel: string;
+      resumeConversationTitle: string;
+      resumeConversationDescription: string;
+      resumeConversationAction: string;
+      systemLabel: string;
+      userLabel: string;
+      assistantLabel: string;
+      actionBadgeLabel: string;
+      developerDetailsLabel: string;
+      toolNameLabel: string;
+      argumentsPreviewLabel: string;
+      resultPreviewLabel: string;
+      rawArgumentsLabel: string;
+      rawResultLabel: string;
     };
   };
 }

@@ -14,6 +14,7 @@ import { clearAssistantOnboardingDismissal } from "@features/assistant/utils/onb
 import { dispatchAssistantEvent } from "@features/assistant/utils/assistantEvents";
 
 const RESAVE_CHUNK_SIZE = 100;
+const IMPORT_CHUNK_SIZE = 250;
 const DELETE_DATA_IGNORED_REPOS: RepoName[] = ["banks"];
 
 export type ExportFormat = "json" | "csv" | "all";
@@ -27,6 +28,12 @@ export type ExportUserDataResult = {
   fileName: string;
   exportedDomains: RepoName[];
   failedDomains: ExportFailure[];
+};
+
+export type ImportUserDataResult = {
+  domain: RepoName;
+  fileName: string;
+  importedCount: number;
 };
 
 export async function exportUserData(
@@ -130,6 +137,58 @@ export async function deleteAllUserData(setProgress?: ProgressUpdater): Promise<
     }
 
     await clearSession();
+  } finally {
+    setProgress?.(null);
+  }
+}
+
+export async function importUserData(
+  file: File,
+  setProgress?: ProgressUpdater,
+): Promise<ImportUserDataResult> {
+  const allRepos = getRepositories();
+  const repoName = getRepoNameFromImportFile(file.name, Object.keys(allRepos) as RepoName[]);
+  const repo = allRepos[repoName];
+  const text = await file.text();
+  const parsed = JSON.parse(text, importJsonReviver) as DocumentModel[];
+  const items = Array.isArray(parsed) ? parsed : [parsed];
+
+  try {
+    if (!repo.isReady) {
+      await repo.waitUntilReady();
+    }
+
+    setProgress?.({
+      domain: repoName,
+      current: 1,
+      max: 1,
+      sub: {
+        current: 0,
+        max: items.length,
+      },
+    });
+
+    let importedCount = 0;
+    while (importedCount < items.length) {
+      const chunk = items.slice(importedCount, importedCount + IMPORT_CHUNK_SIZE);
+      await repo.saveAll(chunk as any[]);
+      importedCount += chunk.length;
+      setProgress?.({
+        domain: repoName,
+        current: 1,
+        max: 1,
+        sub: {
+          current: importedCount,
+          max: items.length,
+        },
+      });
+    }
+
+    return {
+      domain: repoName,
+      fileName: file.name,
+      importedCount,
+    };
   } finally {
     setProgress?.(null);
   }
@@ -259,4 +318,23 @@ function formatExportError(error: unknown): string {
     return error;
   }
   return "Unknown export error";
+}
+
+function getRepoNameFromImportFile(fileName: string, repoNames: RepoName[]): RepoName {
+  const normalized = fileName.replace(/\.json$/i, "") as RepoName;
+  if (!repoNames.includes(normalized)) {
+    throw new Error(`Unknown repository file: ${fileName}`);
+  }
+  return normalized;
+}
+
+function importJsonReviver(_key: string, value: unknown): unknown {
+  if (typeof value === "string" && isIsoDateString(value)) {
+    return new Date(value);
+  }
+  return value;
+}
+
+function isIsoDateString(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value);
 }

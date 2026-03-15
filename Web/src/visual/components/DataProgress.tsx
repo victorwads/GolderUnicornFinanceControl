@@ -1,6 +1,6 @@
 import { Card } from "@components/ui/card";
 import { Progress } from "@components/ui/progress";
-import { FileDown, Trash2, Loader2 } from "lucide-react";
+import { FileDown, Trash2, Loader2, Upload } from "lucide-react";
 
 export interface DataProgressInfo {
   domain: string;
@@ -11,14 +11,18 @@ export interface DataProgressInfo {
 
 type DataProgressProps = {
   progress?: DataProgressInfo | null;
-  type?: "export" | "delete";
+  type?: "export" | "delete" | "import";
 }
 
 export const DataProgress = ({ progress, type = "export" }: DataProgressProps) => {
   if (!progress) return null;
 
-  const Icon = type === "export" ? FileDown : Trash2;
-  const title = type === "export" ? "Exportando dados..." : "Excluindo dados...";
+  const Icon = type === "export" ? FileDown : type === "import" ? Upload : Trash2;
+  const title = type === "export"
+    ? "Exportando dados..."
+    : type === "import"
+      ? "Importando dados..."
+      : "Excluindo dados...";
   const mainPercentage = (progress.current / progress.max) * 100;
   const subPercentage = progress.sub ? (progress.sub.current / progress.sub.max) * 100 : 0;
 

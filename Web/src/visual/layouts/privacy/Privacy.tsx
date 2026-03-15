@@ -1,11 +1,12 @@
+import { useRef } from "react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Input } from "@components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
-import { ArrowLeft, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2, Upload, AlertCircle, CheckCircle2 } from "lucide-react";
 import { DataProgress } from "@components/DataProgress";
 import type { DataProgressInfo } from "@components/DataProgress";
-import type { ExportUserDataResult } from "@features/settings/settingsActions";
+import type { ExportUserDataResult, ImportUserDataResult } from "@features/settings/settingsActions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,12 +24,16 @@ interface PrivacyProps {
 
 export default function Privacy({ model }: PrivacyProps) {
   const LocalLang = Lang.visual.privacy;
+  const importInputRef = useRef<HTMLInputElement | null>(null);
   const { 
     navigate, 
+    isDeveloperMode,
     progress,
     progressType,
+    lastImportResult,
     lastExportResult,
     handleExport,
+    handleImportFile,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
     deleteDataPhrase,
@@ -97,11 +102,49 @@ export default function Privacy({ model }: PrivacyProps) {
                 </Button>
               </div>
 
+              {isDeveloperMode && (
+                <>
+                  <input
+                    ref={importInputRef}
+                    type="file"
+                    accept="application/json,.json"
+                    className="hidden"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null;
+                      void handleImportFile(file);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                  <Button
+                    variant="secondary"
+                    className="w-full justify-start h-16"
+                    onClick={() => importInputRef.current?.click()}
+                    disabled={!!progress}
+                  >
+                    <Upload className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <p className="font-medium">{LocalLang.importJsonTitle}</p>
+                      <p className="text-xs text-muted-foreground">{LocalLang.importJsonDescription}</p>
+                    </div>
+                  </Button>
+                </>
+              )}
+
               <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
                   {LocalLang.exportHint}
                 </p>
               </div>
+
+              {lastImportResult && (
+                <ImportResultSummary
+                  result={lastImportResult}
+                  title={LocalLang.importSuccessTitle}
+                  countLabel={LocalLang.importSuccessCount(lastImportResult.importedCount)}
+                  fileLabel={LocalLang.importFileLabel(lastImportResult.fileName)}
+                  domainLabel={LocalLang.importDomainLabel(lastImportResult.domain)}
+                />
+              )}
 
               {lastExportResult && (
                 <ExportResultSummary
@@ -241,10 +284,13 @@ export default function Privacy({ model }: PrivacyProps) {
 
 export interface PrivacyViewModel {
   navigate: (path: string) => void;
+  isDeveloperMode: boolean;
   progress: DataProgressInfo | null;
-  progressType: "export" | "delete";
+  progressType: "export" | "delete" | "import";
+  lastImportResult: ImportUserDataResult | null;
   lastExportResult: ExportUserDataResult | null;
   handleExport: (format: 'json' | 'csv') => void;
+  handleImportFile: (file: File | null) => Promise<void>;
   showDeleteDataDialog: boolean;
   setShowDeleteDataDialog: (open: boolean) => void;
   deleteDataPhrase: string;
@@ -252,6 +298,32 @@ export interface PrivacyViewModel {
   setDeleteDataConfirmation: (value: string) => void;
   openDeleteDataDialog: () => void;
   confirmDeleteData: () => void;
+}
+
+function ImportResultSummary({
+  result,
+  title,
+  countLabel,
+  fileLabel,
+  domainLabel,
+}: {
+  result: ImportUserDataResult;
+  title: string;
+  countLabel: string;
+  fileLabel: string;
+  domainLabel: string;
+}) {
+  return (
+    <Alert>
+      <CheckCircle2 className="h-4 w-4" />
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription className="space-y-2">
+        <p>{countLabel}</p>
+        <p>{domainLabel}</p>
+        <p>{fileLabel}</p>
+      </AlertDescription>
+    </Alert>
+  );
 }
 
 function ExportResultSummary({

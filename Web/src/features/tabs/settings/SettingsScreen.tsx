@@ -15,7 +15,7 @@ import { SettingsSection } from './sections/types';
 import AppInfoSection from './sections/AppInfoSection';
 
 
-const DevOptions = window.isDevelopment || ProjectStorage.get('DEV') === 'true';
+const DevOptions = window.isDevelopment;
 
 const SettingsScreen = () => {
 

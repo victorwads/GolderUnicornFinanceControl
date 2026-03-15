@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import type { PrivacyViewModel } from "@layouts/privacy/Privacy";
 import type { DataProgressInfo } from "@components/DataProgress";
 import { useToast } from "@hooks/use-toast";
+import { ProjectStorage } from "@utils/ProjectStorage";
 import {
   deleteAllUserData,
   exportUserData,
+  importUserData,
+  type ImportUserDataResult,
   type ExportUserDataResult,
 } from "@features/settings/settingsActions";
 
@@ -13,7 +16,8 @@ export function usePrivacyModel(): PrivacyViewModel {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [progress, setProgress] = useState<DataProgressInfo | null>(null);
-  const [progressType, setProgressType] = useState<"export" | "delete">("export");
+  const [progressType, setProgressType] = useState<"export" | "delete" | "import">("export");
+  const [lastImportResult, setLastImportResult] = useState<ImportUserDataResult | null>(null);
   const [lastExportResult, setLastExportResult] = useState<ExportUserDataResult | null>(null);
   const [showDeleteDataDialog, setShowDeleteDataDialog] = useState(false);
   const [deleteDataConfirmation, setDeleteDataConfirmation] = useState("");
@@ -49,12 +53,38 @@ export function usePrivacyModel(): PrivacyViewModel {
     }
   };
 
+  const handleImportFile = async (file: File | null) => {
+    if (!file) return;
+
+    try {
+      setProgressType("import");
+      setLastImportResult(null);
+      const result = await importUserData(file, setProgress);
+      setLastImportResult(result);
+      toast({
+        title: "Importação concluída",
+        description: `${result.importedCount} item(ns) importados de ${result.domain}.`,
+      });
+    } catch (error) {
+      console.error("Failed to import data", error);
+      setLastImportResult(null);
+      toast({
+        variant: "destructive",
+        title: "Falha ao importar dados",
+        description: error instanceof Error ? error.message : "Import failed",
+      });
+    }
+  };
+
   return {
     navigate,
+    isDeveloperMode: window.isDevelopment,
     progress,
     progressType,
+    lastImportResult,
     lastExportResult,
     handleExport,
+    handleImportFile,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
     deleteDataPhrase,
