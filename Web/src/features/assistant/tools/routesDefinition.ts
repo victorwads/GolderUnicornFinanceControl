@@ -79,7 +79,7 @@ export const routesDefinition: RoutesDefinition[] = [
     description: 'Settings and application configuration',
   },
   {
-    url: '/ai-calls',
+    url: '/assistant',
     description: 'View conversations history with the AI assistant with information about tokens used and cost',
   },
   {

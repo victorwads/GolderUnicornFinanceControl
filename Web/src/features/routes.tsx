@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 
 import { withRepos } from '@componentsDeprecated/WithRepo';
 
@@ -8,7 +8,6 @@ import TimelineImportScreen from '@features/tabs/timeline/TimelineImportScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
 import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
-import AiCallsScreen from '@features/assistant/AiCallsScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
@@ -42,6 +41,8 @@ import CreateCategoryPage from '@pages/categories/CreateCategory.page';
 import CreditCardsListPage from '@pages/credit-cards/CreditCardsList.page';
 import CreateCreditCardPage from '@pages/credit-cards/CreateCreditCard.page';
 import AddCreditCardTransactionPage from '@pages/credit-cards/AddCreditCardTransaction.page';
+import AssistantHistoryPage from '@pages/assistant/AssistantHistory.page';
+import AssistantConversationPage from '@pages/assistant/AssistantConversation.page';
 
 export const privateRouter = createBrowserRouter([
   {
@@ -82,8 +83,22 @@ export const privateRouter = createBrowserRouter([
       { path: 'recurrents', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentTransactions', 'accounts', 'creditCards', 'categories') },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
-      { path: 'assistant/:userId?', element: withRepos(<AiCallsScreen />, 'aiCalls') },
-      { path: 'ai-calls', element: withRepos(<AiCallsScreen />, 'aiCalls') },
+      {
+        path: 'assistant',
+        element: withRepos(
+          <MasterDetailShell
+            basePath="/assistant"
+            listPane={<AssistantHistoryPage embedded />}
+          />,
+          'aiCalls',
+          'resourcesUse'
+        ),
+        children: [
+          { index: true, element: <AssistantHistoryPage /> },
+          { path: ':conversationId', element: <AssistantConversationPage /> },
+        ],
+      },
+      { path: 'ai-calls', element: <Navigate to="/assistant" replace /> },
       { path: 'me/linkedaccounts', element: <ConnectedAccountsPage /> },
       { path: 'me/resource-usage', element: withRepos(<ResourceUsagePage />,  'resourcesUse', 'aiCalls') },
       { path: 'me/privacy', element: <PrivacyPage /> },

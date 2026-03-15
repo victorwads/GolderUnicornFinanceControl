@@ -1,14 +1,31 @@
-import { ArrowLeft, Bot, ChevronRight, Search, Sparkles, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Bot, ChevronRight, Cpu, TriangleAlert } from "lucide-react";
 
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
+import { Progress } from "@components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@components/ui/select";
 import { cn } from "@lib/utils";
 
-import type { MockAssistantConversation } from "@pages/assistant/mockAssistantHistory";
+import type { AssistantHistoryConversation } from "@pages/assistant/assistantHistoryAdapter";
 
 export default function AssistantHistoryList({
-  model: { navigate, conversations, selectedConversationId },
+  model: {
+    navigate,
+    conversations,
+    selectedConversationId,
+    monthlyUsage,
+    isDeveloperMode,
+    modelOptions,
+    selectedModel,
+    onModelChange,
+  },
   embedded = false,
 }: {
   model: AssistantHistoryListViewModel;
@@ -35,25 +52,47 @@ export default function AssistantHistoryList({
 
       <div className="space-y-4 p-4 animate-fade-in">
         <Card className="border-border/50 bg-gradient-card p-4">
-          <div className="grid gap-3 md:grid-cols-3">
-            <InsightCard
-              icon={Bot}
-              label={LocalLang.historyOverviewLabel}
-              value={String(conversations.length)}
-              description={LocalLang.historyOverviewDescription}
-            />
-            <InsightCard
-              icon={Sparkles}
-              label={LocalLang.userModeLabel}
-              value={LocalLang.userModeShort}
-              description={LocalLang.userModeDescription}
-            />
-            <InsightCard
-              icon={Search}
-              label={LocalLang.developerModeLabel}
-              value={LocalLang.developerModeShort}
-              description={LocalLang.developerModeDescription}
-            />
+          <div className="space-y-4 rounded-2xl border border-border/50 bg-background/80 p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                  {LocalLang.monthlyBudgetLabel}
+                </p>
+                <p className="text-lg font-semibold text-foreground">
+                  {formatCurrencyBRL(monthlyUsage.currentCostBRL)} / {formatCurrencyBRL(monthlyUsage.limitBRL)}
+                </p>
+              </div>
+              {isDeveloperMode && (
+                <div className="w-full max-w-[240px] space-y-2">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    <Cpu className="h-3.5 w-3.5" />
+                    {LocalLang.modelSelectorLabel}
+                  </div>
+                  <Select value={selectedModel} onValueChange={onModelChange}>
+                    <SelectTrigger className="h-10 bg-card">
+                      <SelectValue placeholder={LocalLang.modelSelectorLabel} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {modelOptions.map((model) => (
+                        <SelectItem key={model} value={model}>
+                          {model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Progress value={monthlyUsage.progressPercent} className="h-2" />
+              <p className="text-sm text-muted-foreground">{LocalLang.monthlyBudgetDescription}</p>
+              {monthlyUsage.exceededAmountBRL !== null && (
+                <p className="text-xs font-medium text-destructive">
+                  {LocalLang.monthlyBudgetExceeded(formatCurrencyBRL(monthlyUsage.exceededAmountBRL))}
+                </p>
+              )}
+            </div>
           </div>
         </Card>
 
@@ -109,35 +148,20 @@ export default function AssistantHistoryList({
   );
 }
 
-function InsightCard({
-  icon: Icon,
-  label,
-  value,
-  description,
-}: {
-  icon: typeof Bot;
-  label: string;
-  value: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-border/50 bg-background/80 p-4">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="space-y-1">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
-        <p className="text-lg font-semibold text-foreground">{value}</p>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  );
-}
-
 export interface AssistantHistoryListViewModel {
   navigate: (route: AssistantHistoryRoute) => void;
-  conversations: MockAssistantConversation[];
+  conversations: AssistantHistoryConversation[];
   selectedConversationId?: string;
+  monthlyUsage: {
+    currentCostBRL: number;
+    limitBRL: number;
+    progressPercent: number;
+    exceededAmountBRL: number | null;
+  };
+  isDeveloperMode: boolean;
+  modelOptions: string[];
+  selectedModel: string;
+  onModelChange: (model: string) => void;
 }
 
 export class AssistantHistoryRoute {}
@@ -148,4 +172,13 @@ export class ToConversationRoute extends AssistantHistoryRoute {
   constructor(public conversationId: string) {
     super();
   }
+}
+
+function formatCurrencyBRL(value: number) {
+  return value.toLocaleString(CurrentLangInfo.short, {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: value > 1 ? 2 : 4,
+    maximumFractionDigits: 4,
+  });
 }
