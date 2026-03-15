@@ -87,6 +87,8 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
   else
     await encryptor.initWithPass(uid, true);
 
+  resetWaiter.done();
+
   const toWait = Object.entries(instances).map(([, repo]) => {
     if (repo instanceof RepositoryWithCrypt) repo.config(encryptor);
     const init = Date.now();
@@ -99,16 +101,17 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
 }
 
 export function getEncryptor(): Encryptor {
-  if (!repositorieInstances) throw new Error('Repositories not initialized. Call resetRepositories() first.');
+  if (!repositorieInstances) throw new Error('getEncryptor not initialized. Call resetRepositories() first.');
   return repositorieInstances?.encryptor;
 }
 
 export function clearRepositories(): void {
+  resetWaiter.reset();
   repositorieInstances = null;
 }
 
 export default function getRepositories(): Repositories {
-  if (!repositorieInstances) throw new Error('Repositories not initialized. Call resetRepositories() first.');
+  if (!repositorieInstances) throw new Error('getRepositories not initialized. Call resetRepositories() first.');
   return repositorieInstances.instances;
 }
 
@@ -126,6 +129,7 @@ export function getRepositoriesWhenReady(): InitedRepositories {
 }
 
 export async function waitUntilReady(...names: RepoName[]): Promise<void> {
+  await resetWaiter.wait();
   const repos = getRepositories();
   const toWait = names.filter(name => !repos[name].isReady)
   if (toWait.length === 0) return;
@@ -145,3 +149,31 @@ if (user) {
   const sessionHash = CryptoPassRepository.getSyncHash(user.uid);
   if (sessionHash) resetRepositories(user.uid, sessionHash);
 }
+
+class PromiseWaiter {
+  private promise: Promise<void>;
+  private finish: () => void = () => {};
+
+  constructor() {
+    this.promise = this.reset();
+  }
+
+  reset() {
+    this.done();
+    this.promise = new Promise<void>((resolve) => {
+      this.finish = resolve;
+    });
+    return this.promise;
+  }
+
+  async wait() {
+    return await this.promise;
+  }
+  
+  done() {
+    console.log("PromiseWaiter done");
+    this.finish();
+  }
+}
+
+const resetWaiter = new PromiseWaiter();

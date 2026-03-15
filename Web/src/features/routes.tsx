@@ -47,13 +47,10 @@ import AssistantConversationPage from '@pages/assistant/AssistantConversation.pa
 export const privateRouter = createBrowserRouter([
   {
     path: '/', element: withRepos(<TabScreen />, 'user'), children: [
-      { path: '/', element: <HomePage />},
+      { path: '/', element: <HomePage /> },
       { path: 'old/dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: <TimelinePage /> },
-      { path: 'timeline/import', element: withRepos(
-        <TimelineImportScreen />,
-        'accountTransactions', 'creditCardsTransactions', 'creditCards', 'accounts'
-      ) },
+      { path: 'timeline/import', element: <TimelineImportScreen /> },
       {
         path: 'timeline',
         element: (
@@ -90,16 +87,14 @@ export const privateRouter = createBrowserRouter([
             basePath="/assistant"
             listPane={<AssistantHistoryPage embedded />}
           />,
-          'aiCalls',
-          'resourcesUse'
+          'aiCalls', 'resourcesUse'
         ),
         children: [
           { index: true, element: <AssistantHistoryPage /> },
           { path: ':conversationId', element: <AssistantConversationPage /> },
         ],
       },
-      { path: 'ai-calls', element: <Navigate to="/assistant" replace /> },
-      { path: 'me/linkedaccounts', element: <ConnectedAccountsPage /> },
+      { path: 'me/linkedaccounts', element: withRepos(<ConnectedAccountsPage />, 'user') },
       { path: 'me/resource-usage', element: withRepos(<ResourceUsagePage />,  'resourcesUse', 'aiCalls') },
       { path: 'me/privacy', element: <PrivacyPage /> },
       { path: 'me/privacy/delete', element: <DeleteAccountPage /> },
@@ -112,11 +107,12 @@ export const privateRouter = createBrowserRouter([
       { path: 'old/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
       {
         path: 'accounts',
-        element: (
+        element: withRepos(
           <MasterDetailShell
             basePath="/accounts"
             listPane={<AccountsListPage embedded />}
-          />
+          />,
+          'accounts', 'banks'
         ),
         children: [
           { index: true, element: <AccountsListPage /> },
@@ -126,11 +122,12 @@ export const privateRouter = createBrowserRouter([
       },
       {
         path: 'creditcards',
-        element: (
+        element: withRepos(
           <MasterDetailShell
             basePath="/creditcards"
             listPane={<CreditCardsListPage embedded />}
-          />
+          />,
+          'creditCards', 'banks', 'accounts'
         ),
         children: [
           { index: true, element: <CreditCardsListPage /> },
@@ -144,11 +141,12 @@ export const privateRouter = createBrowserRouter([
       ) },
       {
         path: 'categories',
-        element: (
+        element: withRepos(
           <MasterDetailShell
             basePath="/categories"
             listPane={<CategoriesListPage embedded />}
-          />
+          />,
+          'categories'
         ),
         children: [
           { index: true, element: <CategoriesListPage /> },
@@ -158,8 +156,8 @@ export const privateRouter = createBrowserRouter([
       },
       { path: '/groceries/create', element: <GroceryItemForm /> },
       { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
-      { path: '/recurrents/create', element: <CreateRecurrentPage /> },
-      { path: '/recurrents/:id', element: <CreateRecurrentPage /> },
+      { path: '/recurrents/create', element: withRepos(<CreateRecurrentPage />, 'recurrentTransactions') },
+      { path: '/recurrents/:id', element: withRepos(<CreateRecurrentPage />, 'recurrentTransactions') },
       { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
     ]
   },

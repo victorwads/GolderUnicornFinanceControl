@@ -1,13 +1,12 @@
 import './App.css';
-import { useEffect, useState } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState, useCallback } from 'react';
+import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { RouterProvider } from 'react-router-dom';
 
-import getRepositories, { 
+import getRepositories, {
   clearRepositories, CryptoPassRepository, getCurrentRepositoryUserId, resetRepositories,
   User
 } from '@repositories';
-import { useCssVars } from '@componentsDeprecated/Vars';
 import { clearServices, resetServices } from '@services';
 import { getCurrentUser, saveUser } from '@configs';
 
@@ -18,56 +17,69 @@ import { FloatingProgress } from '@componentsDeprecated/progress/FloatingProgres
 import AppLoading from '@layouts/core/AppLoading';
 
 let userID = getCurrentRepositoryUserId();
+let callBack: (needPass: boolean, dbUser: User | null) => void = () => {};
+let progressCallback: (progress: Progress | null) => void = () => {};
+
+async function initUser(currentUser: FirebaseUser) {
+    if (currentUser.uid !== userID) {
+      userID = currentUser.uid;
+      const passRepository = new CryptoPassRepository(currentUser.uid, progress => progressCallback(progress));
+      const savedHash = await passRepository.getHash();
+
+      const repos = await resetRepositories(currentUser.uid, savedHash);
+      resetServices(currentUser.uid, repos);
+
+      const user = await getRepositories().user.getUserData();
+      callBack(!savedHash, user);
+
+      if(savedHash) {
+        if(!user.fullyMigrated) {
+          passRepository.updateEncryption(savedHash)
+        }
+      }
+    }
+}
 
 function App() {
 
   const [progress, setProgress] = useState<Progress | null>();
-  const [user, setUser] = useState(() => getCurrentUser())
+  const [firebaseUser, setFirebaseUser] = useState(() => getCurrentUser())
   const [dbUser, setDbUser] = useState<User | null>(null)
-  const [needPass, setNeedPass] = useState(!CryptoPassRepository.isAvailable(user?.uid))
-  const { theme, density } = useCssVars();
+  const [needPass, setNeedPass] = useState(() => !CryptoPassRepository.isAvailable(firebaseUser?.uid));
+
+  callBack = (needPass, dbUser) => {
+    setNeedPass(needPass);
+    setDbUser(dbUser);
+  }
+  progressCallback = (progress) => {
+    setProgress(progress);
+  }
+  if (firebaseUser) initUser(firebaseUser);
 
   useEffect(() => {
-    onAuthStateChanged(getAuth(), async (currentUser) => {
+    return onAuthStateChanged(getAuth(), async (currentUser) => {
       if (currentUser) {
-        if (currentUser.uid !== userID) {
-          userID = currentUser.uid;
-          const passRepository = new CryptoPassRepository(currentUser.uid, setProgress);
-          const savedHash = await passRepository.getHash();
-
-          const repos = await resetRepositories(currentUser.uid, savedHash);
-          resetServices(currentUser.uid, repos);
-
-          const user = await getRepositories().user.getUserData();
-          setDbUser(user);
-          setNeedPass(!savedHash);
-
-          if(savedHash) {
-            if(!user.fullyMigrated) {
-              passRepository.updateEncryption(savedHash)
-            }
-          }
-        }
+        initUser(currentUser);
       } else {
         userID = null;
-        setNeedPass(false);
+        callBack(true, null);
         clearRepositories();
         clearServices();
       }
 
       saveUser(currentUser);
-      setUser(currentUser)
+      setFirebaseUser(currentUser)
     })
-  }, [])
+  }, [initUser])
 
-  if (user && needPass && CryptoPassRepository.hasToken(user.uid))
+  if (firebaseUser && needPass && (CryptoPassRepository.hasToken(firebaseUser.uid) || !dbUser))
     return <AppLoading />;
 
   return <>
     <FloatingProgress progress={progress} />
-    {needPass && user && dbUser
-      ? <CryptoPassSetupScreen user={dbUser} onProgress={setProgress} onCompleted={() => setNeedPass(false)} />
-      : <RouterProvider router={user ? privateRouter : publicRouter} />
+    {firebaseUser && needPass
+      ? <CryptoPassSetupScreen user={dbUser || (() => { throw new Error("DB User is null") })()} onProgress={setProgress} onCompleted={() => setNeedPass(false)} />
+      : <RouterProvider router={firebaseUser ? privateRouter : publicRouter} />
     }
   </>;
 }
