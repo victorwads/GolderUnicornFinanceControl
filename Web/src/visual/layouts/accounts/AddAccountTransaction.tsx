@@ -7,12 +7,11 @@ import { SelectList, SelectListOption } from "@components/ui/select-list";
 import { Checkbox } from "@components/ui/checkbox";
 import { TagsInput } from "@components/ui/tags-input";
 import { DescriptionField } from "@components/ui/description-field";
-import { categories } from "@/data/categories";
 
 export default function AddAccountTransaction({
   model: {
-    isEdit, isIncome, navigate, register, handleSubmit, setValue, watch, accounts, onSubmit
-  }
+    isEdit, isIncome, navigate, register, handleSubmit, setValue, watch, accounts, onSubmit, categories,
+  },
 }: {
   model: AccountTransactionViewModel
 }) {
@@ -136,6 +135,7 @@ export interface AccountTransactionViewModel {
   isIncome: boolean;
   register: any;
   accounts: SelectListOption[];
+  categories: SelectListOption[];
   handleSubmit: (onValid: (data: AccountTransactionForm) => void) => (e: any) => void;
   onSubmit: (data: AccountTransactionForm) => void;
   setValue: (field: keyof AccountTransactionForm, value: any) => void;

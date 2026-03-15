@@ -110,7 +110,7 @@ const CreditCardsInvoices: React.FC = () => {
     </div>
     {id && (
       <div className="FloatButton">
-        <Link to={`/creditcards/registry/add?card=${id}`}>
+        <Link to={`/creditcards/transaction/add?card=${id}`}>
           <Icon icon={Icons.faPlus} size="2x" />
         </Link>
       </div>

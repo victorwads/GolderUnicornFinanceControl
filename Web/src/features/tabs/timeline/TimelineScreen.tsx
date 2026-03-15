@@ -107,7 +107,7 @@ const TimelineScreen = () => {
       </div>
       <SearchBar value={searchValue} onSearchEach={setSearchValue} onClose={() => setSearchValue('')} />
       <div className="FloatButton">
-        <Link to={'/accounts/registry/add?'
+        <Link to={'/accounts/expense/add?'
           + (selectedAccount ? `&account=${selectedAccount.id}` : '')
           + (categoryIds.length === 1 ? `&category=${categoryIds[0]}` : '')
         }>

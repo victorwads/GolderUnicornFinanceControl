@@ -123,9 +123,15 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     domains: ['creditCards', 'creditCardsTransactions'],
-    url: '/creditcards/registry/{id:string}/edit',
+    url: '/creditcards/transaction/{id:string}/edit',
     description: 'View some credit card transaction registry or edit it manually',
     pathParams: { id: { description: 'ID of the credit card registry', required: true } }
+  },
+  {
+    domains: ['accounts', 'accountTransactions'],
+    url: '/accounts/transfers/{id:string}/edit',
+    description: 'View an account transfer or edit it manually',
+    pathParams: { id: { description: 'ID of the transfer registry', required: true } }
   },
   {
     url: '/categories',

@@ -2,11 +2,10 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { ColorPicker } from "@components/ui/color-picker";
-import { SelectList } from "@components/ui/select-list";
+import { SelectList, SelectListOption } from "@components/ui/select-list";
 import { IconSearch } from "@components/ui/icon-search";
 import { DescriptionField } from "@components/ui/description-field";
 import Icon, { iconNamesList, getIconByCaseInsensitiveName } from "@components/Icons";
-import { categories } from "@/data/categories";
 
 export default function CreateCategory({
   model: {
@@ -17,6 +16,7 @@ export default function CreateCategory({
     setValue,
     watch,
     onSubmit,
+    categories,
   }
 }: {
   model: CreateCategoryViewModel
@@ -111,4 +111,5 @@ export interface CreateCategoryViewModel {
   setValue: (field: keyof CategoryForm, value: any) => void;
   watch: (field: keyof CategoryForm) => any;
   onSubmit: (data: CategoryForm) => void;
+  categories: SelectListOption[];
 }

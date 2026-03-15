@@ -13,7 +13,7 @@ interface Action {
 }
 
 const allActions: Action[] = [
-  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "text-blue-600", route: "/transfers/create" },
+  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "text-blue-600", route: "/accounts/transfers/create" },
   { id: "income", icon: TrendingUp, label: "Entrada na conta", color: "text-success", route: "/accounts/income/add" },
   { id: "expense", icon: TrendingDown, label: "Gasto na conta", color: "text-destructive", route: "/accounts/expense/add" },
   { id: "credit-card", icon: CreditCard, label: "Gasto no cartão", color: "text-orange-600", route: "/creditcards/transaction/add" },

@@ -61,11 +61,12 @@ function getTransactionRoute(item: RegistryWithDetails): string {
   if (registry instanceof InvoiceTransaction) {
     return routes.invoice(registry.cardId, registry.name);
   }
-
-  if (registry instanceof CreditCardRegistry) {
-    return routes.credit(registry.id);
+  if (registry instanceof TransferTransaction || registry.type === RegistryType.TRANSFER) {
+    return `/accounts/transfers/${registry.id}/edit`;
   }
-
+  if (registry instanceof CreditCardRegistry) {
+    return `/creditcards/transaction/${registry.id}/edit`;
+  }
   return routes.debit(registry.id);
 }
 

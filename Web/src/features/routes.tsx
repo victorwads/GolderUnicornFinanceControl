@@ -26,11 +26,13 @@ import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
 
 import LoginScreen from '@pages/auth/LoginScreen.page';
+import AddAccountTransactionPage from '@pages/accounts/AddAccountTransaction.page';
 import MorePage from '@pages/settings/More.page';
 import ConnectedAccountsPage from '@pages/settings/ConnectedAccounts.page';
 import SettingsPage from '@pages/settings/Settings.page';
 import HomePage from '@pages/core/Home.page';
 import TimelinePage from '@pages/core/Timeline.page';
+import CreateRecurrentPage from '@pages/transactions/CreateRecurrent.page';
 import PrivacyPage from '@pages/privacy/Privacy.page';
 import DeleteAccountPage from '@pages/privacy/DeleteAccount.page';
 import ExportDataPage from '@pages/privacy/ExportData.page';
@@ -64,8 +66,11 @@ export const privateRouter = createBrowserRouter([
       { path: '/accounts', element: withRepos(<AccountsScreen />, 'accounts', 'banks') },
       { path: '/accounts/create', element: withRepos(<AccountScreenForm />, 'banks') },
       { path: '/accounts/:id/edit', element: withRepos(<AccountScreenForm />, 'accounts', 'banks') },
-      { path: '/accounts/registry/add', element: withRepos(<RegistryScreenForm />, 'accounts', 'categories', 'banks') },
-      { path: '/accounts/registry/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
+      { path: '/accounts/expense/add', element: <AddAccountTransactionPage /> },
+      { path: '/accounts/income/add', element: <AddAccountTransactionPage /> },
+      { path: '/accounts/registry/:id/edit', element: <AddAccountTransactionPage /> },
+      { path: '/accounts/transfers/create', element: <EmptyScreen title='Transfer Create' /> },
+      { path: '/accounts/transfers/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
       { path: '/creditcards', element: withRepos(<CreditCardsScreen />, 'creditCards') },
       { path: '/creditcards/create', element: withRepos(<CreditCardScreenForm />, 'accounts') },
       { path: '/creditcards/:id', element: <ViewCreditCardsScreen /> },
@@ -74,12 +79,14 @@ export const privateRouter = createBrowserRouter([
         <CreditCardsInvoices />,
         'creditCardsInvoices', 'creditCardsTransactions', 'categories', 'creditCards'
       ) },
-      { path: '/creditcards/registry/add', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards') },
-      { path: '/creditcards/registry/:id/edit', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards', 'creditCardsTransactions') },
+      { path: '/creditcards/transaction/add', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards') },
+      { path: '/creditcards/transaction/:id/edit', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards', 'creditCardsTransactions') },
       { path: '/categories', element: <CategoriesScreen /> },
       { path: '/categories/create', element: <AddCategoriesScreen /> },
       { path: '/groceries/create', element: <GroceryItemForm /> },
       { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
+      { path: '/recurrents/create', element: <CreateRecurrentPage /> },
+      { path: '/recurrents/:id/edit', element: <CreateRecurrentPage /> },
       { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
     ]
   },

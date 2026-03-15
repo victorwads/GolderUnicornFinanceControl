@@ -7,7 +7,10 @@ const routes = {
         return `/accounts/registry/${id}/edit`;
     },
     credit: (id: string): string => {
-        return `/creditcards/registry/${id}/edit`;
+        return `/creditcards/transaction/${id}/edit`;
+    },
+    transfer: (id: string): string => {
+        return `/accounts/transfers/${id}/edit`;
     },
     account: (id: string): string => {
         return `/accounts/${id}`;

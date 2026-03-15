@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import routes from "../../navigate";
 
 import Icon, { getIconByCaseInsensitiveName } from '@componentsDeprecated/Icons';
-import { InvoiceTransaction, AccountsRegistry, RegistryType, RegistryWithDetails, CreditCardRegistry} from '@models';
+import { InvoiceTransaction, AccountsRegistry, RegistryType, RegistryWithDetails, CreditCardRegistry, TransferTransaction } from '@models';
 
 interface RegistryItemProps {
   item: RegistryWithDetails;
@@ -29,6 +29,7 @@ const RegistryItem = (
       onClick={() => {
         if (registry instanceof InvoiceTransaction) navigate(routes.invoice(registry.cardId, registry.name));
         else if (registry instanceof CreditCardRegistry) navigate(routes.credit(registry.id))
+        else if (registry instanceof TransferTransaction || registry.type === RegistryType.TRANSFER) navigate(routes.transfer(registry.id))
         else navigate(routes.debit(registry.id))
       }}
     >

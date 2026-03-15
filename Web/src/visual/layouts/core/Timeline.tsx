@@ -1,4 +1,5 @@
 import { TransactionItem } from "@components/TransactionItem";
+import { SpeedDial } from "@components/SpeedDial";
 import { Card } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
@@ -213,6 +214,8 @@ export default function Timeline({ model }: TimelineProps) {
           </div>
         </div>
       </div>
+
+      <SpeedDial />
 
       <Dialog open={isFilterModalOpen} onOpenChange={(value) => !value && closeFilters()}>
         <DialogContent className="max-w-md">

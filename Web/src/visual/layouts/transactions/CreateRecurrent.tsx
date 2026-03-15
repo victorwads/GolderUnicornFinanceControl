@@ -8,7 +8,6 @@ import { TagsInput } from "@components/ui/tags-input";
 import { DescriptionField } from "@components/ui/description-field";
 import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
 import { Label } from "@components/ui/label";
-import { categories } from "@/data/categories";
 
 export default function CreateRecurrent({
   model: {
@@ -24,6 +23,7 @@ export default function CreateRecurrent({
     amount,
     generatePreview,
     accounts,
+    categories,
     cards,
   }
 }: {
@@ -176,5 +176,6 @@ export interface CreateRecurrentViewModel {
   amount: number;
   generatePreview: () => Date[];
   accounts: SelectListOption[];
+  categories: SelectListOption[];
   cards: SelectListOption[];
 }

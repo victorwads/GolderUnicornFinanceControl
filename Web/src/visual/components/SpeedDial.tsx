@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { incrementClickCount } from "@components/QuickActions";
 
 const actions = [
-  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "bg-blue-600 hover:bg-blue-700", route: "/transfers/create" },
+  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "bg-blue-600 hover:bg-blue-700", route: "/accounts/transfers/create" },
   { id: "income", icon: TrendingUp, label: "Entrada na conta", color: "bg-success hover:bg-success/90", route: "/accounts/income/add" },
   { id: "expense", icon: TrendingDown, label: "Gasto na conta", color: "bg-destructive hover:bg-destructive/90", route: "/accounts/expense/add" },
   { id: "credit-card", icon: CreditCard, label: "Gasto no cartão", color: "bg-orange-600 hover:bg-orange-700", route: "/creditcards/transaction/add" },
