@@ -19,8 +19,10 @@ export interface AIMicrophoneProps<T extends AIItemData, A extends string> {
   withLoading?: boolean;
   parser: AIActionsParser<T, A>;
   disableClick?: boolean;
+  hideChrome?: boolean;
   onAction?: AIActionHandler<T, A>;
   onPartialResult?: (text: string) => void;
+  onListeningChange?: (listening: boolean) => void;
   skipOnboarding?: boolean;
 }
 
@@ -28,14 +30,19 @@ interface ProcessingTask { id: number; text: string; startedAt: number; }
 
 export interface AIMicrophoneHandle {
   ensureOnboardingCompleted: () => Promise<boolean>;
+  startListening: () => void;
+  stopListening: () => void;
+  toggleListening: () => void;
 }
 
 const AIMicrophone = forwardRef(<T extends AIItemData, A extends string>({
   parser,
   onAction,
   onPartialResult,
+  onListeningChange,
   skipOnboarding = false,
   compact = false,
+  hideChrome = false,
   withLoading = false,
 }: AIMicrophoneProps<T, A>,
 ref: ForwardedRef<AIMicrophoneHandle>
@@ -123,7 +130,20 @@ ref: ForwardedRef<AIMicrophoneHandle>
         requestStart({ skipOnboarding: false });
       });
     },
-  }), [hasCompleted, requestStart]);
+    startListening: () => {
+      requestStart({ skipOnboarding: false });
+    },
+    stopListening: () => {
+      stopListening();
+    },
+    toggleListening: () => {
+      if (listening) {
+        stopListening();
+        return;
+      }
+      requestStart({ skipOnboarding: false });
+    },
+  }), [hasCompleted, listening, requestStart]);
 
   useEffect(() => {
     parser.onAction = (action, changes) => {
@@ -181,6 +201,10 @@ ref: ForwardedRef<AIMicrophoneHandle>
     onPartialResult?.(transcript);
   }, [transcript]);
 
+  useEffect(() => {
+    onListeningChange?.(listening);
+  }, [listening, onListeningChange]);
+
   const placeholder = transcript || (
     listening
       ? (parser.items?.length ? Lang.speech.placeholderListeningHasItems : Lang.speech.placeholderListeningNoItems)
@@ -188,35 +212,36 @@ ref: ForwardedRef<AIMicrophoneHandle>
   );
   
   return <>
-    <GlassContainer className={"speech-marquee" + (compact ? ' compact' : '')}>
-      {processingQueue.length > 0 && <div>
-        {listening && (
-          <div className="speech-marquee-content">
-            <span className="speech-marquee-text">{placeholder}</span>
-          </div>
-        )}
-        <div className="speech-processing-list">
-          {processingQueue.map(task => (
-            <div key={task.id} className="speech-processing-item" title={task.text}>
-              <span className="loading-spinner loading-spinner--sm" />
-              <span className="speech-processing-text">{task.text}</span>
+    {!hideChrome && (
+      <GlassContainer className={"speech-marquee" + (compact ? ' compact' : '')}>
+        {processingQueue.length > 0 && <div>
+          {listening && (
+            <div className="speech-marquee-content">
+              <span className="speech-marquee-text">{placeholder}</span>
             </div>
-          ))}
-        </div>
-      </div>}
-      <button
-        className={`microphone-toggle${listening ? ' listening' : ''}`}
-        // onClick={disableClick ? undefined : (() => listening ? stopListening() : requestStart())}
-        onClick={(() => listening ? stopListening() : requestStart())}
-        aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
-      >
-        {withLoading
-          ? <Loading show />
-          : <Icon icon={listening ? Icons.faMicrophoneSlash : Icons.faMicrophone} size='sm' />
-        }
-      </button>
-    </GlassContainer>
-    <AIMicrophoneOnboarding {...onboardingComponentProps} transcript={transcript} />
+          )}
+          <div className="speech-processing-list">
+            {processingQueue.map(task => (
+              <div key={task.id} className="speech-processing-item" title={task.text}>
+                <span className="loading-spinner loading-spinner--sm" />
+                <span className="speech-processing-text">{task.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>}
+        <button
+          className={`microphone-toggle${listening ? ' listening' : ''}`}
+          onClick={(() => listening ? stopListening() : requestStart())}
+          aria-label={listening ? Lang.speech.micStop : Lang.speech.micStart}
+        >
+          {withLoading
+            ? <Loading show />
+            : <Icon icon={listening ? Icons.faMicrophoneSlash : Icons.faMicrophone} size='sm' />
+          }
+        </button>
+      </GlassContainer>
+    )}
+    <AIMicrophoneOnboarding {...enhancedOnboardingProps} transcript={transcript} listening={listening} />
   </>;
 });
 

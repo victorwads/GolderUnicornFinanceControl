@@ -139,7 +139,7 @@ export default function Settings({ model }: SettingsProps) {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
-                    <VoiceSettingsContent showEnableToggle={true} />
+                    <VoiceSettingsContent model={model.voiceSettings} showEnableToggle={true} />
                   </AccordionContent>
                 </Card>
               </AccordionItem>
@@ -158,7 +158,7 @@ export default function Settings({ model }: SettingsProps) {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
-                    <AssistantModeContent variant="radio" />
+                    <AssistantModeContent model={model.assistantBehavior} variant="radio" />
                   </AccordionContent>
                 </Card>
               </AccordionItem>
@@ -237,4 +237,6 @@ export interface SettingsViewModel {
   density: number;
   setDensity: (value: number) => void;
   syncLanguage: (value: string) => void;
+  voiceSettings: import("@components/VoiceSettingsContent").VoiceSettingsContentViewModel;
+  assistantBehavior: import("@components/AssistantModeContent").AssistantModeContentViewModel;
 }

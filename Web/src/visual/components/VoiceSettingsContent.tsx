@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@components/ui/button";
 import { Slider } from "@components/ui/slider";
 import { Label } from "@components/ui/label";
@@ -12,34 +11,20 @@ import {
 import { Volume2 } from "lucide-react";
 import { Switch } from "@components/ui/switch";
 
-const voices = [
-  "Luciana", "Felipe", "Camila", "Ricardo", "Fernanda",
-  "Google português do Brasil", "Microsoft Maria", "Vocalware Brazilian Portuguese Female"
-];
-
 interface VoiceSettingsContentProps {
+  model: VoiceSettingsContentViewModel;
   showEnableToggle?: boolean;
 }
 
-export default function VoiceSettingsContent({ showEnableToggle = false }: VoiceSettingsContentProps) {
-  const [speechRate, setSpeechRate] = useState([1.0]);
-  const [selectedVoice, setSelectedVoice] = useState(voices[0]);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
+export default function VoiceSettingsContent({ model, showEnableToggle = false }: VoiceSettingsContentProps) {
   const LocalLang = Lang.settings;
-
-  const handleTestVoice = () => {
-    const utterance = new SpeechSynthesisUtterance(LocalLang.testSpeechMessage);
-    utterance.rate = speechRate[0];
-    utterance.lang = CurrentLangInfo.short;
-    speechSynthesis.speak(utterance);
-  };
 
   return (
     <div className="space-y-4">
       {showEnableToggle && (
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">{LocalLang.enableVoice}</Label>
-          <Switch checked={voiceEnabled} onCheckedChange={setVoiceEnabled} />
+          <Switch checked={model.voiceEnabled} onCheckedChange={model.onVoiceEnabledChange} />
         </div>
       )}
 
@@ -47,11 +32,11 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <Label className="text-sm font-medium">{LocalLang.speechRate}</Label>
-          <span className="text-sm text-muted-foreground">{speechRate[0].toFixed(1)}x</span>
+          <span className="text-sm text-muted-foreground">{model.speechRate.toFixed(1)}x</span>
         </div>
         <Slider
-          value={speechRate}
-          onValueChange={setSpeechRate}
+          value={[model.speechRate]}
+          onValueChange={(value) => model.onSpeechRateChange(value[0] ?? model.speechRate)}
           min={0.5}
           max={2.0}
           step={0.1}
@@ -67,12 +52,12 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
       {/* Voice Selection */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">{LocalLang.selectVoice}</Label>
-        <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+        <Select value={model.selectedVoice} onValueChange={model.onSelectedVoiceChange}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="max-h-[200px]">
-            {voices.map((voice) => (
+            {model.availableVoices.map((voice) => (
               <SelectItem key={voice} value={voice}>
                 {voice}
               </SelectItem>
@@ -85,11 +70,22 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
       <Button
         variant="outline"
         className="w-full"
-        onClick={handleTestVoice}
+        onClick={model.onTestVoice}
       >
         <Volume2 className="h-4 w-4 mr-2" />
         {LocalLang.testSpeech}
       </Button>
     </div>
   );
+}
+
+export interface VoiceSettingsContentViewModel {
+  voiceEnabled: boolean;
+  onVoiceEnabledChange: (enabled: boolean) => void;
+  speechRate: number;
+  onSpeechRateChange: (rate: number) => void;
+  selectedVoice: string;
+  availableVoices: string[];
+  onSelectedVoiceChange: (voice: string) => void;
+  onTestVoice: () => void;
 }

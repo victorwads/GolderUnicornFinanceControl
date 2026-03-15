@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import { MicButton } from "@components/MicButton";
 import { TabBar } from "@components/TabBar";
 import { useTabBarModel } from "../../../pages/core/TabBar.model";
 
@@ -11,7 +10,6 @@ const AppContainer = () => {
       <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <Outlet />
       </main>
-      <MicButton />
       <TabBar model={model} />
     </div>
   );

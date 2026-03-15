@@ -494,6 +494,44 @@ Durante a conversa, a interface deve oferecer pelo menos:
 - botão para encerrar o assistente
 - área editável da transcrição
 
+## Entrada global do microfone
+
+O microfone não deve existir apenas dentro de uma tela dedicada do assistente.
+
+Para o `Web/`, a direção atual da UX é:
+
+- o botão principal de microfone volta como controle flutuante global
+- esse botão deve ficar disponível nas telas principais do app
+- ele funciona como ponto de entrada persistente para iniciar um turno com a IA
+- a conversa/overlay pode abrir por cima da tela atual, sem exigir navegação prévia para uma rota exclusiva
+
+### Objetivo desse comportamento
+
+- reduzir fricção para falar com a IA
+- manter o assistente acessível em qualquer contexto relevante do produto
+- permitir que a IA navegue e opere a tela onde o usuário já está
+
+### Requisitos de UX para o botão flutuante
+
+- permanecer visível de forma consistente no shell principal do app
+- não competir com CTAs críticos locais da tela
+- comunicar claramente estados de:
+  - disponível
+  - ouvindo
+  - processando
+  - aguardando resposta do usuário
+- poder ser desativado/ocultado apenas em contextos excepcionais e justificados
+
+### Requisito de arquitetura
+
+Esse botão deve ser tratado como entrada global do shell, não como detalhe isolado de uma página específica.
+
+Na prática isso significa:
+
+- estado de microfone/assistente precisa ser compatível com uso cross-route
+- a UI flutuante deve sobreviver à tela atual e conversar bem com navegação agêntica
+- a implementação nova não deve recriar uma segunda pilha paralela de voz fora do contrato principal da feature
+
 ### Botão de encerrar assistente
 
 Objetivo:
@@ -554,6 +592,37 @@ As configurações ligadas ao assistente devem ser tratadas como parte da featur
 
 ## Requisitos de arquitetura de UX
 
+### Onboarding e teste de reconhecimento do microfone
+
+Antes do primeiro uso efetivo do microfone para comandos do assistente, o produto precisa executar um onboarding curto de validação.
+
+Fluxo obrigatório:
+
+- tela de introdução explicando que o reconhecimento de fala depende da compatibilidade nativa do device
+- etapa para confirmar o idioma configurado no app e alinhar com o idioma falado no sistema
+- etapa de teste com frases guiadas, onde o usuário repete frases básicas e a interface compara a transcrição com o texto esperado
+- aprovação quando o device demonstra reconhecer corretamente as frases mínimas
+- fallback de erro com opção de tentar novamente quando a validação falhar repetidamente
+
+Objetivo desse fluxo:
+
+- evitar que o usuário descubra tarde demais que o device não está captando ou reconhecendo adequadamente
+- validar logo no onboarding a combinação de permissão, idioma e engine de STT disponível
+- liberar o uso do microfone principal apenas depois dessa confirmação ou de um skip explícito do usuário
+
+Regras de UX:
+
+- o teste deve mostrar a frase esperada, a transcrição capturada e um score ou feedback claro de correspondência
+- o status do teste precisa deixar explícito se está aguardando fala, se reconheceu corretamente ou se precisa repetir
+- a conclusão positiva do onboarding deve ficar persistida por idioma para evitar repetir o fluxo sem necessidade
+- um reset manual desse onboarding precisa continuar possível nas configurações de desenvolvimento ou de voz
+
+Regras de arquitetura:
+
+- a UI do onboarding deve ser desacoplada do motor específico de STT, mesmo que a implementação inicial use Web Speech API
+- a lógica de comparação das frases e o estado de progresso do teste devem poder ser reutilizados por diferentes layouts
+- o onboarding faz parte do contrato da experiência de voz do assistente, não é detalhe visual opcional
+
 ### 1. Desacoplamento entre UX e engine de STT
 
 A experiência não pode depender semanticamente de `SpeechRecognition` do navegador.
@@ -597,6 +666,67 @@ Objetivo futuro:
 - execução agêntica
 - resposta TTS
 - feedback visual
+
+## TODO futuro: resumidor de conversa
+
+Existe um requisito futuro importante para evitar crescimento indefinido do contexto enviado para a IA.
+
+### Objetivo
+
+Permitir que conversas longas continuem utilizáveis sem precisar reenviar sempre todo o histórico bruto mais antigo.
+
+### Direção esperada
+
+- todas as mensagens originais continuam armazenadas
+- ao atingir determinado tamanho/limite de contexto, uma parte anterior da conversa deve ser resumida
+- esse resumo vira uma nova mensagem explícita de resumo dentro do histórico
+- a IA deve receber esse resumo como contexto oficial da conversa anterior
+
+### Regra operacional desejada
+
+Ao montar o contexto para novas chamadas do assistente:
+
+- enviar o prompt de sistema
+- localizar a última mensagem de resumo existente no histórico
+- enviar essa mensagem de resumo
+- enviar apenas as mensagens posteriores a esse resumo
+
+Em outras palavras:
+
+- o resumo passa a ser o novo ponto de ancoragem do contexto
+- mensagens anteriores ao último resumo continuam salvas para histórico/auditoria
+- mas deixam de ser reenviadas integralmente em todas as próximas execuções
+
+### Requisito do formato de resumo
+
+- a mensagem precisa deixar claro para a IA que ela é um resumo de conversa anterior
+- o resumo deve cobrir:
+  - intenção do usuário
+  - decisões já tomadas
+  - ações executadas
+  - entidades criadas/editadas/encontradas
+  - pendências ainda abertas
+
+### Implicações de arquitetura
+
+Esse comportamento provavelmente exigirá:
+
+- um serviço dedicado de sumarização
+- um tipo explícito de mensagem de resumo no histórico
+- uma regra de corte baseada em tamanho, tokens ou quantidade de eventos
+- adaptação da montagem do contexto antes das chamadas de tool/LLM
+
+### Observação importante
+
+Esse resumidor não substitui o histórico completo salvo no produto.
+
+Ele serve para:
+
+- reduzir custo
+- reduzir tamanho de contexto
+- melhorar continuidade em conversas longas
+
+sem perder a rastreabilidade total da conversa original.
 
 ## Cenários de uso que a feature precisa cobrir
 

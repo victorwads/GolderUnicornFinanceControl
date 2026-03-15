@@ -152,7 +152,7 @@
 .ai-mic-onboarding {
   position: fixed;
   inset: 0;
-  z-index: 5;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,8 +162,10 @@
 .ai-mic-onboarding__backdrop {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(2px);
+  pointer-events: auto;
 }
 
 .ai-mic-onboarding__modal {
@@ -181,6 +183,13 @@
   gap: var(--spacing-md);
   text-align: center;
   overflow-y: auto;
+}
+
+.ai-mic-onboarding__modal-shell {
+  position: relative;
+  z-index: 6;
+  width: min(520px, 100%);
+  pointer-events: auto;
 }
 
 .ai-mic-onboarding__header {
@@ -386,6 +395,10 @@
   .ai-mic-onboarding__modal {
     padding: var(--spacing-lg);
     border-radius: 20px;
+  }
+
+  .ai-mic-onboarding__modal-shell {
+    width: 100%;
   }
 
   .ai-mic-onboarding__button {

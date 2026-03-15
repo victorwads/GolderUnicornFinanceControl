@@ -1,32 +1,31 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import AIMicrophoneOnboardingErrorStep from './AIMicrophoneOnboardingErrorStep';
-import AIMicrophoneOnboardingInfoStep from './AIMicrophoneOnboardingInfoStep';
-import AIMicrophoneOnboardingLanguageStep from './AIMicrophoneOnboardingLanguageStep';
-import AIMicrophoneOnboardingSuccessStep from './AIMicrophoneOnboardingSuccessStep';
-import AIMicrophoneOnboardingTestStep from './AIMicrophoneOnboardingTestStep';
+import { Langs, setLanguage } from '@lang';
+import AudioOnboarding, { ToHomeRoute } from '@layouts/onboarding/AudioOnboarding';
+
+import { useAIMicrophoneOnboardingTest } from './AIMicrophoneOnboardingTest.model';
 import { AIMicrophoneOnboardingComponentProps, OnboardingStepKey } from './AIMicrophoneOnboarding.types';
 
 const SUCCESS_DISPLAY_TIME = 8000;
+const DEFAULT_LANGUAGE_OPTION_VALUE = '__default__';
 
 interface AIMicrophoneOnboardingProps extends AIMicrophoneOnboardingComponentProps {
   transcript: string;
+  listening: boolean;
 }
 
 export default function AIMicrophoneOnboarding({
   open,
   transcript,
+  listening,
   resetTranscript,
   onClose,
   onComplete,
 }: AIMicrophoneOnboardingProps) {
   const [step, setStep] = useState<OnboardingStepKey>('info');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(SavedLang || DEFAULT_LANGUAGE_OPTION_VALUE);
+  const [testResetKey, setTestResetKey] = useState(0);
   const successTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  const modalTitleId = useMemo(
-    () => `ai-mic-onboarding-title-${Math.random().toString(36).slice(2)}`,
-    [],
-  );
 
   const clearSuccessTimeout = useCallback(() => {
     if (successTimeout.current) {
@@ -40,6 +39,12 @@ export default function AIMicrophoneOnboarding({
     onClose();
   }, [clearSuccessTimeout, onClose]);
 
+  const handleNavigate = useCallback((route: unknown) => {
+    if (route instanceof ToHomeRoute) {
+      handleClose();
+    }
+  }, [handleClose]);
+
   const goToStep = useCallback((nextStep: OnboardingStepKey) => {
     clearSuccessTimeout();
     setStep(nextStep);
@@ -49,14 +54,13 @@ export default function AIMicrophoneOnboarding({
     goToStep('language');
   }, [goToStep]);
 
-  const handleLanguageBack = useCallback(() => {
-    goToStep('info');
-  }, [goToStep]);
-
   const handleLanguageNext = useCallback(() => {
+    const languageToApply = selectedLanguage === DEFAULT_LANGUAGE_OPTION_VALUE ? undefined : selectedLanguage;
+    setLanguage(languageToApply as keyof typeof Langs | undefined);
     resetTranscript();
+    setTestResetKey((current) => current + 1);
     goToStep('test');
-  }, [goToStep, resetTranscript]);
+  }, [goToStep, resetTranscript, selectedLanguage]);
 
   const handleTestSuccess = useCallback(() => {
     onComplete();
@@ -69,8 +73,57 @@ export default function AIMicrophoneOnboarding({
 
   const handleTryAgain = useCallback(() => {
     resetTranscript();
-    goToStep('language');
+    setTestResetKey((current) => current + 1);
+    goToStep('test');
   }, [goToStep, resetTranscript]);
+
+  const {
+    currentPhraseIndex,
+    liveTranscript,
+    progressLabel,
+    score,
+    status,
+    testPhrases,
+    restartListening,
+  } = useAIMicrophoneOnboardingTest({
+    active: open && step === 'test',
+    resetKey: testResetKey,
+    transcript,
+    resetTranscript,
+    onSuccess: handleTestSuccess,
+    onError: handleTestError,
+  });
+
+  const languageOptions = useMemo(
+    () => [
+      { value: DEFAULT_LANGUAGE_OPTION_VALUE, label: `${Lang.commons.default} (${navigator.language})` },
+      ...Object.entries(Langs).map(([value, info]) => ({
+        value,
+        label: info.name,
+      })),
+    ],
+    [],
+  );
+
+  const currentLanguageSummary = useMemo(() => {
+    const hasCustomSelection = selectedLanguage !== DEFAULT_LANGUAGE_OPTION_VALUE;
+    const previewInfo = hasCustomSelection
+      ? Langs[selectedLanguage as keyof typeof Langs] ?? Langs.en
+      : Langs[CurrentLang] ?? Langs.en;
+    const previewCode = hasCustomSelection ? previewInfo.short : CurrentLangInfo.short;
+    return `${previewInfo.name} ${previewCode}`;
+  }, [selectedLanguage]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    setStep('info');
+    setSelectedLanguage(SavedLang || DEFAULT_LANGUAGE_OPTION_VALUE);
+    setTestResetKey((current) => current + 1);
+    resetTranscript();
+  }, [open, resetTranscript]);
 
   useEffect(() => {
     if (!open || step !== 'success') {
@@ -93,61 +146,36 @@ export default function AIMicrophoneOnboarding({
     return null;
   }
 
-  let content: JSX.Element | null = null;
-
-  if (step === 'info') {
-    content = (
-      <AIMicrophoneOnboardingInfoStep
-        titleId={modalTitleId}
-        onNext={handleInfoNext}
-      />
-    );
-  } else if (step === 'language') {
-    content = (
-      <AIMicrophoneOnboardingLanguageStep
-        titleId={modalTitleId}
-        onBack={handleLanguageBack}
-        onNext={handleLanguageNext}
-      />
-    );
-  } else if (step === 'test') {
-    content = (
-      <AIMicrophoneOnboardingTestStep
-        titleId={modalTitleId}
-        transcript={transcript}
-        resetTranscript={resetTranscript}
-        onSuccess={handleTestSuccess}
-        onError={handleTestError}
-      />
-    );
-  } else if (step === 'success') {
-    content = (
-      <AIMicrophoneOnboardingSuccessStep
-        titleId={modalTitleId}
-      />
-    );
-  } else if (step === 'error') {
-    content = (
-      <AIMicrophoneOnboardingErrorStep
-        titleId={modalTitleId}
-        onTryAgain={handleTryAgain}
-      />
-    );
-  }
-
   return (
     <div className="ai-mic-onboarding">
       <div className="ai-mic-onboarding__backdrop" />
-      <div className="ai-mic-onboarding__modal" role="dialog" aria-modal="true" aria-labelledby={modalTitleId}>
-        <div className='ai-mic-onboarding__header'>
-        {step === 'test' ? <button type="button" onClick={() => { onComplete(); handleClose(); }} >
-          {Lang.aiMic.onboarding.actions.imDone}
-        </button> : <div />}
-        <button type="button" onClick={handleClose} >
-          {Lang.aiMic.onboarding.actions.close}
-        </button>
-        </div>
-        {content}
+      <div className="ai-mic-onboarding__modal-shell" role="dialog" aria-modal="true" aria-label={Lang.aiMic.onboarding.info.title}>
+        <AudioOnboarding
+          model={{
+            navigate: handleNavigate,
+            step: step === 'info' ? 0 : step === 'language' ? 1 : step === 'test' ? 2 : step === 'success' ? 4 : 5,
+            selectedLanguage,
+            setSelectedLanguage,
+            languageOptions,
+            currentLanguageSummary,
+            currentPhraseIndex,
+            isListening: listening,
+            transcription: liveTranscript,
+            score,
+            progressLabel,
+            status,
+            handleStartTest: handleInfoNext,
+            handleConfirmLanguage: handleLanguageNext,
+            handleSkipTest: () => {
+              onComplete();
+              handleClose();
+            },
+            simulateListening: restartListening,
+            handleComplete: handleClose,
+            handleTryAgain,
+            testPhrases,
+          }}
+        />
       </div>
     </div>
   );

@@ -8,10 +8,13 @@ import {
 } from "@containers";
 
 import { TabBar } from "@components/TabBar";
+import { VoiceAssistant } from "@components/VoiceAssistant";
 import { useTabBarModel } from "@pages/core/TabBar.model";
+import { useVoiceAssistantModel } from "@pages/assistant/VoiceAssistant.model";
 
 const TabScreen = () => {
   const model = useTabBarModel();
+  const voiceAssistantModel = useVoiceAssistantModel();
 
   return (
     <Container wide full>
@@ -19,6 +22,7 @@ const TabScreen = () => {
         <Outlet />
       </ContainerScrollContent>
       <ContainerFixedContent>
+          <VoiceAssistant model={voiceAssistantModel} />
           <TabBar model={model} />
       </ContainerFixedContent>
     </Container>

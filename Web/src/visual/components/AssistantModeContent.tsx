@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card } from "@components/ui/card";
 import { Check, Mic, Hand, MousePointerClick } from "lucide-react";
 import { Label } from "@components/ui/label";
@@ -26,12 +25,11 @@ const micModes = [
 ];
 
 interface AssistantModeContentProps {
+  model: AssistantModeContentViewModel;
   variant?: "cards" | "radio";
 }
 
-export default function AssistantModeContent({ variant = "cards" }: AssistantModeContentProps) {
-  const [selectedMode, setSelectedMode] = useState("live");
-  const [micMode, setMicMode] = useState("click");
+export default function AssistantModeContent({ model, variant = "cards" }: AssistantModeContentProps) {
   const LocalLang = Lang.settings;
 
   const localizedModes = {
@@ -55,9 +53,9 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
             <Card
               key={mode.id}
               className={`p-6 cursor-pointer transition-all hover:border-primary ${
-                selectedMode === mode.id ? "border-primary bg-primary/5" : ""
+                model.assistantMode === mode.id ? "border-primary bg-primary/5" : ""
               }`}
-              onClick={() => setSelectedMode(mode.id)}
+              onClick={() => model.onAssistantModeChange(mode.id as AssistantModeContentViewModel["assistantMode"])}
             >
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-primary/10 rounded-lg">
@@ -68,7 +66,7 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
                     <h3 className="font-semibold text-lg">
                       {localized.name}
                     </h3>
-                    {selectedMode === mode.id && (
+                    {model.assistantMode === mode.id && (
                       <Check className="h-5 w-5 text-primary" />
                     )}
                   </div>
@@ -89,9 +87,9 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
               <Card
                 key={mode.id}
                 className={`p-6 cursor-pointer transition-all hover:border-primary ${
-                  micMode === mode.id ? "border-primary bg-primary/5" : ""
+                  model.microphoneMode === mode.id ? "border-primary bg-primary/5" : ""
                 }`}
-                onClick={() => setMicMode(mode.id)}
+                onClick={() => model.onMicrophoneModeChange(mode.id as AssistantModeContentViewModel["microphoneMode"])}
               >
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-primary/10 rounded-lg">
@@ -102,7 +100,7 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
                       <h3 className="font-semibold text-lg">
                         {localized.name}
                       </h3>
-                      {micMode === mode.id && (
+                      {model.microphoneMode === mode.id && (
                         <Check className="h-5 w-5 text-primary" />
                       )}
                     </div>
@@ -116,4 +114,11 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
       </div>
     </div>
   );
+}
+
+export interface AssistantModeContentViewModel {
+  assistantMode: "live" | "manual";
+  onAssistantModeChange: (mode: "live" | "manual") => void;
+  microphoneMode: "hold" | "click";
+  onMicrophoneModeChange: (mode: "hold" | "click") => void;
 }

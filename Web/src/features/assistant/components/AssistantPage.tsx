@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 
 import AIMicrophone, { type AIMicrophoneHandle, type AIMicrophoneProps } from "@componentsDeprecated/voice/AIMicrophone";
@@ -19,9 +27,23 @@ import { AiCallContext, AIUse } from "@models";
 import { speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
 import { subscribeAssistantEvent } from "../utils/assistantEvents";
 
-export default function AssistantPage({
+export interface AssistantPageHandle {
+  startListening: () => void;
+  stopListening: () => void;
+  toggleListening: () => void;
+}
+
+interface AssistantPageProps {
+  compact?: boolean;
+  showTrigger?: boolean;
+  onListeningChange?: (listening: boolean) => void;
+}
+
+const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(function AssistantPage({
   compact = false,
-}: { compact?: boolean }) {
+  showTrigger = true,
+  onListeningChange,
+}, ref) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -176,13 +198,27 @@ export default function AssistantPage({
     });
   }, [processText]);
 
+  useImperativeHandle(ref, () => ({
+    startListening: () => {
+      microphoneRef.current?.startListening();
+    },
+    stopListening: () => {
+      microphoneRef.current?.stopListening();
+    },
+    toggleListening: () => {
+      microphoneRef.current?.toggleListening();
+    },
+  }), []);
+
   if (compact) {
     return <div className="assistant-icon">
       <AIMicrophone
         ref={microphoneRef}
         parser={microphoneParser}
         compact
+        hideChrome={!showTrigger}
         withLoading={loading}
+        onListeningChange={onListeningChange}
         onPartialResult={setPartial}
       />
       <div className="assistant-toasts">
@@ -294,4 +330,6 @@ export default function AssistantPage({
       </div>
     </div>
   );
-}
+});
+
+export default AssistantPage;

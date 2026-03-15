@@ -12,22 +12,32 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
     step,
     selectedLanguage,
     setSelectedLanguage,
+    languageOptions,
+    currentLanguageSummary,
     currentPhraseIndex,
     isListening,
     transcription,
     score,
+    progressLabel,
+    status,
     handleStartTest,
     handleConfirmLanguage,
     handleSkipTest,
     simulateListening,
     handleComplete,
+    handleTryAgain,
     testPhrases,
   } = model;
   const LocalLang = Lang.aiMic.onboarding;
-  const availableLanguages = Object.values(window.Langs || {});
+  const statusTone =
+    status === "success"
+      ? "text-emerald-600"
+      : status === "retry"
+        ? "text-destructive"
+        : "text-yellow-500";
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="w-full flex items-center justify-center">
       {step === 0 && (
         <div className="w-full max-w-md bg-card rounded-2xl p-8 text-center space-y-6">
           <div className="flex justify-end">
@@ -68,15 +78,15 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
           </p>
           
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">{CurrentLangInfo.name} {CurrentLangInfo.short}</p>
+            <p className="text-sm text-muted-foreground">{currentLanguageSummary}</p>
             <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder={languageOptions[0]?.label} />
               </SelectTrigger>
               <SelectContent>
-                {availableLanguages.map((language) => (
-                  <SelectItem key={language.short} value={language.short}>
-                    {language.name}
+                {languageOptions.map((language) => (
+                  <SelectItem key={language.value || "default"} value={language.value}>
+                    {language.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -113,7 +123,7 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
             <p className="text-muted-foreground">
               {LocalLang.verification.instructions}
             </p>
-            <p className="text-sm font-medium">{LocalLang.progress(currentPhraseIndex + 1, testPhrases.length)}</p>
+            <p className="text-sm font-medium">{progressLabel}</p>
           </div>
 
           <div className="space-y-4">
@@ -127,20 +137,11 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
               <p className="text-sm">{transcription || "—"}</p>
             </div>
 
-            {isListening && (
-              <div className="text-center space-y-2">
-                <p className="text-xs uppercase text-muted-foreground">{LocalLang.verification.scoreLabel}</p>
-                <p className="text-2xl font-semibold">{score}%</p>
-                <p className="text-yellow-500">{LocalLang.verification.waiting}</p>
-              </div>
-            )}
-
-            {!isListening && transcription && (
-              <div className="text-center space-y-2">
-                <p className="text-xs uppercase text-muted-foreground">{LocalLang.verification.scoreLabel}</p>
-                <p className="text-2xl font-semibold text-green-500">{score}%</p>
-              </div>
-            )}
+            <div className="text-center space-y-2">
+              <p className="text-xs uppercase text-muted-foreground">{LocalLang.verification.scoreLabel}</p>
+              <p className="text-2xl font-semibold">{transcription ? `${score}%` : "—"}</p>
+              <p className={statusTone}>{LocalLang.verification[status]}</p>
+            </div>
           </div>
 
           <div className="flex justify-center">
@@ -148,7 +149,6 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
               size="icon"
               className={`h-16 w-16 rounded-full ${isListening ? 'bg-destructive' : 'bg-primary'}`}
               onClick={simulateListening}
-              disabled={isListening}
             >
               {isListening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
             </Button>
@@ -171,7 +171,27 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
             {LocalLang.success.p1}
           </p>
           <Button onClick={handleComplete} className="w-full">
-            {Lang.visual.onboarding.audio.confirmLanguage}
+            {LocalLang.actions.imDone}
+          </Button>
+        </div>
+      )}
+
+      {step === 5 && (
+        <div className="w-full max-w-md bg-card rounded-2xl p-8 text-center space-y-6">
+          <div className="flex justify-end">
+            <Button variant="ghost" onClick={() => navigate(new ToHomeRoute())}>
+              {LocalLang.actions.close}
+            </Button>
+          </div>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/10 flex items-center justify-center">
+            <MicOff className="w-8 h-8 text-destructive" />
+          </div>
+          <h2 className="text-2xl font-semibold">{LocalLang.fail.title}</h2>
+          <p className="text-muted-foreground">
+            {LocalLang.fail.p1}
+          </p>
+          <Button onClick={handleTryAgain} className="w-full">
+            {LocalLang.actions.tryAgain}
           </Button>
         </div>
       )}
@@ -189,14 +209,19 @@ export interface AudioOnboardingViewModel {
   step: number;
   selectedLanguage: string;
   setSelectedLanguage: (value: string) => void;
+  languageOptions: Array<{ value: string; label: string }>;
+  currentLanguageSummary: string;
   currentPhraseIndex: number;
   isListening: boolean;
   transcription: string;
   score: number;
+  progressLabel: string;
+  status: "waiting" | "success" | "retry";
   handleStartTest: () => void;
   handleConfirmLanguage: () => void;
   handleSkipTest: () => void;
   simulateListening: () => void;
   handleComplete: () => void;
+  handleTryAgain: () => void;
   testPhrases: string[];
 }
