@@ -19,11 +19,14 @@ export default class AccountsRepository extends RepositoryWithCrypt<Account> {
     return super.getCache()
       .filter(account => showArchived || !account.archived)
       .map(account => {
+      const bank = banks.getLocalById(account.bankId);
       return {
         ...account,
         bank: new Bank(
-          account.bankId, account.name, '',
-          banks.getLocalById(account.bankId)?.logoUrl
+          account.bankId,
+          bank?.name || account.name,
+          bank?.fullName || bank?.name || account.name,
+          bank?.logoUrl
         )
       }
     });

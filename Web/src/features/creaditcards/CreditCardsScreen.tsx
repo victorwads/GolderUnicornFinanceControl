@@ -30,7 +30,7 @@ const CreditCardsScreen = () => {
     <ModalScreen title={Lang.creditcards.title}>
       <Card>
         {creditCards.map(card => (
-          <Link key={card.id} to={`/creditcards/${card.id}/edit`}>
+          <Link key={card.id} to={`/creditcards/${card.id}`}>
             <BankInfo bank={card.bank} />
           </Link>
         ))}

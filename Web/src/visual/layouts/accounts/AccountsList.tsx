@@ -2,6 +2,20 @@ import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Plus, Wallet, ChevronRight } from "lucide-react";
 
+function getColorProps(color: string) {
+  if (color.startsWith("#") || color.startsWith("rgb") || color.startsWith("hsl")) {
+    return {
+      className: "",
+      style: { backgroundColor: color },
+    };
+  }
+
+  return {
+    className: color,
+    style: undefined,
+  };
+}
+
 export default function AccountsList({
   model: {
     navigate,
@@ -43,7 +57,10 @@ export default function AccountsList({
             className="p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50"
             onClick={() => navigate(new ToEditAccountRoute(account.id.toString()))}
           >
-            <div className={`h-12 w-12 rounded-lg ${account.color} flex items-center justify-center`}>
+            <div
+              className={`h-12 w-12 rounded-lg flex items-center justify-center ${getColorProps(account.color).className}`}
+              style={getColorProps(account.color).style}
+            >
               <Wallet className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">

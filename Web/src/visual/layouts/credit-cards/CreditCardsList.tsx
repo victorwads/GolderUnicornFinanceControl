@@ -2,6 +2,20 @@ import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Plus, CreditCard, ChevronRight } from "lucide-react";
 
+function getColorProps(color: string) {
+  if (color.startsWith("#") || color.startsWith("rgb") || color.startsWith("hsl")) {
+    return {
+      className: "",
+      style: { backgroundColor: color },
+    };
+  }
+
+  return {
+    className: color,
+    style: undefined,
+  };
+}
+
 export default function CreditCardsList({
   model: {
     navigate,
@@ -43,7 +57,10 @@ export default function CreditCardsList({
             className="p-4 flex items-center gap-4 hover:bg-accent/50 transition-colors cursor-pointer border-border/50"
             onClick={() => navigate(new ToEditCreditCardRoute(card.id.toString()))}
           >
-            <div className={`h-12 w-12 rounded-lg ${card.color} flex items-center justify-center`}>
+            <div
+              className={`h-12 w-12 rounded-lg flex items-center justify-center ${getColorProps(card.color).className}`}
+              style={getColorProps(card.color).style}
+            >
               <CreditCard className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">

@@ -4,7 +4,7 @@ const routes = {
         return `/creditcards/${cardId}/invoices/${invoiceName}`;
     },
     debit: (id: string): string => {
-        return `/accounts/registry/${id}/edit`;
+        return `/accounts/registry/${id}`;
     },
     credit: (id: string): string => {
         return `/creditcards/transaction/${id}/edit`;

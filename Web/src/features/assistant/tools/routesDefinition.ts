@@ -98,7 +98,7 @@ export const routesDefinition: RoutesDefinition[] = [
   //   pathParams: { id: { description: 'ID da conta bancária', required: true } },
   // },
   {
-    url: '/accounts/registry/{id:string}/edit',
+    url: '/accounts/registry/{id:string}',
     description: 'See a bank account transaction or edit it manually',
     pathParams: { id: { description: 'ID of the account registry', required: true } }
   },
@@ -109,7 +109,7 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     domains: ['creditCards'],
-    url: '/creditcards/{id:string}/edit',
+    url: '/creditcards/{id:string}',
     description: 'View a specific credit card details like limits, due dates and etc... or edit it manually',
   },
   {

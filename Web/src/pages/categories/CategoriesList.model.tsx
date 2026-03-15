@@ -108,7 +108,7 @@ export function useCategoriesListModel(): CategoriesListViewModel {
         break;
 
       case route instanceof ToEditCategoryRoute:
-        router(`/categories/edit/${route.categoryId}`);
+        router(`/categories/${route.categoryId}`);
         break;
 
       default:

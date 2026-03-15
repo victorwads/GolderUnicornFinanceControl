@@ -57,7 +57,7 @@ const AccountItem = ({ account }: { account: WithInfoAccount }) => {
     setBalance(balance.getBalance(account.id))
   }, [account.id]);
 
-  return <Link to={'/accounts/' + account.id + '/edit'} key={account.id}>
+  return <Link to={'/accounts/' + account.id} key={account.id}>
     <BankInfo bank={account.bank} balance={balance} />
   </Link>
 }
