@@ -184,6 +184,13 @@ const es: VisualModuleTranslation = {
       exportCsvTitle: "Exportar como CSV",
       exportCsvDescription: "Compatível com Excel e planilhas",
       exportHint: "Os dados exportados incluem todas as suas transações, contas, cartões e categorias. Seus dados são seus e você pode exportá-los a qualquer momento.",
+      exportSuccessTitle: "Exportação concluída",
+      exportPartialTitle: "Exportação concluída com erros",
+      exportSuccessCount: (count: number) => `${count} seção(ões) exportadas com sucesso.`,
+      exportErrorCount: (count: number) => count > 0
+        ? `${count} seção(ões) falharam e foram listadas abaixo.`
+        : "Nenhuma seção falhou.",
+      exportFileLabel: (fileName: string) => `Arquivo gerado: ${fileName}`,
       deleteDataTitle: "Excluir meus dados",
       deleteDataDescription: "Apaga seus dados financeiros mantendo a autenticação como conta ativa.",
       deleteOnlyDataTitle: "Excluir apenas meus dados",

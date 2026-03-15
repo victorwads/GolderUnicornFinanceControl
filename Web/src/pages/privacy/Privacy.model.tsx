@@ -3,13 +3,18 @@ import { useNavigate } from "react-router-dom";
 import type { PrivacyViewModel } from "@layouts/privacy/Privacy";
 import type { DataProgressInfo } from "@components/DataProgress";
 import { useToast } from "@hooks/use-toast";
-import { deleteAllUserData, exportUserData } from "@features/settings/settingsActions";
+import {
+  deleteAllUserData,
+  exportUserData,
+  type ExportUserDataResult,
+} from "@features/settings/settingsActions";
 
 export function usePrivacyModel(): PrivacyViewModel {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [progress, setProgress] = useState<DataProgressInfo | null>(null);
   const [progressType, setProgressType] = useState<"export" | "delete">("export");
+  const [lastExportResult, setLastExportResult] = useState<ExportUserDataResult | null>(null);
   const [showDeleteDataDialog, setShowDeleteDataDialog] = useState(false);
   const [deleteDataConfirmation, setDeleteDataConfirmation] = useState("");
   const [deleteDataPhrase, setDeleteDataPhrase] = useState("");
@@ -17,13 +22,25 @@ export function usePrivacyModel(): PrivacyViewModel {
   const handleExport = async (format: "json" | "csv") => {
     try {
       setProgressType("export");
-      await exportUserData(format, setProgress);
-      toast({
-        title: "Exportação concluída",
-        description: "Seus dados foram exportados com sucesso.",
-      });
+      setLastExportResult(null);
+      const result = await exportUserData(format, setProgress);
+      setLastExportResult(result);
+
+      if (result.failedDomains.length > 0) {
+        toast({
+          variant: "destructive",
+          title: "Exportação concluída com erros",
+          description: `O arquivo foi gerado, mas houve falha em ${result.failedDomains.length} seção(ões).`,
+        });
+      } else {
+        toast({
+          title: "Exportação concluída",
+          description: "Seus dados foram exportados com sucesso.",
+        });
+      }
     } catch (error) {
       console.error("Failed to export data", error);
+      setLastExportResult(null);
       toast({
         variant: "destructive",
         title: "Falha ao exportar dados",
@@ -36,6 +53,7 @@ export function usePrivacyModel(): PrivacyViewModel {
     navigate,
     progress,
     progressType,
+    lastExportResult,
     handleExport,
     showDeleteDataDialog,
     setShowDeleteDataDialog,

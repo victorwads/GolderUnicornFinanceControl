@@ -65,6 +65,17 @@ export default class ResourcesUseRepository extends BaseRepository<ResourcesUseM
       .map(doc => new ResourcesUseModel(doc.id, doc.data()));
   }
 
+  public override async getAll(): Promise<ResourcesUseModel[]> {
+    const userSnap = await getDoc(doc(this.ref, this.safeUserId));
+    if (!userSnap.exists()) {
+      return [];
+    }
+
+    const item = await this.fromFirestore(userSnap.id, userSnap.data());
+    this.addToCache(item);
+    return item._deletedAt ? [] : [item];
+  }
+
   override async reset(userId?: string): Promise<void> {
     super.reset(userId);
     this.initCaches();

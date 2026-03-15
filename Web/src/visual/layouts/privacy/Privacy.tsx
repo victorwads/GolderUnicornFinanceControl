@@ -1,9 +1,11 @@
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Input } from "@components/ui/input";
-import { ArrowLeft, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
+import { ArrowLeft, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { DataProgress } from "@components/DataProgress";
 import type { DataProgressInfo } from "@components/DataProgress";
+import type { ExportUserDataResult } from "@features/settings/settingsActions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +27,7 @@ export default function Privacy({ model }: PrivacyProps) {
     navigate, 
     progress,
     progressType,
+    lastExportResult,
     handleExport,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
@@ -99,6 +102,18 @@ export default function Privacy({ model }: PrivacyProps) {
                   {LocalLang.exportHint}
                 </p>
               </div>
+
+              {lastExportResult && (
+                <ExportResultSummary
+                  result={lastExportResult}
+                  title={lastExportResult.failedDomains.length > 0
+                    ? LocalLang.exportPartialTitle
+                    : LocalLang.exportSuccessTitle}
+                  successLabel={LocalLang.exportSuccessCount(lastExportResult.exportedDomains.length)}
+                  errorLabel={LocalLang.exportErrorCount(lastExportResult.failedDomains.length)}
+                  fileLabel={LocalLang.exportFileLabel(lastExportResult.fileName)}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -228,6 +243,7 @@ export interface PrivacyViewModel {
   navigate: (path: string) => void;
   progress: DataProgressInfo | null;
   progressType: "export" | "delete";
+  lastExportResult: ExportUserDataResult | null;
   handleExport: (format: 'json' | 'csv') => void;
   showDeleteDataDialog: boolean;
   setShowDeleteDataDialog: (open: boolean) => void;
@@ -236,4 +252,42 @@ export interface PrivacyViewModel {
   setDeleteDataConfirmation: (value: string) => void;
   openDeleteDataDialog: () => void;
   confirmDeleteData: () => void;
+}
+
+function ExportResultSummary({
+  result,
+  title,
+  successLabel,
+  errorLabel,
+  fileLabel,
+}: {
+  result: ExportUserDataResult;
+  title: string;
+  successLabel: string;
+  errorLabel: string;
+  fileLabel: string;
+}) {
+  const hasErrors = result.failedDomains.length > 0;
+  const Icon = hasErrors ? AlertCircle : CheckCircle2;
+
+  return (
+    <Alert variant={hasErrors ? "destructive" : "default"}>
+      <Icon className="h-4 w-4" />
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription className="space-y-2">
+        <p>{successLabel}</p>
+        <p>{errorLabel}</p>
+        <p>{fileLabel}</p>
+        {hasErrors && (
+          <ul className="list-disc pl-5">
+            {result.failedDomains.map(({ domain, message }) => (
+              <li key={domain}>
+                <strong>{domain}:</strong> {message}
+              </li>
+            ))}
+          </ul>
+        )}
+      </AlertDescription>
+    </Alert>
+  );
 }

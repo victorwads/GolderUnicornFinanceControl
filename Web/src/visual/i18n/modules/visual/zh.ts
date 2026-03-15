@@ -184,6 +184,13 @@ const zh: VisualModuleTranslation = {
       exportCsvTitle: "导出为 CSV",
       exportCsvDescription: "兼容 Excel 和电子表格",
       exportHint: "导出的数据包括你的所有交易、账户、卡片和分类。数据属于你自己，你可以随时导出。",
+      exportSuccessTitle: "导出完成",
+      exportPartialTitle: "导出完成，但有错误",
+      exportSuccessCount: (count: number) => `成功导出 ${count} 个部分。`,
+      exportErrorCount: (count: number) => count > 0
+        ? `${count} 个部分失败，已列在下方。`
+        : "没有失败的部分。",
+      exportFileLabel: (fileName: string) => `生成的文件：${fileName}`,
       deleteDataTitle: "删除我的数据",
       deleteDataDescription: "删除你的财务数据，同时保留已认证的账户。",
       deleteOnlyDataTitle: "仅删除我的数据",

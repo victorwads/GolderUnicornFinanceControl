@@ -18,48 +18,87 @@ const DELETE_DATA_IGNORED_REPOS: RepoName[] = ["banks"];
 
 export type ExportFormat = "json" | "csv" | "all";
 export type ProgressUpdater = (progress: DataProgressInfo | null) => void;
+export type ExportFailure = {
+  domain: string;
+  message: string;
+};
+
+export type ExportUserDataResult = {
+  fileName: string;
+  exportedDomains: RepoName[];
+  failedDomains: ExportFailure[];
+};
 
 export async function exportUserData(
   format: ExportFormat,
   setProgress?: ProgressUpdater,
-): Promise<void> {
+): Promise<ExportUserDataResult> {
   const allRepos = getRepositories();
   const repoKeys = Object.keys(allRepos) as RepoName[];
   const zip = new JSZip();
+  const exportedDomains: RepoName[] = [];
+  const failedDomains: ExportFailure[] = [];
+  const date = new Date().toISOString().split("T")[0];
+  const suffix = format === "all" ? "backup" : format;
+  const fileName = `golder-unicorn-${suffix}-${date}.zip`;
 
   try {
     for (const [index, key] of repoKeys.entries()) {
-      const repo = allRepos[key];
       setProgress?.({
         domain: key,
         current: index + 1,
         max: repoKeys.length,
       });
 
-      if (!repo.isReady) {
-        await repo.waitUntilReady();
-      }
+      try {
+        const repo = allRepos[key];
+        if (!repo.isReady) {
+          await repo.waitUntilReady();
+        }
 
-      const data = await repo.getAll();
-      if (format === "json" || format === "all") {
-        zip.file(`${key}.json`, JSON.stringify(data, null, 2));
-      }
-      if (format === "csv" || format === "all") {
-        zip.file(`${key}.csv`, toCSV(data));
+        const data = await repo.getAll();
+        if (format === "json" || format === "all") {
+          zip.file(`${key}.json`, JSON.stringify(data, null, 2));
+        }
+        if (format === "csv" || format === "all") {
+          zip.file(`${key}.csv`, toCSV(data));
+        }
+        exportedDomains.push(key);
+      } catch (error) {
+        const message = formatExportError(error);
+        failedDomains.push({ domain: key, message });
+        console.error(`Failed to export repository "${key}"`, error);
       }
     }
 
-    const date = new Date().toISOString().split("T")[0];
-    const suffix = format === "all" ? "backup" : format;
+    zip.file(
+      "export-report.json",
+      JSON.stringify(
+        {
+          generatedAt: new Date().toISOString(),
+          format,
+          exportedDomains,
+          failedDomains,
+        },
+        null,
+        2,
+      ),
+    );
+
     const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `golder-unicorn-${suffix}-${date}.zip`;
+    anchor.download = fileName;
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
     URL.revokeObjectURL(url);
+    return {
+      fileName,
+      exportedDomains,
+      failedDomains,
+    };
   } finally {
     setProgress?.(null);
   }
@@ -72,7 +111,14 @@ export async function deleteAllUserData(setProgress?: ProgressUpdater): Promise<
   ) as [RepoName, Repositories[RepoName]][];
 
   try {
-    await exportUserData("all");
+    const exportResult = await exportUserData("all");
+    if (exportResult.failedDomains.length > 0) {
+      throw new Error(
+        `Backup incompleto antes da exclusão: ${exportResult.failedDomains
+          .map(({ domain }) => domain)
+          .join(", ")}`,
+      );
+    }
 
     for (const [index, [key, repo]] of entries.entries()) {
       setProgress?.({
@@ -203,4 +249,14 @@ function toCSV(data: DocumentModel[]): string {
   });
 
   return csvRows.join("\n");
+}
+
+function formatExportError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  return "Unknown export error";
 }

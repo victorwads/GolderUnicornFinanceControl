@@ -184,6 +184,11 @@ export default interface VisualModuleTranslation extends Translation {
       exportCsvTitle: string;
       exportCsvDescription: string;
       exportHint: string;
+      exportSuccessTitle: string;
+      exportPartialTitle: string;
+      exportSuccessCount: (count: number) => string;
+      exportErrorCount: (count: number) => string;
+      exportFileLabel: (fileName: string) => string;
       deleteDataTitle: string;
       deleteDataDescription: string;
       deleteOnlyDataTitle: string;
