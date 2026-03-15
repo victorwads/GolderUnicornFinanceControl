@@ -12,6 +12,7 @@ export enum TimelineParam {
   FROM = 'since',
   TO = 'until',
   CATEGORY = 'categoriesIds',
+  TAGS = 'tags',
 }
 
 export const useTimeline = () => {

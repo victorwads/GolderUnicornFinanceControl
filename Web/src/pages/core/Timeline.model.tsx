@@ -13,8 +13,9 @@ import {
 } from "@models";
 import routes from "@features/navigate";
 import { Month, MonthKey } from "@utils/FinancialMonthPeriod";
+import { SelectListOption } from "@components/ui/select-list";
+import { buildHierarchicalCategoryOptions } from "@pages/categories/categorySelectOptions";
 import {
-  TimelineCategoryOption,
   TimelineData,
   TimelineRoute,
   TimelineTexts,
@@ -38,6 +39,7 @@ type RouteState = {
   filterSince?: Date;
   filterUntil?: Date;
   categoryIds: string[];
+  tags: string[];
 };
 
 function parseOptionalDate(value: string | null): Date | undefined {
@@ -99,8 +101,10 @@ export function useTimelineModel(): TimelineViewModel {
   const [filterSince, setFilterSince] = useState<Date | undefined>();
   const [filterUntil, setFilterUntil] = useState<Date | undefined>();
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
-  const [accountOptions, setAccountOptions] = useState<{ value: string; label: string }[]>([]);
-  const [categoryOptions, setCategoryOptions] = useState<TimelineCategoryOption[]>([]);
+  const [filterTags, setFilterTags] = useState<string[]>([]);
+  const [accountOptions, setAccountOptions] = useState<SelectListOption[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<SelectListOption[]>([]);
+  const [tagOptions, setTagOptions] = useState<SelectListOption[]>([]);
   const routeTargetsRef = useRef<Record<string, string>>({});
 
   const locale = CurrentLangInfo.short;
@@ -121,6 +125,7 @@ export function useTimelineModel(): TimelineViewModel {
       filterSince: since,
       filterUntil: until,
       categoryIds: searchParams.get(TimelineParam.CATEGORY)?.split(",").filter(Boolean) ?? [],
+      tags: searchParams.get(TimelineParam.TAGS)?.split(",").filter(Boolean) ?? [],
     };
   }, [accountIdParam, searchParams]);
 
@@ -133,6 +138,7 @@ export function useTimelineModel(): TimelineViewModel {
     setFilterSince(routeState.filterSince);
     setFilterUntil(routeState.filterUntil);
     setFilterCategories(routeState.categoryIds);
+    setFilterTags(routeState.tags);
   }, [routeState]);
 
   useEffect(() => {
@@ -144,18 +150,19 @@ export function useTimelineModel(): TimelineViewModel {
     const accounts = repositories.accounts.getCacheWithBank(true).map((account) => ({
       value: account.id,
       label: account.name,
+      iconUrl: account.bank.logoUrl,
+      backgroundColor: account.color,
     }));
-    const categories = repositories.categories.getAllRoots().flatMap<TimelineCategoryOption>((root) => [
-      { id: root.id, label: root.name, value: root.id },
-      ...root.children.map((child) => ({
-        id: child.id,
-        label: `${root.name} / ${child.name}`,
-        value: child.id,
-      })),
-    ]);
+    const categories = buildHierarchicalCategoryOptions(repositories.categories.getCache());
+    const tags = Array.from(new Set(
+      repositories.accountTransactions.getCache().flatMap((registry) => registry.tags || [])
+    ))
+      .sort((a, b) => a.localeCompare(b, CurrentLangInfo.short))
+      .map<SelectListOption>((tag) => ({ label: tag, value: tag }));
 
     setAccountOptions(accounts);
     setCategoryOptions(categories);
+    setTagOptions(tags);
   }, []);
 
   const loadTimeline = useCallback(async () => {
@@ -170,6 +177,7 @@ export function useTimelineModel(): TimelineViewModel {
       period: searchText ? undefined : routeState.period,
       accountIds: routeState.accountId ? [routeState.accountId] : [],
       categoryIds: routeState.categoryIds,
+      tags: routeState.tags,
       search: searchText,
     });
 
@@ -270,6 +278,7 @@ export function useTimelineModel(): TimelineViewModel {
     const params = new URLSearchParams();
 
     if (filterCategories.length) params.set(TimelineParam.CATEGORY, filterCategories.join(","));
+    if (filterTags.length) params.set(TimelineParam.TAGS, filterTags.join(","));
     if (filterSince) params.set(TimelineParam.FROM, filterSince.toISOString().slice(0, 10));
     if (filterUntil) params.set(TimelineParam.TO, filterUntil.toISOString().slice(0, 10));
     if (!filterSince || !filterUntil) params.set(TimelineParam.MONTH, routeState.month.key);
@@ -282,13 +291,8 @@ export function useTimelineModel(): TimelineViewModel {
     setFilterSince(undefined);
     setFilterUntil(undefined);
     setFilterCategories([]);
+    setFilterTags([]);
     navigate(buildTimelinePath(routeState.accountId));
-  }
-
-  function toggleFilterCategory(value: string) {
-    setFilterCategories((current) =>
-      current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
-    );
   }
 
   function handleNavigation(route: TimelineRoute) {
@@ -340,8 +344,11 @@ export function useTimelineModel(): TimelineViewModel {
     filtersSinceLabel: Lang.timeline.from,
     filtersUntilLabel: Lang.timeline.to,
     filtersCategoriesLabel: Lang.categories.title,
+    filtersTagsLabel: "Tags",
     selectAccountPlaceholder: Lang.commons.selectOption(Lang.registry.account),
     selectDatePlaceholder: "Selecionar data",
+    selectCategoriesPlaceholder: "Selecione categorias",
+    selectTagsPlaceholder: "Selecione tags",
     clearFiltersLabel: Lang.timeline.clearFilter,
     applyFiltersLabel: Lang.timeline.apply,
   };
@@ -372,9 +379,12 @@ export function useTimelineModel(): TimelineViewModel {
     filterUntil,
     setFilterUntil,
     filterCategories,
-    toggleFilterCategory,
+    setFilterCategories,
+    filterTags,
+    setFilterTags,
     accountOptions,
     categoryOptions,
+    tagOptions,
     applyFilters,
     clearFilters,
   };

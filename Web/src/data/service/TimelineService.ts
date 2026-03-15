@@ -13,6 +13,7 @@ export interface TimelineFilterPeriod {
 export interface TimelineFilterParams {
   period?: TimelineFilterPeriod;
   categoryIds?: string[];
+  tags?: string[];
   showArchived?: boolean;
   accountIds?: string[];
   paid?: boolean;
@@ -36,6 +37,7 @@ export default class TimelineService {
   public getAccountItems({
     period: periodData,
     categoryIds = [],
+    tags = [],
     accountIds = [],
     showArchived = false,
     light = false,
@@ -53,6 +55,8 @@ export default class TimelineService {
         (!period || period.contains(r.date)) &&
         // Categories
         (categoryIds.length === 0 || (r.categoryId && categoryIds.includes(r.categoryId))) &&
+        // Tags
+        (tags.length === 0 || tags.every((tag) => r.tags.includes(tag))) &&
         // Accounts
         (
           (accountIds.length === 0 && (showArchived || !accounts.getLocalById(r.accountId)?.archived)) ||
@@ -72,6 +76,8 @@ export default class TimelineService {
         (paid === undefined || (paid ? r.paid : !r.paid)) &&
         // Period
         (!period || period.contains(r.paymentDate || r.invoiceDate)) &&
+        // Tags
+        (tags.length === 0 || tags.every((tag) => r.tags?.includes(tag))) &&
         // Accounts
         (
           accountIds.length === 0

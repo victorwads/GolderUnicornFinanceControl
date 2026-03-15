@@ -3,8 +3,10 @@ import { cn } from "@lib/utils";
 import { Check, ChevronDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Button } from "@components/ui/button";
+import { Badge } from "@components/ui/badge";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@components/ui/command";
 import Icon, { IconDefinition, getIconByCaseInsensitiveName } from "@components/Icons";
+import { resolveBankResourceUrl } from "@lib/assetUrls";
 
 export interface SelectListOption {
   label: string;
@@ -18,16 +20,21 @@ export interface SelectListOption {
 
 export interface SelectListProps {
   options: SelectListOption[];
-  value?: string;
-  onChange?: (value: string) => void;
+  value?: string | string[];
+  onChange?: (value: string | string[]) => void;
   placeholder?: string;
   allowSelectHeader?: boolean;
+  multiple?: boolean;
   className?: string;
 }
 
 const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
-  ({ options, value, onChange, placeholder = "Selecione...", allowSelectHeader = true, className }, ref) => {
+  ({ options, value, onChange, placeholder = "Selecione...", allowSelectHeader = true, multiple = false, className }, ref) => {
     const [open, setOpen] = React.useState(false);
+    const selectedValues = React.useMemo(
+      () => (multiple ? (Array.isArray(value) ? value : value ? [value] : []) : typeof value === "string" ? [value] : []),
+      [multiple, value]
+    );
     
     const findOption = (opts: SelectListOption[], val: string): SelectListOption | undefined => {
       for (const opt of opts) {
@@ -40,19 +47,28 @@ const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
       return undefined;
     };
 
-    const selectedOption = value ? findOption(options, value) : undefined;
+    const selectedOption = !multiple && typeof value === "string" ? findOption(options, value) : undefined;
+    const selectedOptions = React.useMemo(
+      () => selectedValues.map((selectedValue) => findOption(options, selectedValue)).filter(Boolean) as SelectListOption[],
+      [options, selectedValues]
+    );
 
     const renderIcon = (option: SelectListOption) => {
       const bgColor = option.backgroundColor || "hsl(var(--muted))";
+      const iconSrc = resolveBankResourceUrl(option.iconUrl);
       
-      if (option.iconUrl) {
+      if (iconSrc) {
         return (
           <div 
-            className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
-            style={{ backgroundColor: bgColor }}
-          >
-            <img src={option.iconUrl} alt="" className="w-5 h-5 object-contain" />
-          </div>
+            className="w-8 h-8 rounded-full shrink-0 overflow-hidden"
+            style={{
+              backgroundColor: bgColor,
+              backgroundImage: `url(${iconSrc})`,
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+            }}
+          />
         );
       }
       
@@ -82,6 +98,20 @@ const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
       return null;
     };
 
+    const toggleValue = (nextValue: string) => {
+      if (!multiple) {
+        onChange?.(nextValue);
+        setOpen(false);
+        return;
+      }
+
+      const nextValues = selectedValues.includes(nextValue)
+        ? selectedValues.filter((item) => item !== nextValue)
+        : [...selectedValues, nextValue];
+
+      onChange?.(nextValues);
+    };
+
     const renderOptions = (opts: SelectListOption[], level = 0) => {
       return opts.map((option) => (
         <React.Fragment key={option.value}>
@@ -89,8 +119,7 @@ const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
             value={option.value}
             onSelect={() => {
               if (allowSelectHeader || !option.subOptions) {
-                onChange?.(option.value);
-                setOpen(false);
+                toggleValue(option.value);
               }
             }}
             className={cn(
@@ -102,7 +131,7 @@ const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
           >
             {renderIcon(option)}
             <span className="flex-1">{option.label}</span>
-            {value === option.value && <Check className="h-4 w-4" />}
+            {selectedValues.includes(option.value) && <Check className="h-4 w-4" />}
           </CommandItem>
           {option.subOptions && renderOptions(option.subOptions, level + 1)}
         </React.Fragment>
@@ -117,9 +146,21 @@ const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn("w-full justify-between", className)}
+            className={cn("w-full justify-between min-h-10 h-auto", className)}
           >
-            {selectedOption ? (
+            {multiple ? (
+              selectedOptions.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-1 pr-2">
+                  {selectedOptions.map((option) => (
+                    <Badge key={option.value} variant="secondary" className="max-w-full">
+                      <span className="truncate">{option.label}</span>
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-muted-foreground">{placeholder}</span>
+              )
+            ) : selectedOption ? (
               <div className="flex items-center gap-3">
                 {renderIcon(selectedOption)}
                 <span>{selectedOption.label}</span>
@@ -130,10 +171,10 @@ const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
-          <Command>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-h-[24rem] overflow-hidden p-0" align="start">
+          <Command className="max-h-[24rem]">
             <CommandInput placeholder="Buscar..." />
-            <CommandList>
+            <CommandList className="max-h-[calc(24rem-2.75rem)]">
               <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
               <CommandGroup>
                 {renderOptions(options)}

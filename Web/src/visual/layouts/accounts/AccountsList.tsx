@@ -1,6 +1,7 @@
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Plus, Wallet, ChevronRight } from "lucide-react";
+import { resolveBankResourceUrl } from "@lib/assetUrls";
 
 function getColorProps(color: string) {
   if (color.startsWith("#") || color.startsWith("rgb") || color.startsWith("hsl")) {
@@ -61,7 +62,19 @@ export default function AccountsList({
               className={`h-12 w-12 rounded-lg flex items-center justify-center ${getColorProps(account.color).className}`}
               style={getColorProps(account.color).style}
             >
-              <Wallet className="h-6 w-6 text-white" />
+              {resolveBankResourceUrl(account.bankLogoUrl) ? (
+                <div
+                  className="h-full w-full rounded-lg"
+                  style={{
+                    backgroundImage: `url(${resolveBankResourceUrl(account.bankLogoUrl)})`,
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "cover",
+                  }}
+                />
+              ) : (
+                <Wallet className="h-6 w-6 text-white" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-semibold text-foreground truncate">{account.name}</p>
@@ -87,6 +100,7 @@ export interface Account {
   id: number;
   name: string;
   bank: string;
+  bankLogoUrl?: string;
   balance: number;
   color: string;
 }

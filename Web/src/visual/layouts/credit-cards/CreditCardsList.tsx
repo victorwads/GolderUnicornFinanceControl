@@ -1,6 +1,7 @@
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Plus, CreditCard, ChevronRight } from "lucide-react";
+import { resolveBankResourceUrl } from "@lib/assetUrls";
 
 function getColorProps(color: string) {
   if (color.startsWith("#") || color.startsWith("rgb") || color.startsWith("hsl")) {
@@ -61,7 +62,19 @@ export default function CreditCardsList({
               className={`h-12 w-12 rounded-lg flex items-center justify-center ${getColorProps(card.color).className}`}
               style={getColorProps(card.color).style}
             >
-              <CreditCard className="h-6 w-6 text-white" />
+              {resolveBankResourceUrl(card.brandLogoUrl) ? (
+                <div
+                  className="h-full w-full rounded-lg"
+                  style={{
+                    backgroundImage: `url(${resolveBankResourceUrl(card.brandLogoUrl)})`,
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "cover",
+                  }}
+                />
+              ) : (
+                <CreditCard className="h-6 w-6 text-white" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-semibold text-foreground truncate">{card.name}</p>
@@ -87,6 +100,7 @@ export interface CreditCard {
   id: number;
   name: string;
   brand: string;
+  brandLogoUrl?: string;
   limit: number;
   color: string;
 }

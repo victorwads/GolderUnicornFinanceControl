@@ -5,29 +5,11 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { SelectListOption } from "@components/ui/select-list";
 import { AccountTransactionForm, AccountTransactionRoute, AccountTransactionViewModel, ToPreviousRoute } from "@layouts/accounts/AddAccountTransaction";
 import getRepositories, { waitUntilReady } from "@repositories";
-import { AccountsRegistry, Category, RegistryType } from "@models";
+import { AccountsRegistry, RegistryType } from "@models";
+import { buildHierarchicalCategoryOptions } from "@pages/categories/categorySelectOptions";
 
 function toDateInputValue(date: Date): string {
   return new Date(date.getTime() - (date.getTimezoneOffset() * 60_000)).toISOString().slice(0, 10);
-}
-
-function buildCategoryOptions(categories: Category[]): SelectListOption[] {
-  const roots = categories.filter((category) => !category.parentId);
-
-  return roots.map((root) => ({
-    label: root.name,
-    value: root.id,
-    iconName: root.icon,
-    backgroundColor: root.color,
-    subOptions: categories
-      .filter((category) => category.parentId === root.id)
-      .map((child) => ({
-        label: child.name,
-        value: child.id,
-        iconName: child.icon || root.icon,
-        backgroundColor: child.color || root.color,
-      })),
-  }));
 }
 
 export function useAccountTransactionModel(): AccountTransactionViewModel {
@@ -68,7 +50,7 @@ export function useAccountTransactionModel(): AccountTransactionViewModel {
         backgroundColor: account.color,
       }));
 
-      const availableCategories = buildCategoryOptions(repositories.categories.getCache());
+      const availableCategories = buildHierarchicalCategoryOptions(repositories.categories.getCache());
 
       setAccounts(availableAccounts);
       setCategories(availableCategories);

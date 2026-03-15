@@ -20,6 +20,7 @@ function toVisualAccounts(accounts: WithInfoAccount[]): Account[] {
     id: account.id as unknown as number,
     name: account.name,
     bank: account.bank.name,
+    bankLogoUrl: account.bank.logoUrl,
     balance: balance.getBalance(account.id),
     color: account.color || "#64748b",
   }));

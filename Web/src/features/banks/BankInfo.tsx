@@ -1,11 +1,7 @@
 import "./BankInfo.css"
 import { Loading } from "@componentsDeprecated/Loading"
 import { Bank } from "@models"
-
-let banksResourceUrl = 'https://goldenunicornfc.firebaseapp.com/resources/banks/'
-if (window.location.hostname === 'localhost') {
-  banksResourceUrl = window.location.protocol + '//' + window.location.host + '/resources/banks/'
-}
+import { resolveBankResourceUrl } from "@lib/assetUrls"
 
 interface BankInfoParams {
   bank: Bank
@@ -16,7 +12,7 @@ interface BankInfoParams {
 
 const BankInfo = ({ bank, balance, divider, onClick }: BankInfoParams) => {
   return <div className={`BankInfo ${divider === false ? 'NoDivider' : ''}`} onClick={onClick}>
-    <img className="IconBall" src={banksResourceUrl + (bank.logoUrl || 'carteira.jpg')} alt={bank.name + ' Logo'} />
+    <img className="IconBall" src={resolveBankResourceUrl(bank.logoUrl || 'carteira.jpg')} alt={bank.name + ' Logo'} />
     {bank.name}
     <div style={{flex: 1}} />
     <Loading show={balance === true} />

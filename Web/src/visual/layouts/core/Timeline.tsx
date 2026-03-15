@@ -10,7 +10,7 @@ import { Label } from "@components/ui/label";
 import { SelectList, SelectListOption } from "@components/ui/select-list";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Calendar } from "@components/ui/calendar";
-import { CalendarIcon, X } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@lib/utils";
 import {
@@ -51,9 +51,12 @@ export default function Timeline({ model }: TimelineProps) {
     filterUntil,
     setFilterUntil,
     filterCategories,
-    toggleFilterCategory,
+    setFilterCategories,
+    filterTags,
+    setFilterTags,
     accountOptions,
     categoryOptions,
+    tagOptions,
     applyFilters,
     clearFilters,
   } = model;
@@ -294,22 +297,28 @@ export default function Timeline({ model }: TimelineProps) {
 
             <div>
               <Label>{texts.filtersCategoriesLabel}</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {categoryOptions.map((category) => (
-                  <Button
-                    key={category.id}
-                    type="button"
-                    variant={filterCategories.includes(category.value) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => toggleFilterCategory(category.value)}
-                    className="h-8"
-                  >
-                    {filterCategories.includes(category.value) && (
-                      <X className="h-3 w-3 mr-1" />
-                    )}
-                    {category.label}
-                  </Button>
-                ))}
+              <div className="mt-2">
+                <SelectList
+                  options={categoryOptions}
+                  value={filterCategories}
+                  onChange={(value) => setFilterCategories(Array.isArray(value) ? value : value ? [value] : [])}
+                  placeholder={texts.selectCategoriesPlaceholder}
+                  allowSelectHeader={true}
+                  multiple={true}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label>{texts.filtersTagsLabel}</Label>
+              <div className="mt-2">
+                <SelectList
+                  options={tagOptions}
+                  value={filterTags}
+                  onChange={(value) => setFilterTags(Array.isArray(value) ? value : value ? [value] : [])}
+                  placeholder={texts.selectTagsPlaceholder}
+                  multiple={true}
+                />
               </div>
             </div>
           </div>
@@ -353,12 +362,6 @@ export interface TimelineData {
   [key: string]: Transaction[];
 }
 
-export interface TimelineCategoryOption {
-  id: string;
-  label: string;
-  value: string;
-}
-
 export interface TimelineTexts {
   title: string;
   subtitle: string;
@@ -377,8 +380,11 @@ export interface TimelineTexts {
   filtersSinceLabel: string;
   filtersUntilLabel: string;
   filtersCategoriesLabel: string;
+  filtersTagsLabel: string;
   selectAccountPlaceholder: string;
   selectDatePlaceholder: string;
+  selectCategoriesPlaceholder: string;
+  selectTagsPlaceholder: string;
   clearFiltersLabel: string;
   applyFiltersLabel: string;
 }
@@ -409,9 +415,12 @@ export interface TimelineViewModel {
   filterUntil?: Date;
   setFilterUntil: (value?: Date) => void;
   filterCategories: string[];
-  toggleFilterCategory: (value: string) => void;
+  setFilterCategories: (value: string[]) => void;
+  filterTags: string[];
+  setFilterTags: (value: string[]) => void;
   accountOptions: SelectListOption[];
-  categoryOptions: TimelineCategoryOption[];
+  categoryOptions: SelectListOption[];
+  tagOptions: SelectListOption[];
   applyFilters: () => void;
   clearFilters: () => void;
 }

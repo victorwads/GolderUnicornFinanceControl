@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import type { SelectListOption } from "@components/ui/select-list";
 import getRepositories, { waitUntilReady } from "@repositories";
 import { CreateRecurrentViewModel, RecurrentForm, ToPreviousRoute } from "@layouts/transactions/CreateRecurrent";
-import { Category } from "@models";
+import { buildHierarchicalCategoryOptions } from "@pages/categories/categorySelectOptions";
 
 const accounts: SelectListOption[] = [
   { label: "Nubank", value: "nubank", iconName: "piggy-bank", backgroundColor: "#8A05BE" },
@@ -16,25 +16,6 @@ const cards: SelectListOption[] = [
   { label: "Nubank Gold", value: "nubank", iconName: "credit-card", backgroundColor: "#8A05BE" },
   { label: "Inter Black", value: "inter", iconName: "credit-card", backgroundColor: "#FF7A00" },
 ];
-
-function buildCategoryOptions(categories: Category[]): SelectListOption[] {
-  const roots = categories.filter((category) => !category.parentId);
-
-  return roots.map((root) => ({
-    label: root.name,
-    value: root.id,
-    iconName: root.icon,
-    backgroundColor: root.color,
-    subOptions: categories
-      .filter((category) => category.parentId === root.id)
-      .map((child) => ({
-        label: child.name,
-        value: child.id,
-        iconName: child.icon || root.icon,
-        backgroundColor: child.color || root.color,
-      })),
-  }));
-}
 
 export function useCreateRecurrentModel(): CreateRecurrentViewModel {
   const navigate = useNavigate();
@@ -57,13 +38,13 @@ export function useCreateRecurrentModel(): CreateRecurrentViewModel {
     const syncCategories = async () => {
       await waitUntilReady("categories");
       if (!active) return;
-      setCategories(buildCategoryOptions(getRepositories().categories.getCache()));
+      setCategories(buildHierarchicalCategoryOptions(getRepositories().categories.getCache()));
     };
 
     syncCategories();
 
     const dispose = getRepositories().categories.addUpdatedEventListenner(() => {
-      setCategories(buildCategoryOptions(getRepositories().categories.getCache()));
+      setCategories(buildHierarchicalCategoryOptions(getRepositories().categories.getCache()));
     });
 
     return () => {

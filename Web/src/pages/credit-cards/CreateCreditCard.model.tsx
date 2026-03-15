@@ -14,12 +14,12 @@ import {
 
 function buildBrandOptions(): SelectListOption[] {
   return [
-    { label: "Visa", value: "visa" },
-    { label: "Mastercard", value: "mastercard" },
-    { label: "American Express", value: "american express" },
-    { label: "Elo", value: "elo" },
-    { label: "Hipercard", value: "hipercard" },
-    { label: "Diners Club", value: "diners club" },
+    { label: "Visa", value: "Visa", iconUrl: "visa.png" },
+    { label: "Mastercard", value: "Mastercard", iconUrl: "mastercard.png" },
+    { label: "American Express", value: "American Express", iconUrl: "amex.png" },
+    { label: "Elo", value: "Elo", iconUrl: "elo.png" },
+    { label: "Hipercard", value: "Hipercard", iconUrl: "hipercard.png" },
+    { label: "Diners Club", value: "Diners Club", iconUrl: "diners.png" },
   ];
 }
 

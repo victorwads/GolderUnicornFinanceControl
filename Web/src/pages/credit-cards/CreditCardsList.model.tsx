@@ -12,7 +12,7 @@ import {
 } from "@layouts/credit-cards/CreditCardsList";
 
 function getBrandColor(brand: string): string {
-  switch (brand.toLowerCase()) {
+  switch (brand.trim().toLowerCase()) {
     case "visa":
       return "#1a1f71";
     case "mastercard":
@@ -30,6 +30,18 @@ function getBrandColor(brand: string): string {
   }
 }
 
+function getBrandLogoUrl(brand: string): string | undefined {
+  const normalizedBrand = brand.trim().toLowerCase();
+  switch (normalizedBrand) {
+    case "american express":
+      return "amex.png";
+    case "diners club":
+      return "diners.png";
+    default:
+      return normalizedBrand ? `${normalizedBrand}.png` : undefined;
+  }
+}
+
 function toVisualCreditCards(): CreditCard[] {
   return getRepositories()
     .creditCards
@@ -38,6 +50,7 @@ function toVisualCreditCards(): CreditCard[] {
       id: card.id as unknown as number,
       name: card.name,
       brand: card.brand,
+      brandLogoUrl: getBrandLogoUrl(card.brand),
       limit: card.limit,
       color: getBrandColor(card.brand),
     }))

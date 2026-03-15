@@ -11,7 +11,6 @@ import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesSc
 import AiCallsScreen from '@features/assistant/AiCallsScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
-import CreditCardRegistryScreen from '@features/creaditcards/CreditCardRegistryScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
@@ -28,6 +27,7 @@ import SettingsPage from '@pages/settings/Settings.page';
 import HomePage from '@pages/core/Home.page';
 import TimelinePage from '@pages/core/Timeline.page';
 import CreateRecurrentPage from '@pages/transactions/CreateRecurrent.page';
+import CreateTransferPage from '@pages/transactions/CreateTransfer.page';
 import PrivacyPage from '@pages/privacy/Privacy.page';
 import DeleteAccountPage from '@pages/privacy/DeleteAccount.page';
 import ExportDataPage from '@pages/privacy/ExportData.page';
@@ -37,6 +37,7 @@ import CategoriesListPage from '@pages/categories/CategoriesList.page';
 import CreateCategoryPage from '@pages/categories/CreateCategory.page';
 import CreditCardsListPage from '@pages/credit-cards/CreditCardsList.page';
 import CreateCreditCardPage from '@pages/credit-cards/CreateCreditCard.page';
+import AddCreditCardTransactionPage from '@pages/credit-cards/AddCreditCardTransaction.page';
 
 export const privateRouter = createBrowserRouter([
   {
@@ -68,7 +69,7 @@ export const privateRouter = createBrowserRouter([
       { path: '/accounts/expense/add', element: <AddAccountTransactionPage /> },
       { path: '/accounts/income/add', element: <AddAccountTransactionPage /> },
       { path: '/accounts/registry/:id', element: <AddAccountTransactionPage /> },
-      { path: '/accounts/transfers/create', element: <EmptyScreen title='Transfer Create' /> },
+      { path: '/accounts/transfers/create', element: <CreateTransferPage /> },
       { path: '/accounts/transfers/:id/edit', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
       { path: '/creditcards', element: <CreditCardsListPage /> },
       { path: '/creditcards/create', element: <CreateCreditCardPage /> },
@@ -77,8 +78,8 @@ export const privateRouter = createBrowserRouter([
         <CreditCardsInvoices />,
         'creditCardsInvoices', 'creditCardsTransactions', 'categories', 'creditCards'
       ) },
-      { path: '/creditcards/transaction/add', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards') },
-      { path: '/creditcards/transaction/:id/edit', element: withRepos(<CreditCardRegistryScreen />, 'categories', 'creditCards', 'creditCardsTransactions') },
+      { path: '/creditcards/transaction/add', element: <AddCreditCardTransactionPage /> },
+      { path: '/creditcards/transaction/:id/edit', element: <AddCreditCardTransactionPage /> },
       { path: '/categories', element: <CategoriesListPage /> },
       { path: '/categories/create', element: <CreateCategoryPage /> },
       { path: '/categories/:id', element: <CreateCategoryPage /> },
