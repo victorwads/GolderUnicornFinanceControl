@@ -8,6 +8,10 @@ const MILION = 1000000;
 
 export class AiCallContext extends DocumentModel {
   private static TOKEN_PRICES: AIUses<Dolar, AiModel> = {
+    "gpt-5.2": { input: 1.75, output: 14.0 },
+    "gpt-5.1": { input: 1.25, output: 10.0 },
+    "gpt-5": { input: 1.25, output: 10.0 },
+    "gpt-4.1": { input: 2.0, output: 8.0 },
     "gpt-5-nano": { input: 0.05, output: 0.4 },
     "gpt-5-mini": { input: 0.25, output: 2.0 },
     "gpt-4.1-nano": { input: 0.1, output: 0.4 },

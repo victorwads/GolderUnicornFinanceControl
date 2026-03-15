@@ -25,7 +25,6 @@ function isMoreSection(pathname: string) {
     "/me/resource-usage",
     "/me/privacy",
     "/subscriptions",
-    "/ai-calls",
     "/assistant",
     "/accounts",
     "/creditcards",

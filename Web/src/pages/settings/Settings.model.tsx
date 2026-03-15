@@ -31,8 +31,8 @@ export function useSettingsModel(): SettingsViewModel {
   const { density, setDensity: setCssDensity } = useCssVars();
   const { setDensity: setVisualDensity } = useDensity();
   const { period } = getServices().timeline;
-  const monthStartDay = [period.getCutOffDay()];
-  const monthNameMode = period.getDisplayType();
+  const [monthStartDay, setMonthStartDayState] = useState<number[]>(() => [period.getCutOffDay()]);
+  const [monthNameMode, setMonthNameModeState] = useState<"start" | "next">(() => period.getDisplayType());
   const selectedLanguage = SavedLang || "";
   const [assistantMode, setAssistantModeState] = useState<"live" | "manual">(() => getAssistantMode());
   const [microphoneMode, setMicrophoneModeState] = useState<"hold" | "click">(() => getAssistantMicrophoneMode());
@@ -82,12 +82,14 @@ export function useSettingsModel(): SettingsViewModel {
     monthStartDay,
     setMonthStartDay: (value) => {
       const nextDay = value[0];
+      setMonthStartDayState([nextDay]);
       period.setConfig({ cutOffDay: nextDay });
       ProjectStorage.set("financeDay", String(nextDay));
     },
     monthNameMode,
     setMonthNameMode: (value) => {
       const nextMode = value as "start" | "next";
+      setMonthNameModeState(nextMode);
       period.setConfig({ displayType: nextMode });
       ProjectStorage.set("financeMode", nextMode);
     },

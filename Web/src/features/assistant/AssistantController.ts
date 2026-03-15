@@ -185,7 +185,7 @@ export default class AssistantController {
       tool_choice: "required",
       parallel_tool_calls: true,
       ...(this.model.includes("gpt-5")
-        ? { reasoning_effort: "low" }
+        ? { reasoning_effort: "none" }
         : { temperature: 0.1 }),
     });
   }

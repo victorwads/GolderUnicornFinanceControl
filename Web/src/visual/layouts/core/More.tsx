@@ -24,7 +24,7 @@ export default function More({ model }: MoreProps) {
       return LocalLang.accountSection;
     }
 
-    if (routes.some((route) => ["/subscriptions", "/ai-calls", "/settings/developer"].includes(route))) {
+    if (routes.some((route) => ["/subscriptions", "/settings/developer"].includes(route))) {
       return LocalLang.developerSection;
     }
 
@@ -53,8 +53,6 @@ export default function More({ model }: MoreProps) {
         return LocalLang.privacyAndSecurity;
       case "/subscriptions":
         return LocalLang.subscriptions;
-      case "/ai-calls":
-        return LocalLang.aiCalls;
       case "/settings/developer":
         return LocalLang.developerUtilities;
       default:
