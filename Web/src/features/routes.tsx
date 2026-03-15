@@ -16,9 +16,7 @@ import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
 import GroceriesTrashScreen from '@features/groceries/GroceriesTrashScreen';
 import SubscriptionsRouter from '@features/subscriptions/SubscriptionsRouter';
-import MasterDetailShell, {
-  MasterDetailPlaceholder,
-} from '@layouts/core/MasterDetailShell';
+import MasterDetailShell from '@layouts/core/MasterDetailShell';
 
 import LoginScreen from '@pages/auth/LoginScreen.page';
 import AddAccountTransactionPage from '@pages/accounts/AddAccountTransaction.page';
@@ -78,12 +76,6 @@ export const privateRouter = createBrowserRouter([
           <MasterDetailShell
             basePath="/accounts"
             listPane={<AccountsListPage embedded />}
-            idleContent={
-              <MasterDetailPlaceholder
-                title="Selecione uma conta"
-                description="Escolha uma conta na lista para editar ou crie uma nova conta."
-              />
-            }
           />
         ),
         children: [
@@ -103,12 +95,6 @@ export const privateRouter = createBrowserRouter([
           <MasterDetailShell
             basePath="/creditcards"
             listPane={<CreditCardsListPage embedded />}
-            idleContent={
-              <MasterDetailPlaceholder
-                title="Selecione um cartao"
-                description="Escolha um cartao na lista para editar ou crie um novo cartao."
-              />
-            }
           />
         ),
         children: [
@@ -129,12 +115,6 @@ export const privateRouter = createBrowserRouter([
           <MasterDetailShell
             basePath="/categories"
             listPane={<CategoriesListPage embedded />}
-            idleContent={
-              <MasterDetailPlaceholder
-                title="Selecione uma categoria"
-                description="Escolha uma categoria na lista para editar ou crie uma nova categoria."
-              />
-            }
           />
         ),
         children: [
