@@ -1,7 +1,5 @@
 import { CreditCard, CreditCardInvoice, InvoiceTransaction, RegistryWithDetails } from "@models";
 import { Repositories } from "@repositories";
-import { getCurrentUser } from '../firebase/google-services';
-import { AccountsRegistry } from '../models/AccountRegistry';
 import FinancialMonthPeriod from "../utils/FinancialMonthPeriod";
 import searchScore from "../utils/SearchScore";
 

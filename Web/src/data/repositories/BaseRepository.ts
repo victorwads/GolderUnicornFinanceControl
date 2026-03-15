@@ -13,7 +13,6 @@ import {
 
 import { DocumentModel } from "@models";
 import { addResourceUse } from "./ResourcesUseRepositoryShared";
-import en from '../../i18n/en';
 
 const queryField: keyof DocumentModel = "_updatedAt";
 

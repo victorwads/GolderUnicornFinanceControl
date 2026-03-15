@@ -5,7 +5,6 @@ import getRepositories from "@repositories";
 import { getServices, TimelineFilterPeriod } from "@services";
 import { Account, RegistryWithDetails } from "@models";
 import { Month, MonthKey } from "@utils/FinancialMonthPeriod";
-import { Loading } from '../../../components/Loading';
 
 export enum TimelineParam {
   MONTH = 'monthKey',

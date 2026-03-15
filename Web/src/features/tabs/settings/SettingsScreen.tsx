@@ -1,7 +1,6 @@
 import "./SettingsScreen.css";
 import { useMemo } from "react";
 
-import { ProjectStorage } from '@utils/ProjectStorage';
 import { Container, ContainerFixedContent, ContainerScrollContent } from "@containers";
 import Card from "@componentsDeprecated/visual/Card";
 

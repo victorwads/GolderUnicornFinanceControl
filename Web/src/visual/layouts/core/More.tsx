@@ -1,11 +1,7 @@
-import { ChevronRight, User, Lock, HelpCircle, Info, Wallet, CreditCard, Receipt, Calendar, Settings as SettingsIcon, FileText, Download, Trash2, Link2, Repeat, Sparkles, LogOut } from "lucide-react";
+import { ChevronRight, User, Info, Settings as SettingsIcon, LogOut } from "lucide-react";
 import { Card } from "@components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@components/ui/accordion";
+
+
 import { Button } from "@components/ui/button";
 import { NamedExoticComponent } from "react";
 

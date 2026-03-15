@@ -6,7 +6,6 @@ import {
   buildToolChips,
   describeTool,
   isObject,
-  stringifyValue,
   truncateText,
 } from "./assistantHistoryToolMetadata";
 import type { AssistantHistoryConversation, AssistantTimelineEntry, PrimitiveRecord } from "./assistantHistory.types";

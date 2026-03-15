@@ -1,5 +1,5 @@
 import './CategoriesScreen.css';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { RootCategory } from '@models';

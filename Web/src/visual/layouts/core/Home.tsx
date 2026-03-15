@@ -1,12 +1,8 @@
-import { Button } from "@components/ui/button";
 import { BalanceCard } from "@components/BalanceCard";
 import { QuickActions } from "@components/QuickActions";
-import { TransactionItem } from "@components/TransactionItem";
 import { Card } from "@components/ui/card";
-import { Badge } from "@components/ui/badge";
-import { ChevronDown, Plus, ArrowUpRight, Calendar, Receipt, Building2, CreditCard, Wallet } from "lucide-react";
+import { CreditCard, Wallet } from "lucide-react";
 import { Skeleton } from "@components/ui/skeleton";
-import use from 'react';
 import {
   Accordion,
   AccordionContent,

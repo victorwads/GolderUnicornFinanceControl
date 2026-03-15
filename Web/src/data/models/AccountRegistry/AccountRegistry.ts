@@ -1,5 +1,5 @@
 import { Transaction, RegistryType } from "./Transaction";
-import { ModelMetadata, Result } from "../metadata";
+import { ModelMetadata } from "../metadata";
 import ModelContext from "../metadata/ModelContext";
 
 export class AccountsRegistry extends Transaction {

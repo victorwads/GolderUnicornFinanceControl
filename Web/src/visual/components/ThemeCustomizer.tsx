@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Card } from "@components/ui/card";
 import { Check, Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";

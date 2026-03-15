@@ -1,4 +1,4 @@
-import type { AssistantTimelineEntry, AssistantToolKind, PrimitiveRecord } from "./assistantHistory.types";
+import type { AssistantToolKind, PrimitiveRecord } from "./assistantHistory.types";
 
 type ToolDescription = {
   toolKind: AssistantToolKind;

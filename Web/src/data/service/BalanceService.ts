@@ -1,4 +1,3 @@
-import { AccountsRegistry } from "../models/AccountRegistry";
 
 import FinancialMonthPeriod, {
   Month,

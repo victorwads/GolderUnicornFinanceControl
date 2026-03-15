@@ -1,5 +1,5 @@
 import { describe, test } from 'vitest';
-import FinancialMonthPeriod, { Month, MonthNumber } from './FinancialMonthPeriod';
+import FinancialMonthPeriod, { Month } from './FinancialMonthPeriod';
 import { Period } from './FinancialMonthPeriod';
 
 describe('cutOffDay=1', () => {

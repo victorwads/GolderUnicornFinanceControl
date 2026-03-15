@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import type { PrivacyViewModel } from "@layouts/privacy/Privacy";
 import type { DataProgressInfo } from "@components/DataProgress";
 import { useToast } from "@hooks/use-toast";
-import { ProjectStorage } from "@utils/ProjectStorage";
 import {
   deleteAllUserData,
   exportUserData,

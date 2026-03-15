@@ -1,4 +1,3 @@
-import { a } from "vitest/dist/chunks/suite.d.FvehnV49";
 import { DocumentModel } from "./DocumentModel";
 import { ModelMetadata } from "./metadata";
 import ModelContext from "./metadata/ModelContext";

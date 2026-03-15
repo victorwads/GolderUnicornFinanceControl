@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState } from "react"
 
 import { Container, ContainerFixedContent, ContainerScrollContent } from "@containers";
 import SearchBar from "@componentsDeprecated/fields/SearchBar"
