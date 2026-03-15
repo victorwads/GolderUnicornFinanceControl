@@ -6,14 +6,10 @@ import { Label } from "@components/ui/label";
 const modes = [
   {
     id: "live",
-    name: "Modo Live",
-    description: "O assistente escuta continuamente e responde automaticamente quando você para de falar. Ideal para conversas naturais e fluidas.",
     icon: Mic,
   },
   {
     id: "manual",
-    name: "Modo Manual",
-    description: "Você controla quando o assistente deve escutar. Pressione o botão do microfone para falar e novamente para enviar. Mais controle e privacidade.",
     icon: Hand,
   }
 ];
@@ -21,14 +17,10 @@ const modes = [
 const micModes = [
   {
     id: "hold",
-    name: "Segurar para falar",
-    description: "Pressione e segure o botão enquanto fala",
     icon: Hand,
   },
   {
     id: "click",
-    name: "Clique para começar / Clique para parar",
-    description: "Clique uma vez para iniciar, clique novamente para finalizar",
     icon: MousePointerClick,
   }
 ];
@@ -40,13 +32,25 @@ interface AssistantModeContentProps {
 export default function AssistantModeContent({ variant = "cards" }: AssistantModeContentProps) {
   const [selectedMode, setSelectedMode] = useState("live");
   const [micMode, setMicMode] = useState("click");
+  const LocalLang = Lang.settings;
+
+  const localizedModes = {
+    live: LocalLang.assistantMode.live,
+    manual: LocalLang.assistantMode.manual,
+  } as const;
+
+  const localizedMicModes = {
+    hold: LocalLang.microphoneMode.hold,
+    click: LocalLang.microphoneMode.click,
+  } as const;
 
   return (
     <div className="space-y-4">
-      <Label className="text-sm font-medium">Modo do assistente</Label>
+      <Label className="text-sm font-medium">{LocalLang.assistantMode.title}</Label>
       <div className="grid gap-4">
         {modes.map((mode) => {
           const Icon = mode.icon;
+          const localized = localizedModes[mode.id as keyof typeof localizedModes];
           return (
             <Card
               key={mode.id}
@@ -62,13 +66,13 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-lg">
-                      {mode.name}
+                      {localized.name}
                     </h3>
                     {selectedMode === mode.id && (
                       <Check className="h-5 w-5 text-primary" />
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">{mode.description}</p>
+                  <p className="text-sm text-muted-foreground">{localized.description}</p>
                 </div>
               </div>
             </Card>
@@ -76,10 +80,11 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
         })}
       </div>
       <div className="space-y-4">
-        <Label className="text-sm font-medium">Modo do microfone</Label>
+        <Label className="text-sm font-medium">{LocalLang.microphoneMode.title}</Label>
         <div className="grid gap-4">
           {micModes.map((mode) => {
             const Icon = mode.icon;
+            const localized = localizedMicModes[mode.id as keyof typeof localizedMicModes];
             return (
               <Card
                 key={mode.id}
@@ -95,13 +100,13 @@ export default function AssistantModeContent({ variant = "cards" }: AssistantMod
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-lg">
-                        {mode.name}
+                        {localized.name}
                       </h3>
                       {micMode === mode.id && (
                         <Check className="h-5 w-5 text-primary" />
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">{mode.description}</p>
+                    <p className="text-sm text-muted-foreground">{localized.description}</p>
                   </div>
                 </div>
               </Card>

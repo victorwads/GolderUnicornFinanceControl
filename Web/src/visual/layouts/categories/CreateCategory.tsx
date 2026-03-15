@@ -32,18 +32,16 @@ export default function CreateCategory({
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
-            {isEdit ? "Editar Categoria" : "Nova Categoria"}
-          </h1>
+          <h1 className="text-lg font-semibold">{isEdit ? Lang.categories.editCategory : Lang.categories.newCategory}</h1>
         </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className={cn("space-y-6 p-4", isLandscapeLayout ? "mx-auto max-w-3xl pb-28" : "")}>
-        <DescriptionField label="Nome">
+        <DescriptionField label={Lang.categories.categoryName}>
           <Input {...register("name")} placeholder="Ex: Restaurantes" />
         </DescriptionField>
 
-        <DescriptionField label="Ícone">
+        <DescriptionField label={Lang.categories.icon}>
           <IconSearch
             iconList={iconNamesList}
             value={watch("icon")}
@@ -54,19 +52,19 @@ export default function CreateCategory({
           />
         </DescriptionField>
 
-        <DescriptionField label="Cor">
+        <DescriptionField label={Lang.categories.color}>
           <ColorPicker
             value={watch("color")}
             onChange={(value) => setValue("color", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Categoria Pai (opcional)">
+        <DescriptionField label={Lang.categories.parentCategory}>
           <SelectList
             options={categories}
             value={watch("parentCategory")}
             onChange={(value) => setValue("parentCategory", value)}
-            placeholder="Nenhuma"
+            placeholder={Lang.categories.noParentCategory}
             allowSelectHeader={true}
           />
         </DescriptionField>
@@ -83,14 +81,14 @@ export default function CreateCategory({
             className="flex-1"
             onClick={() => navigate(new ToPreviousRoute())}
           >
-            Cancelar
+            {Lang.commons.cancel}
           </Button>
           <Button 
             type="submit" 
             className="flex-1"
             onClick={handleSubmit(onSubmit)}
           >
-            {isEdit ? "Atualizar" : "Salvar"}
+            {isEdit ? Lang.commons.update : Lang.commons.save}
           </Button>
         </div>
       </div>

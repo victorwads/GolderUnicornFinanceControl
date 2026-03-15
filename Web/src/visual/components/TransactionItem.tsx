@@ -53,6 +53,11 @@ export const TransactionItem = ({
   const isIncome = type === "income";
   const resolvedCategoryColor = categoryColor || "#6366f1";
   const categoryIcon = getIconByCaseInsensitiveName(categoryIconName || "question");
+  const formattedAmount = Math.abs(amount).toLocaleString(CurrentLangInfo.short, {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  });
   
   const typeConfig = transactionType ? transactionTypeConfig[transactionType] : null;
   const TypeIcon = typeConfig?.icon;
@@ -98,7 +103,7 @@ export const TransactionItem = ({
             "font-bold",
             isIncome ? "text-success" : "text-destructive"
           )}>
-            {isIncome ? '+' : '-'} R$ {Math.abs(amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {isIncome ? "+" : "-"} {formattedAmount}
           </p>
           <div className="flex items-center justify-end gap-1">
             <div className="flex flex-col items-end">

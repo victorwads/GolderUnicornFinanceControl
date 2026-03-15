@@ -23,7 +23,7 @@ export default function CreateAccount({
       <div className="max-w-lg mx-auto">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
           <div className="flex items-center justify-between p-4">
-            <h1 className="text-xl font-bold text-foreground">Adicionar Conta</h1>
+            <h1 className="text-xl font-bold text-foreground">{Lang.accounts.addAccount}</h1>
             <Button
               variant="ghost"
               size="icon"
@@ -39,7 +39,7 @@ export default function CreateAccount({
           <Card className="p-6 bg-gradient-card border-border/50 space-y-5">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-foreground">
-                Nome da Conta
+                {Lang.accounts.accountName}
               </Label>
               <Input
                 id="name"
@@ -53,14 +53,14 @@ export default function CreateAccount({
 
             <div className="space-y-2">
               <Label htmlFor="bank" className="text-foreground">
-                Banco
+                {Lang.accounts.bank}
               </Label>
               <Select
                 value={formData.bank}
                 onValueChange={(value) => setFormData({ ...formData, bank: value })}
               >
                 <SelectTrigger id="bank">
-                  <SelectValue placeholder="Selecione o banco" />
+                  <SelectValue placeholder={Lang.accounts.selectBank} />
                 </SelectTrigger>
                 <SelectContent>
                   {banks.map((bank) => (
@@ -74,7 +74,7 @@ export default function CreateAccount({
 
             <div className="space-y-2">
               <Label htmlFor="balance" className="text-foreground">
-                Saldo Inicial
+                {Lang.accounts.initialBalance}
               </Label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -92,14 +92,14 @@ export default function CreateAccount({
 
             <div className="space-y-2">
               <Label htmlFor="type" className="text-foreground">
-                Tipo
+                {Lang.accounts.accountType}
               </Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value })}
               >
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Selecione o tipo" />
+                  <SelectValue placeholder={Lang.accounts.selectType} />
                 </SelectTrigger>
                 <SelectContent>
                   {accountTypes.map((type) => (
@@ -113,7 +113,7 @@ export default function CreateAccount({
 
             <div className="space-y-2">
               <Label htmlFor="color" className="text-foreground">
-                Cor da Conta
+                {Lang.accounts.accountColor}
               </Label>
               <Input
                 id="color"
@@ -136,7 +136,7 @@ export default function CreateAccount({
                 htmlFor="includeTotal"
                 className="text-sm text-foreground cursor-pointer"
               >
-                Incluir no total
+                {Lang.accounts.includeInTotal}
               </Label>
             </div>
           </Card>
@@ -150,10 +150,10 @@ export default function CreateAccount({
               onClick={() => navigate(new ToMoreRoute())}
               className="flex-1 h-12"
             >
-              Cancelar
+              {Lang.commons.cancel}
             </Button>
             <Button type="submit" onClick={handleSubmit} className="flex-1 h-12">
-              Salvar
+              {Lang.commons.save}
             </Button>
           </div>
         </div>

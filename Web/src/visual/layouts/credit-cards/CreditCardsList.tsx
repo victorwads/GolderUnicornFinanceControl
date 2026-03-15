@@ -29,6 +29,13 @@ export default function CreditCardsList({
   model: CreditCardsListViewModel;
   embedded?: boolean;
 }) {
+  const formatCurrency = (value: number) =>
+    value.toLocaleString(CurrentLangInfo.short, {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    });
+
   return (
     <div className={cn("mx-auto", embedded ? "min-h-full" : "max-w-4xl")}>
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
@@ -42,8 +49,8 @@ export default function CreditCardsList({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Cartões de Crédito</h1>
-              <p className="text-sm text-muted-foreground">{creditCards.length} cartões cadastrados</p>
+              <h1 className="text-2xl font-bold text-foreground">{Lang.creditcards.title}</h1>
+              <p className="text-sm text-muted-foreground">{Lang.creditcards.cardsListCount(creditCards.length)}</p>
             </div>
           </div>
           <Button
@@ -89,9 +96,9 @@ export default function CreditCardsList({
             </div>
             <div className="text-right flex items-center gap-3">
               <div>
-                <p className="text-sm text-muted-foreground">Limite</p>
+                <p className="text-sm text-muted-foreground">{Lang.commons.limit}</p>
                 <p className="text-base font-bold text-foreground">
-                  R$ {card.limit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {formatCurrency(card.limit)}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />

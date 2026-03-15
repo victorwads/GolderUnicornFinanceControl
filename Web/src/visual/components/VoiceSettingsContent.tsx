@@ -25,13 +25,12 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
   const [speechRate, setSpeechRate] = useState([1.0]);
   const [selectedVoice, setSelectedVoice] = useState(voices[0]);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const LocalLang = Lang.settings;
 
   const handleTestVoice = () => {
-    const utterance = new SpeechSynthesisUtterance(
-      "Olá, esta é uma demonstração da voz selecionada com a velocidade configurada."
-    );
+    const utterance = new SpeechSynthesisUtterance(LocalLang.testSpeechMessage);
     utterance.rate = speechRate[0];
-    utterance.lang = "pt-BR";
+    utterance.lang = CurrentLangInfo.short;
     speechSynthesis.speak(utterance);
   };
 
@@ -39,7 +38,7 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
     <div className="space-y-4">
       {showEnableToggle && (
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Ativar voz</Label>
+          <Label className="text-sm font-medium">{LocalLang.enableVoice}</Label>
           <Switch checked={voiceEnabled} onCheckedChange={setVoiceEnabled} />
         </div>
       )}
@@ -47,7 +46,7 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
       {/* Speech Rate */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <Label className="text-sm font-medium">Velocidade da Fala</Label>
+          <Label className="text-sm font-medium">{LocalLang.speechRate}</Label>
           <span className="text-sm text-muted-foreground">{speechRate[0].toFixed(1)}x</span>
         </div>
         <Slider
@@ -59,15 +58,15 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
           className="w-full"
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Mais lento</span>
-          <span>Normal</span>
-          <span>Mais rápido</span>
+          <span>{LocalLang.speechRateSlow}</span>
+          <span>{LocalLang.speechRateNormal}</span>
+          <span>{LocalLang.speechRateFast}</span>
         </div>
       </div>
 
       {/* Voice Selection */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Selecionar Voz</Label>
+        <Label className="text-sm font-medium">{LocalLang.selectVoice}</Label>
         <Select value={selectedVoice} onValueChange={setSelectedVoice}>
           <SelectTrigger>
             <SelectValue />
@@ -89,7 +88,7 @@ export default function VoiceSettingsContent({ showEnableToggle = false }: Voice
         onClick={handleTestVoice}
       >
         <Volume2 className="h-4 w-4 mr-2" />
-        Testar Voz
+        {LocalLang.testSpeech}
       </Button>
     </div>
   );

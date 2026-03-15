@@ -5,6 +5,7 @@ import ReactDOM from "react-dom/client";
 
 import "./index.css";
 import './visual/shared.css';
+import TranslationProvider from "./i18n";
 
 import { Toaster } from "@components/ui/toaster";
 import { Toaster as Sonner } from "@components/ui/sonner";
@@ -21,21 +22,23 @@ import App from "./App";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
-    <AppUpdatesProvider>
-      <VarsProvider>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <ThemeColorProvider>
-            <DensityProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <App />
-              </TooltipProvider>
-            </DensityProvider>
-          </ThemeColorProvider>
-        </ThemeProvider>
-      </VarsProvider>
-    </AppUpdatesProvider>
+    <TranslationProvider>
+      <AppUpdatesProvider>
+        <VarsProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            <ThemeColorProvider>
+              <DensityProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <App />
+                </TooltipProvider>
+              </DensityProvider>
+            </ThemeColorProvider>
+          </ThemeProvider>
+        </VarsProvider>
+      </AppUpdatesProvider>
+    </TranslationProvider>
   </StrictMode>
 );
 

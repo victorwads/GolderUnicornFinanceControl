@@ -1,0 +1,209 @@
+import type { Translation } from "../../core/types";
+
+export default interface VisualModuleTranslation extends Translation {
+  visual: {
+    home: {
+      greeting: (userName: string) => string;
+      subtitle: string;
+      quickActions: string;
+      quickActionTransfer: string;
+      quickActionIncome: string;
+      quickActionExpense: string;
+      quickActionCreditCard: string;
+      quickActionRecurring: string;
+      quickActionPay: string;
+      accountsActive: (count: number) => string;
+      creditCardsCount: (count: number) => string;
+      totalInvoices: string;
+    };
+    more: {
+      title: string;
+      subtitle: string;
+      myId: string;
+      financeSection: string;
+      accountSection: string;
+      developerSection: string;
+      accounts: string;
+      creditCards: string;
+      categories: string;
+      recurrents: string;
+      assistant: string;
+      settings: string;
+      settingsDescription: string;
+      connectedAccounts: string;
+      connectedAccountsDescription: string;
+      resourceUsage: string;
+      resourceUsageDescription: string;
+      privacyAndSecurity: string;
+      privacy: string;
+      privacyDescription: string;
+      developer: string;
+      developerDescription: string;
+      subscriptions: string;
+      developerUtilities: string;
+      aiCalls: string;
+      aboutApp: string;
+      searchUpdates: string;
+      searchingUpdates: string;
+      version: string;
+      logout: string;
+    };
+    settings: {
+      title: string;
+      subtitle: string;
+      appearance: string;
+      themeAndColors: string;
+      customizeAppearance: string;
+      languageTitle: string;
+      densityTitle: string;
+      densityDescription: string;
+      aiAssistant: string;
+      voiceAndAudio: string;
+      speechSettings: string;
+      behavior: string;
+      interactionMode: string;
+      timelineBehavior: string;
+      financialMonthStartDay: string;
+      financialMonthName: string;
+      currentMonthMode: string;
+      currentMonthDescription: string;
+      nextMonthMode: string;
+      nextMonthDescription: string;
+      density: {
+        compact: string;
+        normal: string;
+        comfortable: string;
+        spacious: string;
+      };
+      languageScreen: {
+        title: string;
+        chooseTitle: string;
+        chooseDescription: string;
+        deviceDefault: (language: string) => string;
+        deviceDefaultDescription: string;
+        interfaceDescription: (locale: string) => string;
+      };
+      connectedAccounts: {
+        title: string;
+        subtitle: string;
+        sectionTitle: string;
+        emptyTitle: string;
+        emptyDescription: string;
+        connectButton: string;
+        connected: string;
+        disconnect: string;
+        socialSection: string;
+        disconnectAnytime: string;
+        secureStorage: string;
+      };
+      developer: {
+        title: string;
+        subtitle: string;
+        toolsTitle: string;
+        toolsDescription: string;
+        aiCalls: string;
+        subscriptions: string;
+        onboardingTitle: string;
+        onboardingDescription: string;
+        resetAssistant: string;
+        resetMicrophone: string;
+        encryptionTitle: string;
+        encryptionDescription: string;
+        disableEncryption: string;
+        disableEncryptionDescription: string;
+        rewrittenItems: string;
+        killAccountTitle: string;
+        killAccountDescription: string;
+        accountIdPlaceholder: string;
+        runAction: string;
+        killAccountHint: string;
+      };
+      resourceUsage: {
+        title: string;
+        subtitle: string;
+        beta: string;
+        monthlyAiUsage: string;
+        exceededBy: (amount: string) => string;
+        database: string;
+        reads: string;
+        writes: string;
+        queryReads: string;
+        aiModels: string;
+        requests: string;
+        tokensIn: string;
+        tokensOut: string;
+        totalRequests: string;
+        totalInputTokens: string;
+        totalOutputTokens: string;
+        estimatedCost: string;
+        back: string;
+      };
+    };
+    onboarding: {
+      theme: {
+        title: string;
+        subtitle: string;
+        continue: string;
+      };
+      audio: {
+        title: string;
+        subtitle: string;
+        startTest: string;
+        confirmLanguage: string;
+        skip: string;
+      };
+      voiceSettings: {
+        title: string;
+        subtitle: string;
+        continue: string;
+      };
+      assistantMode: {
+        title: string;
+        subtitle: string;
+        continue: string;
+      };
+      voiceIntro: {
+        title: string;
+        subtitle: string;
+        continue: string;
+      };
+    };
+    privacy: {
+      title: string;
+      subtitle: string;
+      exportData: string;
+      deleteAccount: string;
+      terms: string;
+      policy: string;
+      settingsAndPreferences: string;
+      dataTitle: string;
+      dataDescription: string;
+      exportJsonTitle: string;
+      exportJsonDescription: string;
+      exportCsvTitle: string;
+      exportCsvDescription: string;
+      exportHint: string;
+      deleteDataTitle: string;
+      deleteDataDescription: string;
+      deleteOnlyDataTitle: string;
+      deleteOnlyDataDescription: string;
+      policiesTitle: string;
+      policiesDescription: string;
+      termsDescription: string;
+      policyDescription: string;
+      manageAccountTitle: string;
+      manageAccountDescription: string;
+      deleteMyAccountTitle: string;
+      deleteMyAccountDescription: string;
+      deleteDialogTitle: string;
+      deleteDialogDescription: string;
+      deleteDialogPlaceholder: string;
+      deleteDialogCancel: string;
+      deleteDialogConfirm: string;
+    };
+    assistant: {
+      aiCallsTitle: string;
+      aiCallsSubtitle: string;
+    };
+  };
+}

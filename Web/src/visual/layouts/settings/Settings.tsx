@@ -20,11 +20,12 @@ interface SettingsProps {
 
 export default function Settings({ model }: SettingsProps) {
   const { navigate, monthStartDay, setMonthStartDay, monthNameMode, setMonthNameMode } = model;
+  const LocalLang = Lang.visual.settings;
   const densityOptions = [
-    { id: 1, name: "Compacto", description: "87.5%" },
-    { id: 2, name: "Normal", description: "100%" },
-    { id: 3, name: "Confortável", description: "112.5%" },
-    { id: 4, name: "Espaçoso", description: "125%" },
+    { id: 1, name: LocalLang.density.compact, description: "87.5%" },
+    { id: 2, name: LocalLang.density.normal, description: "100%" },
+    { id: 3, name: LocalLang.density.comfortable, description: "112.5%" },
+    { id: 4, name: LocalLang.density.spacious, description: "125%" },
   ];
 
   return (
@@ -40,8 +41,8 @@ export default function Settings({ model }: SettingsProps) {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
-              <p className="text-sm text-muted-foreground">Preferências do aplicativo</p>
+              <h1 className="text-2xl font-bold text-foreground">{LocalLang.title}</h1>
+              <p className="text-sm text-muted-foreground">{LocalLang.subtitle}</p>
             </div>
           </div>
         </header>
@@ -50,7 +51,7 @@ export default function Settings({ model }: SettingsProps) {
           {/* Aparência */}
           <div className="space-y-3">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-              Aparência
+              {LocalLang.appearance}
             </h3>
             <Accordion type="multiple" className="space-y-3">
               <AccordionItem value="theme" className="border-0">
@@ -61,8 +62,8 @@ export default function Settings({ model }: SettingsProps) {
                         <Palette className="h-5 w-5 text-primary" />
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-medium text-foreground">Tema e Cores</p>
-                        <p className="text-xs text-muted-foreground">Personalizar aparência</p>
+                        <p className="text-sm font-medium text-foreground">{LocalLang.themeAndColors}</p>
+                        <p className="text-xs text-muted-foreground">{LocalLang.customizeAppearance}</p>
                       </div>
                     </div>
                   </AccordionTrigger>
@@ -83,7 +84,7 @@ export default function Settings({ model }: SettingsProps) {
                     <Languages className="h-5 w-5 text-primary" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-foreground">Idioma</p>
+                    <p className="text-sm font-medium text-foreground">{LocalLang.languageTitle}</p>
                     <p className="text-xs text-muted-foreground">{model.currentLanguageLabel}</p>
                   </div>
                 </div>
@@ -93,8 +94,8 @@ export default function Settings({ model }: SettingsProps) {
 
             <Card className="p-4 space-y-4 border-border/50">
               <div>
-                <p className="text-sm font-medium text-foreground">Densidade</p>
-                <p className="text-xs text-muted-foreground">Ajuste o espaço visual do app.</p>
+                <p className="text-sm font-medium text-foreground">{LocalLang.densityTitle}</p>
+                <p className="text-xs text-muted-foreground">{LocalLang.densityDescription}</p>
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {densityOptions.map((option) => (
@@ -121,7 +122,7 @@ export default function Settings({ model }: SettingsProps) {
           {/* Configurações do Assistente de IA */}
           <div className="space-y-3">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-              Configurações do Assistente de IA
+              {LocalLang.aiAssistant}
             </h3>
             <Accordion type="multiple" className="space-y-3">
               <AccordionItem value="voice" className="border-0">
@@ -132,8 +133,8 @@ export default function Settings({ model }: SettingsProps) {
                         <Mic className="h-5 w-5 text-primary" />
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-medium text-foreground">Voz e Áudio</p>
-                        <p className="text-xs text-muted-foreground">Configurações de fala</p>
+                        <p className="text-sm font-medium text-foreground">{LocalLang.voiceAndAudio}</p>
+                        <p className="text-xs text-muted-foreground">{LocalLang.speechSettings}</p>
                       </div>
                     </div>
                   </AccordionTrigger>
@@ -151,8 +152,8 @@ export default function Settings({ model }: SettingsProps) {
                         <Zap className="h-5 w-5 text-primary" />
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-medium text-foreground">Comportamento</p>
-                        <p className="text-xs text-muted-foreground">Modo de interação</p>
+                        <p className="text-sm font-medium text-foreground">{LocalLang.behavior}</p>
+                        <p className="text-xs text-muted-foreground">{LocalLang.interactionMode}</p>
                       </div>
                     </div>
                   </AccordionTrigger>
@@ -167,11 +168,11 @@ export default function Settings({ model }: SettingsProps) {
           {/* Timeline/Comportamento do App */}
           <div className="space-y-3">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-              Timeline / Comportamento do App
+              {LocalLang.timelineBehavior}
             </h3>
             <Card className="p-4 space-y-4 border-border/50">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-foreground">Dia de início do seu mês financeiro</Label>
+                <Label className="text-sm font-medium text-foreground">{LocalLang.financialMonthStartDay}</Label>
                 <div className="flex items-center gap-4">
                   <Slider 
                     value={monthStartDay} 
@@ -186,15 +187,15 @@ export default function Settings({ model }: SettingsProps) {
               </div>
 
               <div className="space-y-3 pt-2">
-                <Label className="text-sm font-medium text-foreground">Nome do mês financeiro</Label>
+                <Label className="text-sm font-medium text-foreground">{LocalLang.financialMonthName}</Label>
                 <RadioGroup value={monthNameMode} onValueChange={setMonthNameMode} className="space-y-3">
                   <Card className="p-3 border-border/50">
                     <div className="flex items-start gap-3">
                       <RadioGroupItem value="start" id="start" className="mt-1" />
                       <Label htmlFor="start" className="text-sm cursor-pointer flex-1">
-                        <div className="font-medium text-foreground mb-1">Mês atual ao dia escolhido</div>
+                        <div className="font-medium text-foreground mb-1">{LocalLang.currentMonthMode}</div>
                         <div className="text-xs text-muted-foreground">
-                          Dia 15/10 em diante será chamado de Outubro. Antes de 15/10 será chamado Setembro.
+                          {LocalLang.currentMonthDescription}
                         </div>
                       </Label>
                     </div>
@@ -203,9 +204,9 @@ export default function Settings({ model }: SettingsProps) {
                     <div className="flex items-start gap-3">
                       <RadioGroupItem value="next" id="next" className="mt-1" />
                       <Label htmlFor="next" className="text-sm cursor-pointer flex-1">
-                        <div className="font-medium text-foreground mb-1">Próximo mês após o dia escolhido</div>
+                        <div className="font-medium text-foreground mb-1">{LocalLang.nextMonthMode}</div>
                         <div className="text-xs text-muted-foreground">
-                          Dia 15/10 em diante será chamado de Novembro. Antes de 15/10 será chamado Outubro.
+                          {LocalLang.nextMonthDescription}
                         </div>
                       </Label>
                     </div>

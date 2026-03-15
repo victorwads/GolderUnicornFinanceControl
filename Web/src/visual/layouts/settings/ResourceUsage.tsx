@@ -9,6 +9,7 @@ interface ResourceUsageProps {
 }
 
 export default function ResourceUsage({ model }: ResourceUsageProps) {
+  const LocalLang = Lang.visual.settings.resourceUsage;
   const {
     navigate,
     aiModels,
@@ -32,10 +33,10 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
             </Button>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-foreground">Resources Usages</h1>
-                <Badge variant="secondary" className="text-xs">Beta</Badge>
+                <h1 className="text-2xl font-bold text-foreground">{LocalLang.title}</h1>
+                <Badge variant="secondary" className="text-xs">{LocalLang.beta}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground">Monitore o uso de recursos do app</p>
+              <p className="text-sm text-muted-foreground">{LocalLang.subtitle}</p>
             </div>
           </div>
         </header>
@@ -45,15 +46,15 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
           <Card className="p-5 border-border/50 bg-gradient-card">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-foreground">Consumo mensal de IA</h3>
+                <h3 className="text-sm font-semibold text-foreground">{LocalLang.monthlyAiUsage}</h3>
                 <span className="text-sm font-medium text-foreground">
-                  {formatCurrencyBRL(monthlyUsage.currentCostBRL)} de {formatCurrencyBRL(monthlyUsage.limitBRL)}
+                  {formatCurrencyBRL(monthlyUsage.currentCostBRL)} / {formatCurrencyBRL(monthlyUsage.limitBRL)}
                 </span>
               </div>
               <Progress value={monthlyUsage.progressPercent} className="h-2" />
               {monthlyUsage.exceededAmountBRL !== null && (
                 <p className="text-xs font-medium text-destructive">
-                  Limite excedido em {formatCurrencyBRL(monthlyUsage.exceededAmountBRL)}
+                  {LocalLang.exceededBy(formatCurrencyBRL(monthlyUsage.exceededAmountBRL))}
                 </p>
               )}
             </div>
@@ -61,7 +62,7 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
 
           {/* Database */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">Database</h3>
+            <h3 className="text-lg font-semibold text-foreground">{LocalLang.database}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {databases.map((database) => (
                 <Card key={database.name} className="p-5 border-border/50 bg-card/50">
@@ -72,19 +73,19 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Reads</p>
+                        <p className="text-xs text-muted-foreground">{LocalLang.reads}</p>
                         <p className="text-lg font-bold text-foreground">
                           {formatNumber(database.reads)}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Writes</p>
+                        <p className="text-xs text-muted-foreground">{LocalLang.writes}</p>
                         <p className="text-lg font-bold text-foreground">
                           {formatNumber(database.writes)}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Query Reads</p>
+                        <p className="text-xs text-muted-foreground">{LocalLang.queryReads}</p>
                         <p className="text-lg font-bold text-foreground">
                           {formatNumber(database.queryReads)}
                         </p>
@@ -98,7 +99,7 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
 
           {/* AI Models */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">AI Models</h3>
+            <h3 className="text-lg font-semibold text-foreground">{LocalLang.aiModels}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {aiModels.map((model, index) => (
                 <Card key={model.name || index} className="p-4 border-border/50 bg-card/50">
@@ -112,19 +113,19 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
                     <div className="space-y-2">
                       {model.requests !== null && (
                         <div>
-                          <p className="text-xs text-muted-foreground">Requests</p>
+                          <p className="text-xs text-muted-foreground">{LocalLang.requests}</p>
                           <p className="text-lg font-bold text-foreground">{model.requests}</p>
                         </div>
                       )}
                       {model.tokensIn !== null && (
                         <div>
-                          <p className="text-xs text-muted-foreground">Tokens In</p>
+                          <p className="text-xs text-muted-foreground">{LocalLang.tokensIn}</p>
                           <p className="text-lg font-bold text-foreground">{formatNumber(model.tokensIn)}</p>
                         </div>
                       )}
                       {model.tokensOut !== null && (
                         <div>
-                          <p className="text-xs text-muted-foreground">Tokens Out</p>
+                          <p className="text-xs text-muted-foreground">{LocalLang.tokensOut}</p>
                           <p className="text-lg font-bold text-foreground">{formatNumber(model.tokensOut)}</p>
                         </div>
                       )}
@@ -138,19 +139,19 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
             <Card className="p-5 border-border/50 bg-gradient-card">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Total Requests</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.totalRequests}</p>
                   <p className="text-xl font-bold text-foreground">{formatNumber(summary.totalRequests)}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Tokens Input</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.totalInputTokens}</p>
                   <p className="text-xl font-bold text-foreground">{formatNumber(summary.tokensIn)}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Tokens Output</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.totalOutputTokens}</p>
                   <p className="text-xl font-bold text-foreground">{formatNumber(summary.tokensOut)}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Estimated Cost</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.estimatedCost}</p>
                   <p className="text-xl font-bold text-primary">{formatCurrencyBRL(summary.estimatedCostBRL)}</p>
                 </div>
               </div>
@@ -162,7 +163,7 @@ export default function ResourceUsage({ model }: ResourceUsageProps) {
             onClick={() => navigate(new ToMoreRoute())}
             className="w-full"
           >
-            Voltar
+            {LocalLang.back}
           </Button>
         </div>
       </div>

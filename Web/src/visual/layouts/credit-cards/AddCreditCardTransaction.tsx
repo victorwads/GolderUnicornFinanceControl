@@ -38,6 +38,12 @@ export default function AddCreditCardTransaction({ model }: AddCreditCardTransac
   const invoiceMonth = watch("invoiceMonth");
   const description = watch("description");
   const category = watch("category");
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat(CurrentLangInfo.short, {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    }).format(value);
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -46,62 +52,60 @@ export default function AddCreditCardTransaction({ model }: AddCreditCardTransac
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
-            {isEdit ? "Editar Despesa no Cartão" : "Nova Despesa no Cartão"}
-          </h1>
+          <h1 className="text-lg font-semibold">{isEdit ? Lang.creditcards.editTransaction : Lang.creditcards.newTransaction}</h1>
         </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-6 pb-24">
-        <DescriptionField label="Cartão">
+        <DescriptionField label={Lang.creditcards.account}>
           <SelectList
             options={cards}
             value={watch("card")}
             onChange={(value) => setValue("card", value)}
-            placeholder="Selecione o cartão"
+            placeholder={Lang.creditcards.selectCard}
           />
         </DescriptionField>
 
-        <DescriptionField label="Mês/Ano da Fatura">
+        <DescriptionField label={Lang.creditcards.invoiceMonth}>
           <MonthYearPicker
             value={watch("invoiceMonth")}
             onChange={(value) => setValue("invoiceMonth", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Valor">
+        <DescriptionField label={Lang.registry.value}>
           <PriceInput
             value={watch("amount")}
             onChange={(value) => setValue("amount", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Descrição">
-          <Input {...register("description")} placeholder="Ex: Compras online" />
+        <DescriptionField label={Lang.registry.description}>
+          <Input {...register("description")} placeholder={Lang.registry.descriptionExpensePlaceholder} />
         </DescriptionField>
 
-        <DescriptionField label="Categoria">
+        <DescriptionField label={Lang.registry.category}>
           <SelectList
             options={categories}
             value={watch("category")}
             onChange={(value) => setValue("category", value)}
-            placeholder="Selecione a categoria"
+            placeholder={Lang.timeline.selectCategoriesPlaceholder}
             allowSelectHeader={true}
           />
         </DescriptionField>
 
-        <DescriptionField label="Tags">
+        <DescriptionField label={Lang.registry.tags}>
           <TagsInput
             value={watch("tags")}
             onChange={(value) => setValue("tags", value)}
-            placeholder="Digite e pressione Enter"
+            placeholder={Lang.commons.typeAndPressEnter}
           />
         </DescriptionField>
 
-        <DescriptionField label="Observação">
+        <DescriptionField label={Lang.registry.notes}>
           <Textarea
             {...register("notes")}
-            placeholder="Adicione observações..."
+            placeholder={Lang.commons.addNotes}
             rows={3}
           />
         </DescriptionField>
@@ -111,10 +115,10 @@ export default function AddCreditCardTransaction({ model }: AddCreditCardTransac
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="installment-toggle" className="text-base font-semibold">
-                  Parcelamento
+                  {Lang.creditcards.installmentTitle}
                 </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Divida a compra em várias faturas
+                  {Lang.creditcards.installmentDescription}
                 </p>
               </div>
               <Switch
@@ -126,7 +130,7 @@ export default function AddCreditCardTransaction({ model }: AddCreditCardTransac
 
             {isInstallment && (
               <div className="space-y-4 pt-2">
-                <DescriptionField label="Número de Parcelas">
+                <DescriptionField label={Lang.creditcards.installmentsLabel}>
                   <Input
                     type="number"
                     min="2"
@@ -136,7 +140,7 @@ export default function AddCreditCardTransaction({ model }: AddCreditCardTransac
                   {installments > 1 && amount > 0 && (
                     <div className="mt-2 p-3 bg-primary/10 rounded-md border border-primary/20">
                       <p className="text-sm font-medium">
-                        {installments}x de R$ {installmentValue.toFixed(2).replace(".", ",")}
+                        {installments}x {formatCurrency(installmentValue)}
                       </p>
                     </div>
                   )}
@@ -146,18 +150,18 @@ export default function AddCreditCardTransaction({ model }: AddCreditCardTransac
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold text-foreground">
-                        Próximas Cobranças
+                        {Lang.creditcards.nextChargesTitle}
                       </h4>
                       <span className="text-xs text-muted-foreground">
-                        {installmentPreviews.length} parcelas
+                        {Lang.creditcards.installmentsCount(installmentPreviews.length)}
                       </span>
                     </div>
                     <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {installmentPreviews.map((preview) => (
                         <TransactionItem
                           key={preview.id}
-                          title={description || "Nova compra"}
-                          category={category || "Compras"}
+                          title={description || Lang.creditcards.newPurchase}
+                          category={category || Lang.creditcards.purchasesCategory}
                           amount={-installmentValue}
                           date={preview.date}
                           type="expense"
@@ -189,14 +193,14 @@ export default function AddCreditCardTransaction({ model }: AddCreditCardTransac
             className="flex-1"
             onClick={() => navigate(new ToPreviousRoute())}
           >
-            Cancelar
+            {Lang.commons.cancel}
           </Button>
           <Button 
             type="submit" 
             className="flex-1"
             onClick={handleSubmit(onSubmit)}
           >
-            {isEdit ? "Atualizar" : "Salvar"}
+            {isEdit ? Lang.commons.update : Lang.commons.save}
           </Button>
         </div>
       </div>

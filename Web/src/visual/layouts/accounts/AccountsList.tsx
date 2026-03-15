@@ -29,6 +29,13 @@ export default function AccountsList({
   model: AccountsListViewModel;
   embedded?: boolean;
 }) {
+  const formatCurrency = (value: number) =>
+    value.toLocaleString(CurrentLangInfo.short, {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    });
+
   return (
     <div className={cn("mx-auto", embedded ? "min-h-full" : "max-w-4xl")}>
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
@@ -42,8 +49,8 @@ export default function AccountsList({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Contas</h1>
-              <p className="text-sm text-muted-foreground">{accounts.length} contas cadastradas</p>
+              <h1 className="text-2xl font-bold text-foreground">{Lang.accounts.title}</h1>
+              <p className="text-sm text-muted-foreground">{Lang.accounts.accountListCount(accounts.length)}</p>
             </div>
           </div>
           <Button
@@ -89,9 +96,9 @@ export default function AccountsList({
             </div>
             <div className="text-right flex items-center gap-3">
               <div>
-                <p className="text-sm text-muted-foreground">Saldo</p>
+                <p className="text-sm text-muted-foreground">{Lang.commons.balance}</p>
                 <p className="text-base font-bold text-foreground">
-                  R$ {account.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {formatCurrency(account.balance)}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />

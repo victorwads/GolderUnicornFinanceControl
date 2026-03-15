@@ -1,39 +1,40 @@
 import { Home, Clock, MoreHorizontal } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import type { LucideIcon } from "lucide-react";
+
 import { cn } from "@lib/utils";
 
-const tabs = [
-  { name: "Home", path: "/", icon: Home },
-  { name: "Timeline", path: "/timeline", icon: Clock },
-  { name: "More", path: "/settings", icon: MoreHorizontal },
-];
+interface TabBarProps {
+  model: TabBarViewModel;
+}
 
-export const TabBar = () => {
-  const location = useLocation();
+export const TabBar = ({ model }: TabBarProps) => {
+  const { tabs } = model;
 
   return (
     <nav className="shrink-0 border-t border-border bg-card pb-safe">
       <div className="grid grid-cols-3 items-center h-16 max-w-lg mx-auto">
-        {tabs.map((tab, index) => {
-          const isActive = location.pathname === tab.path;
+        {tabs.map((tab) => {
+          const isActive = tab.isActive;
           const Icon = tab.icon;
-          
+
           return (
-            <Link
+            <button
               key={tab.path}
-              to={tab.path}
+              type="button"
+              onClick={tab.onClick}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all duration-300",
-                isActive 
-                  ? "text-primary" 
+                isActive
+                  ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon 
+              <Icon
                 className={cn(
                   "transition-all duration-300",
                   isActive ? "w-6 h-6" : "w-5 h-5"
-                )} 
+                )}
               />
               <span className={cn(
                 "text-xs font-medium transition-all duration-300",
@@ -41,10 +42,34 @@ export const TabBar = () => {
               )}>
                 {tab.name}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>
     </nav>
   );
+};
+
+export class TabBarRoute {}
+
+export class ToHomeRoute extends TabBarRoute {}
+export class ToTimelineRoute extends TabBarRoute {}
+export class ToMoreRoute extends TabBarRoute {}
+
+export interface TabBarItem {
+  name: string;
+  path: string;
+  icon: LucideIcon;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+export interface TabBarViewModel {
+  tabs: TabBarItem[];
+}
+
+export const tabBarIcons = {
+  home: Home,
+  timeline: Clock,
+  more: MoreHorizontal,
 };

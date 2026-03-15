@@ -32,45 +32,43 @@ export default function CreateCreditCard({
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
-            {isEdit ? "Editar Cartão de Crédito" : "Novo Cartão de Crédito"}
-          </h1>
+          <h1 className="text-lg font-semibold">{isEdit ? Lang.creditcards.editCreditCard : Lang.creditcards.addCreditCard}</h1>
         </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className={cn("space-y-6 p-4", isLandscapeLayout ? "mx-auto max-w-3xl pb-28" : "")}>
-        <DescriptionField label="Nome do Cartão">
+        <DescriptionField label={Lang.creditcards.cardName}>
           <Input {...register("name")} placeholder="Ex: Nubank Gold" />
         </DescriptionField>
 
-        <DescriptionField label="Limite">
+        <DescriptionField label={Lang.creditcards.limit}>
           <PriceInput
             value={watch("limit")}
             onChange={(value) => setValue("limit", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Bandeira">
+        <DescriptionField label={Lang.creditcards.brand}>
           <SelectList
             options={brands}
             value={watch("brand")}
             onChange={(value) => setValue("brand", value)}
-            placeholder="Selecione a bandeira"
+            placeholder={Lang.creditcards.selectBrand}
           />
         </DescriptionField>
 
-        <DescriptionField label="Conta Vinculada">
+        <DescriptionField label={Lang.creditcards.linkedAccount}>
           <SelectList
             options={accounts}
             value={watch("account")}
             onChange={(value) => setValue("account", value)}
-            placeholder="Selecione a conta"
+            placeholder={Lang.timeline.selectAccountPlaceholder}
           />
         </DescriptionField>
 
         <DescriptionField
-          label="Dia de Fechamento"
-          description="Dia de fechamento é o dia em que a fatura é cortada — todas as compras feitas depois dessa data entrarão na próxima fatura."
+          label={Lang.creditcards.closingDay}
+          description={Lang.creditcards.closingDayDescription}
         >
           <Input
             type="number"
@@ -81,8 +79,8 @@ export default function CreateCreditCard({
         </DescriptionField>
 
         <DescriptionField
-          label="Dia de Vencimento"
-          description="Dia de vencimento é o dia limite para pagamento da fatura atual."
+          label={Lang.creditcards.dueDay}
+          description={Lang.creditcards.dueDayDescription}
         >
           <Input
             type="number"
@@ -104,14 +102,14 @@ export default function CreateCreditCard({
             className="flex-1"
             onClick={() => navigate(new ToPreviousRoute())}
           >
-            Cancelar
+            {Lang.commons.cancel}
           </Button>
           <Button 
             type="submit" 
             className="flex-1"
             onClick={handleSubmit(onSubmit)}
           >
-            {isEdit ? "Atualizar" : "Salvar"}
+            {isEdit ? Lang.commons.update : Lang.commons.save}
           </Button>
         </div>
       </div>

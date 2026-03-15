@@ -10,6 +10,7 @@ import {
 
 export function useLanguageModel(): LanguageViewModel {
   const navigate = useNavigate();
+  const LocalLang = Lang.visual.settings.languageScreen;
 
   function onNavigate(route: LanguageRoute) {
     if (route instanceof ToSettingsRoute) {
@@ -27,13 +28,13 @@ export function useLanguageModel(): LanguageViewModel {
     languages: [
       {
         value: "",
-        label: `Padrão do dispositivo (${navigator.language})`,
-        description: "Segue o idioma preferido do navegador e do sistema.",
+        label: LocalLang.deviceDefault(navigator.language),
+        description: LocalLang.deviceDefaultDescription,
       },
       ...Object.entries(Langs).map(([value, info]) => ({
         value,
         label: info.name,
-        description: `Interface e formatação em ${info.short}.`,
+        description: LocalLang.interfaceDescription(info.short),
       })),
     ],
     navigate: onNavigate,

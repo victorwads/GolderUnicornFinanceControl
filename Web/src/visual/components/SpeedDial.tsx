@@ -6,11 +6,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { incrementClickCount } from "@components/QuickActions";
 
 const actions = [
-  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "bg-blue-600 hover:bg-blue-700", path: "/timeline/entry/transfer/create" },
-  { id: "income", icon: TrendingUp, label: "Entrada na conta", color: "bg-success hover:bg-success/90", path: "/timeline/entry/account/income/create" },
-  { id: "expense", icon: TrendingDown, label: "Gasto na conta", color: "bg-destructive hover:bg-destructive/90", path: "/timeline/entry/account/expense/create" },
-  { id: "credit-card", icon: CreditCard, label: "Gasto no cartão", color: "bg-orange-600 hover:bg-orange-700", path: "/timeline/entry/credit/create" },
-  { id: "recurring", icon: Calendar, label: "Nova recorrência", color: "bg-purple-600 hover:bg-purple-700", path: "/recurrents/create" },
+  { id: "transfer", icon: ArrowLeftRight, getLabel: () => Lang.visual.home.quickActionTransfer, color: "bg-blue-600 hover:bg-blue-700", path: "/timeline/entry/transfer/create" },
+  { id: "income", icon: TrendingUp, getLabel: () => Lang.visual.home.quickActionIncome, color: "bg-success hover:bg-success/90", path: "/timeline/entry/account/income/create" },
+  { id: "expense", icon: TrendingDown, getLabel: () => Lang.visual.home.quickActionExpense, color: "bg-destructive hover:bg-destructive/90", path: "/timeline/entry/account/expense/create" },
+  { id: "credit-card", icon: CreditCard, getLabel: () => Lang.visual.home.quickActionCreditCard, color: "bg-orange-600 hover:bg-orange-700", path: "/timeline/entry/credit/create" },
+  { id: "recurring", icon: Calendar, getLabel: () => Lang.visual.home.quickActionRecurring, color: "bg-purple-600 hover:bg-purple-700", path: "/recurrents/create" },
 ];
 
 export const SpeedDial = ({ embedded = false }: { embedded?: boolean }) => {
@@ -44,7 +44,7 @@ export const SpeedDial = ({ embedded = false }: { embedded?: boolean }) => {
               }}
             >
               <span className="bg-card border border-border px-3 py-1.5 rounded-lg text-sm font-medium text-foreground whitespace-nowrap shadow-md">
-                {action.label}
+                {action.getLabel()}
               </span>
               <Button
                 size="icon"
@@ -69,6 +69,7 @@ export const SpeedDial = ({ embedded = false }: { embedded?: boolean }) => {
         size="icon"
         className={cn(
           "h-14 w-14 rounded-full shadow-lg transition-all duration-300",
+          embedded && "pointer-events-auto",
           isOpen ? "rotate-45 bg-destructive hover:bg-destructive/90" : "bg-primary hover:bg-primary/90"
         )}
         style={embedded ? { position: "absolute", right: "1.5rem", bottom: "1.5rem" } : undefined}

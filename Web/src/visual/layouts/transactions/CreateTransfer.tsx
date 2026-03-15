@@ -28,54 +28,52 @@ export default function CreateTransfer({
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
-            {isEdit ? "Editar Transferência" : "Nova Transferência"}
-          </h1>
+          <h1 className="text-lg font-semibold">{isEdit ? Lang.recurrent.editTransfer : Lang.recurrent.newTransfer}</h1>
         </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-6 pb-24">
-        <DescriptionField label="Conta Origem">
+        <DescriptionField label={Lang.recurrent.sourceAccount}>
           <SelectList
             options={accounts}
             value={watch("fromAccount")}
             onChange={(value) => setValue("fromAccount", value)}
-            placeholder="Selecione a conta de origem"
+            placeholder={Lang.recurrent.selectSourceAccount}
           />
         </DescriptionField>
 
-        <DescriptionField label="Conta Destino">
+        <DescriptionField label={Lang.recurrent.destinationAccount}>
           <SelectList
             options={accounts}
             value={watch("toAccount")}
             onChange={(value) => setValue("toAccount", value)}
-            placeholder="Selecione a conta de destino"
+            placeholder={Lang.recurrent.selectDestinationAccount}
           />
         </DescriptionField>
 
-        <DescriptionField label="Valor">
+        <DescriptionField label={Lang.registry.value}>
           <PriceInput
             value={watch("amount")}
             onChange={(value) => setValue("amount", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Data">
+        <DescriptionField label={Lang.registry.date}>
           <Input type="date" {...register("date")} />
         </DescriptionField>
 
-        <DescriptionField label="Tags">
+        <DescriptionField label={Lang.registry.tags}>
           <TagsInput
             value={watch("tags")}
             onChange={(value) => setValue("tags", value)}
-            placeholder="Digite e pressione Enter"
+            placeholder={Lang.commons.typeAndPressEnter}
           />
         </DescriptionField>
 
-        <DescriptionField label="Observação">
+        <DescriptionField label={Lang.registry.notes}>
           <Textarea
             {...register("notes")}
-            placeholder="Adicione observações..."
+            placeholder={Lang.commons.addNotes}
             rows={3}
           />
         </DescriptionField>
@@ -89,14 +87,14 @@ export default function CreateTransfer({
             className="flex-1"
             onClick={() => navigate(new ToPreviousRoute())}
           >
-            Cancelar
+            {Lang.commons.cancel}
           </Button>
           <Button 
             type="submit" 
             className="flex-1"
             onClick={handleSubmit(onSubmit)}
           >
-            {isEdit ? "Atualizar" : "Salvar"}
+            {isEdit ? Lang.commons.update : Lang.commons.save}
           </Button>
         </div>
       </div>

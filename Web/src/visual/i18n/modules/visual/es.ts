@@ -1,0 +1,211 @@
+import type VisualModuleTranslation from './base';
+
+const es: VisualModuleTranslation = {
+  visual: {
+    home: {
+      greeting: userName=>`Ol\xE1, ${userName} \u{1F44B}`,
+      subtitle: "Confira seu resumo financeiro",
+      quickActions: "Ações Rápidas",
+      quickActionTransfer: "Transferência",
+      quickActionIncome: "Entrada na conta",
+      quickActionExpense: "Gasto na conta",
+      quickActionCreditCard: "Gasto no cartão",
+      quickActionRecurring: "Nova recorrência",
+      quickActionPay: "Pagar",
+      accountsActive: count=>`${count} contas ativas`,
+      creditCardsCount: count=>`${count} cart\xF5es`,
+      totalInvoices: "Total das Faturas"
+    },
+    more: {
+      title: "Mais",
+      subtitle: "Acesse outras áreas do aplicativo",
+      myId: "Meu ID",
+      financeSection: "Gestão Financeira",
+      accountSection: "Minha Conta",
+      developerSection: "Developer Options / Beta",
+      accounts: "Contas",
+      creditCards: "Cartões de Crédito",
+      categories: "Categorias",
+      recurrents: "Gastos e Entradas Recorrentes",
+      assistant: "Assistente",
+      settings: "Configurações",
+      settingsDescription: "Preferências do aplicativo",
+      connectedAccounts: "Contas conectadas",
+      connectedAccountsDescription: "Bancos e integrações",
+      resourceUsage: "Uso de recursos",
+      resourceUsageDescription: "Custos e consumo do app",
+      privacyAndSecurity: "Privacidade e Segurança",
+      privacy: "Privacidade",
+      privacyDescription: "Seus dados, termos e política",
+      developer: "Desenvolvedor",
+      developerDescription: "Ferramentas e opções avançadas",
+      subscriptions: "Subscrições",
+      developerUtilities: "Utilitários de Desenvolvedor",
+      aiCalls: "AI Calls",
+      aboutApp: "Sobre o app",
+      searchUpdates: "Buscar atualizações",
+      searchingUpdates: "Buscando...",
+      version: "Versão",
+      logout: "Deslogar"
+    },
+    settings: {
+      title: "Configurações",
+      subtitle: "Preferências do aplicativo",
+      appearance: "Aparência",
+      themeAndColors: "Tema e Cores",
+      customizeAppearance: "Personalizar aparência",
+      languageTitle: "Idioma",
+      densityTitle: "Densidade",
+      densityDescription: "Ajuste o espaço visual do app.",
+      aiAssistant: "Configurações do Assistente de IA",
+      voiceAndAudio: "Voz e Áudio",
+      speechSettings: "Configurações de fala",
+      behavior: "Comportamento",
+      interactionMode: "Modo de interação",
+      timelineBehavior: "Timeline / Comportamento do App",
+      financialMonthStartDay: "Dia de início do seu mês financeiro",
+      financialMonthName: "Nome do mês financeiro",
+      currentMonthMode: "Mês atual ao dia escolhido",
+      currentMonthDescription: "Dia 15/10 em diante será chamado de Outubro. Antes de 15/10 será chamado Setembro.",
+      nextMonthMode: "Próximo mês após o dia escolhido",
+      nextMonthDescription: "Dia 15/10 em diante será chamado de Novembro. Antes de 15/10 será chamado Outubro.",
+      density: {
+        compact: "Compacto",
+        normal: "Normal",
+        comfortable: "Confortável",
+        spacious: "Espaçoso"
+      },
+      languageScreen: {
+        title: "Idioma",
+        chooseTitle: "Escolha o idioma do app",
+        chooseDescription: "A mudança é aplicada imediatamente em todo o aplicativo.",
+        deviceDefault: language=>`Padr\xE3o do dispositivo (${language})`,
+        deviceDefaultDescription: "Segue o idioma preferido do navegador e do sistema.",
+        interfaceDescription: locale=>`Interface e formata\xE7\xE3o em ${locale}.`
+      },
+      connectedAccounts: {
+        title: "Contas conectadas",
+        subtitle: "Conecte bancos e serviços para sincronizar seus dados",
+        sectionTitle: "Contas conectadas",
+        emptyTitle: "Nenhuma conta conectada",
+        emptyDescription: "Conecte uma instituição para acompanhar saldos e lançamentos com menos trabalho manual.",
+        connectButton: "Conectar conta",
+        connected: "Conectado",
+        disconnect: "Desconectar",
+        socialSection: "Redes sociais",
+        disconnectAnytime: "Você pode desconectar suas contas a qualquer momento.",
+        secureStorage: "Suas credenciais são armazenadas de forma segura."
+      },
+      developer: {
+        title: "Developer Options / Beta",
+        subtitle: "Utilitários recuperados do settings legado.",
+        toolsTitle: "Ferramentas",
+        toolsDescription: "Atalhos para telas técnicas e recursos beta.",
+        aiCalls: "AI Calls",
+        subscriptions: "Subscrições",
+        onboardingTitle: "Onboarding",
+        onboardingDescription: "Reabre fluxos de onboarding para novo teste.",
+        resetAssistant: "Resetar onboarding do assistente",
+        resetMicrophone: "Resetar onboarding do microfone",
+        encryptionTitle: "Criptografia",
+        encryptionDescription: "Alterna `disableEncryption` e regrava os repositórios criptografados.",
+        disableEncryption: "Desativar criptografia",
+        disableEncryptionDescription: "Uso somente técnico. A alteração resalva os dados compatíveis.",
+        rewrittenItems: "Itens regravados",
+        killAccountTitle: "Kill Account Registers",
+        killAccountDescription: "Remove definitivamente todos os registros de uma conta pelo ID.",
+        accountIdPlaceholder: "ID da conta",
+        runAction: "Executar",
+        killAccountHint: "Use apenas quando souber exatamente qual conta precisa ser limpa."
+      },
+      resourceUsage: {
+        title: "Uso de recursos",
+        subtitle: "Monitore o uso de recursos do app",
+        beta: "Beta",
+        monthlyAiUsage: "Consumo mensal de IA",
+        exceededBy: amount=>`Limite excedido em ${amount}`,
+        database: "Banco de dados",
+        reads: "Leituras",
+        writes: "Escritas",
+        queryReads: "Leituras de consulta",
+        aiModels: "Modelos de IA",
+        requests: "Requisições",
+        tokensIn: "Tokens de entrada",
+        tokensOut: "Tokens de saída",
+        totalRequests: "Total de requisições",
+        totalInputTokens: "Total de tokens de entrada",
+        totalOutputTokens: "Total de tokens de saída",
+        estimatedCost: "Custo estimado",
+        back: "Voltar"
+      }
+    },
+    onboarding: {
+      theme: {
+        title: "Escolha a aparência do app",
+        subtitle: "Defina tema, cor e densidade antes de continuar.",
+        continue: "Continuar"
+      },
+      audio: {
+        title: "Teste de áudio",
+        subtitle: "Vamos validar idioma e captação para voz.",
+        startTest: "Iniciar teste",
+        confirmLanguage: "Confirmar idioma",
+        skip: "Pular"
+      },
+      voiceSettings: {
+        title: "Configurações de voz",
+        subtitle: "Ajuste velocidade e voz preferida.",
+        continue: "Continuar"
+      },
+      assistantMode: {
+        title: "Modo do assistente",
+        subtitle: "Escolha como o assistente deve interagir com você.",
+        continue: "Continuar"
+      },
+      voiceIntro: {
+        title: "Assistente por voz",
+        subtitle: "Entenda como falar com o assistente financeiro.",
+        continue: "Entrar no app"
+      }
+    },
+    privacy: {
+      title: "Privacidade",
+      subtitle: "Gerencie seus dados e confira os documentos legais",
+      exportData: "Exportar dados",
+      deleteAccount: "Excluir conta",
+      terms: "Termos de uso",
+      policy: "Política de privacidade",
+      settingsAndPreferences: "Configurações e preferências",
+      dataTitle: "Seus Dados",
+      dataDescription: "Exporte ou exclua seus dados financeiros",
+      exportJsonTitle: "Exportar como JSON",
+      exportJsonDescription: "Formato completo com todos os dados",
+      exportCsvTitle: "Exportar como CSV",
+      exportCsvDescription: "Compatível com Excel e planilhas",
+      exportHint: "Os dados exportados incluem todas as suas transações, contas, cartões e categorias. Seus dados são seus e você pode exportá-los a qualquer momento.",
+      deleteDataTitle: "Excluir meus dados",
+      deleteDataDescription: "Apaga seus dados financeiros mantendo a autenticação como conta ativa.",
+      deleteOnlyDataTitle: "Excluir apenas meus dados",
+      deleteOnlyDataDescription: "Faz backup automático antes de limpar seus dados locais e remotos.",
+      policiesTitle: "Políticas e Termos",
+      policiesDescription: "Saiba mais sobre como protegemos seus dados",
+      termsDescription: "Regras e condições de uso do aplicativo",
+      policyDescription: "Como coletamos e protegemos seus dados",
+      manageAccountTitle: "Gerenciar Conta",
+      manageAccountDescription: "Ações relacionadas à sua conta",
+      deleteMyAccountTitle: "Excluir minha conta",
+      deleteMyAccountDescription: "Remover permanentemente todos os seus dados",
+      deleteDialogTitle: "Excluir apenas os seus dados",
+      deleteDialogDescription: "Seus dados serão exportados antes da exclusão. Para continuar, digite a frase abaixo exatamente como aparece.",
+      deleteDialogPlaceholder: "Digite a frase de confirmação",
+      deleteDialogCancel: "Cancelar",
+      deleteDialogConfirm: "Excluir meus dados"
+    },
+    assistant: {
+      aiCallsTitle: "Chamadas de IA",
+      aiCallsSubtitle: "Histórico e custo das interações com o assistente"
+    }
+  }
+};
+
+export default es;

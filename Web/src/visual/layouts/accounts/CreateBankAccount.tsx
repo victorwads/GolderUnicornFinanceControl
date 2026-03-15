@@ -33,43 +33,41 @@ export default function CreateBankAccount({
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
-            {isEdit ? "Editar Conta Bancária" : "Nova Conta Bancária"}
-          </h1>
+          <h1 className="text-lg font-semibold">{isEdit ? Lang.accounts.editBankAccount : Lang.accounts.newBankAccount}</h1>
         </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className={cn("space-y-6 p-4", isLandscapeLayout ? "mx-auto max-w-3xl pb-6" : "")}>
-        <DescriptionField label="Nome da Conta">
+        <DescriptionField label={Lang.accounts.accountName}>
           <Input {...register("name")} placeholder="Ex: Conta Principal" />
         </DescriptionField>
 
-        <DescriptionField label="Saldo Inicial">
+        <DescriptionField label={Lang.accounts.initialBalance}>
           <PriceInput
             value={watch("initialBalance")}
             onChange={(value) => setValue("initialBalance", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Banco">
+        <DescriptionField label={Lang.accounts.bank}>
           <SelectList
             options={banks}
             value={watch("bank")}
             onChange={(value) => setValue("bank", value)}
-            placeholder="Selecione o banco"
+            placeholder={Lang.accounts.selectBank}
           />
         </DescriptionField>
 
-        <DescriptionField label="Tipo de Conta">
+        <DescriptionField label={Lang.accounts.accountType}>
           <SelectList
             options={accountTypes}
             value={watch("type")}
             onChange={(value) => setValue("type", value)}
-            placeholder="Selecione o tipo"
+            placeholder={Lang.accounts.selectType}
           />
         </DescriptionField>
 
-        <DescriptionField label="Cor">
+        <DescriptionField label={Lang.categories.color}>
           <ColorPicker
             value={watch("color")}
             onChange={(value) => setValue("color", value)}
@@ -77,15 +75,15 @@ export default function CreateBankAccount({
         </DescriptionField>
 
         <DescriptionField
-          label="Incluir no Saldo Total"
-          description="Define se o saldo dessa conta deve ser incluído no cálculo total exibido na tela principal."
+          label={Lang.accounts.includeInTotal}
+          description={Lang.accounts.includeInTotalDescription}
         >
           <div className="flex items-center gap-2">
             <Checkbox
               checked={watch("includeInTotal")}
               onCheckedChange={(checked) => setValue("includeInTotal", !!checked)}
             />
-            <span className="text-sm">Incluir esta conta no saldo total</span>
+            <span className="text-sm">{Lang.accounts.includeInTotalLabel}</span>
           </div>
         </DescriptionField>
 
@@ -96,10 +94,10 @@ export default function CreateBankAccount({
             className="flex-1"
             onClick={() => navigate(new ToPreviousRoute())}
           >
-            Cancelar
+            {Lang.commons.cancel}
           </Button>
           <Button type="submit" className="flex-1">
-            {isEdit ? "Atualizar" : "Salvar"}
+            {isEdit ? Lang.commons.update : Lang.commons.save}
           </Button>
         </div>
       </form>

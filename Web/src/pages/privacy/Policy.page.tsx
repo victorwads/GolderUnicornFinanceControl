@@ -2,21 +2,19 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { MicButton } from "@components/MicButton";
-import { TabBar } from "@components/TabBar";
 
 export default function PolicyPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background pb-36">
+    <div className="h-[100dvh] overflow-y-auto overscroll-contain bg-background">
       <div className="max-w-4xl mx-auto">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/privacy")}
+              onClick={() => navigate(-1)}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -27,7 +25,7 @@ export default function PolicyPage() {
           </div>
         </header>
 
-        <div className="p-4 space-y-6 animate-fade-in">
+        <div className="p-4 pb-8 space-y-6 animate-fade-in">
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle>1. Informações que Coletamos</CardTitle>
@@ -108,8 +106,6 @@ export default function PolicyPage() {
         </div>
       </div>
 
-      <MicButton />
-      <TabBar />
     </div>
   );
 }

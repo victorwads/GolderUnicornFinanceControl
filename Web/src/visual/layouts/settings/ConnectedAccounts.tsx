@@ -8,6 +8,7 @@ interface ConnectedAccountsProps {
 
 export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
   const { navigate, connectedAccounts, handleConnect, handleDisconnect } = model;
+  const LocalLang = Lang.visual.settings.connectedAccounts;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -21,8 +22,8 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
             <ChevronRight className="h-5 w-5 rotate-180" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Contas Conectadas</h1>
-            <p className="text-sm text-muted-foreground">Gerencie suas contas vinculadas</p>
+            <h1 className="text-2xl font-bold text-foreground">{LocalLang.title}</h1>
+            <p className="text-sm text-muted-foreground">{LocalLang.subtitle}</p>
           </div>
         </div>
       </header>
@@ -30,7 +31,7 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
       <div className="p-4 space-y-6 animate-fade-in">
         <div className="space-y-3">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-            Redes Sociais
+            {LocalLang.socialSection}
           </h3>
           <Card className="divide-y divide-border/50 border-border/50 overflow-hidden">
             {/* Google Account */}
@@ -60,7 +61,7 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
                       size="sm"
                       onClick={() => handleDisconnect("google")}
                     >
-                      Desconectar
+                      {LocalLang.disconnect}
                     </Button>
                   </div>
                 ) : (
@@ -69,7 +70,7 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
                     size="sm"
                     onClick={() => handleConnect("google")}
                   >
-                    Conectar
+                    {LocalLang.connectButton}
                   </Button>
                 )}
               </div>
@@ -87,7 +88,7 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
                   <div>
                     <p className="text-sm font-medium text-foreground">Apple</p>
                     {connectedAccounts.apple && (
-                      <p className="text-xs text-muted-foreground">Conectado</p>
+                      <p className="text-xs text-muted-foreground">{LocalLang.connected}</p>
                     )}
                   </div>
                 </div>
@@ -99,7 +100,7 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
                       size="sm"
                       onClick={() => handleDisconnect("apple")}
                     >
-                      Desconectar
+                      {LocalLang.disconnect}
                     </Button>
                   </div>
                 ) : (
@@ -108,7 +109,7 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
                     size="sm"
                     onClick={() => handleConnect("apple")}
                   >
-                    Conectar
+                    {LocalLang.connectButton}
                   </Button>
                 )}
               </div>
@@ -117,8 +118,8 @@ export default function ConnectedAccounts({ model }: ConnectedAccountsProps) {
         </div>
 
         <div className="text-center text-xs text-muted-foreground p-4">
-          <p>Você pode desconectar suas contas a qualquer momento.</p>
-          <p className="mt-1">Suas credenciais são armazenadas de forma segura.</p>
+          <p>{LocalLang.disconnectAnytime}</p>
+          <p className="mt-1">{LocalLang.secureStorage}</p>
         </div>
       </div>
     </div>

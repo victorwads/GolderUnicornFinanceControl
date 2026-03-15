@@ -10,11 +10,6 @@ export interface MonthYearPickerProps {
   className?: string;
 }
 
-const MONTHS = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-];
-
 const MonthYearPicker = React.forwardRef<HTMLButtonElement, MonthYearPickerProps>(
   ({ value, onChange, className }, ref) => {
     const [open, setOpen] = React.useState(false);
@@ -37,10 +32,15 @@ const MonthYearPicker = React.forwardRef<HTMLButtonElement, MonthYearPickerProps
       setOpen(false);
     };
 
+    const getMonthName = (month: number, short = false) =>
+      new Intl.DateTimeFormat(CurrentLangInfo.short, {
+        month: short ? "short" : "long",
+      }).format(new Date(viewYear, month, 1));
+
     const formatDisplay = () => {
-      if (!value) return "Selecione o mês/ano";
+      if (!value) return `${Lang.commons.select} mes/ano`;
       const { year, month } = parseValue(value);
-      return `${MONTHS[month]} ${year}`;
+      return `${getMonthName(month)} ${year}`;
     };
 
     return (
@@ -74,7 +74,7 @@ const MonthYearPicker = React.forwardRef<HTMLButtonElement, MonthYearPickerProps
               </Button>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {MONTHS.map((month, idx) => (
+              {Array.from({ length: 12 }, (_, idx) => (
                 <Button
                   key={idx}
                   variant={
@@ -86,7 +86,7 @@ const MonthYearPicker = React.forwardRef<HTMLButtonElement, MonthYearPickerProps
                   onClick={() => handleSelect(idx)}
                   className="h-9"
                 >
-                  {month.slice(0, 3)}
+                  {getMonthName(idx, true)}
                 </Button>
               ))}
             </div>

@@ -23,7 +23,7 @@ export default function CreateTransaction({
       <div className="max-w-lg mx-auto">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
           <div className="flex items-center justify-between p-4">
-            <h1 className="text-xl font-bold text-foreground">Novo Registro</h1>
+            <h1 className="text-xl font-bold text-foreground">{Lang.registry.title}</h1>
             <Button
               variant="ghost"
               size="icon"
@@ -39,11 +39,11 @@ export default function CreateTransaction({
           <Card className="p-6 bg-gradient-card border-border/50 space-y-5">
             <div className="space-y-2">
               <Label htmlFor="description" className="text-foreground">
-                Descrição
+                {Lang.registry.description}
               </Label>
               <Input
                 id="description"
-                placeholder="Ex: Almoço no restaurante"
+                placeholder={Lang.registry.descriptionExpensePlaceholder}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="h-12 bg-background border-border"
@@ -53,7 +53,7 @@ export default function CreateTransaction({
 
             <div className="space-y-2">
               <Label htmlFor="amount" className="text-foreground">
-                Valor
+                {Lang.registry.value}
               </Label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -72,7 +72,7 @@ export default function CreateTransaction({
 
             <div className="space-y-2">
               <Label htmlFor="date" className="text-foreground">
-                Data
+                {Lang.registry.date}
               </Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
@@ -89,14 +89,14 @@ export default function CreateTransaction({
 
             <div className="space-y-2">
               <Label htmlFor="account" className="text-foreground">
-                Conta
+                {Lang.registry.account}
               </Label>
               <Select
                 value={formData.account}
                 onValueChange={(value) => setFormData({ ...formData, account: value })}
               >
                 <SelectTrigger id="account">
-                  <SelectValue placeholder="Selecione a conta" />
+                  <SelectValue placeholder={Lang.timeline.selectAccountPlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map((account) => (
@@ -110,14 +110,14 @@ export default function CreateTransaction({
 
             <div className="space-y-2">
               <Label htmlFor="category" className="text-foreground">
-                Categoria
+                {Lang.registry.category}
               </Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger id="category">
-                  <SelectValue placeholder="Selecione a categoria" />
+                  <SelectValue placeholder={Lang.timeline.selectCategoriesPlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -141,7 +141,7 @@ export default function CreateTransaction({
                 }
               />
               <Label htmlFor="isPaid" className="text-sm text-foreground cursor-pointer">
-                Pago
+                {Lang.registry.paid}
               </Label>
             </div>
           </Card>
@@ -155,10 +155,10 @@ export default function CreateTransaction({
               onClick={() => navigate(new ToTimelineRoute())}
               className="flex-1 h-12"
             >
-              Cancelar
+              {Lang.commons.cancel}
             </Button>
             <Button type="submit" onClick={handleSubmit} className="flex-1 h-12">
-              Salvar
+              {Lang.commons.save}
             </Button>
           </div>
         </div>

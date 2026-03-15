@@ -20,6 +20,7 @@ interface PrivacyProps {
 }
 
 export default function Privacy({ model }: PrivacyProps) {
+  const LocalLang = Lang.visual.privacy;
   const { 
     navigate, 
     progress,
@@ -47,22 +48,21 @@ export default function Privacy({ model }: PrivacyProps) {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Privacidade e Segurança</h1>
-              <p className="text-sm text-muted-foreground">Gerencie seus dados e privacidade</p>
+              <h1 className="text-2xl font-bold text-foreground">{LocalLang.title}</h1>
+              <p className="text-sm text-muted-foreground">{LocalLang.subtitle}</p>
             </div>
           </div>
         </header>
 
         <div className="p-4 space-y-6 animate-fade-in">
-          {/* Seção 1: Exportar e Excluir Dados */}
           <Card className="border-border/50">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Download className="h-5 w-5 text-primary" />
-                <CardTitle>Seus Dados</CardTitle>
+                <CardTitle>{LocalLang.dataTitle}</CardTitle>
               </div>
               <CardDescription>
-                Exporte ou exclua seus dados financeiros
+                {LocalLang.dataDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -75,8 +75,8 @@ export default function Privacy({ model }: PrivacyProps) {
                 >
                   <FileJson className="h-5 w-5 mr-3" />
                   <div className="text-left">
-                    <p className="font-medium">Exportar como JSON</p>
-                    <p className="text-xs text-muted-foreground">Formato completo com todos os dados</p>
+                    <p className="font-medium">{LocalLang.exportJsonTitle}</p>
+                    <p className="text-xs text-muted-foreground">{LocalLang.exportJsonDescription}</p>
                   </div>
                 </Button>
 
@@ -88,16 +88,15 @@ export default function Privacy({ model }: PrivacyProps) {
                 >
                   <FileSpreadsheet className="h-5 w-5 mr-3" />
                   <div className="text-left">
-                    <p className="font-medium">Exportar como CSV</p>
-                    <p className="text-xs text-muted-foreground">Compatível com Excel e planilhas</p>
+                    <p className="font-medium">{LocalLang.exportCsvTitle}</p>
+                    <p className="text-xs text-muted-foreground">{LocalLang.exportCsvDescription}</p>
                   </div>
                 </Button>
               </div>
 
               <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  Os dados exportados incluem todas as suas transações, contas, cartões e categorias.
-                  Seus dados são seus e você pode exportá-los a qualquer momento.
+                  {LocalLang.exportHint}
                 </p>
               </div>
             </CardContent>
@@ -105,9 +104,9 @@ export default function Privacy({ model }: PrivacyProps) {
 
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle>Excluir meus dados</CardTitle>
+              <CardTitle>{LocalLang.deleteDataTitle}</CardTitle>
               <CardDescription>
-                Apaga seus dados financeiros mantendo a autenticação como conta ativa.
+                {LocalLang.deleteDataDescription}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -119,24 +118,21 @@ export default function Privacy({ model }: PrivacyProps) {
               >
                 <Trash2 className="h-4 w-4 mr-3" />
                 <div className="text-left">
-                  <p className="font-medium">Excluir apenas meus dados</p>
-                  <p className="text-xs text-muted-foreground">
-                    Faz backup automático antes de limpar seus dados locais e remotos.
-                  </p>
+                  <p className="font-medium">{LocalLang.deleteOnlyDataTitle}</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.deleteOnlyDataDescription}</p>
                 </div>
               </Button>
             </CardContent>
           </Card>
 
-          {/* Seção 2: Links para Termos */}
           <Card className="border-border/50">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5 text-primary" />
-                <CardTitle>Políticas e Termos</CardTitle>
+                <CardTitle>{LocalLang.policiesTitle}</CardTitle>
               </div>
               <CardDescription>
-                Saiba mais sobre como protegemos seus dados
+                {LocalLang.policiesDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -147,8 +143,8 @@ export default function Privacy({ model }: PrivacyProps) {
               >
                 <FileText className="h-4 w-4 mr-3" />
                 <div className="text-left">
-                  <p className="font-medium">Termos de Uso</p>
-                  <p className="text-xs text-muted-foreground">Regras e condições de uso do aplicativo</p>
+                  <p className="font-medium">{LocalLang.terms}</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.termsDescription}</p>
                 </div>
               </Button>
 
@@ -159,19 +155,18 @@ export default function Privacy({ model }: PrivacyProps) {
               >
                 <ShieldCheck className="h-4 w-4 mr-3" />
                 <div className="text-left">
-                  <p className="font-medium">Política de Privacidade</p>
-                  <p className="text-xs text-muted-foreground">Como coletamos e protegemos seus dados</p>
+                  <p className="font-medium">{LocalLang.policy}</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.policyDescription}</p>
                 </div>
               </Button>
             </CardContent>
           </Card>
 
-          {/* Excluir Conta */}
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle>Gerenciar Conta</CardTitle>
+              <CardTitle>{LocalLang.manageAccountTitle}</CardTitle>
               <CardDescription>
-                Ações relacionadas à sua conta
+                {LocalLang.manageAccountDescription}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -183,8 +178,8 @@ export default function Privacy({ model }: PrivacyProps) {
               >
                 <Trash2 className="h-4 w-4 mr-3" />
                 <div className="text-left">
-                  <p className="font-medium">Excluir minha conta</p>
-                  <p className="text-xs text-muted-foreground">Remover permanentemente todos os seus dados</p>
+                  <p className="font-medium">{LocalLang.deleteMyAccountTitle}</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.deleteMyAccountDescription}</p>
                 </div>
               </Button>
             </CardContent>
@@ -197,9 +192,9 @@ export default function Privacy({ model }: PrivacyProps) {
       <AlertDialog open={showDeleteDataDialog} onOpenChange={setShowDeleteDataDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir apenas os seus dados</AlertDialogTitle>
+            <AlertDialogTitle>{LocalLang.deleteDialogTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Seus dados serão exportados antes da exclusão. Para continuar, digite a frase abaixo exatamente como aparece.
+              {LocalLang.deleteDialogDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -210,17 +205,17 @@ export default function Privacy({ model }: PrivacyProps) {
             <Input
               value={deleteDataConfirmation}
               onChange={(event) => setDeleteDataConfirmation(event.target.value)}
-              placeholder="Digite a frase de confirmação"
+              placeholder={LocalLang.deleteDialogPlaceholder}
             />
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{LocalLang.deleteDialogCancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteData}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Excluir meus dados
+              {LocalLang.deleteDialogConfirm}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

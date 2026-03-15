@@ -15,6 +15,10 @@ export default function AddAccountTransaction({
 }: {
   model: AccountTransactionViewModel
 }) {
+  const title = isEdit
+    ? (isIncome ? Lang.registry.editIncome : Lang.registry.editExpense)
+    : (isIncome ? Lang.registry.newIncome : Lang.registry.newExpense);
+
   return (
     <div className="min-h-screen bg-background pb-32">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-[2px] supports-[backdrop-filter]:bg-background/80">
@@ -22,75 +26,71 @@ export default function AddAccountTransaction({
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
-            {isEdit 
-              ? `Editar ${isIncome ? "Entrada" : "Despesa"}` 
-              : `Nova ${isIncome ? "Entrada" : "Despesa"}`}
-          </h1>
+          <h1 className="text-lg font-semibold">{title}</h1>
         </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-6 pb-24">
-        <DescriptionField label="Conta">
+        <DescriptionField label={Lang.registry.account}>
           <SelectList
             options={accounts}
             value={watch("account")}
             onChange={(value) => setValue("account", value)}
-            placeholder="Selecione a conta"
+            placeholder={Lang.timeline.selectAccountPlaceholder}
           />
         </DescriptionField>
 
-        <DescriptionField label="Valor">
+        <DescriptionField label={Lang.registry.value}>
           <PriceInput
             value={watch("amount")}
             onChange={(value) => setValue("amount", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Descrição">
+        <DescriptionField label={Lang.registry.description}>
           <Input 
             {...register("description")} 
-            placeholder={isIncome ? "Ex: Salário" : "Ex: Compras do mercado"} 
+            placeholder={isIncome ? Lang.registry.descriptionIncomePlaceholder : Lang.registry.descriptionExpensePlaceholder}
           />
         </DescriptionField>
 
-        <DescriptionField label="Data">
+        <DescriptionField label={Lang.registry.date}>
           <Input type="date" {...register("date")} />
         </DescriptionField>
 
-        <DescriptionField label="Categoria">
+        <DescriptionField label={Lang.registry.category}>
           <SelectList
             options={categories}
             value={watch("category")}
             onChange={(value) => setValue("category", value)}
-            placeholder="Selecione a categoria"
+            placeholder={Lang.timeline.selectCategoriesPlaceholder}
             allowSelectHeader={true}
           />
         </DescriptionField>
 
-        <DescriptionField label="Tags">
+        <DescriptionField label={Lang.registry.tags}>
           <TagsInput
             value={watch("tags")}
             onChange={(value) => setValue("tags", value)}
-            placeholder="Digite e pressione Enter"
+            placeholder={Lang.commons.typeAndPressEnter}
           />
         </DescriptionField>
 
-        <DescriptionField label="Observação">
+        <DescriptionField label={Lang.registry.notes}>
           <Textarea
             {...register("notes")}
-            placeholder="Adicione observações..."
+            placeholder={Lang.commons.addNotes}
             rows={3}
           />
         </DescriptionField>
 
-        <DescriptionField label="Status">
+        <DescriptionField label={Lang.registry.status}>
           <div className="flex items-center gap-2">
             <Checkbox
               checked={watch("isPaid")}
               onCheckedChange={(checked) => setValue("isPaid", !!checked)}
             />
-            <span className="text-sm">{isIncome ? "Recebido" : "Pago"}</span>
+            <span className="text-sm">{isIncome ? Lang.registry.received : Lang.registry.paid}</span>
           </div>
         </DescriptionField>
       </form>
@@ -103,14 +103,14 @@ export default function AddAccountTransaction({
             className="flex-1"
             onClick={() => navigate(new ToPreviousRoute())}
           >
-            Cancelar
+            {Lang.commons.cancel}
           </Button>
           <Button 
             type="submit" 
             className="flex-1"
             onClick={handleSubmit(onSubmit)}
           >
-            {isEdit ? "Atualizar" : "Salvar"}
+            {isEdit ? Lang.commons.update : Lang.commons.save}
           </Button>
         </div>
       </div>

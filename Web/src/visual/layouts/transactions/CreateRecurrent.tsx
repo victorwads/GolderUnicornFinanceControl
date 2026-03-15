@@ -36,36 +36,34 @@ export default function CreateRecurrent({
           <Button variant="ghost" size="icon" onClick={() => navigate(new ToPreviousRoute())}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
-            {isEdit ? "Editar Transação Recorrente" : "Nova Transação Recorrente"}
-          </h1>
+          <h1 className="text-lg font-semibold">{isEdit ? Lang.recurrent.editRecurrent : Lang.recurrent.newRecurrent}</h1>
         </div>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-6 pb-24">
-        <DescriptionField label="Tipo de Transação">
+        <DescriptionField label={Lang.recurrent.transactionType}>
           <RadioGroup value={type} onValueChange={(value: any) => setValue("type", value)}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="account" id="account" />
-              <Label htmlFor="account">Conta Bancária</Label>
+              <Label htmlFor="account">{Lang.recurrent.bankAccount}</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="creditcard" id="creditcard" />
-              <Label htmlFor="creditcard">Cartão de Crédito</Label>
+              <Label htmlFor="creditcard">{Lang.recurrent.creditCard}</Label>
             </div>
           </RadioGroup>
         </DescriptionField>
 
-        <DescriptionField label={type === "account" ? "Conta" : "Cartão"}>
+        <DescriptionField label={type === "account" ? Lang.registry.account : Lang.creditcards.account}>
           <SelectList
             options={type === "account" ? accounts : cards}
             value={watch("accountOrCard")}
             onChange={(value) => setValue("accountOrCard", value)}
-            placeholder={`Selecione ${type === "account" ? "a conta" : "o cartão"}`}
+            placeholder={type === "account" ? Lang.recurrent.selectAccount : Lang.recurrent.selectCard}
           />
         </DescriptionField>
 
-        <DescriptionField label="Dia da Recorrência" description="Dia do mês em que a transação se repete (1-28)">
+        <DescriptionField label={Lang.recurrent.day} description={Lang.recurrent.recurrenceDayDescription}>
           <Input
             type="number"
             min="1"
@@ -74,51 +72,49 @@ export default function CreateRecurrent({
           />
         </DescriptionField>
 
-        <DescriptionField label="Valor">
+        <DescriptionField label={Lang.registry.value}>
           <PriceInput
             value={watch("amount")}
             onChange={(value) => setValue("amount", value)}
           />
         </DescriptionField>
 
-        <DescriptionField label="Descrição">
-          <Input {...register("description")} placeholder="Ex: Netflix" />
+        <DescriptionField label={Lang.registry.description}>
+          <Input {...register("description")} placeholder={Lang.registry.descriptionExpensePlaceholder} />
         </DescriptionField>
 
-        <DescriptionField label="Categoria">
+        <DescriptionField label={Lang.registry.category}>
           <SelectList
             options={categories}
             value={watch("category")}
             onChange={(value) => setValue("category", value)}
-            placeholder="Selecione a categoria"
+            placeholder={Lang.timeline.selectCategoriesPlaceholder}
             allowSelectHeader={true}
           />
         </DescriptionField>
 
-        <DescriptionField label="Tags">
+        <DescriptionField label={Lang.registry.tags}>
           <TagsInput
             value={watch("tags")}
             onChange={(value) => setValue("tags", value)}
-            placeholder="Digite e pressione Enter"
+            placeholder={Lang.commons.typeAndPressEnter}
           />
         </DescriptionField>
 
-        <DescriptionField label="Observação">
+        <DescriptionField label={Lang.registry.notes}>
           <Textarea
             {...register("notes")}
-            placeholder="Adicione observações..."
+            placeholder={Lang.commons.addNotes}
             rows={3}
           />
         </DescriptionField>
 
         <div className="p-4 bg-muted rounded-lg space-y-2">
-          <h3 className="font-semibold text-sm">Próximas Recorrências</h3>
+          <h3 className="font-semibold text-sm">{Lang.recurrent.nextRecurrences}</h3>
           {generatePreview().map((date, idx) => (
             <div key={idx} className="flex justify-between text-sm">
-              <span>{date.toLocaleDateString("pt-BR")}</span>
-              <span className="text-muted-foreground">
-                R$ {amount.toFixed(2).replace(".", ",")}
-              </span>
+              <span>{date.toLocaleDateString(CurrentLangInfo.short)}</span>
+              <span className="text-muted-foreground">{new Intl.NumberFormat(CurrentLangInfo.short, { style: "currency", currency: "BRL", minimumFractionDigits: 2 }).format(amount)}</span>
             </div>
           ))}
         </div>
@@ -132,14 +128,14 @@ export default function CreateRecurrent({
             className="flex-1"
             onClick={() => navigate(new ToPreviousRoute())}
           >
-            Cancelar
+            {Lang.commons.cancel}
           </Button>
           <Button 
             type="submit" 
             className="flex-1"
             onClick={handleSubmit(onSubmit)}
           >
-            {isEdit ? "Atualizar" : "Salvar"}
+            {isEdit ? Lang.commons.update : Lang.commons.save}
           </Button>
         </div>
       </div>

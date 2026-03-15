@@ -1,0 +1,211 @@
+import type VisualModuleTranslation from './base';
+
+const zh: VisualModuleTranslation = {
+  visual: {
+    home: {
+      greeting: userName=>`你好，${userName} \u{1F44B}`,
+      subtitle: "查看你的财务概览",
+      quickActions: "快捷操作",
+      quickActionTransfer: "转账",
+      quickActionIncome: "账户收入",
+      quickActionExpense: "账户支出",
+      quickActionCreditCard: "信用卡支出",
+      quickActionRecurring: "新建周期项",
+      quickActionPay: "支付",
+      accountsActive: count=>`${count} 个活跃账户`,
+      creditCardsCount: count=>`${count} 张卡`,
+      totalInvoices: "发票总额"
+    },
+    more: {
+      title: "更多",
+      subtitle: "访问应用的其他区域",
+      myId: "我的 ID",
+      financeSection: "财务管理",
+      accountSection: "我的账户",
+      developerSection: "Developer Options / Beta",
+      accounts: "账户",
+      creditCards: "信用卡",
+      categories: "分类",
+      recurrents: "周期性收支",
+      assistant: "助手",
+      settings: "设置",
+      settingsDescription: "应用偏好",
+      connectedAccounts: "已连接账户",
+      connectedAccountsDescription: "银行与集成",
+      resourceUsage: "资源使用",
+      resourceUsageDescription: "应用成本与消耗",
+      privacyAndSecurity: "隐私与安全",
+      privacy: "隐私",
+      privacyDescription: "你的数据、条款和政策",
+      developer: "Developer",
+      developerDescription: "Advanced tools and options",
+      subscriptions: "订阅",
+      developerUtilities: "开发者工具",
+      aiCalls: "AI Calls",
+      aboutApp: "关于应用",
+      searchUpdates: "检查更新",
+      searchingUpdates: "检查中...",
+      version: "版本",
+      logout: "退出登录"
+    },
+    settings: {
+      title: "设置",
+      subtitle: "应用偏好",
+      appearance: "外观",
+      themeAndColors: "主题与颜色",
+      customizeAppearance: "自定义外观",
+      languageTitle: "语言",
+      densityTitle: "密度",
+      densityDescription: "调整应用的视觉间距。",
+      aiAssistant: "AI 助手设置",
+      voiceAndAudio: "语音与音频",
+      speechSettings: "语音设置",
+      behavior: "行为",
+      interactionMode: "交互模式",
+      timelineBehavior: "时间线 / 应用行为",
+      financialMonthStartDay: "财务月起始日",
+      financialMonthName: "财务月份命名",
+      currentMonthMode: "在所选日期前算当前月",
+      currentMonthDescription: "10/15 之后称为十月，10/15 之前称为九月。",
+      nextMonthMode: "在所选日期后算下个月",
+      nextMonthDescription: "10/15 之后称为十一月，10/15 之前称为十月。",
+      density: {
+        compact: "紧凑",
+        normal: "正常",
+        comfortable: "舒适",
+        spacious: "宽松"
+      },
+      languageScreen: {
+        title: "语言",
+        chooseTitle: "选择应用语言",
+        chooseDescription: "更改会立即应用到整个应用。",
+        deviceDefault: language=>`设备默认 (${language})`,
+        deviceDefaultDescription: "跟随浏览器和系统的首选语言。",
+        interfaceDescription: locale=>`界面和格式使用 ${locale}。`
+      },
+      connectedAccounts: {
+        title: "已连接账户",
+        subtitle: "连接银行和服务以同步你的数据",
+        sectionTitle: "已连接账户",
+        emptyTitle: "没有已连接账户",
+        emptyDescription: "连接一个机构后，你可以用更少的手动工作跟踪余额和交易。",
+        connectButton: "连接账户",
+        connected: "已连接",
+        disconnect: "断开连接",
+        socialSection: "社交账户",
+        disconnectAnytime: "你可以随时断开你的账户。",
+        secureStorage: "你的凭据会被安全存储。"
+      },
+      developer: {
+        title: "Developer Options / Beta",
+        subtitle: "Utilities recovered from legacy settings.",
+        toolsTitle: "Tools",
+        toolsDescription: "Shortcuts to technical screens and beta resources.",
+        aiCalls: "AI Calls",
+        subscriptions: "Subscriptions",
+        onboardingTitle: "Onboarding",
+        onboardingDescription: "Reopens onboarding flows for a new test.",
+        resetAssistant: "Reset assistant onboarding",
+        resetMicrophone: "Reset microphone onboarding",
+        encryptionTitle: "Encryption",
+        encryptionDescription: "Toggles `disableEncryption` and resaves encrypted repositories.",
+        disableEncryption: "Disable encryption",
+        disableEncryptionDescription: "Technical use only. The change resaves compatible data.",
+        rewrittenItems: "Rewritten items",
+        killAccountTitle: "Kill Account Registers",
+        killAccountDescription: "Permanently removes every record of an account by ID.",
+        accountIdPlaceholder: "Account ID",
+        runAction: "Run",
+        killAccountHint: "Use this only when you know exactly which account must be cleaned."
+      },
+      resourceUsage: {
+        title: "资源使用",
+        subtitle: "监控应用资源使用情况",
+        beta: "Beta",
+        monthlyAiUsage: "每月 AI 使用量",
+        exceededBy: amount=>`超出限制 ${amount}`,
+        database: "数据库",
+        reads: "读取",
+        writes: "写入",
+        queryReads: "查询读取",
+        aiModels: "AI 模型",
+        requests: "请求数",
+        tokensIn: "输入 tokens",
+        tokensOut: "输出 tokens",
+        totalRequests: "总请求数",
+        totalInputTokens: "输入 tokens 总数",
+        totalOutputTokens: "输出 tokens 总数",
+        estimatedCost: "预估成本",
+        back: "返回"
+      }
+    },
+    onboarding: {
+      theme: {
+        title: "Choose the app appearance",
+        subtitle: "Set theme, color, and density before continuing.",
+        continue: "Continue"
+      },
+      audio: {
+        title: "Audio test",
+        subtitle: "Let’s validate language and capture for voice.",
+        startTest: "Start test",
+        confirmLanguage: "Confirm language",
+        skip: "Skip"
+      },
+      voiceSettings: {
+        title: "Voice settings",
+        subtitle: "Adjust rate and preferred voice.",
+        continue: "Continue"
+      },
+      assistantMode: {
+        title: "Assistant mode",
+        subtitle: "Choose how the assistant should interact with you.",
+        continue: "Continue"
+      },
+      voiceIntro: {
+        title: "Voice assistant",
+        subtitle: "Learn how to talk to your financial assistant.",
+        continue: "Enter app"
+      }
+    },
+    privacy: {
+      title: "隐私与安全",
+      subtitle: "管理你的数据并查看法律文档",
+      exportData: "导出数据",
+      deleteAccount: "删除账户",
+      terms: "使用条款",
+      policy: "隐私政策",
+      settingsAndPreferences: "设置与偏好",
+      dataTitle: "你的数据",
+      dataDescription: "导出或删除你的财务数据",
+      exportJsonTitle: "导出为 JSON",
+      exportJsonDescription: "包含全部数据的完整格式",
+      exportCsvTitle: "导出为 CSV",
+      exportCsvDescription: "兼容 Excel 和电子表格",
+      exportHint: "导出的数据包括你的所有交易、账户、卡片和分类。数据属于你自己，你可以随时导出。",
+      deleteDataTitle: "删除我的数据",
+      deleteDataDescription: "删除你的财务数据，同时保留已认证的账户。",
+      deleteOnlyDataTitle: "仅删除我的数据",
+      deleteOnlyDataDescription: "在清理本地和远程数据前自动创建备份。",
+      policiesTitle: "政策与条款",
+      policiesDescription: "了解我们如何保护你的数据",
+      termsDescription: "使用应用的规则与条件",
+      policyDescription: "我们如何收集并保护你的数据",
+      manageAccountTitle: "管理账户",
+      manageAccountDescription: "与你账户相关的操作",
+      deleteMyAccountTitle: "删除我的账户",
+      deleteMyAccountDescription: "永久移除你的所有数据",
+      deleteDialogTitle: "仅删除你的数据",
+      deleteDialogDescription: "在删除前会先导出你的数据。要继续，请准确输入下面显示的短语。",
+      deleteDialogPlaceholder: "输入确认短语",
+      deleteDialogCancel: "取消",
+      deleteDialogConfirm: "删除我的数据"
+    },
+    assistant: {
+      aiCallsTitle: "AI Calls",
+      aiCallsSubtitle: "History and cost of assistant interactions"
+    }
+  }
+};
+
+export default zh;

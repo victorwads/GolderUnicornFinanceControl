@@ -7,19 +7,10 @@ import { useState, useEffect } from "react";
 interface Action {
   id: string;
   icon: any;
-  label: string;
+  getLabel: () => string;
   color: string;
   route: string;
 }
-
-const allActions: Action[] = [
-  { id: "transfer", icon: ArrowLeftRight, label: "Transferência", color: "text-blue-600", route: "/timeline/entry/transfer/create" },
-  { id: "income", icon: TrendingUp, label: "Entrada na conta", color: "text-success", route: "/timeline/entry/account/income/create" },
-  { id: "expense", icon: TrendingDown, label: "Gasto na conta", color: "text-destructive", route: "/timeline/entry/account/expense/create" },
-  { id: "credit-card", icon: CreditCard, label: "Gasto no cartão", color: "text-orange-600", route: "/timeline/entry/credit/create" },
-  { id: "recurring", icon: Calendar, label: "Nova recorrência", color: "text-purple-600", route: "/recurrents/create" },
-  { id: "pay", icon: DollarSign, label: "Pagar", color: "text-warning", route: "/pay" },
-];
 
 const CLICKS_STORAGE_KEY = "quick-actions-clicks";
 
@@ -36,6 +27,14 @@ const incrementClickCount = (actionId: string) => {
 
 export const QuickActions = () => {
   const navigate = useNavigate();
+  const allActions: Action[] = [
+    { id: "transfer", icon: ArrowLeftRight, getLabel: () => Lang.visual.home.quickActionTransfer, color: "text-blue-600", route: "/timeline/entry/transfer/create" },
+    { id: "income", icon: TrendingUp, getLabel: () => Lang.visual.home.quickActionIncome, color: "text-success", route: "/timeline/entry/account/income/create" },
+    { id: "expense", icon: TrendingDown, getLabel: () => Lang.visual.home.quickActionExpense, color: "text-destructive", route: "/timeline/entry/account/expense/create" },
+    { id: "credit-card", icon: CreditCard, getLabel: () => Lang.visual.home.quickActionCreditCard, color: "text-orange-600", route: "/timeline/entry/credit/create" },
+    { id: "recurring", icon: Calendar, getLabel: () => Lang.visual.home.quickActionRecurring, color: "text-purple-600", route: "/recurrents/create" },
+    { id: "pay", icon: DollarSign, getLabel: () => Lang.visual.home.quickActionPay, color: "text-warning", route: "/pay" },
+  ];
   const [sortedActions, setSortedActions] = useState<Action[]>(allActions);
 
   useEffect(() => {
@@ -67,7 +66,9 @@ export const QuickActions = () => {
               <div className={`w-10 h-10 rounded-full bg-background flex items-center justify-center ${action.color}`}>
                 <Icon className="w-5 h-5" />
               </div>
-              <span className="text-xs font-medium text-foreground text-center whitespace-nowrap">{action.label}</span>
+              <span className="text-xs font-medium text-foreground text-center whitespace-nowrap">
+                {action.getLabel()}
+              </span>
             </Card>
           );
         })}

@@ -27,19 +27,31 @@ interface HomeProps {
 
 export default function Home({ model }: HomeProps) {
   const { creditCards, accounts, totalInvoices, totalBalance, openAccordions, handleAccordionChange, userName } = model;
+  const locale = CurrentLangInfo.short;
+  const formatCurrency = (value: number) =>
+    value.toLocaleString(locale, {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    });
+  const availableMonths = ["2024-11", "2024-10", "2024-09"];
+  const formatMonthOption = (value: string) => {
+    const [year, month] = value.split("-").map(Number);
+    return new Intl.DateTimeFormat(locale, { month: "short", year: "numeric" }).format(new Date(year, month - 1, 1));
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-6 animate-fade-in">
       <header className="pt-4 pb-2">
-        <h1 className="text-2xl font-bold text-foreground">Olá, {userName} 👋</h1>
-        <p className="text-muted-foreground">Confira seu resumo financeiro</p>
+        <h1 className="text-2xl font-bold text-foreground">{Lang.visual.home.greeting(userName)}</h1>
+        <p className="text-muted-foreground">{Lang.visual.home.subtitle}</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BalanceCard accountsCount={accounts.length} totalBalance={totalBalance} />
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground mb-3">Ações Rápidas</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-3">{Lang.visual.home.quickActions}</h2>
           <QuickActions />
         </section>
       </div>
@@ -59,8 +71,8 @@ export default function Home({ model }: HomeProps) {
                     <Wallet className="h-4 w-4 text-primary" />
                   </div>
                   <div className="text-left flex-1">
-                    <p className="text-sm font-semibold text-foreground">Contas</p>
-                    <p className="text-xs text-muted-foreground">{accounts.length} contas ativas</p>
+                    <p className="text-sm font-semibold text-foreground">{Lang.accounts.title}</p>
+                    <p className="text-xs text-muted-foreground">{Lang.visual.home.accountsActive(accounts.length)}</p>
                   </div>
                 </div>
               </AccordionTrigger>
@@ -81,9 +93,7 @@ export default function Home({ model }: HomeProps) {
                       {!account.balance && account.balance !== 0 ? (
                         <Skeleton className="h-5 w-20" />
                       ) : (
-                        <p className="text-sm font-bold text-foreground">
-                          R$ {account.balance?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </p>
+                        <p className="text-sm font-bold text-foreground">{formatCurrency(account.balance || 0)}</p>
                       )}
                     </div>
                   ))}
@@ -107,17 +117,19 @@ export default function Home({ model }: HomeProps) {
                     <CreditCard className="h-4 w-4 text-primary" />
                   </div>
                   <div className="text-left flex-1">
-                    <p className="text-sm font-semibold text-foreground">Cartões de Crédito</p>
-                    <p className="text-xs text-muted-foreground">{creditCards.length} cartões</p>
+                    <p className="text-sm font-semibold text-foreground">{Lang.creditcards.title}</p>
+                    <p className="text-xs text-muted-foreground">{Lang.visual.home.creditCardsCount(creditCards.length)}</p>
                   </div>
                   <Select defaultValue="11-2024">
                     <SelectTrigger className="w-[110px] h-8 text-xs mr-2" onClick={(e) => e.stopPropagation()}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="11-2024">Nov/2024</SelectItem>
-                      <SelectItem value="10-2024">Out/2024</SelectItem>
-                      <SelectItem value="09-2024">Set/2024</SelectItem>
+                      {availableMonths.map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {formatMonthOption(value)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -139,9 +151,7 @@ export default function Home({ model }: HomeProps) {
                       {!card.invoice && card.invoice !== 0 ? (
                         <Skeleton className="h-5 w-20" />
                       ) : (
-                        <p className="text-sm font-bold text-foreground">
-                          R$ {card.invoice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </p>
+                        <p className="text-sm font-bold text-foreground">{formatCurrency(card.invoice || 0)}</p>
                       )}
                     </div>
                   ))}
@@ -149,13 +159,11 @@ export default function Home({ model }: HomeProps) {
               </AccordionContent>
               <div className="px-4 py-3 border-t border-border bg-accent/20">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-muted-foreground">Total das Faturas</p>
+                  <p className="text-xs font-semibold text-muted-foreground">{Lang.visual.home.totalInvoices}</p>
                   {totalInvoices === null ? (
                     <Skeleton className="h-6 w-28" />
                   ) : (
-                    <p className="text-base font-bold text-primary">
-                      R$ {totalInvoices.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
+                    <p className="text-base font-bold text-primary">{formatCurrency(totalInvoices)}</p>
                   )}
                 </div>
               </div>

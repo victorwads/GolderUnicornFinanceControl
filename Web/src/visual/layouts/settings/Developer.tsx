@@ -25,6 +25,7 @@ export default function Developer({ model }: DeveloperProps) {
     toggleEncryption,
     killAccountRegisters,
   } = model;
+  const LocalLang = Lang.visual.settings.developer;
 
   return (
     <div className="min-h-full bg-background">
@@ -35,10 +36,8 @@ export default function Developer({ model }: DeveloperProps) {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Developer Options / Beta</h1>
-              <p className="text-sm text-muted-foreground">
-                Utilitários recuperados do settings legado.
-              </p>
+              <h1 className="text-2xl font-bold text-foreground">{LocalLang.title}</h1>
+              <p className="text-sm text-muted-foreground">{LocalLang.subtitle}</p>
             </div>
           </div>
         </header>
@@ -46,52 +45,48 @@ export default function Developer({ model }: DeveloperProps) {
         <div className="p-4 space-y-6 animate-fade-in">
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle>Ferramentas</CardTitle>
-              <CardDescription>Atalhos para telas técnicas e recursos beta.</CardDescription>
+              <CardTitle>{LocalLang.toolsTitle}</CardTitle>
+              <CardDescription>{LocalLang.toolsDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start h-14" onClick={openAiCalls}>
                 <Bot className="h-4 w-4 mr-3" />
-                AI Calls
+                {LocalLang.aiCalls}
               </Button>
               <Button variant="outline" className="w-full justify-start h-14" onClick={openSubscriptions}>
                 <Sparkles className="h-4 w-4 mr-3" />
-                Subscrições
+                {LocalLang.subscriptions}
               </Button>
             </CardContent>
           </Card>
 
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle>Onboarding</CardTitle>
-              <CardDescription>Reabre fluxos de onboarding para novo teste.</CardDescription>
+              <CardTitle>{LocalLang.onboardingTitle}</CardTitle>
+              <CardDescription>{LocalLang.onboardingDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start h-14" onClick={resetAssistantOnboarding}>
                 <Bot className="h-4 w-4 mr-3" />
-                Resetar onboarding do assistente
+                {LocalLang.resetAssistant}
               </Button>
               <Button variant="outline" className="w-full justify-start h-14" onClick={resetMicrophoneOnboarding}>
                 <Mic className="h-4 w-4 mr-3" />
-                Resetar onboarding do microfone
+                {LocalLang.resetMicrophone}
               </Button>
             </CardContent>
           </Card>
 
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle>Criptografia</CardTitle>
-              <CardDescription>
-                Alterna `disableEncryption` e regrava os repositórios criptografados.
-              </CardDescription>
+              <CardTitle>{LocalLang.encryptionTitle}</CardTitle>
+              <CardDescription>{LocalLang.encryptionDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 p-4">
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-foreground">Desativar criptografia</p>
-                  <p className="text-xs text-muted-foreground">
-                    Uso somente técnico. A alteração resalva os dados compatíveis.
-                  </p>
+                  <p className="text-sm font-medium text-foreground">{LocalLang.disableEncryption}</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.disableEncryptionDescription}</p>
                 </div>
                 <Switch checked={encryptionDisabled} onCheckedChange={() => void toggleEncryption()} />
               </div>
@@ -108,7 +103,7 @@ export default function Developer({ model }: DeveloperProps) {
                   {resaveProgress.sub && (
                     <>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Itens regravados</span>
+                        <span>{LocalLang.rewrittenItems}</span>
                         <span>{resaveProgress.sub.current}/{resaveProgress.sub.max}</span>
                       </div>
                       <Progress
@@ -124,26 +119,22 @@ export default function Developer({ model }: DeveloperProps) {
 
           <Card className="border-destructive/30">
             <CardHeader>
-              <CardTitle>Kill Account Registers</CardTitle>
-              <CardDescription>
-                Remove definitivamente todos os registros de uma conta pelo ID.
-              </CardDescription>
+              <CardTitle>{LocalLang.killAccountTitle}</CardTitle>
+              <CardDescription>{LocalLang.killAccountDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Input
                   value={killAccountId}
                   onChange={(event) => setKillAccountId(event.target.value)}
-                  placeholder="ID da conta"
+                  placeholder={LocalLang.accountIdPlaceholder}
                 />
                 <Button variant="destructive" onClick={killAccountRegisters} className="sm:w-auto">
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Executar
+                  {LocalLang.runAction}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Use apenas quando souber exatamente qual conta precisa ser limpa.
-              </p>
+              <p className="text-xs text-muted-foreground">{LocalLang.killAccountHint}</p>
             </CardContent>
           </Card>
         </div>

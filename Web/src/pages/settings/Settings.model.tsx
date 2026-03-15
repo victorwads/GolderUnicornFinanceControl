@@ -55,7 +55,7 @@ export function useSettingsModel(): SettingsViewModel {
     },
     currentLanguageLabel: selectedLanguage
       ? Langs[selectedLanguage]?.name ?? CurrentLangInfo.name
-      : `Padrão do dispositivo (${navigator.language})`,
+      : Lang.visual.settings.languageScreen.deviceDefault(navigator.language),
     density: currentDensity,
     setDensity: (value) => {
       const densityValue = `density-${value}` as Density;

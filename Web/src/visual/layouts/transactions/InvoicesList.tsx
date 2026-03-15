@@ -24,6 +24,13 @@ export default function InvoicesList({
 }: {
   model: InvoicesListViewModel
 }) {
+  const formatCurrency = (value: number) =>
+    value.toLocaleString(CurrentLangInfo.short, {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    });
+
   return (
     <div className="max-w-4xl mx-auto">
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
@@ -114,7 +121,7 @@ export default function InvoicesList({
             <div className="text-right">
               <p className="text-xs text-muted-foreground mb-1">Total</p>
               <p className="text-2xl font-bold text-destructive">
-                R$ {currentInvoice.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {formatCurrency(currentInvoice.totalAmount)}
               </p>
             </div>
           </div>

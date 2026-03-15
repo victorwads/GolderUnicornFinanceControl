@@ -13,6 +13,16 @@ export const BalanceCard = ({ accountsCount, totalBalance }: BalanceCardProps) =
   const [isVisible, setIsVisible] = useState(true);
   const change = 8.5;
   const isPositive = change >= 0;
+  const locale = CurrentLangInfo.short;
+  const formattedBalance =
+    totalBalance === null
+      ? null
+      : totalBalance.toLocaleString(locale, {
+          style: "currency",
+          currency: "BRL",
+          minimumFractionDigits: 2,
+        });
+  const formattedDate = new Date().toLocaleDateString(locale);
 
   return (
     <Card className="bg-gradient-primary text-white p-5 shadow-lg border-0 overflow-hidden relative">
@@ -21,7 +31,7 @@ export const BalanceCard = ({ accountsCount, totalBalance }: BalanceCardProps) =
       
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-white/80 text-sm font-medium">Saldo Total</span>
+          <span className="text-white/80 text-sm font-medium">{Lang.timeline.balance}</span>
           <button
             onClick={() => setIsVisible(!isVisible)}
             className="text-white/80 hover:text-white transition-colors p-1"
@@ -34,9 +44,7 @@ export const BalanceCard = ({ accountsCount, totalBalance }: BalanceCardProps) =
           {totalBalance === null ? (
             <Skeleton className="h-9 w-48 bg-white/20" />
           ) : isVisible ? (
-            <h2 className="text-3xl font-bold tracking-tight">
-              R$ {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </h2>
+            <h2 className="text-3xl font-bold tracking-tight">{formattedBalance}</h2>
           ) : (
             <div className="flex gap-2">
               {[...Array(6)].map((_, i) => (
@@ -56,11 +64,11 @@ export const BalanceCard = ({ accountsCount, totalBalance }: BalanceCardProps) =
             ) : (
               <TrendingDown className="w-4 h-4" />
             )}
-            <span>{isPositive ? '+' : ''}{change}% este mês</span>
+            <span>{isPositive ? "+" : ""}{change}%</span>
           </div>
 
           <p className="text-xs text-white/60 text-right">
-            {accountsCount} contas • {new Date().toLocaleDateString('pt-BR')}
+            {Lang.visual.home.accountsActive(accountsCount)} • {formattedDate}
           </p>
         </div>
       </div>

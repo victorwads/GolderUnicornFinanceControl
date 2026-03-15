@@ -51,8 +51,8 @@ export default function CategoriesList({
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Categorias</h1>
-              <p className="text-sm text-muted-foreground">{categories.length} categorias raiz</p>
+              <h1 className="text-2xl font-bold text-foreground">{Lang.categories.title}</h1>
+              <p className="text-sm text-muted-foreground">{Lang.categories.rootCategoriesCount(categories.length)}</p>
             </div>
           </div>
           <Button
@@ -101,8 +101,8 @@ export default function CategoriesList({
                     <p className="text-base font-semibold text-foreground">{category.name}</p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {category.children.length === 0
-                        ? "Sem subcategorias"
-                        : `${category.children.length} subcategorias`}
+                        ? Lang.categories.noSubcategories
+                        : Lang.categories.subcategoriesCount(category.children.length)}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
@@ -116,7 +116,7 @@ export default function CategoriesList({
                       }}
                     >
                       <PencilLine className="mr-2 h-4 w-4" />
-                      Editar
+                      {Lang.commons.edit}
                     </Button>
                     <Button
                       variant="secondary"
@@ -128,12 +128,12 @@ export default function CategoriesList({
                       }}
                     >
                       <Plus className="mr-1 h-4 w-4" />
-                      Adicionar
+                      {Lang.commons.add}
                     </Button>
                     {category.children.length > 0 && (
                       <span
                         className="flex h-8 w-8 items-center justify-center text-muted-foreground"
-                        aria-label={isCollapsed ? "Expandir categoria" : "Recolher categoria"}
+                        aria-label={isCollapsed ? `${Lang.commons.add} ${Lang.categories.title}` : `${Lang.commons.clear} ${Lang.categories.title}`}
                       >
                         {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </span>
@@ -168,7 +168,7 @@ export default function CategoriesList({
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium text-foreground">{child.name}</p>
-                            <p className="text-xs text-muted-foreground">Subcategoria</p>
+                            <p className="text-xs text-muted-foreground">{Lang.categories.subcategory}</p>
                           </div>
                         </button>
                       );

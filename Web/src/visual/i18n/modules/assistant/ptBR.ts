@@ -1,0 +1,81 @@
+import type AssistantModuleTranslation from './base';
+
+const ptBR: AssistantModuleTranslation = {
+  speech: {
+    title: "Itens de Compras",
+    howToUseTitle: "Como usar",
+    intro1: "Fale naturalmente sobre os itens que você já tem e sobre os que precisa comprar. O assistente vai entender suas frases e adicionar, remover ou atualizar os itens, separando o que está em casa do que ainda está na lista de compras.",
+    intro2: "Você pode falar sobre o nome, validade, se está aberto/usado, quantidade, quanto pagou, onde está guardado etc.",
+    examplesTitle: "Exemplos:",
+    examples: [
+      "preciso comprar ovos e leite",
+      "comprei 2 pacotes de arroz",
+      "tenho 3 pacotes de macarrão no armário",
+      "eu tenho presunto e queijo abertos na geladeira e vão estragar daqui 3 dias",
+      "o pacote de café vence daqui 2 meses",
+      "não tenho mais o feijão"
+    ],
+    micStart: "Iniciar escuta",
+    micStop: "Parar escuta",
+    placeholderListeningHasItems: "Fale à vontade",
+    placeholderListeningNoItems: "Comece a falar",
+    placeholderNotListening: "Pressione o botão para falar",
+    haveListTitle: "Tenho",
+    toBuyListTitle: "Para Comprar",
+    browserNotSupported: "Seu navegador não suporta reconhecimento de voz.",
+    changeLangTooltip: "Clique para mudar o idioma",
+    tokensUsed: (tokens,price)=>`Usados: ${tokens} Tokens, R$ ${price}`
+  },
+  aiMic: {
+    onboarding: {
+      info: {
+        title: "Teste de reconhecimento de voz",
+        p1: "O reconhecimento de voz usado no app é nativo e depende da compatibilidade do seu dispositivo.",
+        p2: "Vamos fazer um teste rápido para verificar se tudo está funcionando."
+      },
+      lang: {
+        title: "Confirme o idioma",
+        p1: "Confirme que o idioma do app está correto e que o idioma falado é o mesmo configurado no seu dispositivo."
+      },
+      verification: {
+        title: "Repita a frase",
+        instructions: "Fale a frase exibida abaixo para testarmos o reconhecimento de voz.",
+        retry: "Não foi suficiente, tente novamente.",
+        success: "Perfeito! Vamos continuar.",
+        waiting: "Aguardando sua fala...",
+        targetLabel: "Frase esperada",
+        transcriptLabel: "Transcrição",
+        scoreLabel: "Pontuação"
+      },
+      progress: (passed,target)=>`${passed} de ${target}`,
+      success: {
+        title: "Tudo certo!",
+        p1: "Seu dispositivo é compatível com o reconhecimento de voz."
+      },
+      fail: {
+        title: "Não foi possível validar",
+        p1: "Não conseguimos confirmar a compatibilidade do reconhecimento de voz no momento."
+      },
+      actions: {
+        start: "Iniciar teste",
+        confirm: "Confirmar idioma",
+        back: "Voltar",
+        imDone: "Pular",
+        tryAgain: "Tente novamente",
+        close: "Fechar"
+      }
+    },
+    onboardingCases: ()=>["Testando transferir 12 reais da conta salario para a poupanca.","Teste de reconhecimento do valor falado R$ 20,00 como despesa rapida.","Outro teste dizendo apenas vinte reais para verificar se funciona sem simbolo.","Diga transferir doze BRL para a conta reserva para conferir o codigo da moeda.","Peca mover cinquenta USD da conta corrente para o fundo de viagem e confirme o termo USD.","Tente lancar um debito de 30 euros na categoria mercado para notar suporte multimoeda.","Fale registrar saque de 75 dolares com anotacao caixa ATM B3 para checar valor e nota.","Fale pagar a assinatura USB e veja se confunde com USD.","Solicite registrar reembolso de 120 pesos mexicanos para testar moedas estrangeiras.","Fale buscar contas da cliente Maria da Silva para revisar reconhecimento de nome completo.","Peca mostrar limite do cartao corporativo Visa em BRL misturando idiomas.","Comande gerar relatorio comparando total de credito e debito de abril para testar relatorios.","Diga marcar a fatura 2045 como paga em dolares para validar numeros falados.","Informe capturar pagamento recorrente de R$ 99,90 do Spotify para validar decimais.","Experimente converter 200 BRL em USD e lancar a diferenca para estressar conversoes."]
+  },
+  assistant: {
+    onboarding: {
+      title: "Conheça o assistente financeiro",
+      description: "Deixe que o assistente guie você pelo setup inicial e personalize a experiência.",
+      microRequirement: "Antes de começar, faremos um teste rápido do microfone para garantir que tudo funcione.",
+      start: "Iniciar agora",
+      dismiss: "Não mostrar novamente"
+    }
+  }
+};
+
+export default ptBR;

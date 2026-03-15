@@ -15,13 +15,63 @@ interface MoreProps {
 
 export default function More({ model }: MoreProps) {
   const { navigate, handleLogout, sections = [], lang = {} as MoreLang, user, handleUpdateCheck, checkingForUpdate } = model;
+  const LocalLang = Lang.visual.more;
+
+  function resolveSectionTitle(section: MoreViewModel["sections"][number]) {
+    const routes = section.items.map((item) => item.route);
+
+    if (routes.some((route) => ["/accounts", "/creditcards", "/categories", "/recurrents"].includes(route))) {
+      return LocalLang.financeSection;
+    }
+
+    if (routes.some((route) => ["/assistant", "/connected-accounts", "/me/linkedaccounts", "/resource-usage", "/me/resource-usage", "/me/privacy"].includes(route))) {
+      return LocalLang.accountSection;
+    }
+
+    if (routes.some((route) => ["/subscriptions", "/ai-calls", "/settings/developer"].includes(route))) {
+      return LocalLang.developerSection;
+    }
+
+    return section.title;
+  }
+
+  function resolveItemLabel(item: MoreViewModel["sections"][number]["items"][number]) {
+    switch (item.route) {
+      case "/accounts":
+        return LocalLang.accounts;
+      case "/creditcards":
+        return LocalLang.creditCards;
+      case "/categories":
+        return LocalLang.categories;
+      case "/recurrents":
+        return LocalLang.recurrents;
+      case "/assistant":
+        return LocalLang.assistant;
+      case "/connected-accounts":
+      case "/me/linkedaccounts":
+        return LocalLang.connectedAccounts;
+      case "/resource-usage":
+      case "/me/resource-usage":
+        return LocalLang.resourceUsage;
+      case "/me/privacy":
+        return LocalLang.privacyAndSecurity;
+      case "/subscriptions":
+        return LocalLang.subscriptions;
+      case "/ai-calls":
+        return LocalLang.aiCalls;
+      case "/settings/developer":
+        return LocalLang.developerUtilities;
+      default:
+        return item.label;
+    }
+  }
 
   return (
     <div className="min-h-full bg-background">
       <div className="max-w-4xl mx-auto">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
-          <h1 className="text-2xl font-bold text-foreground">{lang.title || "Mais"}</h1>
-          <p className="text-sm text-muted-foreground">{lang.subtitle || "Suas informações e gerenciamento"}</p>
+          <h1 className="text-2xl font-bold text-foreground">{lang.title || LocalLang.title}</h1>
+          <p className="text-sm text-muted-foreground">{lang.subtitle || LocalLang.subtitle}</p>
         </header>
 
         <div className="p-4 space-y-6 animate-fade-in">
@@ -34,19 +84,19 @@ export default function More({ model }: MoreProps) {
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-foreground">{user.name}</h2>
               <p className="text-sm text-muted-foreground">{user.email}</p>
-              <p className="text-xs text-muted-foreground/50 mt-1">{lang.account?.myId || "Meu ID"}: {user.id}</p>
+              <p className="text-xs text-muted-foreground/50 mt-1">{lang.account?.myId || LocalLang.myId}: {user.id}</p>
             </div>
           </Card>
 
           {sections.map((section) => 
-          <div key={section.title} className="space-y-3">
+          <div key={resolveSectionTitle(section)} className="space-y-3">
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-              {section.title}
+              {resolveSectionTitle(section)}
             </h3>
             <Card className="divide-y divide-border/50 border-border/50 overflow-hidden">
               {section.items.map((item) =>
               <div 
-                key={item.label}
+                key={`${item.route}-${resolveItemLabel(item)}`}
                 className="flex items-center justify-between p-4 hover:bg-accent/50 transition-colors cursor-pointer"
                 onClick={() => navigate(item.route)}
               >
@@ -54,18 +104,17 @@ export default function More({ model }: MoreProps) {
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <item.icon className="h-5 w-5 text-primary" />
                   </div>
-                  <span className="text-sm font-medium text-foreground">{item.label}</span>
+                  <span className="text-sm font-medium text-foreground">{resolveItemLabel(item)}</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>)}
             </Card>
           </div>)}
 
-          {/* Sobre o App */}
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                {lang.appInfo?.title || "Sobre o App"}
+                {lang.appInfo?.title || LocalLang.aboutApp}
               </h3>
               <Button 
                 variant="outline" 
@@ -74,7 +123,7 @@ export default function More({ model }: MoreProps) {
                 onClick={handleUpdateCheck}
                 disabled={checkingForUpdate}
               >
-                {checkingForUpdate ? "Buscando..." : lang.appInfo?.searchUpdates || "Buscar atualizações"}
+                {checkingForUpdate ? LocalLang.searchingUpdates : lang.appInfo?.searchUpdates || LocalLang.searchUpdates}
               </Button>
             </div>
             <Card className="divide-y divide-border/50 border-border/50 overflow-hidden">
@@ -86,7 +135,7 @@ export default function More({ model }: MoreProps) {
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <SettingsIcon className="h-5 w-5 text-primary" />
                   </div>
-                  <span className="text-sm font-medium text-foreground">Configurações</span>
+                  <span className="text-sm font-medium text-foreground">{LocalLang.settings}</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
@@ -96,7 +145,7 @@ export default function More({ model }: MoreProps) {
                     <Info className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">{lang.appInfo?.version || "Versão"}</p>
+                    <p className="text-sm font-medium text-foreground">{lang.appInfo?.version || LocalLang.version}</p>
                     <p className="text-xs text-muted-foreground">{model.appVersion}</p>
                   </div>
                 </div>
@@ -104,7 +153,6 @@ export default function More({ model }: MoreProps) {
             </Card>
           </div>
 
-          {/* Logout */}
           <div className="pb-4">
             <Button
               variant="outline"
@@ -112,7 +160,7 @@ export default function More({ model }: MoreProps) {
               onClick={handleLogout}
             >
               <LogOut className="h-5 w-5 mr-2" />
-              Deslogar
+              {LocalLang.logout}
             </Button>
           </div>
         </div>
@@ -144,6 +192,7 @@ export interface MoreLang {
     searchUpdates: string;
   };
   logout: string;
+  aiCalls: string;
 }
 
 export interface MoreViewModel {

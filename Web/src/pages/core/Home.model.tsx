@@ -111,7 +111,7 @@ export function useHomeModel(): HomeViewModel {
   }));
 
   return {
-    userName: getCurrentUser()?.displayName || "Usuário",
+    userName: getCurrentUser()?.displayName || CurrentLangInfo.name,
     navigate,
     creditCards: creditCardsWithValues,
     accounts: accountsWithBalances,

@@ -9,6 +9,7 @@ interface LanguageProps {
 
 export default function Language({ model }: LanguageProps) {
   const { navigate, selectedLanguage, currentLanguageLabel, languages, selectLanguage } = model;
+  const LocalLang = Lang.visual.settings.languageScreen;
 
   return (
     <div className="min-h-full bg-background">
@@ -19,7 +20,7 @@ export default function Language({ model }: LanguageProps) {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Idioma</h1>
+              <h1 className="text-2xl font-bold text-foreground">{LocalLang.title}</h1>
               <p className="text-sm text-muted-foreground">{currentLanguageLabel}</p>
             </div>
           </div>
@@ -32,9 +33,9 @@ export default function Language({ model }: LanguageProps) {
                 <Languages className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">Escolha o idioma do app</p>
+                <p className="text-sm font-medium text-foreground">{LocalLang.chooseTitle}</p>
                 <p className="text-sm text-muted-foreground">
-                  A mudança é aplicada imediatamente em todo o aplicativo.
+                  {LocalLang.chooseDescription}
                 </p>
               </div>
             </div>

@@ -11,7 +11,6 @@ import { SelectList, SelectListOption } from "@components/ui/select-list";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Calendar } from "@components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 import { cn } from "@lib/utils";
 import {
   DropdownMenu,
@@ -62,6 +61,15 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
     clearFilters,
   } = model;
 
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    }).format(value);
+
+  const formatDate = (value?: Date) => (value ? value.toLocaleDateString(locale) : texts.selectDatePlaceholder);
+
   const content = (
     <div className="p-4 space-y-6 animate-fade-in pb-24">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -74,7 +82,7 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
                 {summary === null ? (
                   <Skeleton className="h-7 w-28" />
                 ) : (
-                  <p className="text-xl font-bold text-success">R$ {summary.income.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+                  <p className="text-xl font-bold text-success">{formatCurrency(summary.income)}</p>
                 )}
               </div>
             </div>
@@ -85,7 +93,7 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
                 {summary === null ? (
                   <Skeleton className="h-7 w-28" />
                 ) : (
-                  <p className="text-xl font-bold text-expense">R$ {summary.expense.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+                  <p className="text-xl font-bold text-expense">{formatCurrency(summary.expense)}</p>
                 )}
               </div>
             </div>
@@ -94,7 +102,7 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
               {summary === null ? (
                 <Skeleton className="h-8 w-32" />
               ) : (
-                <p className="text-2xl font-bold text-foreground">R$ {summary.balance.toLocaleString(locale, { minimumFractionDigits: 2 })}</p>
+                <p className="text-2xl font-bold text-foreground">{formatCurrency(summary.balance)}</p>
               )}
             </div>
           </div>
@@ -261,7 +269,7 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterSince ? format(filterSince, "dd/MM/yyyy") : texts.selectDatePlaceholder}
+                      {formatDate(filterSince)}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -288,7 +296,7 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {filterUntil ? format(filterUntil, "dd/MM/yyyy") : texts.selectDatePlaceholder}
+                      {formatDate(filterUntil)}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">

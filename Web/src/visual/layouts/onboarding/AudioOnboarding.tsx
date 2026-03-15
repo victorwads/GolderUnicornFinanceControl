@@ -23,6 +23,8 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
     handleComplete,
     testPhrases,
   } = model;
+  const LocalLang = Lang.aiMic.onboarding;
+  const availableLanguages = Object.values(window.Langs || {});
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -30,22 +32,22 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
         <div className="w-full max-w-md bg-card rounded-2xl p-8 text-center space-y-6">
           <div className="flex justify-end">
             <Button variant="ghost" onClick={() => navigate(new ToHomeRoute())}>
-              Fechar
+              {LocalLang.actions.close}
             </Button>
           </div>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
             <Volume2 className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl font-semibold">Teste de reconhecimento de voz</h2>
+          <h2 className="text-2xl font-semibold">{LocalLang.info.title}</h2>
           <p className="text-muted-foreground">
-            O reconhecimento de voz usado no app é nativo e depende da compatibilidade do seu dispositivo.
+            {LocalLang.info.p1}
           </p>
           <p className="text-muted-foreground">
-            Vamos fazer um teste rápido para verificar se tudo está funcionando.
+            {LocalLang.info.p2}
           </p>
           <Button onClick={handleStartTest} className="w-full">
             <Mic className="h-4 w-4 mr-2" />
-            Iniciar teste
+            {LocalLang.actions.start}
           </Button>
         </div>
       )}
@@ -54,37 +56,39 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
         <div className="w-full max-w-md bg-card rounded-2xl p-8 text-center space-y-6">
           <div className="flex justify-end">
             <Button variant="ghost" onClick={() => navigate(new ToHomeRoute())}>
-              Fechar
+              {LocalLang.actions.close}
             </Button>
           </div>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
             <Globe className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl font-semibold">Confirme o idioma</h2>
+          <h2 className="text-2xl font-semibold">{LocalLang.lang.title}</h2>
           <p className="text-muted-foreground">
-            Confirme que o idioma do app está correto e que o idioma falado é o mesmo configurado no seu dispositivo.
+            {LocalLang.lang.p1}
           </p>
           
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Português - Portuguese PT-BR</p>
+            <p className="text-sm text-muted-foreground">{CurrentLangInfo.name} {CurrentLangInfo.short}</p>
             <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pt-BR">Português - Portuguese</SelectItem>
-                <SelectItem value="en-US">English - United States</SelectItem>
-                <SelectItem value="es-ES">Español - Spain</SelectItem>
+                {availableLanguages.map((language) => (
+                  <SelectItem key={language.short} value={language.short}>
+                    {language.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => navigate(new ToHomeRoute())} className="flex-1">
-              Pular
+              {LocalLang.actions.imDone}
             </Button>
             <Button onClick={handleConfirmLanguage} className="flex-1">
-              Confirmar idioma
+              {LocalLang.actions.confirm}
             </Button>
           </div>
         </div>
@@ -94,10 +98,10 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
         <div className="w-full max-w-md bg-card rounded-2xl p-8 space-y-6">
           <div className="flex justify-between items-center">
             <Button variant="ghost" onClick={handleSkipTest}>
-              Pular
+              {LocalLang.actions.imDone}
             </Button>
             <Button variant="ghost" onClick={() => navigate(new ToHomeRoute())}>
-              Fechar
+              {LocalLang.actions.close}
             </Button>
           </div>
 
@@ -105,35 +109,35 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
               <MessageSquare className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold">Repita a frase</h2>
+            <h2 className="text-2xl font-semibold">{LocalLang.verification.title}</h2>
             <p className="text-muted-foreground">
-              Fale a frase exibida abaixo para testarmos o reconhecimento de voz.
+              {LocalLang.verification.instructions}
             </p>
-            <p className="text-sm font-medium">{currentPhraseIndex + 1} de 2</p>
+            <p className="text-sm font-medium">{LocalLang.progress(currentPhraseIndex + 1, testPhrases.length)}</p>
           </div>
 
           <div className="space-y-4">
             <div className="bg-secondary/50 rounded-lg p-4 space-y-2">
-              <p className="text-xs uppercase text-muted-foreground">Frase Esperada</p>
+              <p className="text-xs uppercase text-muted-foreground">{LocalLang.verification.targetLabel}</p>
               <p className="text-sm">{testPhrases[currentPhraseIndex]}</p>
             </div>
 
             <div className="bg-secondary/30 rounded-lg p-4 space-y-2 min-h-[80px]">
-              <p className="text-xs uppercase text-muted-foreground">Transcrição</p>
+              <p className="text-xs uppercase text-muted-foreground">{LocalLang.verification.transcriptLabel}</p>
               <p className="text-sm">{transcription || "—"}</p>
             </div>
 
             {isListening && (
               <div className="text-center space-y-2">
-                <p className="text-xs uppercase text-muted-foreground">Pontuação</p>
+                <p className="text-xs uppercase text-muted-foreground">{LocalLang.verification.scoreLabel}</p>
                 <p className="text-2xl font-semibold">{score}%</p>
-                <p className="text-yellow-500">Aguardando sua fala...</p>
+                <p className="text-yellow-500">{LocalLang.verification.waiting}</p>
               </div>
             )}
 
             {!isListening && transcription && (
               <div className="text-center space-y-2">
-                <p className="text-xs uppercase text-muted-foreground">Pontuação</p>
+                <p className="text-xs uppercase text-muted-foreground">{LocalLang.verification.scoreLabel}</p>
                 <p className="text-2xl font-semibold text-green-500">{score}%</p>
               </div>
             )}
@@ -156,18 +160,18 @@ export default function AudioOnboarding({ model }: AudioOnboardingProps) {
         <div className="w-full max-w-md bg-card rounded-2xl p-8 text-center space-y-6">
           <div className="flex justify-end">
             <Button variant="ghost" onClick={() => navigate(new ToHomeRoute())}>
-              Fechar
+              {LocalLang.actions.close}
             </Button>
           </div>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl font-semibold">Tudo certo!</h2>
+          <h2 className="text-2xl font-semibold">{LocalLang.success.title}</h2>
           <p className="text-muted-foreground">
-            Seu dispositivo é compatível com o reconhecimento de voz.
+            {LocalLang.success.p1}
           </p>
           <Button onClick={handleComplete} className="w-full">
-            Continuar
+            {Lang.visual.onboarding.audio.confirmLanguage}
           </Button>
         </div>
       )}

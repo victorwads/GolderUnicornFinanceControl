@@ -29,7 +29,7 @@ export interface SelectListProps {
 }
 
 const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
-  ({ options, value, onChange, placeholder = "Selecione...", allowSelectHeader = true, multiple = false, className }, ref) => {
+  ({ options, value, onChange, placeholder = Lang.commons.selectOptions("..."), allowSelectHeader = true, multiple = false, className }, ref) => {
     const [open, setOpen] = React.useState(false);
     const selectedValues = React.useMemo(
       () => (multiple ? (Array.isArray(value) ? value : value ? [value] : []) : typeof value === "string" ? [value] : []),
@@ -173,9 +173,9 @@ const SelectList = React.forwardRef<HTMLButtonElement, SelectListProps>(
         </PopoverTrigger>
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-h-[24rem] overflow-hidden p-0" align="start">
           <Command className="max-h-[24rem]">
-            <CommandInput placeholder="Buscar..." />
+            <CommandInput placeholder={`${Lang.commons.search}...`} />
             <CommandList className="max-h-[calc(24rem-2.75rem)]">
-              <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
+              <CommandEmpty>{Lang.commons.noResults}</CommandEmpty>
               <CommandGroup>
                 {renderOptions(options)}
               </CommandGroup>
