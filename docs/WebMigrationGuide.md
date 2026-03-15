@@ -140,6 +140,36 @@ Verificar:
 - se a rota está em `routesDefinition.ts`
 - se há dependência de microfone
 - se há ações que exigem navegação secundária, filtros ou subrotas
+
+## Ambientes de Validação
+
+Toda migração deve ser validada no navegador usando a tooling de Playwright disponível no ambiente.
+
+Ambientes padrão:
+
+- protótipo visual: `https://layout.local.wads.dev/`
+- app real: `https://finance.local.wads.dev/`
+
+Correspondência exata:
+
+- `https://layout.local.wads.dev/` serve o código do protótipo visual em `prototype_source_code_repo`, que aponta para `../vibe-financas-magicas/`
+- `https://finance.local.wads.dev/` serve o código da aplicação real em `Web/`
+
+Regra prática:
+
+- usar `layout.local.wads.dev` para validar layout, page/model, mocks, rotas tipadas e comportamento do protótipo visual
+- usar `finance.local.wads.dev` para validar integração real com rotas, dados, repositórios, Firebase, i18n e comportamento final do produto
+- se a tela existir nos dois lados, validar nos dois
+- se a tela só funciona em um ambiente e quebra no outro, a migração não está concluída
+
+O que validar com Playwright:
+
+- carregamento da rota correta
+- navegação principal da tela
+- ações secundárias relevantes
+- estado vazio, loading e estados com dados quando aplicável
+- erros de console ou overlays de build
+- URLs finais após cliques importantes
 ## Arquitetura Base
 
 ### Camada legada
@@ -416,6 +446,7 @@ Ao migrar uma tela para o padrão novo:
 8. revisar `Web/src/features/assistant/tools/routesDefinition.ts`
 9. validar i18n, navegação, loading, estados vazios e ações secundárias
 10. validar se microfone/assistente continuam consistentes no shell e na tela
+11. validar com Playwright no `layout.local.wads.dev` e no `finance.local.wads.dev` quando a tela existir nos dois lados
 
 ### Checklist específico para telas complexas
 

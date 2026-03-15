@@ -90,3 +90,24 @@ Antes de propor mudanças amplas:
 - seguir `docs/WebMigrationGuide.md` ao migrar telas, rotas e voz
 - quando a mudança envolver arquitetura visual compartilhada (`layout`, `page`, `model`, rotas tipadas), considerar `vibe-financas-magicas` como origem da mudança e este repositório como etapa de integração
 - preferir atualizar documentação quando a estrutura real divergir do que está escrito
+
+## Validação no Navegador
+
+Toda mudança visual, de rota ou de integração de tela deve ser validada no navegador com a ferramenta de Playwright disponível no ambiente.
+
+URLs padrão de validação:
+
+- protótipo visual: `https://layout.local.wads.dev/`
+- app real: `https://finance.local.wads.dev/`
+
+Correspondência exata:
+
+- `https://layout.local.wads.dev/` roda o código do protótipo visual em `prototype_source_code_repo` (symlink para `../vibe-financas-magicas/`)
+- `https://finance.local.wads.dev/` roda o código da aplicação real em `Web/`
+
+Uso esperado:
+
+- validar primeiro no `layout.local.wads.dev` quando a mudança pertence ao protótipo visual ou ao contrato compartilhado
+- validar no `finance.local.wads.dev` quando a mudança envolve integração real, rotas reais, repositórios, Firebase, i18n real ou comportamento do produto final
+- quando uma tela existir nos dois lados, validar nos dois ambientes
+- não considerar uma migração concluída sem abrir a tela real no navegador e testar o fluxo principal
