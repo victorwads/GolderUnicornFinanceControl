@@ -186,14 +186,23 @@ const ptBR: VisualModuleTranslation = {
       exportHint: "Os dados exportados incluem todas as suas transações, contas, cartões e categorias. Seus dados são seus e você pode exportá-los a qualquer momento.",
       exportSuccessTitle: "Exportação concluída",
       exportPartialTitle: "Exportação concluída com erros",
+      exportSuccessToastDescription: "Seus dados foram exportados com sucesso.",
+      exportErrorToastDescription: (count: number) => `O arquivo foi gerado, mas houve falha em ${count} seção(ões).`,
+      exportErrorTitle: "Falha ao exportar dados",
       exportSuccessCount: (count: number) => `${count} seção(ões) exportadas com sucesso.`,
       exportErrorCount: (count: number) => count > 0
         ? `${count} seção(ões) falharam e foram listadas abaixo.`
         : "Nenhuma seção falhou.",
       exportFileLabel: (fileName: string) => `Arquivo gerado: ${fileName}`,
       importJsonTitle: "Import a JSON file",
-      importJsonDescription: "Somente modo desenvolvedor. Importa um arquivo JSON exportado por vez.",
+      importJsonDescription: "Importe um ou mais arquivos JSON no novo formato (collection, date, documents).",
       importSuccessTitle: "Importação concluída",
+      importPartialTitle: "Importação concluída com erros",
+      importSuccessDescription: (count: number) => `${count} item(ns) importados com sucesso.`,
+      importPartialDescription: (importedCount: number, failedCount: number) =>
+        `${importedCount} item(ns) importados com ${failedCount} arquivo(s) com falha.`,
+      importErrorTitle: "Falha ao importar dados",
+      importErrorDescription: "Falha ao importar os dados.",
       importSuccessCount: (count: number) => `${count} item(ns) importados com sucesso.`,
       importFileLabel: (fileName: string) => `Arquivo importado: ${fileName}`,
       importDomainLabel: (domain: string) => `Seção de destino: ${domain}`,
@@ -213,7 +222,9 @@ const ptBR: VisualModuleTranslation = {
       deleteDialogDescription: "Seus dados serão exportados antes da exclusão. Para continuar, digite a frase abaixo exatamente como aparece.",
       deleteDialogPlaceholder: "Digite a frase de confirmação",
       deleteDialogCancel: "Cancelar",
-      deleteDialogConfirm: "Excluir meus dados"
+      deleteDialogConfirm: "Excluir meus dados",
+      deleteInvalidConfirmationTitle: "Confirmação inválida",
+      deleteErrorTitle: "Falha ao excluir dados"
     },
     assistant: {
       aiCallsTitle: "Histórico do Assistente",

@@ -186,12 +186,20 @@ export default interface VisualModuleTranslation extends Translation {
       exportHint: string;
       exportSuccessTitle: string;
       exportPartialTitle: string;
+      exportSuccessToastDescription: string;
+      exportErrorToastDescription: (count: number) => string;
+      exportErrorTitle: string;
       exportSuccessCount: (count: number) => string;
       exportErrorCount: (count: number) => string;
       exportFileLabel: (fileName: string) => string;
       importJsonTitle: string;
       importJsonDescription: string;
       importSuccessTitle: string;
+      importPartialTitle: string;
+      importSuccessDescription: (count: number) => string;
+      importPartialDescription: (importedCount: number, failedCount: number) => string;
+      importErrorTitle: string;
+      importErrorDescription: string;
       importSuccessCount: (count: number) => string;
       importFileLabel: (fileName: string) => string;
       importDomainLabel: (domain: string) => string;
@@ -212,6 +220,8 @@ export default interface VisualModuleTranslation extends Translation {
       deleteDialogPlaceholder: string;
       deleteDialogCancel: string;
       deleteDialogConfirm: string;
+      deleteInvalidConfirmationTitle: string;
+      deleteErrorTitle: string;
     };
     assistant: {
       aiCallsTitle: string;

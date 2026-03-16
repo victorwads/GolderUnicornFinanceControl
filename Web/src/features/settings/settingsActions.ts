@@ -1,6 +1,7 @@
 import JSZip from "jszip";
 
 import { DocumentModel } from "@models";
+import { getCurrentUser } from "@configs";
 import getRepositories, {
   RepoName,
   Repositories,
@@ -14,7 +15,7 @@ import { clearAssistantOnboardingDismissal } from "@features/assistant/utils/onb
 import { dispatchAssistantEvent } from "@features/assistant/utils/assistantEvents";
 
 const RESAVE_CHUNK_SIZE = 100;
-const IMPORT_CHUNK_SIZE = 250;
+const FIREBASE_BATCH_MAX_WRITES = 500;
 const DELETE_DATA_IGNORED_REPOS: RepoName[] = ["banks"];
 
 export type ExportFormat = "json" | "csv" | "all";
@@ -31,9 +32,16 @@ export type ExportUserDataResult = {
 };
 
 export type ImportUserDataResult = {
-  domain: RepoName;
-  fileName: string;
-  importedCount: number;
+  importedFiles: {
+    domain: RepoName;
+    fileName: string;
+    importedCount: number;
+  }[];
+  failedFiles: {
+    fileName: string;
+    message: string;
+  }[];
+  totalImportedCount: number;
 };
 
 export async function exportUserData(
@@ -46,8 +54,7 @@ export async function exportUserData(
   const exportedDomains: RepoName[] = [];
   const failedDomains: ExportFailure[] = [];
   const date = new Date().toISOString().split("T")[0];
-  const suffix = format === "all" ? "backup" : format;
-  const fileName = `golder-unicorn-${suffix}-${date}.zip`;
+  const fileName = buildExportZipFileName(format, date);
 
   try {
     for (const [index, key] of repoKeys.entries()) {
@@ -65,7 +72,18 @@ export async function exportUserData(
 
         const data = await repo.getAll();
         if (format === "json" || format === "all") {
-          zip.file(`${key}.json`, JSON.stringify(data, null, 2));
+          zip.file(
+            `${key}.json`,
+            JSON.stringify(
+              {
+                collection: key,
+                date: new Date().toISOString(),
+                documents: data,
+              },
+              null,
+              2,
+            ),
+          );
         }
         if (format === "csv" || format === "all") {
           zip.file(`${key}.csv`, toCSV(data));
@@ -111,6 +129,12 @@ export async function exportUserData(
   }
 }
 
+function buildExportZipFileName(format: ExportFormat, date: string): string {
+  const userEmail = getCurrentUser()?.email || "unknown";
+  const formatPart = format.toUpperCase();
+  return `GUMyFinances ${userEmail} ${date} ${formatPart}.zip`;
+}
+
 export async function deleteAllUserData(setProgress?: ProgressUpdater): Promise<void> {
   const repositories = getRepositories();
   const entries = Object.entries(repositories).filter(
@@ -143,51 +167,80 @@ export async function deleteAllUserData(setProgress?: ProgressUpdater): Promise<
 }
 
 export async function importUserData(
-  file: File,
+  files: File[],
   setProgress?: ProgressUpdater,
 ): Promise<ImportUserDataResult> {
   const allRepos = getRepositories();
-  const repoName = getRepoNameFromImportFile(file.name, Object.keys(allRepos) as RepoName[]);
-  const repo = allRepos[repoName];
-  const text = await file.text();
-  const parsed = JSON.parse(text, importJsonReviver) as DocumentModel[];
-  const items = Array.isArray(parsed) ? parsed : [parsed];
+  const repoNames = Object.keys(allRepos) as RepoName[];
+  const importedFiles: ImportUserDataResult["importedFiles"] = [];
+  const failedFiles: ImportUserDataResult["failedFiles"] = [];
+  let totalImportedCount = 0;
 
   try {
-    if (!repo.isReady) {
-      await repo.waitUntilReady();
+    for (const [index, file] of files.entries()) {
+      try {
+        const text = await file.text();
+        const payload = parseImportPayload(text, file.name, repoNames);
+        const repo = allRepos[payload.collection];
+
+        if (!repo.isReady) {
+          await repo.waitUntilReady();
+        }
+
+        setProgress?.({
+          domain: payload.collection,
+          current: index + 1,
+          max: files.length,
+          sub: {
+            current: 0,
+            max: payload.documents.length,
+          },
+        });
+
+        if (payload.documents.length > FIREBASE_BATCH_MAX_WRITES) {
+          throw new Error(
+            `A coleção "${payload.collection}" possui ${payload.documents.length} documentos. ` +
+            `O Firebase permite no máximo ${FIREBASE_BATCH_MAX_WRITES} escritas por batch.`,
+          );
+        }
+
+        await repo.saveAll(payload.documents as any[]);
+
+        setProgress?.({
+          domain: payload.collection,
+          current: index + 1,
+          max: files.length,
+          sub: {
+            current: payload.documents.length,
+            max: payload.documents.length,
+          },
+        });
+
+        importedFiles.push({
+          domain: payload.collection,
+          fileName: file.name,
+          importedCount: payload.documents.length,
+        });
+        totalImportedCount += payload.documents.length;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown import error";
+        failedFiles.push({
+          fileName: file.name,
+          message,
+        });
+      }
     }
 
-    setProgress?.({
-      domain: repoName,
-      current: 1,
-      max: 1,
-      sub: {
-        current: 0,
-        max: items.length,
-      },
-    });
-
-    let importedCount = 0;
-    while (importedCount < items.length) {
-      const chunk = items.slice(importedCount, importedCount + IMPORT_CHUNK_SIZE);
-      await repo.saveAll(chunk as any[]);
-      importedCount += chunk.length;
-      setProgress?.({
-        domain: repoName,
-        current: 1,
-        max: 1,
-        sub: {
-          current: importedCount,
-          max: items.length,
-        },
-      });
+    if (importedFiles.length === 0) {
+      throw new Error(
+        failedFiles[0]?.message || "Nenhum arquivo válido foi importado.",
+      );
     }
 
     return {
-      domain: repoName,
-      fileName: file.name,
-      importedCount,
+      importedFiles,
+      failedFiles,
+      totalImportedCount,
     };
   } finally {
     setProgress?.(null);
@@ -320,12 +373,55 @@ function formatExportError(error: unknown): string {
   return "Unknown export error";
 }
 
-function getRepoNameFromImportFile(fileName: string, repoNames: RepoName[]): RepoName {
-  const normalized = fileName.replace(/\.json$/i, "") as RepoName;
-  if (!repoNames.includes(normalized)) {
-    throw new Error(`Unknown repository file: ${fileName}`);
+type ImportPayload = {
+  collection: RepoName;
+  date: string;
+  documents: DocumentModel[];
+};
+
+function parseImportPayload(rawContent: string, fileName: string, repoNames: RepoName[]): ImportPayload {
+  const parsed = JSON.parse(rawContent, importJsonReviver) as unknown;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(`Formato inválido em "${fileName}". Esperado: objeto JSON.`);
   }
-  return normalized;
+
+  const payload = parsed as Partial<ImportPayload>;
+  if (typeof payload.collection !== "string" || payload.collection.trim().length === 0) {
+    throw new Error(`Formato inválido em "${fileName}": campo "collection" ausente.`);
+  }
+  if (payload.collection.includes("/")) {
+    throw new Error(
+      `Formato inválido em "${fileName}": "collection" deve conter apenas o nome da coleção.`,
+    );
+  }
+  if (!repoNames.includes(payload.collection as RepoName)) {
+    throw new Error(`Coleção desconhecida em "${fileName}": ${payload.collection}.`);
+  }
+  if (typeof payload.date !== "string" && !(payload.date instanceof Date)) {
+    throw new Error(`Formato inválido em "${fileName}": campo "date" ausente.`);
+  }
+  if (!Array.isArray(payload.documents)) {
+    throw new Error(`Formato inválido em "${fileName}": campo "documents" deve ser um array.`);
+  }
+  for (const [index, document] of payload.documents.entries()) {
+    if (!document || typeof document !== "object") {
+      throw new Error(`Formato inválido em "${fileName}": documento ${index + 1} inválido.`);
+    }
+    const id = (document as Partial<DocumentModel>).id;
+    if (typeof id !== "string" || id.trim().length === 0) {
+      throw new Error(
+        `Formato inválido em "${fileName}": documento ${index + 1} sem campo "id" válido.`,
+      );
+    }
+  }
+
+  return {
+    collection: payload.collection as RepoName,
+    date: payload.date instanceof Date
+      ? payload.date.toISOString()
+      : payload.date,
+    documents: payload.documents as DocumentModel[],
+  };
 }
 
 function importJsonReviver(_key: string, value: unknown): unknown {

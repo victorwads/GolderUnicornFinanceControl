@@ -186,14 +186,23 @@ const en: VisualModuleTranslation = {
       exportHint: "Exported data includes all your transactions, accounts, cards and categories. Your data belongs to you and can be exported at any time.",
       exportSuccessTitle: "Export completed",
       exportPartialTitle: "Export completed with errors",
+      exportSuccessToastDescription: "Your data was exported successfully.",
+      exportErrorToastDescription: (count: number) => `The file was generated, but ${count} section(s) failed.`,
+      exportErrorTitle: "Failed to export data",
       exportSuccessCount: (count: number) => `${count} section(s) exported successfully.`,
       exportErrorCount: (count: number) => count > 0
         ? `${count} section(s) failed and are listed below.`
         : "No sections failed.",
       exportFileLabel: (fileName: string) => `Generated file: ${fileName}`,
       importJsonTitle: "Import a JSON file",
-      importJsonDescription: "Developer mode only. Imports one exported JSON file at a time.",
+      importJsonDescription: "Import one or more JSON files in the new export format (collection, date, documents).",
       importSuccessTitle: "Import completed",
+      importPartialTitle: "Import completed with errors",
+      importSuccessDescription: (count: number) => `${count} item(s) imported successfully.`,
+      importPartialDescription: (importedCount: number, failedCount: number) =>
+        `${importedCount} item(s) imported with ${failedCount} failed file(s).`,
+      importErrorTitle: "Failed to import data",
+      importErrorDescription: "Import failed.",
       importSuccessCount: (count: number) => `${count} item(s) imported successfully.`,
       importFileLabel: (fileName: string) => `Imported file: ${fileName}`,
       importDomainLabel: (domain: string) => `Target section: ${domain}`,
@@ -213,7 +222,9 @@ const en: VisualModuleTranslation = {
       deleteDialogDescription: "Your data will be exported before deletion. To continue, type the phrase below exactly as shown.",
       deleteDialogPlaceholder: "Type the confirmation phrase",
       deleteDialogCancel: "Cancel",
-      deleteDialogConfirm: "Delete my data"
+      deleteDialogConfirm: "Delete my data",
+      deleteInvalidConfirmationTitle: "Invalid confirmation",
+      deleteErrorTitle: "Failed to delete data"
     },
     assistant: {
       aiCallsTitle: "Assistant History",
