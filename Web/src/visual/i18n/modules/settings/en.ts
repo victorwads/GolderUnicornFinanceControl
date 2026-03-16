@@ -61,6 +61,7 @@ const en: SettingsModuleTranslation = {
     },
     microphoneMode: {
       title: "Microphone mode",
+      helper: "These options only appear in manual mode, where you choose exactly how to start and stop capture.",
       hold: {
         name: "Hold to talk",
         description: "Press and hold the button while speaking",

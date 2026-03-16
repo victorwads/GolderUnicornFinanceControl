@@ -61,6 +61,7 @@ export default interface SettingsModuleTranslation extends Translation {
     };
     microphoneMode: {
       title: string;
+      helper: string;
       hold: {
         name: string;
         description: string;

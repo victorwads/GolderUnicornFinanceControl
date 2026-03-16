@@ -74,6 +74,24 @@ const en: AssistantModuleTranslation = {
       microRequirement: "We will first verify your microphone to ensure everything works properly.",
       start: "Start now",
       dismiss: "Don’t show again"
+    },
+    voiceOverlay: {
+      userLabel: "you:",
+      assistantLabel: "assistant:",
+      infoLabel: "info:",
+      listeningPlaceholder: "Speaking...",
+      inputPlaceholder: "Type your message here...",
+      continuePrompt: "Reply with your microphone or type to continue.",
+      closeLabel: "finish"
+    },
+    voiceRuntime: {
+      speakError: "Error speaking the message",
+      processError: "Error processing assistant command",
+      tokenUsageTitle: "Token Usage",
+      askUserTitle: "Question for the user",
+      askUserHint: "Reply with your microphone to continue.",
+      warningsTitle: "Warnings",
+      callsHistoryTitle: "Calls History"
     }
   }
 };

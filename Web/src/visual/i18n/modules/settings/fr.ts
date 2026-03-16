@@ -61,6 +61,7 @@ const fr: SettingsModuleTranslation = {
     },
     microphoneMode: {
       title: "Mode microphone",
+      helper: "Ces options n'apparaissent qu'en mode manuel, où vous choisissez exactement comment démarrer et arrêter la capture.",
       hold: {
         name: "Maintenir pour parler",
         description: "Maintenez le bouton enfoncé pendant que vous parlez",

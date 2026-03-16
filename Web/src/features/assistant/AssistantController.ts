@@ -62,6 +62,7 @@ export default class AssistantController {
     public onAskAnditionalInfo?: AskAnditionalInfoCallback,
     public onToolCalled?: ToolEventListener,
     public onNavigate?: (route: string, queryParams?: Record<string, string>) => void,
+    public onContextChanged?: (context: AiCallContext) => void,
     public model: string = getAssistantModel(),
     private readonly repositories: Repositories = getRepositories(),
   ) {
@@ -151,6 +152,7 @@ export default class AssistantController {
       context.history.push(
         { role: "user", content: text }
       );
+      this.onContextChanged?.(context);
       return context;
     }
 
@@ -169,6 +171,7 @@ export default class AssistantController {
       ],
     );
     this.repositories.aiCalls.set(context);
+    this.onContextChanged?.(context);
     return context;
   }
 
@@ -300,4 +303,3 @@ const pendingContext: {
 export const setPendingAiContext = (context: AiCallContext) => {
   pendingContext.context = context;
 }
-

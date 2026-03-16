@@ -7,6 +7,8 @@ export interface VoiceAssistantViewModel {
   hasSession: boolean;
   closeLabel: string;
   onToggleMicrophone: () => void;
+  onMicrophonePressStart?: () => void;
+  onMicrophonePressEnd?: () => void;
   onClose: () => void;
   overlay?: ReactNode;
 }
@@ -26,8 +28,14 @@ export const VoiceAssistant = ({ model }: VoiceAssistantProps) => {
 
       <button
         onClick={model.onToggleMicrophone}
+        onMouseDown={model.onMicrophonePressStart}
+        onMouseUp={model.onMicrophonePressEnd}
+        onMouseLeave={model.onMicrophonePressEnd}
+        onTouchStart={model.onMicrophonePressStart}
+        onTouchEnd={model.onMicrophonePressEnd}
+        onTouchCancel={model.onMicrophonePressEnd}
         className={cn(
-          "fixed bottom-20 left-1/2 -translate-x-1/2 z-40 pointer-events-auto",
+          "fixed bottom-14 left-1/2 -translate-x-1/2 z-40 pointer-events-auto",
           "w-16 h-16 rounded-full",
           "flex items-center justify-center",
           "transition-all duration-300 active:scale-95",
@@ -59,7 +67,7 @@ export const VoiceAssistant = ({ model }: VoiceAssistantProps) => {
       {model.hasSession && (
         <button
           onClick={model.onClose}
-          className="fixed bottom-20 left-1/2 translate-x-12 z-40 pointer-events-auto animate-fade-in px-3 py-2 rounded-full bg-destructive/20 hover:bg-destructive/30 backdrop-blur-md border border-destructive/30 text-destructive shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-2"
+          className="fixed bottom-14 left-1/2 translate-x-12 z-40 pointer-events-auto animate-fade-in px-3 py-2 rounded-full bg-destructive/20 hover:bg-destructive/30 backdrop-blur-md border border-destructive/30 text-destructive shadow-lg transition-all duration-300 active:scale-95 flex items-center gap-2"
         >
           <X className="w-4 h-4" />
           <span className="text-xs font-medium whitespace-nowrap">{model.closeLabel}</span>

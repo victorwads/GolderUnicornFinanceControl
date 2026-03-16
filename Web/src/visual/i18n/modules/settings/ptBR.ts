@@ -61,6 +61,7 @@ const ptBR: SettingsModuleTranslation = {
     },
     microphoneMode: {
       title: "Modo do microfone",
+      helper: "Essas opções só aparecem no modo manual, onde você escolhe exatamente como iniciar e encerrar a captura.",
       hold: {
         name: "Segurar para falar",
         description: "Pressione e segure o botão enquanto fala",

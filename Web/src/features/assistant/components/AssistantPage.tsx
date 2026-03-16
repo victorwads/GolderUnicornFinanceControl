@@ -1,7 +1,6 @@
 import {
   forwardRef,
   useCallback,
-  useEffectEvent,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -11,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import AIMicrophone, { type AIMicrophoneHandle, type AIMicrophoneProps } from "@componentsDeprecated/voice/AIMicrophone";
-import AssistantVoiceOverlay, { type AssistantVoiceOverlayState, type InfoBalloon } from "@components/AssistantVoiceOverlay";
+import AssistantVoiceOverlay, { type AssistantVoiceOverlayState } from "@components/AssistantVoiceOverlay";
 import type { AIItemData } from "@features/speech/AIParserManager";
 import Metric from "@features/tabs/resourceUsage/Metric";
 import getRepositories from "@repositories";
@@ -27,12 +26,16 @@ import { startListening, stopListening } from "@componentsDeprecated/voice/micro
 import { AiCallContext, AIUse } from "@models";
 import { speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
 import { subscribeAssistantEvent } from "../utils/assistantEvents";
-import { getAssistantMode } from "../preferences";
+import { getAssistantMicrophoneMode, getAssistantMode } from "../preferences";
+import type { AssistantTimelineEntry } from "@pages/assistant/assistantHistoryAdapter";
+import { buildAssistantHistoryConversation } from "@pages/assistant/assistantHistoryAdapter";
 
 export interface AssistantPageHandle {
   startListening: () => void;
   stopListening: () => void;
   toggleListening: () => void;
+  startPressListening?: () => void;
+  endPressListening?: () => void;
 }
 
 interface AssistantPageProps {
@@ -41,36 +44,43 @@ interface AssistantPageProps {
   onListeningChange?: (listening: boolean) => void;
 }
 
+const LIVE_MODE_SILENCE_DELAY_MS = 1400;
+const AUTO_SEND_DURATION_MS = 1300;
+
 const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(function AssistantPage({
   compact = false,
   showTrigger = true,
   onListeningChange,
 }, ref) {
-  const AUTO_SEND_DELAY_MS = 2400;
+  const runtimeTexts = Lang.assistant.voiceRuntime;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
   const [isFirst, setIsFirst] = useState(true);
   const [partial, setPartial] = useState('');
   const [draftText, setDraftText] = useState('');
   const [voiceState, setVoiceState] = useState<AssistantVoiceOverlayState>('idle');
-  const [assistantMessage, setAssistantMessage] = useState<string | null>(null);
-  const [autoSendProgress, setAutoSendProgress] = useState(0);
-  const [isLiveMode, setIsLiveMode] = useState(() => getAssistantMode() === "live");
   const [calls, setCalls] = useState<AssistantToolCallLog[]>([]);
   const [askUserPrompt, setAskUserPrompt] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const pendingAskResolver = useRef<((answer: string) => void) | null>(null);
-  const resourcesUse = useMemo(() => getRepositories().resourcesUse, []);
+  const repositories = useMemo(() => getRepositories(), []);
+  const resourcesUse = useMemo(() => repositories.resourcesUse, [repositories]);
+  const aiCalls = useMemo(() => repositories.aiCalls, [repositories]);
   const microphoneRef = useRef<AIMicrophoneHandle | null>(null);
   const onboardingFlowRef = useRef(false);
   const isListeningRef = useRef(false);
   const partialRef = useRef("");
   const draftTextRef = useRef("");
-  const manualEditRef = useRef(false);
-  const autoSendTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const autoSendIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const loadingRef = useRef(false);
+  const isEditingRef = useRef(false);
+  const askUserPromptRef = useRef<string | null>(null);
+  const holdActiveRef = useRef(false);
+  const autoSendTimerRef = useRef<number | null>(null);
+  const textChangeTimerRef = useRef<number | null>(null);
+  const [autoSendProgress, setAutoSendProgress] = useState(0);
+  const [assistantMode, setAssistantMode] = useState(getAssistantMode());
+  const [microphoneMode, setMicrophoneMode] = useState(getAssistantMicrophoneMode());
+  const [activeContextId, setActiveContextId] = useState<string | null>(null);
+  const [timelineEntries, setTimelineEntries] = useState<AssistantTimelineEntry[]>([]);
 
   const normalizeUsage = useCallback(
     (usage?: AIUse<number> | null) => ({
@@ -85,57 +95,51 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
     resourcesUse.clearSessionUse();
   }, [normalizeUsage, resourcesUse]);
 
+  useEffect(() => {
+    askUserPromptRef.current = askUserPrompt;
+  }, [askUserPrompt]);
+
   const cancelAutoSend = useCallback(() => {
-    if (autoSendTimeoutRef.current) {
-      clearTimeout(autoSendTimeoutRef.current);
-      autoSendTimeoutRef.current = null;
+    if (autoSendTimerRef.current !== null) {
+      window.clearInterval(autoSendTimerRef.current);
+      autoSendTimerRef.current = null;
     }
-    if (autoSendIntervalRef.current) {
-      clearInterval(autoSendIntervalRef.current);
-      autoSendIntervalRef.current = null;
+    if (textChangeTimerRef.current !== null) {
+      window.clearTimeout(textChangeTimerRef.current);
+      textChangeTimerRef.current = null;
     }
     setAutoSendProgress(0);
   }, []);
 
-  const processVoiceTurn = useEffectEvent(async (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
+  const syncPreferences = useCallback(() => {
+    setAssistantMode(getAssistantMode());
+    setMicrophoneMode(getAssistantMicrophoneMode());
+  }, []);
 
-    cancelAutoSend();
-    manualEditRef.current = false;
-    setVoiceState("sending");
-    setAssistantMessage("Hmm...");
-    setDraftText("");
-    draftTextRef.current = "";
-    setPartial("");
-    partialRef.current = "";
-    microphoneRef.current?.stopListening();
-    microphoneRef.current?.clearTranscript();
-    await processText(trimmed, CurrentLangInfo.short);
-  });
+  useEffect(() => {
+    window.addEventListener("storage", syncPreferences);
+    window.addEventListener("focus", syncPreferences);
+    return () => {
+      window.removeEventListener("storage", syncPreferences);
+      window.removeEventListener("focus", syncPreferences);
+    };
+  }, [syncPreferences]);
 
-  const scheduleAutoSend = useCallback((text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || !isLiveMode || manualEditRef.current) {
-      setVoiceState(trimmed ? "paused" : "idle");
+  const syncTimelineEntries = useCallback((contextId?: string | null) => {
+    const targetId = contextId ?? activeContextId;
+    if (!targetId) {
+      setTimelineEntries([]);
       return;
     }
 
-    cancelAutoSend();
-    setVoiceState("paused");
-    setAutoSendProgress(0);
+    const context = aiCalls.getCache(true).find((item) => item.id === targetId);
+    if (!context) {
+      setTimelineEntries([]);
+      return;
+    }
 
-    const startedAt = Date.now();
-    autoSendIntervalRef.current = setInterval(() => {
-      const elapsed = Date.now() - startedAt;
-      setAutoSendProgress(Math.min(100, (elapsed / AUTO_SEND_DELAY_MS) * 100));
-    }, 80);
-
-    autoSendTimeoutRef.current = setTimeout(() => {
-      cancelAutoSend();
-      void processVoiceTurn(trimmed);
-    }, AUTO_SEND_DELAY_MS);
-  }, [cancelAutoSend, isLiveMode, processVoiceTurn]);
+    setTimelineEntries(buildAssistantHistoryConversation(context).entries);
+  }, [activeContextId, aiCalls]);
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
     // if (!event.result) return;
@@ -158,14 +162,13 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
     setAskUserPrompt(message);
     stopListening();
     try {
-      setSpeaking(true);
       await speak(message, { important: true });
     } catch (error) {
-      setWarnings((previous) => [...previous, "Erro ao falar a mensagem"]);
-    } finally {
-      setSpeaking(false);
+      setWarnings((previous) => [...previous, runtimeTexts.speakError]);
     }
-    startListening();
+    if (getAssistantMode() === "live") {
+      startListening();
+    }
 
     return new Promise<string>((resolve) => {
       pendingAskResolver.current = (answer: string) => {
@@ -174,7 +177,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         resolve(answer);
       };
     });
-  }, []);
+  }, [runtimeTexts.speakError]);
 
   useEffect(() => {
     if (loading && !askUserPrompt) {
@@ -204,9 +207,13 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
           navigate({
             pathname: url.pathname, search: url.search
           });
+        },
+        (context) => {
+          setActiveContextId(context.id);
+          setTimelineEntries(buildAssistantHistoryConversation(context).entries);
         }
       ),
-    [handleAskAdditionalInfo, handleToolCall]
+    [handleAskAdditionalInfo, handleToolCall, navigate]
   );
 
   const processText = useCallback(
@@ -228,11 +235,11 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         setLoading(false);
       }).catch((error) => {
         console.log("Erro ao processar comando do assistente", error);
-        setWarnings((previous) => [...previous, "Erro ao processar comando do assistente"]);
+        setWarnings((previous) => [...previous, runtimeTexts.processError]);
         setLoading(false);
       });
     },
-    [controller]
+    [controller, runtimeTexts.processError]
   );
 
   const parser = useMemo(
@@ -243,6 +250,16 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
     AIItemData,
     string
   >["parser"];
+
+  useEffect(() => {
+    if (!compact) {
+      return;
+    }
+
+    const sync = () => syncTimelineEntries();
+    sync();
+    return aiCalls.addUpdatedEventListenner(sync);
+  }, [aiCalls, compact, syncTimelineEntries]);
 
   useEffect(() => {
     return subscribeAssistantEvent('assistant:start-onboarding', async () => {
@@ -265,78 +282,162 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
     });
   }, [processText]);
 
+  useEffect(() => {
+    if (!compact) {
+      return;
+    }
+
+    if (isListeningRef.current) {
+      setVoiceState("listening");
+      return;
+    }
+
+    setVoiceState(draftText.trim() ? "paused" : "idle");
+  }, [compact, draftText]);
+
+  const sendDraft = useCallback(async () => {
+    const nextText = draftTextRef.current.trim();
+    if (!nextText || loading) {
+      return;
+    }
+
+    cancelAutoSend();
+    microphoneRef.current?.stopListening();
+    setVoiceState("sending");
+    draftTextRef.current = "";
+    setDraftText("");
+    partialRef.current = "";
+    setPartial("");
+    await processText(nextText, CurrentLangInfo.short);
+    microphoneRef.current?.clearTranscript();
+    isEditingRef.current = false;
+    holdActiveRef.current = false;
+
+    const currentAssistantMode = getAssistantMode();
+    if (currentAssistantMode === "live" && !askUserPromptRef.current && !pendingAskResolver.current) {
+      setVoiceState("idle");
+      microphoneRef.current?.startListening();
+      return;
+    }
+
+    setVoiceState("idle");
+  }, [cancelAutoSend, loading, processText]);
+
+  const startAutoSend = useCallback(() => {
+    cancelAutoSend();
+    setAutoSendProgress(0);
+
+    const durationMs = AUTO_SEND_DURATION_MS;
+    const steps = 60;
+    const increment = 100 / steps;
+    const stepTime = durationMs / steps;
+    let progress = 0;
+
+    autoSendTimerRef.current = window.setInterval(() => {
+      progress += increment;
+      setAutoSendProgress(Math.min(progress, 100));
+
+      if (progress >= 100) {
+        cancelAutoSend();
+        void sendDraft();
+      }
+    }, stepTime);
+  }, [cancelAutoSend, sendDraft]);
+
+  useEffect(() => {
+    if (!compact || assistantMode !== "live") {
+      cancelAutoSend();
+      return;
+    }
+
+    if (!isListeningRef.current || isEditingRef.current || loading) {
+      return;
+    }
+
+    const nextText = partialRef.current.trim();
+    if (!nextText) {
+      cancelAutoSend();
+      return;
+    }
+
+    cancelAutoSend();
+    textChangeTimerRef.current = window.setTimeout(() => {
+      if (!partialRef.current.trim() || !isListeningRef.current) {
+        return;
+      }
+
+      setVoiceState("paused");
+      startAutoSend();
+    }, LIVE_MODE_SILENCE_DELAY_MS);
+
+    return () => {
+      if (textChangeTimerRef.current !== null) {
+        window.clearTimeout(textChangeTimerRef.current);
+        textChangeTimerRef.current = null;
+      }
+    };
+  }, [assistantMode, cancelAutoSend, compact, loading, partial, startAutoSend]);
+
+  useEffect(() => {
+    return () => {
+      cancelAutoSend();
+    };
+  }, [cancelAutoSend]);
+
   useImperativeHandle(ref, () => ({
     startListening: () => {
       microphoneRef.current?.startListening();
     },
     stopListening: () => {
       microphoneRef.current?.stopListening();
+      cancelAutoSend();
     },
     toggleListening: () => {
+      const currentAssistantMode = getAssistantMode();
+      const currentMicrophoneMode = getAssistantMicrophoneMode();
+
+      if (currentAssistantMode === "manual" && currentMicrophoneMode === "click") {
+        if (isListeningRef.current) {
+          microphoneRef.current?.stopListening();
+          void sendDraft();
+          return;
+        }
+
+        draftTextRef.current = "";
+        partialRef.current = "";
+        setDraftText("");
+        setPartial("");
+        microphoneRef.current?.startListening();
+        return;
+      }
+
       microphoneRef.current?.toggleListening();
     },
-  }), []);
-
-  useEffect(() => {
-    if (!compact) {
-      return;
-    }
-
-    if (partial && isListeningRef.current && !manualEditRef.current) {
-      draftTextRef.current = partial;
-      setDraftText(partial);
-      setVoiceState("listening");
-    }
-
-    if (!partial && !isListeningRef.current && !loadingRef.current && !askUserPrompt && !draftText.trim()) {
-      setVoiceState(assistantMessage ? "responded" : "idle");
-    }
-  }, [askUserPrompt, assistantMessage, compact, draftText, partial]);
-
-  useEffect(() => {
-    const wasLoading = loadingRef.current;
-    loadingRef.current = loading;
-
-    if (!compact) {
-      return;
-    }
-
-    if (loading) {
-      cancelAutoSend();
-      setVoiceState("thinking");
-      setAssistantMessage("Hmm...");
-      return;
-    }
-
-    if (wasLoading && !loading) {
-      setVoiceState("responded");
-      if (askUserPrompt) {
-        setAssistantMessage(askUserPrompt);
-      } else {
-        setAssistantMessage("Pronto. Continue por voz ou escreva para seguir.");
+    startPressListening: () => {
+      if (assistantMode !== "manual" || microphoneMode !== "hold" || holdActiveRef.current) {
+        return;
       }
-      setIsLiveMode(getAssistantMode() === "live");
-    }
-  }, [askUserPrompt, cancelAutoSend, compact, loading]);
 
-  useEffect(() => {
-    if (!compact || !askUserPrompt) {
-      return;
-    }
+      holdActiveRef.current = true;
+      draftTextRef.current = "";
+      partialRef.current = "";
+      setDraftText("");
+      setPartial("");
+      microphoneRef.current?.startListening();
+    },
+    endPressListening: () => {
+      if (assistantMode !== "manual" || microphoneMode !== "hold" || !holdActiveRef.current) {
+        return;
+      }
 
-    setAssistantMessage(askUserPrompt);
-  }, [askUserPrompt, compact]);
-
-  useEffect(() => () => cancelAutoSend(), [cancelAutoSend]);
+      holdActiveRef.current = false;
+      microphoneRef.current?.stopListening();
+      void sendDraft();
+    },
+  }), [assistantMode, cancelAutoSend, microphoneMode, sendDraft]);
 
   if (compact) {
-    const infoBalloons: InfoBalloon[] = calls
-      .filter((call) => Boolean(call.userInfo))
-      .slice(-4)
-      .map((call, index) => ({
-        id: `${call.id}-${index}`,
-        text: call.userInfo as string,
-      }));
+    const isLiveMode = assistantMode === "live";
 
     return <div className="assistant-icon">
       <AIMicrophone
@@ -349,67 +450,61 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         onPartialResult={(text) => {
           partialRef.current = text;
           setPartial(text);
+          if (!isEditingRef.current) {
+            draftTextRef.current = text;
+            setDraftText(text);
+          }
         }}
         onListeningChange={(listening) => {
           isListeningRef.current = listening;
           onListeningChange?.(listening);
-
           if (listening) {
-            manualEditRef.current = false;
-            setIsLiveMode(getAssistantMode() === "live");
+            isEditingRef.current = false;
+          }
+          if (!listening && assistantMode !== "live") {
             cancelAutoSend();
-            setVoiceState("listening");
-            return;
           }
-
-          const nextDraft = (manualEditRef.current ? draftTextRef.current : partialRef.current).trim();
-          if (!nextDraft) {
-            setVoiceState(assistantMessage ? "responded" : "idle");
-            return;
-          }
-
-          scheduleAutoSend(nextDraft);
+          setVoiceState(listening ? "listening" : (draftTextRef.current.trim() ? "paused" : "idle"));
         }}
       />
       <AssistantVoiceOverlay
         state={voiceState}
         userText={draftText}
-        assistantText={speaking ? "Estou falando. Aumente o volume do dispositivo se necessario." : (assistantMessage || "")}
-        infoBalloons={infoBalloons}
+        assistantText=""
+        infoBalloons={[]}
+        entries={timelineEntries}
+        entryLimit={8}
         autoSendProgress={autoSendProgress}
-        isAssistantThinking={voiceState === "thinking"}
-        hasStarted={voiceState !== "idle"}
-        assistantHasAppeared={Boolean(assistantMessage) || voiceState === "thinking" || Boolean(askUserPrompt)}
+        isAssistantThinking={loading}
+        isSendLocked={loading}
+        hasStarted={voiceState !== "idle" || Boolean(draftText.trim()) || timelineEntries.length > 0}
+        assistantHasAppeared={false}
         isLiveMode={isLiveMode}
         onUserTextChange={(value) => {
-          manualEditRef.current = true;
           cancelAutoSend();
-          setIsLiveMode(false);
+          isEditingRef.current = true;
           draftTextRef.current = value;
           setDraftText(value);
           setVoiceState(value.trim() ? "paused" : "idle");
         }}
         onUserTextClick={() => {
-          if (!isLiveMode) return;
+          microphoneRef.current?.stopListening();
           cancelAutoSend();
-          setIsLiveMode(false);
+          setVoiceState(draftTextRef.current.trim() ? "paused" : "idle");
         }}
-        onStopOrClear={() => {
-          if (voiceState === "listening") {
-            microphoneRef.current?.stopListening();
-            return;
+        onUserTextKeyDown={(event) => {
+          if (event.key === "Enter" && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault();
+            if (loading) {
+              return;
+            }
+            void sendDraft();
           }
-
-          cancelAutoSend();
-          draftTextRef.current = "";
-          partialRef.current = "";
-          setDraftText("");
-          setPartial("");
-          setVoiceState(assistantMessage ? "responded" : "idle");
         }}
         onSend={() => {
-          void processVoiceTurn(draftText);
+          void sendDraft();
         }}
+        showControls={true}
       />
     </div>;
   }
@@ -434,7 +529,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
       <div className="assistant-page__content">
         <section className="assistant-section assistant-section--usage">
           <div className="assistant-usage__header">
-            <h2>Uso de Tokens</h2>
+            <h2>{runtimeTexts.tokenUsageTitle}</h2>
             <span className="assistant-usage__model">Modelo {getAssistantModel()}</span>
           </div>
           <div className="assistant-usage__metrics">
@@ -450,10 +545,10 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         </section>
         {askUserPrompt && (
           <section className="assistant-section assistant-section--highlight">
-            <h2>Pergunta para o usuário</h2>
+            <h2>{runtimeTexts.askUserTitle}</h2>
             <pre className="assistant-ask-user__message">{askUserPrompt}</pre>
             <p className="assistant-ask-user__hint">
-              Responda pelo microfone para continuar.
+              {runtimeTexts.askUserHint}
               <Icon aria-label="Clique aqui para ouvir a mensagem" icon={Icons.faVolumeUp} />
             </p>
           </section>
@@ -461,7 +556,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         {warnings.length > 0 && (
           <section className="assistant-section assistant-section--warnings">
             <h2>
-              Avisos <button onClick={() => setWarnings([])}>Limpar</button>
+              {runtimeTexts.warningsTitle} <button onClick={() => setWarnings([])}>{Lang.commons.clear}</button>
             </h2>
             <ul>
               {warnings.map((warning, index) => (
@@ -471,7 +566,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
           </section>
         )}
         <section className="assistant-section">
-          <h2>Calls History</h2>
+          <h2>{runtimeTexts.callsHistoryTitle}</h2>
           <ToolCallLogList calls={formattedCalls} />
         </section>
       </div>

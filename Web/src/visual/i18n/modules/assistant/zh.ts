@@ -74,6 +74,24 @@ const zh: AssistantModuleTranslation = {
       microRequirement: "开始前我们会先检测麦克风以确保一切正常。",
       start: "立即开始",
       dismiss: "不再显示"
+    },
+    voiceOverlay: {
+      userLabel: "你：",
+      assistantLabel: "助手：",
+      infoLabel: "信息：",
+      listeningPlaceholder: "正在聆听...",
+      inputPlaceholder: "在这里输入你的消息...",
+      continuePrompt: "用麦克风回复或继续输入。",
+      closeLabel: "结束"
+    },
+    voiceRuntime: {
+      speakError: "播报消息时出错",
+      processError: "处理助手指令时出错",
+      tokenUsageTitle: "Token 使用量",
+      askUserTitle: "给用户的问题",
+      askUserHint: "用麦克风回复以继续。",
+      warningsTitle: "警告",
+      callsHistoryTitle: "调用历史"
     }
   }
 };

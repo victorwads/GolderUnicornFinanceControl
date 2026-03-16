@@ -74,6 +74,24 @@ const hi: AssistantModuleTranslation = {
       microRequirement: "शुरू करने से पहले हम आपका माइक्रोफ़ोन जांच लेंगे ताकि सब ठीक से काम करे।",
       start: "अभी शुरू करें",
       dismiss: "फिर से न दिखाएँ"
+    },
+    voiceOverlay: {
+      userLabel: "आप:",
+      assistantLabel: "सहायक:",
+      infoLabel: "जानकारी:",
+      listeningPlaceholder: "सुन रहा हूँ...",
+      inputPlaceholder: "अपना संदेश यहाँ लिखें...",
+      continuePrompt: "जारी रखने के लिए माइक्रोफ़ोन से जवाब दें या लिखें।",
+      closeLabel: "समाप्त करें"
+    },
+    voiceRuntime: {
+      speakError: "संदेश बोलने में त्रुटि",
+      processError: "सहायक कमांड प्रोसेस करने में त्रुटि",
+      tokenUsageTitle: "टोकन उपयोग",
+      askUserTitle: "उपयोगकर्ता के लिए प्रश्न",
+      askUserHint: "जारी रखने के लिए माइक्रोफ़ोन से जवाब दें।",
+      warningsTitle: "चेतावनियाँ",
+      callsHistoryTitle: "कॉल इतिहास"
     }
   }
 };

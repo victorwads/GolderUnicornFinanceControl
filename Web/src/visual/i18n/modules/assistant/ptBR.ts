@@ -74,6 +74,24 @@ const ptBR: AssistantModuleTranslation = {
       microRequirement: "Antes de começar, faremos um teste rápido do microfone para garantir que tudo funcione.",
       start: "Iniciar agora",
       dismiss: "Não mostrar novamente"
+    },
+    voiceOverlay: {
+      userLabel: "você:",
+      assistantLabel: "assistente:",
+      infoLabel: "info:",
+      listeningPlaceholder: "Falando...",
+      inputPlaceholder: "Escreva sua mensagem aqui...",
+      continuePrompt: "Responda pelo microfone ou escreva para continuar.",
+      closeLabel: "finalizar"
+    },
+    voiceRuntime: {
+      speakError: "Erro ao falar a mensagem",
+      processError: "Erro ao processar comando do assistente",
+      tokenUsageTitle: "Uso de Tokens",
+      askUserTitle: "Pergunta para o usuário",
+      askUserHint: "Responda pelo microfone para continuar.",
+      warningsTitle: "Avisos",
+      callsHistoryTitle: "Calls History"
     }
   }
 };

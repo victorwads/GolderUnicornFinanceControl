@@ -61,6 +61,7 @@ const zh: SettingsModuleTranslation = {
     },
     microphoneMode: {
       title: "麦克风模式",
+      helper: "这些选项只会在手动模式下出现，由你精确决定如何开始和结束采集。",
       hold: {
         name: "按住说话",
         description: "说话时按住按钮",

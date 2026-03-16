@@ -68,5 +68,23 @@ export default interface AssistantModuleTranslation extends Translation {
       start: string;
       dismiss: string;
     };
+    voiceOverlay: {
+      userLabel: string;
+      assistantLabel: string;
+      infoLabel: string;
+      listeningPlaceholder: string;
+      inputPlaceholder: string;
+      continuePrompt: string;
+      closeLabel: string;
+    };
+    voiceRuntime: {
+      speakError: string;
+      processError: string;
+      tokenUsageTitle: string;
+      askUserTitle: string;
+      askUserHint: string;
+      warningsTitle: string;
+      callsHistoryTitle: string;
+    };
   };
 }

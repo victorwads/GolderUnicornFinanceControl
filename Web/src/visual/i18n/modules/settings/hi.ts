@@ -61,6 +61,7 @@ const hi: SettingsModuleTranslation = {
     },
     microphoneMode: {
       title: "माइक्रोफोन मोड",
+      helper: "ये विकल्प केवल मैनुअल मोड में दिखते हैं, जहाँ आप तय करते हैं कि कैप्चर को ठीक कैसे शुरू और बंद करना है।",
       hold: {
         name: "बोलने के लिए दबाकर रखें",
         description: "बोलते समय बटन दबाकर रखें",
