@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val service: SettingsService = SettingsService(GoldenApplication.publicApplication)
 ) : ViewModel() {
+    private val repos by lazy { br.com.victorwads.goldenunicorn.data.repositories.RepositoriesProvider.ensureFromCurrentUser() }
     val darkTheme: StateFlow<Boolean> = service.darkTheme.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -33,16 +34,15 @@ class SettingsViewModel(
 
     fun exportJson(callback: (String) -> Unit) {
         viewModelScope.launch {
-            val accounts = AccountsRepository().getAll(forceCache = true)
-            val banks = BanksRepository().getAll(forceCache = true)
-            val categories = CategoriesRepository().getAll(forceCache = true)
-            val cards = CreditCardsRepository().getAll(forceCache = true)
+            val accounts = repos.getAllAccounts(forceCache = true)
+            val banks = repos.getAllBanks(forceCache = true)
+            val categories = repos.getAllCategories(forceCache = true)
+            val cards = repos.getAllCreditCards(forceCache = true)
             val debit = mutableListOf<br.com.victorwads.goldenunicorn.data.models.DebitRegistry>()
             for (acc in accounts) {
                 val accId = acc.id
                 if (accId.isNotEmpty()) {
-                    val repo = AccountRegistryRepository(accountId = accId)
-                    debit += repo.getAll(forceCache = true)
+                    debit += br.com.victorwads.goldenunicorn.data.repositories.AccountRegistryRepository(accountId = accId).getAll(forceCache = true)
                 }
             }
             val export = mapOf(
