@@ -1,24 +1,19 @@
 services:
 
   prototype:
-    image: node:22
+    image: node:24-alpine
     working_dir: /app
     volumes:
       - ../vibe-financas-magicas:/app
       - prototype_node_modules:/app/node_modules
     tty: true
     stdin_open: true
-    command: >
-      sh -c "
-        if [ ! -d node_modules ]; then
-          echo '📦 Installing dependencies...' &&
-          npm install;
-        fi &&
-        echo '🚀 Starting dev server...' &&
-        exec npm run dev
-      " 
+    command:
+      - sh
+      - -c
+      - yarn install && yarn dev
   web:
-    image: node:22
+    image: node:24-alpine
     working_dir: /app
     volumes:
       - ./Web:/app
@@ -32,7 +27,7 @@ services:
 
   proxy:
     restart: always
-    image: node:22
+    image: node:24-alpine
     working_dir: /app
     volumes:
       - proxy_node_modules:/app/node_modules
@@ -47,7 +42,7 @@ services:
       - yarn install && yarn proxy
 
   backend-builder:
-    image: node:22
+    image: node:24-alpine
     working_dir: /app/Backend
     volumes:
       - ./Backend:/app/Backend

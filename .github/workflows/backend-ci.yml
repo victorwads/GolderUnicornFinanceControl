@@ -25,7 +25,7 @@ jobs:
         restore-keys: ${{ runner.os }}-npx-
     - uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '24'
     - run: yarn install --frozen-lockfile
       working-directory: Backend
     - run: |

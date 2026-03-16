@@ -1,7 +1,7 @@
-import { initializeApp } from "firebase-admin/app";
-import { setGlobalOptions } from "firebase-functions";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { bootstrapDevelopmentAuthUser } from "./boot.dev";
+import {initializeApp} from "firebase-admin/app";
+import {setGlobalOptions} from "firebase-functions";
+import {onCall, HttpsError} from "firebase-functions/v2/https";
+import {bootstrapDevelopmentAuthUser} from "./boot.dev";
 
 import {
   signPayload,
@@ -10,13 +10,13 @@ import {
   assertPayloadForUid,
   decryptPassword,
 } from "./crypto";
-import { ensureAuth } from "./auth";
-import { EncryptPayload, DecryptPayload } from "./types";
+import {ensureAuth} from "./auth";
+import {EncryptPayload, DecryptPayload} from "./types";
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
   initializeApp();
 }
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({maxInstances: 10});
 
 void bootstrapDevelopmentAuthUser();
 
@@ -31,7 +31,7 @@ export const cryptoPassEncrypt = onCall<EncryptPayload, DecryptPayload>(
 
     const payload = buildPayload(uid, secretHash);
     const token = signPayload(payload);
-    return { token };
+    return {token};
   }
 );
 
@@ -47,8 +47,8 @@ export const cryptoPassDecrypt = onCall<DecryptPayload, EncryptPayload>(
     const payload = verifyToken(token);
     assertPayloadForUid(uid, payload);
     const secretHash = decryptPassword(uid, payload);
-    return { secretHash };
+    return {secretHash};
   }
 );
 
-export { createOpenRouterKey } from "./openrouter";
+export {createOpenRouterKey} from "./openrouter";

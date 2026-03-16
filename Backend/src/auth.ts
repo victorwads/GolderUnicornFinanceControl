@@ -1,6 +1,6 @@
-import { CallableRequest, HttpsError } from "firebase-functions/v2/https";
+import {CallableRequest, HttpsError} from "firebase-functions/v2/https";
 
-function ensureAuth(request: CallableRequest<any>): string {
+function ensureAuth(request: CallableRequest<unknown>): string {
   const uid = request.auth?.uid;
   if (!uid) {
     throw new HttpsError("unauthenticated", "Usuário não autenticado.");
@@ -8,4 +8,4 @@ function ensureAuth(request: CallableRequest<any>): string {
   return uid;
 }
 
-export { ensureAuth };
+export {ensureAuth};

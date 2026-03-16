@@ -1,4 +1,4 @@
-import { HttpsError } from "firebase-functions/v2/https";
+import {HttpsError} from "firebase-functions/v2/https";
 import {
   createCipheriv,
   createDecipheriv,
@@ -6,7 +6,7 @@ import {
   createHmac,
   randomBytes,
 } from "crypto";
-import { JwtPayload } from "./types";
+import {JwtPayload} from "./types";
 
 const JWT_ALG = "HS256";
 const JWT_TYP = "JWT";
@@ -78,7 +78,7 @@ function verifyToken(token: string): JwtPayload {
   let payload: JwtPayload;
   try {
     payload = JSON.parse(base64UrlDecode(encodedPayload).toString());
-  } catch (error) {
+  } catch {
     throw new HttpsError("invalid-argument", "Payload inválido.");
   }
 
@@ -146,4 +146,4 @@ function assertPayloadForUid(uid: string, payload: JwtPayload): void {
   }
 }
 
-export { signPayload, verifyToken, buildPayload, assertPayloadForUid, decryptPassword };
+export {signPayload, verifyToken, buildPayload, assertPayloadForUid, decryptPassword};
