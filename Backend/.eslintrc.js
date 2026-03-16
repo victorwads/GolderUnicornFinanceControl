@@ -33,4 +33,12 @@ module.exports = {
     "require-jsdoc": "off",
     "valid-jsdoc": "off",
   },
+  overrides: [
+    {
+      files: ["**/*.test.ts", "**/*.spec.ts"],
+      rules: {
+        "@typescript-eslint/no-explicit-any": "off",
+      },
+    },
+  ],
 };

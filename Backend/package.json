@@ -10,7 +10,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "yarn build && node --test lib/index.test.js"
+    "test": "yarn build && node --test lib/tests/index.test.js"
   },
   "engines": {
     "node": "24"

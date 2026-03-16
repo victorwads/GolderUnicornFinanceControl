@@ -6,7 +6,7 @@ import {
   createHmac,
   randomBytes,
 } from "crypto";
-import {JwtPayload} from "./types";
+import {JwtPayload} from "../types";
 
 const JWT_ALG = "HS256";
 const JWT_TYP = "JWT";

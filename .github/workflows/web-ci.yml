@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     environment: app-vite
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache@v4
+    - uses: actions/checkout@v5
+    - uses: actions/cache@v5
       with:
         path: |
           ~/.cache/yarn
           Web/.yarn/cache
         key: ${{ runner.os }}-yarn-web-${{ hashFiles('Web/yarn.lock') }}
         restore-keys: ${{ runner.os }}-yarn-web-
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       with:
         path: ~/.npm/_npx
         key: ${{ runner.os }}-npx-firebase-tools
         restore-keys: ${{ runner.os }}-npx-
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
-        node-version: '24'
+        node-version: 24
     - run: yarn install --frozen-lockfile
       working-directory: Web
     - run: yarn test

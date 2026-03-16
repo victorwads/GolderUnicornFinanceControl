@@ -1,18 +1,18 @@
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {DocumentReference, getFirestore} from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
-import {ensureAuth} from "./auth";
+import {ensureAuth} from "../utils/auth";
 
 const USD_TO_BRL = 5.6;
 const BRL_LIMIT = 5;
 const USD_LIMIT = BRL_LIMIT / USD_TO_BRL;
-const auth = getAuth();
 const Collections = {
   OpenRouterKeys: "OpenRouterKeys",
 };
 
 export const createOpenRouterKey = onCall(async (request): Promise<Response> => {
   const uid = ensureAuth(request);
+  const auth = getAuth();
 
   const db = getFirestore();
   const docRef = db.collection(Collections.OpenRouterKeys).doc(uid);
