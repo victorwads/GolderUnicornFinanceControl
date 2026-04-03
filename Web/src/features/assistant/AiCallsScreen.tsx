@@ -262,7 +262,7 @@ function ConversationDetails({ conversation }: ConversationDetailsProps) {
           <div className="AiCallsThread__empty">Nenhum histórico disponível para esta chamada.</div>
         ) : (
           history.map((entry, index) => {
-            const { content, role, ...rest } = entry ?? {};
+            const { content, role, processing, ...rest } = entry ?? {};
             const extra = sanitize(rest);
             const metaItems = [
               typeof entry?.name === 'string' ? entry.name : null,
@@ -280,6 +280,25 @@ function ConversationDetails({ conversation }: ConversationDetailsProps) {
                     <span className="AiCallsMessage__time">{metaItems.join(' · ')}</span>
                   )}
                 </div>
+                {processing && (
+                  <div className="AiCallsMessage__meta">
+                    <span className="AiCallsMessage__time">
+                      model: {processing.model || "unknown"}
+                    </span>
+                    <span className="AiCallsMessage__time">
+                      in: {processing.inputTokens ?? 0}
+                    </span>
+                    <span className="AiCallsMessage__time">
+                      out: {processing.outputTokens ?? 0}
+                    </span>
+                    <span className="AiCallsMessage__time">
+                      input price: {(processing.inputPrice ?? 0).toFixed(6)}
+                    </span>
+                    <span className="AiCallsMessage__time">
+                      output price: {(processing.outputPrice ?? 0).toFixed(6)}
+                    </span>
+                  </div>
+                )}
                 <pre>{formatContent(content)}</pre>
                 {extra && Object.keys(extra).length > 0 && (
                   <div className="AiCallsMessage__extra">

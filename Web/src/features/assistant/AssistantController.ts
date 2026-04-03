@@ -10,7 +10,7 @@ import {
 
 import { ProjectStorage } from '@utils/ProjectStorage';
 import getRepositories, { Repositories } from "@repositories";
-import { AiCallContext, type AiModel } from "@models";
+import { AiCallContext, type AiModel, type AIHistoryMessage, type AIMessageProcessing } from "@models";
 import { addResourceUse } from "@resourceUse";
 
 import { createOpenAIClient } from "./createOpenAIClient";
@@ -30,6 +30,9 @@ import { AppNavigationTool } from "./tools/routesDefinition";
 import AssistantGeneralPrompt from "./AssistantGeneral.prompt";
 import AssistantOnboardingPrompt from "./AssistantOnboarding.prompt";
 import { ToUserTool } from "./tools/AssistantToolsBase";
+import { createLogger } from "@utils/logger";
+
+const logger = createLogger("assistant");
 
 export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-4.1-nano"; // "@preset/gu-daily-assistant";
 
@@ -77,6 +80,35 @@ export default class AssistantController {
     this.toolRegistry.isOnboarding = onboarding;
   }
 
+  private buildMessageProcessing(model: string, usage?: { input?: number; output?: number }): AIMessageProcessing {
+    const resolvedModel = (model || this.model) as AiModel;
+    const inputTokens = usage?.input ?? 0;
+    const outputTokens = usage?.output ?? 0;
+    const pricing = AiCallContext.getModelPricing(resolvedModel);
+    const inputPrice = pricing ? (inputTokens * (pricing.input / 1000000)) : 0;
+    const outputPrice = pricing ? (outputTokens * (pricing.output / 1000000)) : 0;
+
+    return {
+      model: resolvedModel,
+      inputTokens,
+      outputTokens,
+      inputPrice,
+      outputPrice,
+      processedAt: new Date().toISOString(),
+    };
+  }
+
+  private enrichHistoryMessage<T extends ChatCompletionMessageParam>(
+    message: T,
+    model: string,
+    usage?: { input?: number; output?: number }
+  ): AIHistoryMessage {
+    return {
+      ...message,
+      processing: this.buildMessageProcessing(model, usage),
+    };
+  }
+
   private async getOpenAIClient(): Promise<OpenAI> {
     if (!this.openai) {
       this.openai = await createOpenAIClient();
@@ -86,6 +118,7 @@ export default class AssistantController {
 
   async run(text: string, userLanguage: string): Promise<AssistantRunResult> {
     const context = this.createRunContext(text, userLanguage);
+    logger.debug("run:start", { contextId: context.id, text, userLanguage, model: this.model });
 
     this.onToolCalled?.({
       id: "user-message",
@@ -99,6 +132,11 @@ export default class AssistantController {
     let limitResult: AssistantLimitResult | undefined;
     try {
       while (run) {
+        logger.debug("run:loop", {
+          contextId: context.id,
+          historyLength: context.history.length,
+          currentModel: this.model,
+        });
         const { allowed } = await ensureMonthlyLimit(this.repositories);
         if (!allowed) {
           limitResult = { success: false, result: MONTHLY_LIMIT_REACHED_MESSAGE };
@@ -110,14 +148,29 @@ export default class AssistantController {
         const toolSchema = this.toolRegistry.buildToolSchema();
         const completion = await this.requestCompletion(context.history, toolSchema);
         const choice = completion.choices[0];
-        this.recordUsage(completion, context);
+        logger.debug("run:completion", {
+          contextId: context.id,
+          choiceCount: completion.choices?.length ?? 0,
+          completionModel: completion.model,
+        });
+        const usage = this.recordUsage(completion, context);
         context.model = completion.model || context.model || this.model;
         context.provider = (completion as any).provider || "OpenRouter";
 
         if (!choice) { context.finishReason = "no_choice_returned"; break; }
 
-        const toolCalls = this.appendAssistantResponse(choice.message, context, toolSchema.map(t => t.function.name))
+        const toolCalls = this.appendAssistantResponse(
+          choice.message,
+          context,
+          toolSchema.map(t => t.function.name),
+          usage
+        )
           .filter(call => call?.type === "function")
+        logger.debug("run:toolCalls", {
+          contextId: context.id,
+          toolCalls: toolCalls.map(call => call.function.name),
+          hasAssistantContent: Boolean(choice.message?.content),
+        });
 
         if (!toolCalls.length) {context.finishReason = "assistant_no_tool_calls"; break; }
 
@@ -136,9 +189,16 @@ export default class AssistantController {
         }
       }
     } catch (error) {
+      logger.error("run:error", { contextId: context.id, error });
       context.warnings.push(`internal_error: ${error}`);
     } finally {
       context.finishedAt = new Date();
+      logger.debug("run:finally", {
+        contextId: context.id,
+        finishReason: context.finishReason,
+        warnings: context.warnings,
+        historyLength: context.history.length,
+      });
       await this.persistAiCall(context);
     }
 
@@ -150,7 +210,7 @@ export default class AssistantController {
       const { context} = pendingContext;
       pendingContext.context = null;
       context.history.push(
-        { role: "user", content: text }
+        this.enrichHistoryMessage({ role: "user", content: text }, this.model)
       );
       this.onContextChanged?.(context);
       return context;
@@ -162,12 +222,15 @@ export default class AssistantController {
       this.model,
       "OpenRouter",
       [
-        { role: "system", content: this.toolRegistry.isOnboarding ? AssistantOnboardingPrompt : AssistantGeneralPrompt },
-        {
+        this.enrichHistoryMessage(
+          { role: "system", content: this.toolRegistry.isOnboarding ? AssistantOnboardingPrompt : AssistantGeneralPrompt },
+          this.model
+        ),
+        this.enrichHistoryMessage({
           role: "user",
           content: `User native language: ${userLanguage}\nCurrent DateTime: ${new Date().toISOString()}`,
-        },
-        { role: "user", content: text }
+        }, this.model),
+        this.enrichHistoryMessage({ role: "user", content: text }, this.model)
       ],
     );
     this.repositories.aiCalls.set(context);
@@ -193,14 +256,25 @@ export default class AssistantController {
     });
   }
 
-  private appendAssistantResponse(message: ChatCompletionMessage, context: AiCallContext, toolNames: string[]): ChatCompletionMessageToolCall[] {
+  private appendAssistantResponse(
+    message: ChatCompletionMessage,
+    context: AiCallContext,
+    toolNames: string[],
+    usage?: { model: string; input?: number; output?: number }
+  ): ChatCompletionMessageToolCall[] {
     const assistantMessage: ChatCompletionAssistantMessageParam & {available_tools: string[]} = {
       role: "assistant",
       content: message.content,
       available_tools: toolNames,
       tool_calls: message.tool_calls,
     };
-    context.history.push(assistantMessage);
+    context.history.push(
+      this.enrichHistoryMessage(
+        assistantMessage,
+        usage?.model || context.model || this.model,
+        { input: usage?.input, output: usage?.output }
+      )
+    );
     if (message.content && message.content.trim().length > 0) {
       context.warnings.push("model_return_plain_text");
     }
@@ -228,9 +302,20 @@ export default class AssistantController {
         },
       },
     });
+
+    return {
+      model: completion.model || this.model,
+      input,
+      output,
+    };
   }
 
   private async persistAiCall(context: AiCallContext): Promise<void> {
+    logger.debug("persistAiCall", {
+      contextId: context.id,
+      finishReason: context.finishReason,
+      historyLength: context.history.length,
+    });
     await this.repositories.aiCalls.set(context);
   }
 
@@ -255,6 +340,12 @@ export default class AssistantController {
     });
 
     let result: Result<unknown>;
+    logger.debug("executeToolCall:start", {
+      contextId: context.id,
+      tool: call.function.name,
+      callId: call.id,
+      args,
+    });
     if (call.function.name === ToUserTool.SAY) {
       result = await this.onAskAnditionalInfo?.(args.message)
         .then((response) => ({ success: true, result: response }))
@@ -288,7 +379,13 @@ export default class AssistantController {
       tool_call_id: call.id,
       content: JSON.stringify(result ?? null),
     };
-    context.history.push(toolMessage);
+    context.history.push(this.enrichHistoryMessage(toolMessage, context.model || this.model));
+    logger.debug("executeToolCall:done", {
+      contextId: context.id,
+      tool: call.function.name,
+      callId: call.id,
+      resultSuccess: result?.success,
+    });
 
     return result;
   }
