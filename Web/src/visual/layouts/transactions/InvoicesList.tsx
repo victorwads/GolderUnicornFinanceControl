@@ -214,6 +214,7 @@ export interface Transaction {
   installmentInfo?: string;
   tags?: string[];
   account: string;
+  onClick?: () => void;
 }
 
 export interface Invoice {

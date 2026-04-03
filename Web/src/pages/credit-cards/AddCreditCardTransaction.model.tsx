@@ -143,6 +143,12 @@ export function useAddCreditCardTransactionModel(): AddCreditCardTransactionView
   }, [amount, installments, invoiceMonth, isInstallment]);
 
   const navigateBack = () => {
+    const returnTo = searchParams.get("returnTo");
+    if (returnTo) {
+      navigate(returnTo);
+      return;
+    }
+
     if (isTimelineDetailPath(location.pathname)) {
       navigate(buildTimelineReturnPath(location.search));
       return;

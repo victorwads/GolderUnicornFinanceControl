@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
+import routes from "@features/navigate";
 import getRepositories, { waitUntilReady } from "@repositories";
 import { CreditCardInvoice, CreditCardRegistry, RegistryType } from "@models";
 import { buildTimelineReturnPath, isTimelineDetailPath } from "@pages/core/timelineDetailNavigation";
@@ -77,7 +78,7 @@ function createVirtualInvoice(cardId: string, monthValue: string) {
   );
 }
 
-function mapRegistryToTransaction(registry: CreditCardRegistry): Transaction {
+function mapRegistryToTransaction(registry: CreditCardRegistry, onClick?: () => void): Transaction {
   const repositories = getRepositories();
   const category = registry.categoryId ? repositories.categories.getLocalById(registry.categoryId) : undefined;
   const accountName = repositories.creditCards.getLocalById(registry.cardId)?.name || "";
@@ -98,6 +99,7 @@ function mapRegistryToTransaction(registry: CreditCardRegistry): Transaction {
     account: accountName,
     categoryIconName: category?.icon,
     categoryColor: category?.color,
+    onClick,
   };
 }
 
@@ -162,10 +164,18 @@ export function useInvoicesListModel(): InvoicesListViewModel {
       }
 
       const monthValue = toMonthValue(selectedInvoice.year, selectedInvoice.month);
+      const returnTo = `${location.pathname}${location.search}`;
       const transactions = repositories.creditCardsTransactions
         .getRegistriesByInvoice(selectedInvoice)
         .sort((left, right) => right.date.getTime() - left.date.getTime())
-        .map((registry) => mapRegistryToTransaction(registry));
+        .map((registry) => {
+          const params = new URLSearchParams();
+          params.set("returnTo", returnTo);
+          return mapRegistryToTransaction(
+            registry,
+            () => router(routes.timelineCredit(registry.id, `?${params.toString()}`)),
+          );
+        });
 
       setCurrentInvoice({
         monthYear: monthValue,
@@ -199,7 +209,7 @@ export function useInvoicesListModel(): InvoicesListViewModel {
       active = false;
       dispose.forEach((unsubscribe) => unsubscribe());
     };
-  }, [id, selected]);
+  }, [id, location.pathname, location.search, router, selected]);
 
   const monthTabs = useMemo(() => buildMonthTabs(selectedMonth), [selectedMonth]);
 
