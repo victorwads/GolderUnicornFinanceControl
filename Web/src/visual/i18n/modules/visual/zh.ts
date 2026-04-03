@@ -186,14 +186,23 @@ const zh: VisualModuleTranslation = {
       exportHint: "导出的数据包括你的所有交易、账户、卡片和分类。数据属于你自己，你可以随时导出。",
       exportSuccessTitle: "导出完成",
       exportPartialTitle: "导出完成，但有错误",
+      exportSuccessToastDescription: "你的数据已成功导出。",
+      exportErrorToastDescription: (count: number) => `文件已生成，但有 ${count} 个部分导出失败。`,
+      exportErrorTitle: "导出数据失败",
       exportSuccessCount: (count: number) => `成功导出 ${count} 个部分。`,
       exportErrorCount: (count: number) => count > 0
         ? `${count} 个部分失败，已列在下方。`
         : "没有失败的部分。",
       exportFileLabel: (fileName: string) => `生成的文件：${fileName}`,
       importJsonTitle: "导入 JSON 文件",
-      importJsonDescription: "仅开发者模式可用。每次导入一个已导出的 JSON 文件。",
+      importJsonDescription: "可一次导入一个或多个符合新格式（collection、date、documents）的 JSON 文件。",
       importSuccessTitle: "导入完成",
+      importPartialTitle: "导入完成，但有错误",
+      importSuccessDescription: (count: number) => `成功导入 ${count} 个项目。`,
+      importPartialDescription: (importedCount: number, failedCount: number) =>
+        `成功导入 ${importedCount} 个项目，${failedCount} 个文件失败。`,
+      importErrorTitle: "导入数据失败",
+      importErrorDescription: "导入失败。",
       importSuccessCount: (count: number) => `成功导入 ${count} 个项目。`,
       importFileLabel: (fileName: string) => `已导入文件：${fileName}`,
       importDomainLabel: (domain: string) => `目标部分：${domain}`,
@@ -213,7 +222,9 @@ const zh: VisualModuleTranslation = {
       deleteDialogDescription: "在删除前会先导出你的数据。要继续，请准确输入下面显示的短语。",
       deleteDialogPlaceholder: "输入确认短语",
       deleteDialogCancel: "取消",
-      deleteDialogConfirm: "删除我的数据"
+      deleteDialogConfirm: "删除我的数据",
+      deleteInvalidConfirmationTitle: "确认无效",
+      deleteErrorTitle: "删除数据失败"
     },
     assistant: {
       aiCallsTitle: "助手历史",

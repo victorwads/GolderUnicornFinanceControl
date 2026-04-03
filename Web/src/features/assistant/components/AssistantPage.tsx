@@ -29,6 +29,7 @@ import { subscribeAssistantEvent } from "../utils/assistantEvents";
 import { getAssistantMicrophoneMode, getAssistantMode } from "../preferences";
 import type { AssistantTimelineEntry } from "@pages/assistant/assistantHistoryAdapter";
 import { buildAssistantHistoryConversation } from "@pages/assistant/assistantHistoryAdapter";
+import { createLogger } from "@utils/logger";
 
 export interface AssistantPageHandle {
   startListening: () => void;
@@ -46,6 +47,7 @@ interface AssistantPageProps {
 
 const LIVE_MODE_SILENCE_DELAY_MS = 1400;
 const AUTO_SEND_DURATION_MS = 1300;
+const logger = createLogger("assistant");
 
 const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(function AssistantPage({
   compact = false,
@@ -143,7 +145,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
 
   const handleToolCall = useCallback((event: AssistantToolCallLog) => {
     // if (!event.result) return;
-    console.log("Tool call event", event);
+    logger.debug("toolCall:event", event);
     if (compact) {
       // if (!event.userInfo) return;
       setTimeout(() => setCalls(
@@ -157,21 +159,23 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
   }, [compact]);
 
   const handleAskAdditionalInfo = useCallback(async (message: string) => {
+    logger.debug("handleAskAdditionalInfo:start", { message });
     setLoading(false);
     setIsFirst(false);
     setAskUserPrompt(message);
     stopListening();
-    try {
-      await speak(message, { important: true });
-    } catch (error) {
+    speak(message, { important: true }).catch((error) => {
+      logger.warn("handleAskAdditionalInfo:speakError", error);
       setWarnings((previous) => [...previous, runtimeTexts.speakError]);
-    }
+    });
     if (getAssistantMode() === "live") {
       startListening();
     }
 
     return new Promise<string>((resolve) => {
+      logger.debug("handleAskAdditionalInfo:awaitingUser");
       pendingAskResolver.current = (answer: string) => {
+        logger.debug("handleAskAdditionalInfo:resolved", { answer });
         pendingAskResolver.current = null;
         setAskUserPrompt(null);
         resolve(answer);
@@ -218,14 +222,21 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
 
   const processText = useCallback(
     async (text: string, userLanguage: string) => {
+      logger.debug("processText:start", { text, userLanguage, loading, hasPendingAsk: Boolean(pendingAskResolver.current) });
       stopListening();
       setLoading(true);
       if (pendingAskResolver.current) {
+        logger.debug("processText:resolvingPendingAsk", { answer: text });
         pendingAskResolver.current(text);
+        setLoading(false);
         return;
       }
 
       controller.run(text, userLanguage).then((result) => {
+        logger.debug("processText:runResolved", {
+          warningsCount: result.warnings.length,
+          limitResult: result.limitResult ?? null,
+        });
         if (result.warnings.length) {
           setWarnings((previous) => [...previous, ...result.warnings]);
         }
@@ -234,7 +245,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         }
         setLoading(false);
       }).catch((error) => {
-        console.log("Erro ao processar comando do assistente", error);
+        logger.error("processText:runError", error);
         setWarnings((previous) => [...previous, runtimeTexts.processError]);
         setLoading(false);
       });
@@ -275,7 +286,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
           await processText('init', CurrentLangInfo.short);
         }
       } catch (error) {
-        console.error('Failed to start assistant onboarding flow', error);
+        logger.error("onboarding:startError", error);
       } finally {
         onboardingFlowRef.current = false;
       }
@@ -297,7 +308,15 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
 
   const sendDraft = useCallback(async () => {
     const nextText = draftTextRef.current.trim();
+    logger.debug("sendDraft:attempt", {
+      nextText,
+      loading,
+      voiceState,
+      hasPendingAsk: Boolean(pendingAskResolver.current),
+      askPrompt: askUserPromptRef.current,
+    });
     if (!nextText || loading) {
+      logger.debug("sendDraft:blocked", { reason: !nextText ? "empty_text" : "loading" });
       return;
     }
 
@@ -309,6 +328,11 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
     partialRef.current = "";
     setPartial("");
     await processText(nextText, CurrentLangInfo.short);
+    logger.debug("sendDraft:afterProcess", {
+      currentAssistantMode: getAssistantMode(),
+      hasAskPrompt: Boolean(askUserPromptRef.current),
+      hasPendingAsk: Boolean(pendingAskResolver.current),
+    });
     microphoneRef.current?.clearTranscript();
     isEditingRef.current = false;
     holdActiveRef.current = false;
@@ -438,6 +462,17 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
 
   if (compact) {
     const isLiveMode = assistantMode === "live";
+    const lastAssistantEntry = [...timelineEntries]
+      .reverse()
+      .find((entry) => entry.type === "assistant");
+    const assistantOverlayText = askUserPrompt || lastAssistantEntry?.content || "";
+    logger.debug("compact:overlayState", {
+      voiceState,
+      timelineEntries: timelineEntries.length,
+      assistantOverlayText,
+      hasAskPrompt: Boolean(askUserPrompt),
+      loading,
+    });
 
     return <div className="assistant-icon">
       <AIMicrophone
@@ -470,7 +505,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
       <AssistantVoiceOverlay
         state={voiceState}
         userText={draftText}
-        assistantText=""
+        assistantText={assistantOverlayText}
         infoBalloons={[]}
         entries={timelineEntries}
         entryLimit={8}
@@ -478,7 +513,7 @@ const AssistantPage = forwardRef<AssistantPageHandle, AssistantPageProps>(functi
         isAssistantThinking={loading}
         isSendLocked={loading}
         hasStarted={voiceState !== "idle" || Boolean(draftText.trim()) || timelineEntries.length > 0}
-        assistantHasAppeared={false}
+        assistantHasAppeared={Boolean(assistantOverlayText.trim())}
         isLiveMode={isLiveMode}
         onUserTextChange={(value) => {
           cancelAutoSend();

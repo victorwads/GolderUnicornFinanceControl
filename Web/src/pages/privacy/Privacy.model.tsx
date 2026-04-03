@@ -14,6 +14,7 @@ import {
 export function usePrivacyModel(): PrivacyViewModel {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const LocalLang = Lang.visual.privacy;
   const [progress, setProgress] = useState<DataProgressInfo | null>(null);
   const [progressType, setProgressType] = useState<"export" | "delete" | "import">("export");
   const [lastImportResult, setLastImportResult] = useState<ImportUserDataResult | null>(null);
@@ -32,13 +33,13 @@ export function usePrivacyModel(): PrivacyViewModel {
       if (result.failedDomains.length > 0) {
         toast({
           variant: "destructive",
-          title: "Exportação concluída com erros",
-          description: `O arquivo foi gerado, mas houve falha em ${result.failedDomains.length} seção(ões).`,
+          title: LocalLang.exportPartialTitle,
+          description: LocalLang.exportErrorToastDescription(result.failedDomains.length),
         });
       } else {
         toast({
-          title: "Exportação concluída",
-          description: "Seus dados foram exportados com sucesso.",
+          title: LocalLang.exportSuccessTitle,
+          description: LocalLang.exportSuccessToastDescription,
         });
       }
     } catch (error) {
@@ -46,44 +47,51 @@ export function usePrivacyModel(): PrivacyViewModel {
       setLastExportResult(null);
       toast({
         variant: "destructive",
-        title: "Falha ao exportar dados",
+        title: LocalLang.exportErrorTitle,
         description: Lang.settings.exportDataError,
       });
     }
   };
 
-  const handleImportFile = async (file: File | null) => {
-    if (!file) return;
+  const handleImportFiles = async (files: File[]) => {
+    if (files.length === 0) return;
 
     try {
       setProgressType("import");
       setLastImportResult(null);
-      const result = await importUserData(file, setProgress);
+      const result = await importUserData(files, setProgress);
       setLastImportResult(result);
-      toast({
-        title: "Importação concluída",
-        description: `${result.importedCount} item(ns) importados de ${result.domain}.`,
-      });
+      if (result.failedFiles.length > 0) {
+        toast({
+          variant: "destructive",
+          title: LocalLang.importPartialTitle,
+          description: LocalLang.importPartialDescription(result.totalImportedCount, result.failedFiles.length),
+        });
+      } else {
+        toast({
+          title: LocalLang.importSuccessTitle,
+          description: LocalLang.importSuccessDescription(result.totalImportedCount),
+        });
+      }
     } catch (error) {
       console.error("Failed to import data", error);
       setLastImportResult(null);
       toast({
         variant: "destructive",
-        title: "Falha ao importar dados",
-        description: error instanceof Error ? error.message : "Import failed",
+        title: LocalLang.importErrorTitle,
+        description: error instanceof Error ? error.message : LocalLang.importErrorDescription,
       });
     }
   };
 
   return {
     navigate,
-    isDeveloperMode: window.isDevelopment,
     progress,
     progressType,
     lastImportResult,
     lastExportResult,
     handleExport,
-    handleImportFile,
+    handleImportFiles,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
     deleteDataPhrase,
@@ -100,7 +108,7 @@ export function usePrivacyModel(): PrivacyViewModel {
       if (deleteDataConfirmation.trim() !== deleteDataPhrase) {
         toast({
           variant: "destructive",
-          title: "Confirmação inválida",
+          title: LocalLang.deleteInvalidConfirmationTitle,
           description: Lang.settings.deleteDataMismatch,
         });
         return;
@@ -114,7 +122,7 @@ export function usePrivacyModel(): PrivacyViewModel {
         console.error("Failed to delete user data", error);
         toast({
           variant: "destructive",
-          title: "Falha ao excluir dados",
+          title: LocalLang.deleteErrorTitle,
           description: Lang.settings.deleteDataError,
         });
       }

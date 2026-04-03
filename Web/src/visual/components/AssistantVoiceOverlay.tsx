@@ -97,7 +97,7 @@ export default function AssistantVoiceOverlay({
         </div>
       )}
 
-      {!hasTimelineEntries && assistantHasAppeared && (
+      {assistantHasAppeared && (
         <div className="animate-fade-in bg-primary/10 backdrop-blur-md border border-primary/30 rounded-2xl px-4 py-3 mb-3 max-w-[85vw] shadow-lg pointer-events-none">
           <p className="text-sm text-foreground mb-2">
             <span className="font-semibold text-primary">{texts.assistantLabel}</span>{" "}

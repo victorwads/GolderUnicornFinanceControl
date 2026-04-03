@@ -4,7 +4,6 @@ import { withRepos } from '@componentsDeprecated/WithRepo';
 
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
-import TimelineImportScreen from '@features/tabs/timeline/TimelineImportScreen';
 import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
 import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
@@ -29,6 +28,7 @@ import DeveloperPage from '@pages/settings/Developer.page';
 import ResourceUsagePage from '@pages/settings/ResourceUsage.page';
 import HomePage from '@pages/core/Home.page';
 import TimelinePage from '@pages/core/Timeline.page';
+import TimelineImportPage from '@pages/core/TimelineImport.page';
 import CreateRecurrentPage from '@pages/transactions/CreateRecurrent.page';
 import CreateTransferPage from '@pages/transactions/CreateTransfer.page';
 import PrivacyPage from '@pages/privacy/Privacy.page';
@@ -50,7 +50,7 @@ export const privateRouter = createBrowserRouter([
       { path: '/', element: <HomePage /> },
       { path: 'old/dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: <TimelinePage /> },
-      { path: 'timeline/import', element: <TimelineImportScreen /> },
+      { path: 'timeline/import', element: <TimelineImportPage /> },
       {
         path: 'timeline',
         element: (

@@ -27,13 +27,12 @@ export default function Privacy({ model }: PrivacyProps) {
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const { 
     navigate, 
-    isDeveloperMode,
     progress,
     progressType,
     lastImportResult,
     lastExportResult,
     handleExport,
-    handleImportFile,
+    handleImportFiles,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
     deleteDataPhrase,
@@ -102,33 +101,32 @@ export default function Privacy({ model }: PrivacyProps) {
                 </Button>
               </div>
 
-              {isDeveloperMode && (
-                <>
-                  <input
-                    ref={importInputRef}
-                    type="file"
-                    accept="application/json,.json"
-                    className="hidden"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0] ?? null;
-                      void handleImportFile(file);
-                      event.currentTarget.value = "";
-                    }}
-                  />
-                  <Button
-                    variant="secondary"
-                    className="w-full justify-start h-16"
-                    onClick={() => importInputRef.current?.click()}
-                    disabled={!!progress}
-                  >
-                    <Upload className="h-5 w-5 mr-3" />
-                    <div className="text-left">
-                      <p className="font-medium">{LocalLang.importJsonTitle}</p>
-                      <p className="text-xs text-muted-foreground">{LocalLang.importJsonDescription}</p>
-                    </div>
-                  </Button>
-                </>
-              )}
+              <>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  multiple
+                  accept="application/json,.json"
+                  className="hidden"
+                  onChange={(event) => {
+                    const files = Array.from(event.target.files ?? []);
+                    void handleImportFiles(files);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <Button
+                  variant="secondary"
+                  className="w-full justify-start h-16"
+                  onClick={() => importInputRef.current?.click()}
+                  disabled={!!progress}
+                >
+                  <Upload className="h-5 w-5 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">{LocalLang.importJsonTitle}</p>
+                    <p className="text-xs text-muted-foreground">{LocalLang.importJsonDescription}</p>
+                  </div>
+                </Button>
+              </>
 
               <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
@@ -140,9 +138,7 @@ export default function Privacy({ model }: PrivacyProps) {
                 <ImportResultSummary
                   result={lastImportResult}
                   title={LocalLang.importSuccessTitle}
-                  countLabel={LocalLang.importSuccessCount(lastImportResult.importedCount)}
-                  fileLabel={LocalLang.importFileLabel(lastImportResult.fileName)}
-                  domainLabel={LocalLang.importDomainLabel(lastImportResult.domain)}
+                  countLabel={LocalLang.importSuccessCount(lastImportResult.totalImportedCount)}
                 />
               )}
 
@@ -284,13 +280,12 @@ export default function Privacy({ model }: PrivacyProps) {
 
 export interface PrivacyViewModel {
   navigate: (path: string) => void;
-  isDeveloperMode: boolean;
   progress: DataProgressInfo | null;
   progressType: "export" | "delete" | "import";
   lastImportResult: ImportUserDataResult | null;
   lastExportResult: ExportUserDataResult | null;
   handleExport: (format: 'json' | 'csv') => void;
-  handleImportFile: (file: File | null) => Promise<void>;
+  handleImportFiles: (files: File[]) => Promise<void>;
   showDeleteDataDialog: boolean;
   setShowDeleteDataDialog: (open: boolean) => void;
   deleteDataPhrase: string;
@@ -304,23 +299,35 @@ function ImportResultSummary({
   result,
   title,
   countLabel,
-  fileLabel,
-  domainLabel,
 }: {
   result: ImportUserDataResult;
   title: string;
   countLabel: string;
-  fileLabel: string;
-  domainLabel: string;
 }) {
+  const hasErrors = result.failedFiles.length > 0;
+  const Icon = hasErrors ? AlertCircle : CheckCircle2;
+
   return (
-    <Alert>
-      <CheckCircle2 className="h-4 w-4" />
+    <Alert variant={hasErrors ? "destructive" : "default"}>
+      <Icon className="h-4 w-4" />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription className="space-y-2">
         <p>{countLabel}</p>
-        <p>{domainLabel}</p>
-        <p>{fileLabel}</p>
+        <p>{result.importedFiles.length} arquivo(s) importado(s).</p>
+        {result.importedFiles.map(({ fileName, domain, importedCount }) => (
+          <p key={`${fileName}-${domain}`}>
+            {fileName} {"->"} {domain} ({importedCount} item(ns))
+          </p>
+        ))}
+        {hasErrors && (
+          <ul className="list-disc pl-5">
+            {result.failedFiles.map(({ fileName, message }) => (
+              <li key={fileName}>
+                <strong>{fileName}:</strong> {message}
+              </li>
+            ))}
+          </ul>
+        )}
       </AlertDescription>
     </Alert>
   );
