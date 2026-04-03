@@ -69,7 +69,7 @@ export const privateRouter = createBrowserRouter([
           { path: 'entry/transfer/create', element: <CreateTransferPage /> },
           { path: 'entry/transfer/:id', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
           {
-            path: 'entry/creditcards/:id/invoices/:selected?',
+            path: 'entry/creditcards/:cardId/invoices/:selected?',
             element: <InvoicesListPage />,
           },
         ],
@@ -132,7 +132,19 @@ export const privateRouter = createBrowserRouter([
           { path: ':id', element: <CreateCreditCardPage /> },
         ],
       },
-      { path: '/creditcards/:id/invoices/:selected?', element: <InvoicesListPage /> },
+      {
+        path: 'creditcards/:cardId/invoices/:selected?',
+        element: (
+          <MasterDetailShell
+            basePath="/creditcards/:cardId/invoices/:selected?"
+            listPane={<InvoicesListPage embedded />}
+          />
+        ),
+        children: [
+          { index: true, element: <InvoicesListPage /> },
+          { path: 'entry/credit/:registryId', element: <AddCreditCardTransactionPage /> },
+        ],
+      },
       {
         path: 'categories',
         element: withRepos(

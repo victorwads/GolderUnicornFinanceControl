@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-import routes from "@features/navigate";
 import getRepositories, { waitUntilReady } from "@repositories";
 import { CreditCardInvoice, CreditCardRegistry, RegistryType } from "@models";
 import { buildTimelineReturnPath, isTimelineDetailPath } from "@pages/core/timelineDetailNavigation";
@@ -90,8 +89,7 @@ function mapRegistryToTransaction(registry: CreditCardRegistry, onClick?: () => 
 
 export function useInvoicesListModel(): InvoicesListViewModel {
   const router = useNavigate();
-  const location = useLocation();
-  const { id, selected } = useParams<{ id?: string; selected?: string }>();
+  const { cardId, selected } = useParams<{ cardId?: string; selected?: string }>();
 
   const [filterView, setFilterView] = useState<FilterView>("all");
   const [selectedMonth, setSelectedMonthState] = useState(() => parseInvoiceRouteValue(selected) || toMonthValue(new Date().getFullYear(), new Date().getMonth() + 1));
@@ -115,11 +113,11 @@ export function useInvoicesListModel(): InvoicesListViewModel {
     let dispose: Array<() => void> = [];
 
     const sync = () => {
-      if (!active || !id) return;
+      if (!active || !cardId) return;
 
       const repositories = getRepositories();
-      const creditCard = repositories.creditCards.getLocalById(id);
-      const invoices = repositories.creditCardsInvoices.getInvoices(id);
+      const creditCard = repositories.creditCards.getLocalById(cardId);
+      const invoices = repositories.creditCardsInvoices.getInvoices(cardId);
       const selectedFromRoute = parseInvoiceRouteValue(selected);
       const currentInvoice = invoices.find((invoice) => invoice.name === CreditCardInvoice.nowName());
       const fallbackMonth =
@@ -129,7 +127,7 @@ export function useInvoicesListModel(): InvoicesListViewModel {
       const resolvedMonth = selectedFromRoute || fallbackMonth;
       const matchedInvoice = invoices.find((invoice) => toMonthValue(invoice.year, invoice.month) === resolvedMonth);
       const selectedInvoice = matchedInvoice
-        || (selectedFromRoute ? createVirtualInvoice(id, resolvedMonth) : invoices[invoices.length - 1]);
+        || (selectedFromRoute ? createVirtualInvoice(cardId, resolvedMonth) : invoices[invoices.length - 1]);
 
       setSelectedMonthState(resolvedMonth);
       setCreditCardName(creditCard?.name || "Cartão");
@@ -148,18 +146,15 @@ export function useInvoicesListModel(): InvoicesListViewModel {
       }
 
       const monthValue = toMonthValue(selectedInvoice.year, selectedInvoice.month);
-      const returnTo = `${location.pathname}${location.search}`;
       const transactions = repositories.creditCardsTransactions
         .getRegistriesByInvoice(selectedInvoice)
         .sort((left, right) => right.date.getTime() - left.date.getTime())
-        .map((registry) => {
-          const params = new URLSearchParams();
-          params.set("returnTo", returnTo);
-          return mapRegistryToTransaction(
+        .map((registry) =>
+          mapRegistryToTransaction(
             registry,
-            () => router(routes.timelineCredit(registry.id, `?${params.toString()}`)),
-          );
-        });
+            () => router(`/creditcards/${cardId}/invoices/${toInvoiceRouteValue(monthValue)}/entry/credit/${registry.id}`),
+          )
+        );
 
       setCurrentInvoice({
         monthYear: monthValue,
@@ -193,7 +188,7 @@ export function useInvoicesListModel(): InvoicesListViewModel {
       active = false;
       dispose.forEach((unsubscribe) => unsubscribe());
     };
-  }, [id, location.pathname, location.search, router, selected]);
+  }, [cardId, router, selected]);
 
   const monthNavigator = useMemo(() => {
     const [year, month] = selectedMonth.split("-").map(Number);
@@ -234,8 +229,8 @@ export function useInvoicesListModel(): InvoicesListViewModel {
   }, [currentInvoice.transactions, filterView]);
 
   function setSelectedMonth(month: string) {
-    if (!id) return;
-    router(`/creditcards/${id}/invoices/${toInvoiceRouteValue(month)}`);
+    if (!cardId) return;
+    router(`/creditcards/${cardId}/invoices/${toInvoiceRouteValue(month)}`);
   }
 
   function navigate(route: InvoicesListRoute) {

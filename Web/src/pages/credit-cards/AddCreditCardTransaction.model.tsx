@@ -40,9 +40,10 @@ function buildCardOptions(): SelectListOption[] {
 export function useAddCreditCardTransactionModel(): AddCreditCardTransactionViewModel {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams<{ id?: string }>();
+  const { id, registryId } = useParams<{ id?: string; registryId?: string }>();
+  const resolvedRegistryId = registryId || id;
   const [searchParams] = useSearchParams();
-  const isEdit = !!id;
+  const isEdit = !!resolvedRegistryId;
 
   const [cards, setCards] = useState<SelectListOption[]>([]);
   const [categories, setCategories] = useState<SelectListOption[]>([]);
@@ -72,7 +73,7 @@ export function useAddCreditCardTransactionModel(): AddCreditCardTransactionView
       const repositories = getRepositories();
       const availableCards = buildCardOptions();
       const availableCategories = buildHierarchicalCategoryOptions(repositories.categories.getCache());
-      const currentRegistry = id ? repositories.creditCardsTransactions.getLocalById(id) ?? null : null;
+      const currentRegistry = resolvedRegistryId ? repositories.creditCardsTransactions.getLocalById(resolvedRegistryId) ?? null : null;
 
       setCards(availableCards);
       setCategories(availableCategories);
@@ -110,7 +111,7 @@ export function useAddCreditCardTransactionModel(): AddCreditCardTransactionView
     return () => {
       active = false;
     };
-  }, [id, reset, searchParams, setValue]);
+  }, [resolvedRegistryId, reset, searchParams, setValue]);
 
   const amount = watch("amount");
   const installments = watch("installments");

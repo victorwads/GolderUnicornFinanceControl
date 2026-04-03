@@ -6,6 +6,7 @@ import { ArrowLeft, SlidersHorizontal } from "lucide-react";
 import { TransactionItem } from "@components/TransactionItem";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Tabs, TabsList, TabsTrigger } from "@components/ui/tabs";
+import { cn } from "@lib/utils";
 
 export default function InvoicesList({
   model: {
@@ -20,9 +21,11 @@ export default function InvoicesList({
     groupedTransactions,
     goToPreviousMonth,
     goToNextMonth,
-  }
+  },
+  embedded = false,
 }: {
-  model: InvoicesListViewModel
+  model: InvoicesListViewModel;
+  embedded?: boolean;
 }) {
   const formatCurrency = (value: number) =>
     value.toLocaleString(CurrentLangInfo.short, {
@@ -31,8 +34,59 @@ export default function InvoicesList({
       minimumFractionDigits: 2,
     });
 
+  const content = (
+    <div className="p-4 space-y-6 animate-fade-in pb-24">
+      {filterView === "all" && groupedTransactions ? (
+        <>
+          {groupedTransactions.recurring.length > 0 && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                Recorrentes ({groupedTransactions.recurring.length})
+              </h3>
+              <div className="space-y-2">
+                {groupedTransactions.recurring.map((transaction) => (
+                  <TransactionItem key={transaction.id} {...transaction} />
+                ))}
+              </div>
+            </section>
+          )}
+          {groupedTransactions.installments.length > 0 && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                Parcelados ({groupedTransactions.installments.length})
+              </h3>
+              <div className="space-y-2">
+                {groupedTransactions.installments.map((transaction) => (
+                  <TransactionItem key={transaction.id} {...transaction} />
+                ))}
+              </div>
+            </section>
+          )}
+          {groupedTransactions.single.length > 0 && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                Avulsos ({groupedTransactions.single.length})
+              </h3>
+              <div className="space-y-2">
+                {groupedTransactions.single.map((transaction) => (
+                  <TransactionItem key={transaction.id} {...transaction} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <div className="space-y-2">
+          {filteredTransactions.map((transaction) => (
+            <TransactionItem key={transaction.id} {...transaction} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={cn(embedded ? "relative flex h-full min-h-0 flex-col" : "relative mx-auto max-w-7xl")}>
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="p-4 grid grid-cols-[auto_1fr_auto] items-center gap-4">
           <div className="flex items-center gap-3">
@@ -109,56 +163,11 @@ export default function InvoicesList({
         </Card>
       </header>
 
-      {/* Transactions list */}
-      <div className="p-4 space-y-6 animate-fade-in">
-        {filterView === "all" && groupedTransactions ? (
-          <>
-            {groupedTransactions.recurring.length > 0 && (
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  Recorrentes ({groupedTransactions.recurring.length})
-                </h3>
-                <div className="space-y-2">
-                  {groupedTransactions.recurring.map((transaction) => (
-                    <TransactionItem key={transaction.id} {...transaction} />
-                  ))}
-                </div>
-              </section>
-            )}
-            {groupedTransactions.installments.length > 0 && (
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  Parcelados ({groupedTransactions.installments.length})
-                </h3>
-                <div className="space-y-2">
-                  {groupedTransactions.installments.map((transaction) => (
-                    <TransactionItem key={transaction.id} {...transaction} />
-                  ))}
-                </div>
-              </section>
-            )}
-            {groupedTransactions.single.length > 0 && (
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  Avulsos ({groupedTransactions.single.length})
-                </h3>
-                <div className="space-y-2">
-                  {groupedTransactions.single.map((transaction) => (
-                    <TransactionItem key={transaction.id} {...transaction} />
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
-        ) : (
-          <div className="space-y-2">
-            {filteredTransactions.map((transaction) => (
-              <TransactionItem key={transaction.id} {...transaction} />
-            ))}
-          </div>
-        )}
-      </div>
-
+      {embedded ? (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {content}
+        </div>
+      ) : content}
     </div>
   );
 }
