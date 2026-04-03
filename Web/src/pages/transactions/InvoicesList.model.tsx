@@ -5,6 +5,7 @@ import routes from "@features/navigate";
 import getRepositories, { waitUntilReady } from "@repositories";
 import { CreditCardInvoice, CreditCardRegistry, RegistryType } from "@models";
 import { buildTimelineReturnPath, isTimelineDetailPath } from "@pages/core/timelineDetailNavigation";
+import { Month } from "@utils/FinancialMonthPeriod";
 import {
   Invoice,
   InvoicesListRoute,
@@ -33,22 +34,6 @@ function parseInvoiceRouteValue(selected?: string) {
 function formatMonthLabel(value: string) {
   const [year, month] = value.split("-").map(Number);
   return `${MONTHS[month - 1]}/${String(year).slice(2)}`;
-}
-
-function buildMonthTabs(selectedMonth: string) {
-  const [year, month] = selectedMonth.split("-").map(Number);
-  const tabs: Array<{ value: string; label: string }> = [];
-
-  for (let index = -3; index <= 3; index++) {
-    const date = new Date(year, month - 1 + index, 1);
-    const value = toMonthValue(date.getFullYear(), date.getMonth() + 1);
-    tabs.push({
-      value,
-      label: formatMonthLabel(value),
-    });
-  }
-
-  return tabs;
 }
 
 function formatInvoiceDate(day: number, monthValue: string) {
@@ -108,7 +93,6 @@ export function useInvoicesListModel(): InvoicesListViewModel {
   const location = useLocation();
   const { id, selected } = useParams<{ id?: string; selected?: string }>();
 
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [filterView, setFilterView] = useState<FilterView>("all");
   const [selectedMonth, setSelectedMonthState] = useState(() => parseInvoiceRouteValue(selected) || toMonthValue(new Date().getFullYear(), new Date().getMonth() + 1));
   const [creditCardName, setCreditCardName] = useState("");
@@ -211,7 +195,20 @@ export function useInvoicesListModel(): InvoicesListViewModel {
     };
   }, [id, location.pathname, location.search, router, selected]);
 
-  const monthTabs = useMemo(() => buildMonthTabs(selectedMonth), [selectedMonth]);
+  const monthNavigator = useMemo(() => {
+    const [year, month] = selectedMonth.split("-").map(Number);
+    const currentMonth = new Month(year, month);
+    const previousMonth = currentMonth.minusOneMonth();
+    const nextMonth = currentMonth.plusOneMonth();
+
+    return {
+      label: formatMonthLabel(selectedMonth),
+      // TODO: derive the invoice cycle range from the card closing day instead of using the calendar month.
+      rangeLabel: "",
+      previousValue: toMonthValue(previousMonth.year, previousMonth.month),
+      nextValue: toMonthValue(nextMonth.year, nextMonth.month),
+    };
+  }, [selectedMonth]);
 
   const filteredTransactions = useMemo(() => {
     switch (filterView) {
@@ -259,20 +256,14 @@ export function useInvoicesListModel(): InvoicesListViewModel {
   return {
     navigate,
     creditCardName,
-    selectedMonth,
-    setSelectedMonth,
-    pickerOpen,
-    setPickerOpen,
     filterView,
     setFilterView,
-    monthTabs,
+    monthLabel: monthNavigator.label,
+    monthRange: monthNavigator.rangeLabel,
     currentInvoice,
     filteredTransactions,
     groupedTransactions,
-    navigateMonth: (direction) => {
-      const [year, month] = selectedMonth.split("-").map(Number);
-      const nextDate = new Date(year, month - 1 + (direction === "next" ? 1 : -1), 1);
-      setSelectedMonth(toMonthValue(nextDate.getFullYear(), nextDate.getMonth() + 1));
-    },
+    goToPreviousMonth: () => setSelectedMonth(monthNavigator.previousValue),
+    goToNextMonth: () => setSelectedMonth(monthNavigator.nextValue),
   };
 }
