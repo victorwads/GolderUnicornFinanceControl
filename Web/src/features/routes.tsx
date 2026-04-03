@@ -8,7 +8,6 @@ import SettingsScreen from '@features/tabs/settings/SettingsScreen';
 import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
 import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
 import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
-import CreditCardsInvoices from '@features/creaditcards/CreditCardsInvoces';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
@@ -30,6 +29,7 @@ import HomePage from '@pages/core/Home.page';
 import TimelinePage from '@pages/core/Timeline.page';
 import TimelineImportPage from '@pages/core/TimelineImport.page';
 import CreateRecurrentPage from '@pages/transactions/CreateRecurrent.page';
+import InvoicesListPage from '@pages/transactions/InvoicesList.page';
 import CreateTransferPage from '@pages/transactions/CreateTransfer.page';
 import PrivacyPage from '@pages/privacy/Privacy.page';
 import DeleteAccountPage from '@pages/privacy/DeleteAccount.page';
@@ -70,10 +70,7 @@ export const privateRouter = createBrowserRouter([
           { path: 'entry/transfer/:id', element: withRepos(<RegistryScreenForm />, 'accounts', 'banks', 'categories', 'accountTransactions') },
           {
             path: 'entry/creditcards/:id/invoices/:selected?',
-            element: withRepos(
-              <CreditCardsInvoices />,
-              'creditCardsInvoices', 'creditCardsTransactions', 'categories', 'creditCards'
-            ),
+            element: <InvoicesListPage />,
           },
         ],
       },
@@ -135,10 +132,7 @@ export const privateRouter = createBrowserRouter([
           { path: ':id', element: <CreateCreditCardPage /> },
         ],
       },
-      { path: '/creditcards/:id/invoices/:selected?', element: withRepos(
-        <CreditCardsInvoices />,
-        'creditCardsInvoices', 'creditCardsTransactions', 'categories', 'creditCards'
-      ) },
+      { path: '/creditcards/:id/invoices/:selected?', element: <InvoicesListPage /> },
       {
         path: 'categories',
         element: withRepos(

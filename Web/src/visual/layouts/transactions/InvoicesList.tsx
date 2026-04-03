@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@components/ui/tabs";
 export default function InvoicesList({
   model: {
     navigate,
+    creditCardName,
     selectedMonth,
     setSelectedMonth,
     pickerOpen,
@@ -45,7 +46,7 @@ export default function InvoicesList({
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Faturas</h1>
-              <p className="text-sm text-muted-foreground">Cartão Nubank</p>
+              <p className="text-sm text-muted-foreground">{creditCardName}</p>
             </div>
           </div>
           <Popover>
@@ -227,6 +228,7 @@ export interface Invoice {
 
 export interface InvoicesListViewModel {
   navigate: (route: InvoicesListRoute) => void;
+  creditCardName: string;
   selectedMonth: string;
   setSelectedMonth: (month: string) => void;
   pickerOpen: boolean;
