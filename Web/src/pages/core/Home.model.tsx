@@ -5,13 +5,14 @@ import getRepositories, { CreditCardWithInfos, waitUntilReady } from "@repositor
 import { WithInfoAccount } from "@models";
 import { getCurrentUser } from "@configs";
 import { getServices } from "@services";
+import routes from "@features/navigate";
 
 export function useHomeModel(): HomeViewModel {
   const navigate = useNavigate();
   const [accounts, setAccounts] = useState<Account[]>([])
   const [creditCards, setCreditCards] = useState<CreditCard[]>([])
   const [accountBalances, setAccountBalances] = useState<Record<string, number | undefined>>({});
-  const [cardInvoices, setCardInvoices] = useState<Record<string, number | null>>({});
+  const [cardInvoices, setCardInvoices] = useState<Record<string, { name: string; value: number | null }>>({});
   const [totalBalance, setTotalBalance] = useState<number | null>(null);
   const [totalInvoices, setTotalInvoices] = useState<number | null>(null);
 
@@ -34,6 +35,7 @@ export function useHomeModel(): HomeViewModel {
             [account.id]: value 
           }));
         });
+        setTotalBalance(balance.getTotalBalance());
       });
     }
 
@@ -59,7 +61,10 @@ export function useHomeModel(): HomeViewModel {
           const invoice = await creditCardsInvoices.getNextInvoice(creditCard.id);
           setCardInvoices(prev => ({ 
             ...prev,
-            [creditCard.id]: invoice.value 
+            [creditCard.id]: {
+              name: invoice.name,
+              value: invoice.value,
+            },
           }));
         });
       });
@@ -74,7 +79,9 @@ export function useHomeModel(): HomeViewModel {
   }, [])
 
   useEffect(() => {
-    const loadedInvoices = Object.values(cardInvoices).filter(i => i !== null) as number[];
+    const loadedInvoices = Object.values(cardInvoices)
+      .map((invoice) => invoice.value)
+      .filter(i => i !== null) as number[];
     if (loadedInvoices.length === creditCards.length) {
       setTotalInvoices(loadedInvoices.reduce((sum, invoice) => sum + invoice, 0));
     }
@@ -102,7 +109,8 @@ export function useHomeModel(): HomeViewModel {
   // Build credit cards with loaded invoices
   const creditCardsWithValues: CreditCard[] = creditCards.map(card => ({
     ...card,
-    invoice: cardInvoices[card.id] ?? null,
+    invoice: cardInvoices[card.id]?.value ?? null,
+    invoiceName: cardInvoices[card.id]?.name,
   }));
 
   const accountsWithBalances: Account[] = accounts.map(account => ({
@@ -113,6 +121,8 @@ export function useHomeModel(): HomeViewModel {
   return {
     userName: getCurrentUser()?.displayName || CurrentLangInfo.name,
     navigate,
+    toAccountTimeline: (accountId: string) => navigate(routes.timeline(accountId)),
+    toCreditCardInvoice: (cardId: string, invoiceName: string) => navigate(routes.invoice(cardId, invoiceName)),
     creditCards: creditCardsWithValues,
     accounts: accountsWithBalances,
     totalInvoices,

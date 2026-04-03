@@ -104,6 +104,12 @@ export default interface VisualModuleTranslation extends Translation {
         toolsDescription: string;
         aiCalls: string;
         subscriptions: string;
+        localDataTitle: string;
+        localDataDescription: string;
+        clearVisualSettings: string;
+        clearUserSettings: string;
+        clearAllLocalSettings: string;
+        localDataHint: string;
         onboardingTitle: string;
         onboardingDescription: string;
         resetAssistant: string;

@@ -16,6 +16,50 @@ import {
   ToMoreRoute,
 } from "@layouts/settings/Developer";
 
+const LEGACY_THEME_KEY = `${ProjectStorage.PREFIX}theme`;
+const LEGACY_DENSITY_KEY = `${ProjectStorage.PREFIX}densityV2`;
+const LEGACY_AUTH_CACHE_KEY = `${ProjectStorage.PREFIX}firebase:authUser:synccache`;
+const LEGACY_ACCOUNTS_KEY = `${ProjectStorage.PREFIX}ACCOUNTS`;
+const CRYPTO_TOKEN_PREFIX = `${ProjectStorage.PREFIX}crypto.token.`;
+const CRYPTO_SECRET_HASH_PREFIX = `${ProjectStorage.PREFIX}crypto.secretHash.`;
+
+const VISUAL_LOCAL_STORAGE_KEYS = [
+  "app-density",
+  "color-theme",
+  "theme",
+  LEGACY_THEME_KEY,
+  LEGACY_DENSITY_KEY,
+];
+
+const USER_LOCAL_STORAGE_KEYS = [
+  "isLoggedIn",
+  LEGACY_AUTH_CACHE_KEY,
+  LEGACY_ACCOUNTS_KEY,
+];
+
+function removeKeys(
+  storage: Storage,
+  options: { keys?: string[]; prefixes?: string[] },
+): number {
+  const keys = Object.keys(storage);
+  const keysToRemove = new Set<string>();
+
+  options.keys?.forEach((key) => {
+    if (storage.getItem(key) !== null) {
+      keysToRemove.add(key);
+    }
+  });
+
+  options.prefixes?.forEach((prefix) => {
+    keys
+      .filter((key) => key.startsWith(prefix))
+      .forEach((key) => keysToRemove.add(key));
+  });
+
+  keysToRemove.forEach((key) => storage.removeItem(key));
+  return keysToRemove.size;
+}
+
 export function useDeveloperModel(): DeveloperViewModel {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -31,6 +75,41 @@ export function useDeveloperModel(): DeveloperViewModel {
     }
   }
 
+  function confirmAndClearStorage(config: {
+    title: string;
+    description: string;
+    localStorageKeys?: string[];
+    localStoragePrefixes?: string[];
+    sessionStorageKeys?: string[];
+    sessionStoragePrefixes?: string[];
+  }) {
+    if (!window.confirm(config.description)) {
+      return;
+    }
+
+    const removedLocal = removeKeys(window.localStorage, {
+      keys: config.localStorageKeys,
+      prefixes: config.localStoragePrefixes,
+    });
+    const removedSession = removeKeys(window.sessionStorage, {
+      keys: config.sessionStorageKeys,
+      prefixes: config.sessionStoragePrefixes,
+    });
+    const totalRemoved = removedLocal + removedSession;
+
+    toast({
+      title: config.title,
+      description:
+        totalRemoved > 0
+          ? `${totalRemoved} chave(s) locais removidas. A página será recarregada para aplicar o reset.`
+          : "Nenhuma chave correspondente foi encontrada. A página será recarregada para garantir o estado limpo.",
+    });
+
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 900);
+  }
+
   return {
     navigate: onNavigate,
     encryptionDisabled,
@@ -38,6 +117,34 @@ export function useDeveloperModel(): DeveloperViewModel {
     setKillAccountId,
     resaveProgress,
     openSubscriptions: () => navigate("/subscriptions"),
+    clearVisualSettings: () => {
+      confirmAndClearStorage({
+        title: "Preferências visuais limpas",
+        description:
+          "Isso vai remover App Density, Color Theme e preferências de tema salvas localmente. Deseja continuar?",
+        localStorageKeys: VISUAL_LOCAL_STORAGE_KEYS,
+      });
+    },
+    clearUserSettings: () => {
+      confirmAndClearStorage({
+        title: "Dados locais do usuário limpos",
+        description:
+          "Isso vai remover cache de usuário, indicadores de login e credenciais locais de criptografia. Deseja continuar?",
+        localStorageKeys: USER_LOCAL_STORAGE_KEYS,
+        localStoragePrefixes: [CRYPTO_TOKEN_PREFIX],
+        sessionStoragePrefixes: [CRYPTO_SECRET_HASH_PREFIX],
+      });
+    },
+    clearAllLocalSettings: () => {
+      confirmAndClearStorage({
+        title: "Dados locais limpos",
+        description:
+          "Isso vai remover preferências visuais e dados locais do usuário nesta máquina. Deseja continuar?",
+        localStorageKeys: [...VISUAL_LOCAL_STORAGE_KEYS, ...USER_LOCAL_STORAGE_KEYS],
+        localStoragePrefixes: [CRYPTO_TOKEN_PREFIX],
+        sessionStoragePrefixes: [CRYPTO_SECRET_HASH_PREFIX],
+      });
+    },
     resetAssistantOnboarding: async () => {
       await resetAssistantOnboarding();
       toast({

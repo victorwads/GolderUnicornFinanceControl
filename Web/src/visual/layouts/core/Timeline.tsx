@@ -1,9 +1,10 @@
 import { TransactionItem } from "@components/TransactionItem";
+import { TimelineMonthNavigator } from "@components/TimelineMonthNavigator";
 import { SpeedDial } from "@components/SpeedDial";
 import { Card } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { Filter, TrendingUp, TrendingDown, Search, MoreVertical, Download, Upload, Trash2, BarChart3, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
+import { Filter, TrendingUp, TrendingDown, Search, MoreVertical, Download, Upload, Trash2, BarChart3, Rows3, CalendarDays, CalendarRange, Clock3, ListOrdered } from "lucide-react";
 import { Skeleton } from "@components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@components/ui/dialog";
 import { Label } from "@components/ui/label";
@@ -32,6 +33,8 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
     navigate,
     isCompact,
     toggleCompact,
+    hasActiveFilters,
+    isTimeRangeFilterActive,
     monthLabel,
     monthRange,
     goToPreviousMonth,
@@ -44,12 +47,23 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
     setSearchText,
     isFilterModalOpen,
     closeFilters,
-    filterAccount,
-    setFilterAccount,
+    filterAccounts,
+    setFilterAccounts,
+    timeFilterMode,
+    setTimeFilterMode,
+    filterMonthLabel,
+    filterMonthRange,
+    goToPreviousFilterMonth,
+    goToNextFilterMonth,
     filterSince,
     setFilterSince,
     filterUntil,
     setFilterUntil,
+    filterLastDays,
+    setFilterLastDays,
+    filterRecordLimit,
+    setFilterRecordLimit,
+    shouldShowRecordLimitWarning,
     filterCategories,
     setFilterCategories,
     filterTags,
@@ -145,18 +159,19 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-3 gap-y-2 max-[720px]:grid-cols-[1fr_auto]">
             <h1 className="text-lg font-bold text-foreground shrink-0 justify-self-start">{texts.title}</h1>
 
-            <div className="flex items-center justify-center gap-1 justify-self-center max-[720px]:col-span-2 max-[720px]:row-start-2 max-[720px]:w-full max-[720px]:pt-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToPreviousMonth}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-center min-w-[140px]">
-                <p className="text-sm font-semibold text-foreground leading-tight">{monthLabel}</p>
-                <p className="text-[11px] text-muted-foreground leading-tight">{monthRange}</p>
+            {isTimeRangeFilterActive ? (
+              <div className="text-center justify-self-center max-[720px]:col-span-2 max-[720px]:row-start-2 max-[720px]:w-full max-[720px]:pt-1">
+                <p className="text-sm font-semibold text-foreground leading-tight">{monthRange}</p>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToNextMonth}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            ) : (
+              <TimelineMonthNavigator
+                monthLabel={monthLabel}
+                monthRange={monthRange}
+                onPrevious={goToPreviousMonth}
+                onNext={goToNextMonth}
+                className="justify-self-center max-[720px]:col-span-2 max-[720px]:row-start-2 max-[720px]:w-full max-[720px]:pt-1"
+              />
+            )}
 
             <div className="flex items-center gap-1 shrink-0 justify-self-end">
               <Button
@@ -179,7 +194,7 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className={cn("h-8 w-8", hasActiveFilters && "bg-accent")}
                 onClick={() => navigate(new ToOpenFiltersRoute())}
                 title={texts.filtersButtonTitle}
               >
@@ -238,7 +253,7 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
       <SpeedDial embedded={embedded} />
 
       <Dialog open={isFilterModalOpen} onOpenChange={(value) => !value && closeFilters()}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>{texts.filtersTitle}</DialogTitle>
             <DialogDescription className="sr-only">
@@ -246,70 +261,164 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            <div className="space-y-4 rounded-xl border border-border/60 bg-muted/20 p-4">
+              <Label>{texts.filtersTimeLabel}</Label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  variant={timeFilterMode === "month" ? "default" : "outline"}
+                  onClick={() => setTimeFilterMode("month")}
+                  className="justify-start gap-2"
+                >
+                  <CalendarDays className="h-4 w-4 shrink-0" />
+                  {texts.timeModeMonthLabel}
+                </Button>
+                <Button
+                  variant={timeFilterMode === "range" ? "default" : "outline"}
+                  onClick={() => setTimeFilterMode("range")}
+                  className="justify-start gap-2"
+                >
+                  <CalendarRange className="h-4 w-4 shrink-0" />
+                  {texts.timeModeRangeLabel}
+                </Button>
+                <Button
+                  variant={timeFilterMode === "last-days" ? "default" : "outline"}
+                  onClick={() => setTimeFilterMode("last-days")}
+                  className="justify-start gap-2"
+                >
+                  <Clock3 className="h-4 w-4 shrink-0" />
+                  {texts.timeModeLastDaysLabel}
+                </Button>
+                <Button
+                  variant={timeFilterMode === "last-records" ? "default" : "outline"}
+                  onClick={() => setTimeFilterMode("last-records")}
+                  className="justify-start gap-2"
+                >
+                  <ListOrdered className="h-4 w-4 shrink-0" />
+                  {texts.timeModeLastRecordsLabel}
+                </Button>
+              </div>
+
+              <div className="h-px bg-border/70" />
+
+              {timeFilterMode === "month" && (
+                <TimelineMonthNavigator
+                  monthLabel={filterMonthLabel}
+                  monthRange={filterMonthRange}
+                  onPrevious={goToPreviousFilterMonth}
+                  onNext={goToNextFilterMonth}
+                  className="rounded-lg border border-border/70 bg-background px-2 py-2"
+                />
+              )}
+
+              {timeFilterMode === "range" && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <Label>{texts.filtersSinceLabel}</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !filterSince && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formatDate(filterSince)}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={filterSince}
+                          onSelect={setFilterSince}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div>
+                    <Label>{texts.filtersUntilLabel}</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !filterUntil && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formatDate(filterUntil)}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={filterUntil}
+                          onSelect={setFilterUntil}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              )}
+
+              {timeFilterMode === "last-days" && (
+                <div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {[30, 90, 180].map((days) => (
+                      <Button
+                        key={days}
+                        variant={filterLastDays === days ? "default" : "outline"}
+                        onClick={() => setFilterLastDays(days)}
+                      >
+                        {days === 30
+                          ? texts.timePreset30DaysLabel
+                          : days === 90
+                            ? texts.timePreset90DaysLabel
+                            : texts.timePreset180DaysLabel}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {timeFilterMode === "last-records" && (
+                <div>
+                  <Label htmlFor="record-limit">{texts.recordsLimitLabel}</Label>
+                  <Input
+                    id="record-limit"
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={filterRecordLimit}
+                    onChange={(event) => setFilterRecordLimit(event.target.value)}
+                    placeholder={texts.recordsLimitPlaceholder}
+                    className="mt-2"
+                  />
+                  {shouldShowRecordLimitWarning && (
+                    <p className="mt-2 text-sm text-amber-600">{texts.recordsLimitWarning(2500)}</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="h-px bg-border/70" />
+
             <div>
               <Label htmlFor="account">{texts.filtersAccountLabel}</Label>
               <SelectList
                 options={accountOptions}
-                value={filterAccount}
-                onChange={setFilterAccount}
+                value={filterAccounts}
+                onChange={(value) => setFilterAccounts(Array.isArray(value) ? value : value ? [value] : [])}
                 placeholder={texts.selectAccountPlaceholder}
+                multiple={true}
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>{texts.filtersSinceLabel}</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !filterSince && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formatDate(filterSince)}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={filterSince}
-                      onSelect={setFilterSince}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div>
-                <Label>{texts.filtersUntilLabel}</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !filterUntil && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formatDate(filterUntil)}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={filterUntil}
-                      onSelect={setFilterUntil}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
             </div>
 
             <div>
@@ -393,11 +502,24 @@ export interface TimelineTexts {
   summaryExpenseLabel: string;
   summaryBalanceLabel: string;
   filtersTitle: string;
+  filtersTimeLabel: string;
   filtersAccountLabel: string;
   filtersSinceLabel: string;
   filtersUntilLabel: string;
   filtersCategoriesLabel: string;
   filtersTagsLabel: string;
+  timeModeMonthLabel: string;
+  timeModeRangeLabel: string;
+  timeModeLastDaysLabel: string;
+  timeModeLastRecordsLabel: string;
+  timePreset30DaysLabel: string;
+  timePreset90DaysLabel: string;
+  timePreset180DaysLabel: string;
+  recordsLimitLabel: string;
+  recordsLimitPlaceholder: string;
+  recordsLimitWarning: (count: number) => string;
+  lastDaysLabel: (days: number) => string;
+  lastRecordsLabel: (count: number) => string;
   selectAccountPlaceholder: string;
   selectDatePlaceholder: string;
   selectCategoriesPlaceholder: string;
@@ -412,6 +534,8 @@ export interface TimelineViewModel {
   locale: string;
   isCompact: boolean;
   toggleCompact: () => void;
+  hasActiveFilters: boolean;
+  isTimeRangeFilterActive: boolean;
   monthKey: string;
   monthLabel: string;
   monthRange: string;
@@ -425,12 +549,23 @@ export interface TimelineViewModel {
   setSearchText: (value: string) => void;
   isFilterModalOpen: boolean;
   closeFilters: () => void;
-  filterAccount: string;
-  setFilterAccount: (value: string) => void;
+  filterAccounts: string[];
+  setFilterAccounts: (value: string[]) => void;
+  timeFilterMode: "month" | "range" | "last-days" | "last-records";
+  setTimeFilterMode: (value: "month" | "range" | "last-days" | "last-records") => void;
+  filterMonthLabel: string;
+  filterMonthRange: string;
+  goToPreviousFilterMonth: () => void;
+  goToNextFilterMonth: () => void;
   filterSince?: Date;
   setFilterSince: (value?: Date) => void;
   filterUntil?: Date;
   setFilterUntil: (value?: Date) => void;
+  filterLastDays: number;
+  setFilterLastDays: (value: number) => void;
+  filterRecordLimit: string;
+  setFilterRecordLimit: (value: string) => void;
+  shouldShowRecordLimitWarning: boolean;
   filterCategories: string[];
   setFilterCategories: (value: string[]) => void;
   filterTags: string[];

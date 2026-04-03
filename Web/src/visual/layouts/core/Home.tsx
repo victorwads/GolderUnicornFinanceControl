@@ -22,7 +22,17 @@ interface HomeProps {
 }
 
 export default function Home({ model }: HomeProps) {
-  const { creditCards, accounts, totalInvoices, totalBalance, openAccordions, handleAccordionChange, userName } = model;
+  const {
+    creditCards,
+    accounts,
+    totalInvoices,
+    totalBalance,
+    openAccordions,
+    handleAccordionChange,
+    userName,
+    toAccountTimeline,
+    toCreditCardInvoice,
+  } = model;
   const locale = CurrentLangInfo.short;
   const formatCurrency = (value: number) =>
     value.toLocaleString(locale, {
@@ -75,9 +85,11 @@ export default function Home({ model }: HomeProps) {
               <AccordionContent className="px-4 pb-3">
                 <div className="space-y-2 pt-2">
                   {accounts.map((account) => (
-                    <div
+                    <button
                       key={account.id}
-                      className="flex items-center gap-3 p-2.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg bg-accent/30 p-2.5 text-left transition-colors hover:bg-accent/50"
+                      onClick={() => toAccountTimeline(account.id)}
                     >
                       <div className={`h-8 w-8 rounded-lg ${account.color} flex items-center justify-center`}>
                         <Wallet className="h-4 w-4 text-white" />
@@ -91,7 +103,7 @@ export default function Home({ model }: HomeProps) {
                       ) : (
                         <p className="text-sm font-bold text-foreground">{formatCurrency(account.balance || 0)}</p>
                       )}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </AccordionContent>
@@ -133,9 +145,12 @@ export default function Home({ model }: HomeProps) {
               <AccordionContent className="px-4 pb-3">
                 <div className="space-y-2 pt-2">
                   {creditCards.map((card) => (
-                    <div
+                    <button
                       key={card.id}
-                      className="flex items-center gap-3 p-2.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg bg-accent/30 p-2.5 text-left transition-colors hover:bg-accent/50 disabled:cursor-default disabled:opacity-70"
+                      disabled={!card.invoiceName}
+                      onClick={() => card.invoiceName && toCreditCardInvoice(card.id, card.invoiceName)}
                     >
                       <div className={`h-8 w-8 rounded-lg ${card.color} flex items-center justify-center`}>
                         <CreditCard className="h-4 w-4 text-white" />
@@ -149,7 +164,7 @@ export default function Home({ model }: HomeProps) {
                       ) : (
                         <p className="text-sm font-bold text-foreground">{formatCurrency(card.invoice || 0)}</p>
                       )}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </AccordionContent>
@@ -176,6 +191,7 @@ export interface CreditCard {
   name: string;
   brand: string;
   invoice?: number | null;
+  invoiceName?: string;
   color?: string;
 }
 
@@ -190,6 +206,8 @@ export interface Account {
 export interface HomeViewModel {
   userName: string;
   navigate: (path: string) => void;
+  toAccountTimeline: (accountId: string) => void;
+  toCreditCardInvoice: (cardId: string, invoiceName: string) => void;
   creditCards: CreditCard[];
   accounts: Account[];
   totalInvoices: number | null;

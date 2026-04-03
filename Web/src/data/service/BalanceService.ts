@@ -39,6 +39,15 @@ export class BalanceService {
     }, 0) + this.getInitialBalance(ids);
   }
 
+  getTotalBalance(date: Date = new Date()): number {
+    const accountIds = this.getAccountsIncludedInTotal();
+    if (accountIds.length === 0) {
+      return 0;
+    }
+
+    return this.getBalance(accountIds, date);
+  }
+
   invalidateFrom(date?: Date): void {
     if (!date) {
       this.reset();
@@ -55,6 +64,13 @@ export class BalanceService {
 
   reset(): void {
     this.cache = {};
+  }
+
+  private getAccountsIncludedInTotal(): string[] {
+    return this.accounts
+      .getCache()
+      .filter(account => account.includeInTotal)
+      .map(account => account.id);
   }
 
   private getInitialBalance(accountIds?: string[]): number {

@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import { existsSync } from 'fs';
 import { alias } from './configs/aliases';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -10,9 +11,17 @@ import manifest from './assets/manifest.json';
 // import Checker from 'vite-plugin-checker'
 
 const rootDir = dirname(fileURLToPath(import.meta.url));
+const siteResourcesDir = resolve(rootDir, '../Site/resources');
+const assetsDir = resolve(rootDir, './assets');
+
+function hasGitBinary(): boolean {
+  try { execSync('git --version', { stdio: 'ignore' }); return true; } catch { return false; }
+}
 
 const appVersion = (() => {
   try {
+    if (!hasGitBinary()) return process.env.npm_package_version ?? '0.0.0';
+
     return (
       new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + '-' + 
       execSync('git rev-parse --short HEAD', { cwd: rootDir }).toString().trim()
@@ -44,13 +53,13 @@ export default defineConfig({
     }),
     viteStaticCopy({
       targets: [
-        { src: resolve(rootDir, '../Site/resources'), dest: './' },
-        { src: resolve(rootDir, './assets'), dest: './' },
+        ...(existsSync(siteResourcesDir) ? [{ src: siteResourcesDir, dest: './' }] : []),
+        ...(existsSync(assetsDir) ? [{ src: assetsDir, dest: './' }] : []),
       ],
     }),
   ],
   server: {
-    open: true,
+    open: false,
     port: 3000,
     allowedHosts: ['web', 'localhost'],
   },

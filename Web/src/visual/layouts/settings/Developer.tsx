@@ -19,6 +19,9 @@ export default function Developer({ model }: DeveloperProps) {
     setKillAccountId,
     resaveProgress,
     openSubscriptions,
+    clearVisualSettings,
+    clearUserSettings,
+    clearAllLocalSettings,
     resetAssistantOnboarding,
     resetMicrophoneOnboarding,
     toggleEncryption,
@@ -52,6 +55,28 @@ export default function Developer({ model }: DeveloperProps) {
                 <Sparkles className="h-4 w-4 mr-3" />
                 {LocalLang.subscriptions}
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle>{LocalLang.localDataTitle}</CardTitle>
+              <CardDescription>{LocalLang.localDataDescription}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start h-14" onClick={clearVisualSettings}>
+                <Trash2 className="h-4 w-4 mr-3" />
+                {LocalLang.clearVisualSettings}
+              </Button>
+              <Button variant="outline" className="w-full justify-start h-14" onClick={clearUserSettings}>
+                <Trash2 className="h-4 w-4 mr-3" />
+                {LocalLang.clearUserSettings}
+              </Button>
+              <Button variant="destructive" className="w-full justify-start h-14" onClick={clearAllLocalSettings}>
+                <Trash2 className="h-4 w-4 mr-3" />
+                {LocalLang.clearAllLocalSettings}
+              </Button>
+              <p className="text-xs text-muted-foreground">{LocalLang.localDataHint}</p>
             </CardContent>
           </Card>
 
@@ -148,6 +173,9 @@ export interface DeveloperViewModel {
   setKillAccountId: (value: string) => void;
   resaveProgress: DataProgressInfo | null;
   openSubscriptions: () => void;
+  clearVisualSettings: () => void;
+  clearUserSettings: () => void;
+  clearAllLocalSettings: () => void;
   resetAssistantOnboarding: () => Promise<void>;
   resetMicrophoneOnboarding: () => void;
   toggleEncryption: () => Promise<void>;

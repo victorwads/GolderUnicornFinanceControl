@@ -1,28 +1,31 @@
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { Badge } from "@components/ui/badge";
+import { TimelineMonthNavigator } from "@components/TimelineMonthNavigator";
 import { ArrowLeft, SlidersHorizontal } from "lucide-react";
 import { TransactionItem } from "@components/TransactionItem";
-import { MonthYearPicker } from "@components/ui/month-year-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
 import { Tabs, TabsList, TabsTrigger } from "@components/ui/tabs";
+import { cn } from "@lib/utils";
 
 export default function InvoicesList({
   model: {
     navigate,
-    selectedMonth,
-    setSelectedMonth,
-    pickerOpen,
-    setPickerOpen,
+    creditCardName,
     filterView,
     setFilterView,
-    monthTabs,
+    monthLabel,
+    monthRange,
     currentInvoice,
     filteredTransactions,
     groupedTransactions,
-  }
+    goToPreviousMonth,
+    goToNextMonth,
+  },
+  embedded = false,
 }: {
-  model: InvoicesListViewModel
+  model: InvoicesListViewModel;
+  embedded?: boolean;
 }) {
   const formatCurrency = (value: number) =>
     value.toLocaleString(CurrentLangInfo.short, {
@@ -31,10 +34,61 @@ export default function InvoicesList({
       minimumFractionDigits: 2,
     });
 
+  const content = (
+    <div className="p-4 space-y-6 animate-fade-in pb-24">
+      {filterView === "all" && groupedTransactions ? (
+        <>
+          {groupedTransactions.recurring.length > 0 && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                Recorrentes ({groupedTransactions.recurring.length})
+              </h3>
+              <div className="space-y-2">
+                {groupedTransactions.recurring.map((transaction) => (
+                  <TransactionItem key={transaction.id} {...transaction} />
+                ))}
+              </div>
+            </section>
+          )}
+          {groupedTransactions.installments.length > 0 && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                Parcelados ({groupedTransactions.installments.length})
+              </h3>
+              <div className="space-y-2">
+                {groupedTransactions.installments.map((transaction) => (
+                  <TransactionItem key={transaction.id} {...transaction} />
+                ))}
+              </div>
+            </section>
+          )}
+          {groupedTransactions.single.length > 0 && (
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                Avulsos ({groupedTransactions.single.length})
+              </h3>
+              <div className="space-y-2">
+                {groupedTransactions.single.map((transaction) => (
+                  <TransactionItem key={transaction.id} {...transaction} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <div className="space-y-2">
+          {filteredTransactions.map((transaction) => (
+            <TransactionItem key={transaction.id} {...transaction} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={cn(embedded ? "relative flex h-full min-h-0 flex-col" : "relative mx-auto max-w-7xl")}>
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-        <div className="p-4 flex items-center justify-between">
+        <div className="p-4 grid grid-cols-[auto_1fr_auto] items-center gap-4">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -45,9 +99,16 @@ export default function InvoicesList({
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Faturas</h1>
-              <p className="text-sm text-muted-foreground">Cartão Nubank</p>
+              <p className="text-sm text-muted-foreground">{creditCardName}</p>
             </div>
           </div>
+          <TimelineMonthNavigator
+            monthLabel={monthLabel}
+            monthRange={monthRange}
+            onPrevious={goToPreviousMonth}
+            onNext={goToNextMonth}
+            className="justify-self-center"
+          />
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="icon">
@@ -70,32 +131,6 @@ export default function InvoicesList({
               </div>
             </PopoverContent>
           </Popover>
-        </div>
-
-        {/* Navigation tabs */}
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-          
-          <div className="flex items-center overflow-x-auto hide-scrollbar px-4 pb-3">
-            {monthTabs.map((tab) => (
-              <Button
-                key={tab.value}
-                variant={selectedMonth === tab.value ? "default" : "ghost"}
-                size="sm"
-                className="flex-shrink-0 mx-1"
-                onClick={() => {
-                  if (selectedMonth === tab.value) {
-                    setPickerOpen(true);
-                  } else {
-                    setSelectedMonth(tab.value);
-                  }
-                }}
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
         </div>
 
         {/* Invoice info card */}
@@ -128,70 +163,11 @@ export default function InvoicesList({
         </Card>
       </header>
 
-      {/* Transactions list */}
-      <div className="p-4 space-y-6 animate-fade-in">
-        {filterView === "all" && groupedTransactions ? (
-          <>
-            {groupedTransactions.recurring.length > 0 && (
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  Recorrentes ({groupedTransactions.recurring.length})
-                </h3>
-                <div className="space-y-2">
-                  {groupedTransactions.recurring.map((transaction) => (
-                    <TransactionItem key={transaction.id} {...transaction} />
-                  ))}
-                </div>
-              </section>
-            )}
-            {groupedTransactions.installments.length > 0 && (
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  Parcelados ({groupedTransactions.installments.length})
-                </h3>
-                <div className="space-y-2">
-                  {groupedTransactions.installments.map((transaction) => (
-                    <TransactionItem key={transaction.id} {...transaction} />
-                  ))}
-                </div>
-              </section>
-            )}
-            {groupedTransactions.single.length > 0 && (
-              <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  Avulsos ({groupedTransactions.single.length})
-                </h3>
-                <div className="space-y-2">
-                  {groupedTransactions.single.map((transaction) => (
-                    <TransactionItem key={transaction.id} {...transaction} />
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
-        ) : (
-          <div className="space-y-2">
-            {filteredTransactions.map((transaction) => (
-              <TransactionItem key={transaction.id} {...transaction} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-        <PopoverTrigger asChild>
-          <button className="hidden" />
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
-          <MonthYearPicker
-            value={selectedMonth}
-            onChange={(value) => {
-              setSelectedMonth(value);
-              setPickerOpen(false);
-            }}
-          />
-        </PopoverContent>
-      </Popover>
+      {embedded ? (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {content}
+        </div>
+      ) : content}
     </div>
   );
 }
@@ -213,6 +189,7 @@ export interface Transaction {
   installmentInfo?: string;
   tags?: string[];
   account: string;
+  onClick?: () => void;
 }
 
 export interface Invoice {
@@ -227,13 +204,11 @@ export interface Invoice {
 
 export interface InvoicesListViewModel {
   navigate: (route: InvoicesListRoute) => void;
-  selectedMonth: string;
-  setSelectedMonth: (month: string) => void;
-  pickerOpen: boolean;
-  setPickerOpen: (open: boolean) => void;
+  creditCardName: string;
   filterView: "all" | "recurring" | "installments" | "single";
   setFilterView: (view: "all" | "recurring" | "installments" | "single") => void;
-  monthTabs: { value: string; label: string }[];
+  monthLabel: string;
+  monthRange: string;
   currentInvoice: Invoice;
   filteredTransactions: Transaction[];
   groupedTransactions: {
@@ -241,5 +216,6 @@ export interface InvoicesListViewModel {
     installments: Transaction[];
     single: Transaction[];
   } | null;
-  navigateMonth: (direction: "prev" | "next") => void;
+  goToPreviousMonth: () => void;
+  goToNextMonth: () => void;
 }

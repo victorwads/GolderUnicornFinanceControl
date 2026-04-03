@@ -31,13 +31,19 @@ import {
 import { TimelineParam } from "@features/tabs/timeline/TimelineScreen.model";
 
 const FILTER_ACCOUNT_PARAM = "account";
+const RECORD_WARNING_THRESHOLD = 2500;
+
+type TimelineTimeFilterMode = "month" | "range" | "last-days" | "last-records";
 
 type RouteState = {
-  accountId: string;
+  accountIds: string[];
+  timeMode: TimelineTimeFilterMode;
   month: Month;
-  period: { start: Date; end: Date };
+  period?: { start: Date; end: Date };
   filterSince?: Date;
   filterUntil?: Date;
+  lastDays?: number;
+  recordLimit?: number;
   categoryIds: string[];
   tags: string[];
 };
@@ -46,6 +52,30 @@ function parseOptionalDate(value: string | null): Date | undefined {
   if (!value) return undefined;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+function parsePositiveInteger(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+function startOfDay(date: Date): Date {
+  const next = new Date(date);
+  next.setHours(0, 0, 0, 0);
+  return next;
+}
+
+function endOfDay(date: Date): Date {
+  const next = new Date(date);
+  next.setHours(23, 59, 59, 999);
+  return next;
+}
+
+function subtractDays(date: Date, days: number): Date {
+  const next = new Date(date);
+  next.setDate(next.getDate() - days);
+  return next;
 }
 
 function buildTimelinePath() {
@@ -96,9 +126,13 @@ export function useTimelineModel(): TimelineViewModel {
   const [searchText, setSearchText] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(() => localStorage.getItem("timeline-compact-mode") === "true");
-  const [filterAccount, setFilterAccount] = useState("");
+  const [filterAccounts, setFilterAccounts] = useState<string[]>([]);
+  const [timeFilterMode, setTimeFilterMode] = useState<TimelineTimeFilterMode>("month");
+  const [filterMonth, setFilterMonth] = useState<Month>(() => new FinancialMonthPeriod().getMonthForDate(new Date()));
   const [filterSince, setFilterSince] = useState<Date | undefined>();
   const [filterUntil, setFilterUntil] = useState<Date | undefined>();
+  const [filterLastDays, setFilterLastDays] = useState<number>(30);
+  const [filterRecordLimit, setFilterRecordLimit] = useState<string>("500");
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [filterTags, setFilterTags] = useState<string[]>([]);
   const [accountOptions, setAccountOptions] = useState<SelectListOption[]>([]);
@@ -111,38 +145,90 @@ export function useTimelineModel(): TimelineViewModel {
 
   const routeState = useMemo<RouteState>(() => {
     let fallbackPeriod = new FinancialMonthPeriod();
+    let firstRegistryDate = new Date();
 
     try {
-      fallbackPeriod = getServices().timeline.period;
+      const { timeline } = getServices();
+      fallbackPeriod = timeline.period;
+      firstRegistryDate = timeline.getFirstRegistryDate();
     } catch {
       // The timeline route can render before repositories bootstrap on refresh.
     }
 
     const monthParam = searchParams.get(TimelineParam.MONTH);
+    const requestedTimeMode = searchParams.get(TimelineParam.TIME_MODE) as TimelineTimeFilterMode | null;
     const since = parseOptionalDate(searchParams.get(TimelineParam.FROM));
     const until = parseOptionalDate(searchParams.get(TimelineParam.TO));
+    const lastDays = parsePositiveInteger(searchParams.get(TimelineParam.LAST_DAYS));
+    const recordLimit = parsePositiveInteger(searchParams.get(TimelineParam.RECORD_LIMIT));
+    const accountIds = searchParams.get(FILTER_ACCOUNT_PARAM)?.split(",").filter(Boolean) ?? [];
     const fallbackMonth = fallbackPeriod.getMonthForDate(new Date());
     const month = monthParam ? Month.fromKey(monthParam as MonthKey) : since ? Month.fromDate(since) : fallbackMonth;
+    const today = new Date();
+
+    let timeMode: TimelineTimeFilterMode = "month";
+    if (requestedTimeMode === "last-records" && recordLimit) {
+      timeMode = "last-records";
+    } else if (requestedTimeMode === "last-days" && lastDays) {
+      timeMode = "last-days";
+    } else if (requestedTimeMode === "range" && (since || until)) {
+      timeMode = "range";
+    }
+
+    const period = (() => {
+      switch (timeMode) {
+        case "range": {
+          const start = startOfDay(since || firstRegistryDate);
+          const end = endOfDay(until || today);
+          return { start, end };
+        }
+        case "last-days": {
+          const safeLastDays = lastDays || 30;
+          const end = endOfDay(today);
+          return { start: startOfDay(subtractDays(today, safeLastDays - 1)), end };
+        }
+        case "last-records":
+          return undefined;
+        case "month":
+        default:
+          return fallbackPeriod.getMonthPeriod(month);
+      }
+    })();
 
     return {
-      accountId: searchParams.get(FILTER_ACCOUNT_PARAM) || "",
+      accountIds,
+      timeMode,
       month,
-      period: since && until ? { start: since, end: until } : fallbackPeriod.getMonthPeriod(month),
+      period,
       filterSince: since,
       filterUntil: until,
+      lastDays,
+      recordLimit,
       categoryIds: searchParams.get(TimelineParam.CATEGORY)?.split(",").filter(Boolean) ?? [],
       tags: searchParams.get(TimelineParam.TAGS)?.split(",").filter(Boolean) ?? [],
     };
   }, [searchParams]);
+
+  const isTimeRangeFilterActive = routeState.timeMode !== "month";
+  const hasActiveFilters = Boolean(
+    routeState.accountIds.length ||
+    routeState.categoryIds.length ||
+    routeState.tags.length ||
+    isTimeRangeFilterActive
+  );
 
   useEffect(() => {
     localStorage.setItem("timeline-compact-mode", JSON.stringify(isCompact));
   }, [isCompact]);
 
   useEffect(() => {
-    setFilterAccount(routeState.accountId);
+    setFilterAccounts(routeState.accountIds);
+    setTimeFilterMode(routeState.timeMode);
+    setFilterMonth(routeState.month);
     setFilterSince(routeState.filterSince);
     setFilterUntil(routeState.filterUntil);
+    setFilterLastDays(routeState.lastDays || 30);
+    setFilterRecordLimit(routeState.recordLimit ? String(routeState.recordLimit) : "500");
     setFilterCategories(routeState.categoryIds);
     setFilterTags(routeState.tags);
   }, [routeState]);
@@ -182,9 +268,10 @@ export function useTimelineModel(): TimelineViewModel {
     const currentSearch = buildTimelineSearch(new URLSearchParams(searchParams));
     const registries = timeline.getAccountItems({
       period: searchText ? undefined : routeState.period,
-      accountIds: routeState.accountId ? [routeState.accountId] : [],
+      accountIds: routeState.accountIds,
       categoryIds: routeState.categoryIds,
       tags: routeState.tags,
+      limit: routeState.timeMode === "last-records" ? routeState.recordLimit : undefined,
       search: searchText,
     });
 
@@ -231,7 +318,7 @@ export function useTimelineModel(): TimelineViewModel {
     setSummary({
       income,
       expense,
-      balance: balance.getBalance(routeState.accountId ? [routeState.accountId] : [], routeState.period.end),
+      balance: balance.getBalance(routeState.accountIds, routeState.period?.end || new Date()),
     });
   }, [locale, routeState, searchParams, searchText, syncReferenceData]);
 
@@ -273,16 +360,16 @@ export function useTimelineModel(): TimelineViewModel {
   function updateMonth(month: Month) {
     const params = new URLSearchParams(searchParams);
     params.set(TimelineParam.MONTH, month.key);
+    params.delete(TimelineParam.TIME_MODE);
     params.delete(TimelineParam.FROM);
     params.delete(TimelineParam.TO);
-    params.delete(FILTER_ACCOUNT_PARAM);
+    params.delete(TimelineParam.LAST_DAYS);
+    params.delete(TimelineParam.RECORD_LIMIT);
     navigate(`${buildTimelinePath()}${buildTimelineSearch(params)}`);
   }
 
   function closeFilters() {
-    const params = new URLSearchParams(searchParams);
-    params.delete(FILTER_ACCOUNT_PARAM);
-    navigate(`${buildTimelinePath()}${buildTimelineSearch(params)}`);
+    navigate(`${buildTimelinePath()}${buildTimelineSearch(new URLSearchParams(searchParams))}`);
   }
 
   function applyFilters() {
@@ -290,18 +377,43 @@ export function useTimelineModel(): TimelineViewModel {
 
     if (filterCategories.length) params.set(TimelineParam.CATEGORY, filterCategories.join(","));
     if (filterTags.length) params.set(TimelineParam.TAGS, filterTags.join(","));
-    if (filterSince) params.set(TimelineParam.FROM, filterSince.toISOString().slice(0, 10));
-    if (filterUntil) params.set(TimelineParam.TO, filterUntil.toISOString().slice(0, 10));
-    if (!filterSince || !filterUntil) params.set(TimelineParam.MONTH, routeState.month.key);
+    if (filterAccounts.length) params.set(FILTER_ACCOUNT_PARAM, filterAccounts.join(","));
 
-    if (filterAccount) params.set(FILTER_ACCOUNT_PARAM, filterAccount);
+    switch (timeFilterMode) {
+      case "range":
+        params.set(TimelineParam.TIME_MODE, "range");
+        if (filterSince) params.set(TimelineParam.FROM, filterSince.toISOString().slice(0, 10));
+        if (filterUntil) params.set(TimelineParam.TO, filterUntil.toISOString().slice(0, 10));
+        break;
+
+      case "last-days":
+        params.set(TimelineParam.TIME_MODE, "last-days");
+        params.set(TimelineParam.LAST_DAYS, String(filterLastDays));
+        break;
+
+      case "last-records": {
+        const limit = parsePositiveInteger(filterRecordLimit);
+        params.set(TimelineParam.TIME_MODE, "last-records");
+        params.set(TimelineParam.RECORD_LIMIT, String(limit || 500));
+        break;
+      }
+
+      case "month":
+      default:
+        params.set(TimelineParam.MONTH, filterMonth.key);
+        break;
+    }
+
     navigate(`${buildTimelinePath()}${buildTimelineSearch(params)}`);
   }
 
   function clearFilters() {
-    setFilterAccount(routeState.accountId);
+    setFilterAccounts([]);
+    setTimeFilterMode("month");
     setFilterSince(undefined);
     setFilterUntil(undefined);
+    setFilterLastDays(30);
+    setFilterRecordLimit("500");
     setFilterCategories([]);
     setFilterTags([]);
     navigate(buildTimelinePath());
@@ -311,13 +423,13 @@ export function useTimelineModel(): TimelineViewModel {
     switch (true) {
       case route instanceof ToOpenFiltersRoute: {
         const params = new URLSearchParams(searchParams);
-        if (routeState.accountId) params.set(FILTER_ACCOUNT_PARAM, routeState.accountId);
+        if (routeState.accountIds.length) params.set(FILTER_ACCOUNT_PARAM, routeState.accountIds.join(","));
         navigate(`/timeline/filters${buildTimelineSearch(params)}`);
         break;
       }
 
       case route instanceof ToImportRoute:
-        navigate(routes.timelineImport(routeState.accountId || undefined));
+        navigate(routes.timelineImport(routeState.accountIds[0] || undefined));
         break;
 
       case route instanceof ToEditTransactionRoute: {
@@ -352,11 +464,24 @@ export function useTimelineModel(): TimelineViewModel {
     summaryExpenseLabel: Lang.timeline.summaryExpenseLabel,
     summaryBalanceLabel: Lang.timeline.summaryBalanceLabel,
     filtersTitle: Lang.timeline.filtersTitle,
+    filtersTimeLabel: Lang.timeline.filtersTimeLabel,
     filtersAccountLabel: Lang.registry.account,
     filtersSinceLabel: Lang.timeline.filtersSinceLabel,
     filtersUntilLabel: Lang.timeline.filtersUntilLabel,
     filtersCategoriesLabel: Lang.timeline.filtersCategoriesLabel,
     filtersTagsLabel: Lang.timeline.filtersTagsLabel,
+    timeModeMonthLabel: Lang.timeline.timeModeMonthLabel,
+    timeModeRangeLabel: Lang.timeline.timeModeRangeLabel,
+    timeModeLastDaysLabel: Lang.timeline.timeModeLastDaysLabel,
+    timeModeLastRecordsLabel: Lang.timeline.timeModeLastRecordsLabel,
+    timePreset30DaysLabel: Lang.timeline.timePreset30DaysLabel,
+    timePreset90DaysLabel: Lang.timeline.timePreset90DaysLabel,
+    timePreset180DaysLabel: Lang.timeline.timePreset180DaysLabel,
+    recordsLimitLabel: Lang.timeline.recordsLimitLabel,
+    recordsLimitPlaceholder: Lang.timeline.recordsLimitPlaceholder,
+    recordsLimitWarning: Lang.timeline.recordsLimitWarning,
+    lastDaysLabel: Lang.timeline.lastDaysLabel,
+    lastRecordsLabel: Lang.timeline.lastRecordsLabel,
     selectAccountPlaceholder: Lang.timeline.selectAccountPlaceholder,
     selectDatePlaceholder: Lang.timeline.selectDatePlaceholder,
     selectCategoriesPlaceholder: Lang.timeline.selectCategoriesPlaceholder,
@@ -365,15 +490,35 @@ export function useTimelineModel(): TimelineViewModel {
     applyFiltersLabel: Lang.timeline.applyFiltersLabel,
   };
 
+  const filterMonthPeriod = getServices().timeline.period.getMonthPeriod(filterMonth);
+
   return {
     navigate: handleNavigation,
     texts,
     locale,
     isCompact,
     toggleCompact: () => setIsCompact((value) => !value),
+    hasActiveFilters,
+    isTimeRangeFilterActive,
     monthKey: routeState.month.key,
-    monthLabel: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(routeState.period.start),
-    monthRange: `${routeState.period.start.toLocaleDateString(locale)} - ${routeState.period.end.toLocaleDateString(locale)}`,
+    monthLabel: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(routeState.period?.start || new Date()),
+    monthRange: (() => {
+      switch (routeState.timeMode) {
+        case "range":
+          return routeState.period
+            ? `${routeState.period.start.toLocaleDateString(locale)} - ${routeState.period.end.toLocaleDateString(locale)}`
+            : "";
+        case "last-days":
+          return texts.lastDaysLabel(routeState.lastDays || 30);
+        case "last-records":
+          return texts.lastRecordsLabel(routeState.recordLimit || 500);
+        case "month":
+        default:
+          return routeState.period
+            ? `${routeState.period.start.toLocaleDateString(locale)} - ${routeState.period.end.toLocaleDateString(locale)}`
+            : "";
+      }
+    })(),
     goToPreviousMonth: () => updateMonth(routeState.month.minusOneMonth()),
     goToNextMonth: () => updateMonth(routeState.month.plusOneMonth()),
     isSearchOpen,
@@ -384,12 +529,23 @@ export function useTimelineModel(): TimelineViewModel {
     setSearchText,
     isFilterModalOpen,
     closeFilters,
-    filterAccount,
-    setFilterAccount,
+    filterAccounts,
+    setFilterAccounts,
+    timeFilterMode,
+    setTimeFilterMode,
+    filterMonthLabel: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(filterMonthPeriod.start),
+    filterMonthRange: `${filterMonthPeriod.start.toLocaleDateString(locale)} - ${filterMonthPeriod.end.toLocaleDateString(locale)}`,
+    goToPreviousFilterMonth: () => setFilterMonth((value) => value.minusOneMonth()),
+    goToNextFilterMonth: () => setFilterMonth((value) => value.plusOneMonth()),
     filterSince,
     setFilterSince,
     filterUntil,
     setFilterUntil,
+    filterLastDays,
+    setFilterLastDays,
+    filterRecordLimit,
+    setFilterRecordLimit,
+    shouldShowRecordLimitWarning: parsePositiveInteger(filterRecordLimit) !== undefined && Number.parseInt(filterRecordLimit, 10) > RECORD_WARNING_THRESHOLD,
     filterCategories,
     setFilterCategories,
     filterTags,

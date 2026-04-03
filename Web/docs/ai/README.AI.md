@@ -5,6 +5,11 @@ model can assist the main flows of the app.  Each idea maps what a user might sa
 JSON action expected from the parser.  The goal is to explore possibilities rather than
 teach implementation details.
 
+Related notes:
+
+- [Assistant Voice Experience](/Users/DevData/victorwads/GitRepos/Personal/GolderUnicornFinanceControl/Web/docs/ai/AssistantVoiceExperience.md)
+- [AI Guided Services Architecture](/Users/DevData/victorwads/GitRepos/Personal/GolderUnicornFinanceControl/Web/docs/ai/AIGuidedServicesArchitecture.md)
+
 ## Global navigation
 Commands may request a change of screen regardless of the current context.
 

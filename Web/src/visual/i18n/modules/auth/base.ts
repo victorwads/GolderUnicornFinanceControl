@@ -15,12 +15,15 @@ export default interface AuthModuleTranslation extends Translation {
       description: string;
       createPassword: string;
       confirmPassword: string;
+      deviceOnly: string;
+      noRecovery: string;
       savePassword: string;
     };
     encryptionUnlock: {
       title: string;
       description: string;
       password: string;
+      helper: string;
       unlock: string;
     };
   };
