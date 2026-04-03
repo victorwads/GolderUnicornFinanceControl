@@ -23,6 +23,7 @@ export const createOpenRouterKey = onCall(async (request): Promise<Response> => 
     updateUsageData(docRef, data);
     return {
       key: data.key,
+      url: "https://openrouter.ai/api/v1",
     };
   }
 

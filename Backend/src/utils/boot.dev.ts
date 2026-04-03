@@ -2,6 +2,12 @@ import {getAuth, type UserRecord} from "firebase-admin/auth";
 
 const DEV_BOOT_USERS = [
   {
+    uid: "RTbyGuo5CfT8FUARG2WjAfJec6o2",
+    email: "leo@wads.dev",
+    googleProviderId: "google.com",
+    googleProviderUid: "RTbyGuo5CfT8FUARG2WjAfJec6o2-google",
+  },
+  {
     uid: "fUztrRAGqQZ3lzT5AmvIki5x0443",
     email: "victor@wads.dev",
     googleProviderId: "google.com",
@@ -15,7 +21,7 @@ const DEV_BOOT_USERS = [
   },
   {
     uid: "adminuseruid00000000000000",
-    email: "rafa@wads.dev",
+    email: "full.account@wads.dev",
     googleProviderId: "google.com",
     googleProviderUid: "adminuseruid00000000000000-google",
   },
