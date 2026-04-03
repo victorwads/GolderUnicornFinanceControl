@@ -34,6 +34,7 @@ export function useHomeModel(): HomeViewModel {
             [account.id]: value 
           }));
         });
+        setTotalBalance(balance.getTotalBalance());
       });
     }
 
