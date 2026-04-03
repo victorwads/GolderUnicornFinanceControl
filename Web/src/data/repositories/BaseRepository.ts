@@ -136,6 +136,26 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
     return items.filter(item => !item._deletedAt);
   }
 
+  public async getAllRaw(fieldsFilter?: Partial<Model>): Promise<DocumentData[]> {
+    await this.updateLocalCache();
+
+    const queryResult = await getDocsFromCache(
+      fieldsFilter ? await this.createQuery(fieldsFilter) : this.ref
+    );
+    addResourceUse({
+      db: {
+        local: { queryReads: 1, docReads: queryResult.docs.length },
+      }
+    });
+
+    return queryResult.docs
+      .map((snap) => ({
+        id: snap.id,
+        ...this.serializeFirestoreValue(snap.data()),
+      }))
+      .filter((item) => !item._deletedAt);
+  }
+
   protected addToCache(model: Model): void {
     if (!this.cache[model.id]) this.minimumCacheSize++;
     this.cache[model.id] = model;
@@ -276,6 +296,22 @@ export default abstract class BaseRepository<Model extends DocumentModel> {
       }, {}) as T;
     }
     return obj;
+  }
+
+  private serializeFirestoreValue<T>(value: T): T {
+    if (Array.isArray(value)) {
+      return value.map((item) => this.serializeFirestoreValue(item)) as T;
+    }
+    if (value instanceof Timestamp) {
+      return value.toDate() as T;
+    }
+    if (value && typeof value === "object" && value.constructor === Object) {
+      return Object.entries(value).reduce((acc, [key, item]) => {
+        (acc as Record<string, unknown>)[key] = this.serializeFirestoreValue(item);
+        return acc;
+      }, {} as Record<string, unknown>) as T;
+    }
+    return value;
   }
 
   private async updateLocalCache(): Promise<void> {

@@ -187,6 +187,8 @@ export default interface VisualModuleTranslation extends Translation {
       dataDescription: string;
       exportJsonTitle: string;
       exportJsonDescription: string;
+      exportEncryptedJsonTitle: string;
+      exportEncryptedJsonDescription: string;
       exportCsvTitle: string;
       exportCsvDescription: string;
       exportHint: string;
@@ -209,6 +211,13 @@ export default interface VisualModuleTranslation extends Translation {
       importSuccessCount: (count: number) => string;
       importFileLabel: (fileName: string) => string;
       importDomainLabel: (domain: string) => string;
+      importPasswordRequiredTitle: string;
+      importPasswordRequiredDescription: (count: number) => string;
+      importPasswordDialogTitle: string;
+      importPasswordDialogDescription: string;
+      importPasswordDialogPlaceholder: string;
+      importPasswordDialogCancel: string;
+      importPasswordDialogConfirm: string;
       deleteDataTitle: string;
       deleteDataDescription: string;
       deleteOnlyDataTitle: string;

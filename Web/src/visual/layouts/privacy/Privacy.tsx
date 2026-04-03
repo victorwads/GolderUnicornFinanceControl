@@ -38,8 +38,13 @@ export default function Privacy({ model }: PrivacyProps) {
     deleteDataPhrase,
     deleteDataConfirmation,
     setDeleteDataConfirmation,
+    showImportPasswordDialog,
+    setShowImportPasswordDialog,
+    importPassword,
+    setImportPassword,
     openDeleteDataDialog,
     confirmDeleteData,
+    confirmImportPassword,
   } = model;
 
   return (
@@ -77,13 +82,26 @@ export default function Privacy({ model }: PrivacyProps) {
                 <Button
                   variant="outline"
                   className="w-full justify-start h-16"
-                  onClick={() => handleExport('json')}
+                  onClick={() => handleExport('json', 'decrypted')}
                   disabled={!!progress}
                 >
                   <FileJson className="h-5 w-5 mr-3" />
                   <div className="text-left">
                     <p className="font-medium">{LocalLang.exportJsonTitle}</p>
                     <p className="text-xs text-muted-foreground">{LocalLang.exportJsonDescription}</p>
+                  </div>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-16"
+                  onClick={() => handleExport('json', 'encrypted')}
+                  disabled={!!progress}
+                >
+                  <ShieldCheck className="h-5 w-5 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">{LocalLang.exportEncryptedJsonTitle}</p>
+                    <p className="text-xs text-muted-foreground">{LocalLang.exportEncryptedJsonDescription}</p>
                   </div>
                 </Button>
 
@@ -274,6 +292,31 @@ export default function Privacy({ model }: PrivacyProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={showImportPasswordDialog} onOpenChange={setShowImportPasswordDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{LocalLang.importPasswordDialogTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {LocalLang.importPasswordDialogDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <Input
+            type="password"
+            value={importPassword}
+            onChange={(event) => setImportPassword(event.target.value)}
+            placeholder={LocalLang.importPasswordDialogPlaceholder}
+          />
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>{LocalLang.importPasswordDialogCancel}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void confirmImportPassword()}>
+              {LocalLang.importPasswordDialogConfirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -284,15 +327,20 @@ export interface PrivacyViewModel {
   progressType: "export" | "delete" | "import";
   lastImportResult: ImportUserDataResult | null;
   lastExportResult: ExportUserDataResult | null;
-  handleExport: (format: 'json' | 'csv') => void;
+  handleExport: (format: 'json' | 'csv', jsonMode?: 'decrypted' | 'encrypted') => void;
   handleImportFiles: (files: File[]) => Promise<void>;
   showDeleteDataDialog: boolean;
   setShowDeleteDataDialog: (open: boolean) => void;
   deleteDataPhrase: string;
   deleteDataConfirmation: string;
   setDeleteDataConfirmation: (value: string) => void;
+  showImportPasswordDialog: boolean;
+  setShowImportPasswordDialog: (open: boolean) => void;
+  importPassword: string;
+  setImportPassword: (value: string) => void;
   openDeleteDataDialog: () => void;
   confirmDeleteData: () => void;
+  confirmImportPassword: () => Promise<void>;
 }
 
 function ImportResultSummary({
