@@ -10,8 +10,9 @@ import getRepositories, {
 import { clearServices, resetServices } from '@services';
 import { getCurrentUser, saveUser } from '@configs';
 
-import CryptoPassSetupScreen from '@features/security/CryptoPassSetupScreen';
 import { privateRouter, publicRouter } from '@features/routes';
+import EncryptionSetupPage from '@pages/auth/EncryptionSetup.page';
+import EncryptionUnlockPage from '@pages/auth/EncryptionUnlock.page';
 import { Progress } from './data/crypt/progress';
 import { FloatingProgress } from '@componentsDeprecated/progress/FloatingProgress';
 import AppLoading from '@layouts/core/AppLoading';
@@ -78,7 +79,11 @@ function App() {
   return <>
     <FloatingProgress progress={progress} />
     {firebaseUser && needPass
-      ? <CryptoPassSetupScreen user={dbUser || (() => { throw new Error("DB User is null") })()} onProgress={setProgress} onCompleted={() => setNeedPass(false)} />
+      ? (
+        dbUser?.privateHash
+          ? <EncryptionUnlockPage user={dbUser} onProgress={setProgress} onCompleted={() => setNeedPass(false)} />
+          : <EncryptionSetupPage user={dbUser || (() => { throw new Error("DB User is null") })()} onProgress={setProgress} onCompleted={() => setNeedPass(false)} />
+      )
       : <RouterProvider router={firebaseUser ? privateRouter : publicRouter} />
     }
   </>;
