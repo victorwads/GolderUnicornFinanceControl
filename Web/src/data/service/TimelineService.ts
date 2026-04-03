@@ -14,6 +14,7 @@ export interface TimelineFilterParams {
   tags?: string[];
   showArchived?: boolean;
   accountIds?: string[];
+  limit?: number;
   paid?: boolean;
   light?: boolean;
   search?: string;
@@ -37,6 +38,7 @@ export default class TimelineService {
     categoryIds = [],
     tags = [],
     accountIds = [],
+    limit,
     showArchived = false,
     light = false,
     paid,
@@ -96,7 +98,8 @@ export default class TimelineService {
     const registries = ([...debit, ...credit])
       .sort(({registry: {date: a}}, {registry: {date: b}}) => b.getTime() - a.getTime());
 
-    return search ? this.applySearch(registries, search) : registries;
+    const filtered = search ? this.applySearch(registries, search) : registries;
+    return limit && limit > 0 ? filtered.slice(0, limit) : filtered;
   }
 
   private applySearch(registries: RegistryWithDetails[], query: string): RegistryWithDetails[] {

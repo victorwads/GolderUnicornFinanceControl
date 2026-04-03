@@ -10,6 +10,9 @@ export enum TimelineParam {
   MONTH = 'monthKey',
   FROM = 'since',
   TO = 'until',
+  TIME_MODE = 'timeMode',
+  LAST_DAYS = 'lastDays',
+  RECORD_LIMIT = 'limit',
   CATEGORY = 'categoriesIds',
   TAGS = 'tags',
 }
