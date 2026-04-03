@@ -1,9 +1,10 @@
 import { TransactionItem } from "@components/TransactionItem";
+import { TimelineMonthNavigator } from "@components/TimelineMonthNavigator";
 import { SpeedDial } from "@components/SpeedDial";
 import { Card } from "@components/ui/card";
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
-import { Filter, TrendingUp, TrendingDown, Search, MoreVertical, Download, Upload, Trash2, BarChart3, Rows3, ChevronLeft, ChevronRight, CalendarDays, CalendarRange, Clock3, ListOrdered } from "lucide-react";
+import { Filter, TrendingUp, TrendingDown, Search, MoreVertical, Download, Upload, Trash2, BarChart3, Rows3, CalendarDays, CalendarRange, Clock3, ListOrdered } from "lucide-react";
 import { Skeleton } from "@components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@components/ui/dialog";
 import { Label } from "@components/ui/label";
@@ -159,18 +160,13 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
                 <p className="text-sm font-semibold text-foreground leading-tight">{monthRange}</p>
               </div>
             ) : (
-              <div className="flex items-center justify-center gap-1 justify-self-center max-[720px]:col-span-2 max-[720px]:row-start-2 max-[720px]:w-full max-[720px]:pt-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToPreviousMonth}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="text-center min-w-[140px]">
-                  <p className="text-sm font-semibold text-foreground leading-tight">{monthLabel}</p>
-                  <p className="text-[11px] text-muted-foreground leading-tight">{monthRange}</p>
-                </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToNextMonth}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+              <TimelineMonthNavigator
+                monthLabel={monthLabel}
+                monthRange={monthRange}
+                onPrevious={goToPreviousMonth}
+                onNext={goToNextMonth}
+                className="justify-self-center max-[720px]:col-span-2 max-[720px]:row-start-2 max-[720px]:w-full max-[720px]:pt-1"
+              />
             )}
 
             <div className="flex items-center gap-1 shrink-0 justify-self-end">
@@ -299,6 +295,16 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
               </div>
 
               <div className="h-px bg-border/70" />
+
+              {timeFilterMode === "month" && (
+                <TimelineMonthNavigator
+                  monthLabel={monthLabel}
+                  monthRange={monthRange}
+                  onPrevious={goToPreviousMonth}
+                  onNext={goToNextMonth}
+                  className="rounded-lg border border-border/70 bg-background px-2 py-2"
+                />
+              )}
 
               {timeFilterMode === "range" && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
