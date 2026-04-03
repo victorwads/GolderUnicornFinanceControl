@@ -4,6 +4,10 @@
 
 Este documento define a base de conhecimento para continuar a migração do app Web sem aumentar a fragmentação entre layout legado, layout novo e fluxos de IA/voz.
 
+Documento complementar para a futura coexistência Web + Mobile:
+
+- `docs/WebMobileSharedContractsGuide.md`
+
 O objetivo não é apenas "trocar telas", mas consolidar uma arquitetura única para:
 
 - interface principal do produto
