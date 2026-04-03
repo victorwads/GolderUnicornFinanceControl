@@ -18,7 +18,6 @@ import Encryptor, { Hash } from "../../data/crypt/Encryptor";
 
 const RESAVE_CHUNK_SIZE = 100;
 const FIREBASE_BATCH_MAX_WRITES = 500;
-// resourcesUse remains exportable, but user-controlled flows must never import or delete it.
 const PROTECTED_USER_DATA_REPOS: RepoName[] = ["banks", "resourcesUse"];
 
 export type ExportFormat = "json" | "csv" | "all";
@@ -230,7 +229,6 @@ export async function importUserData(
         const text = await file.text();
         const payload = parseImportPayload(text, file.name, repoNames);
         if (isProtectedUserDataRepo(payload.collection)) {
-          // Ignore protected datasets so imported backups cannot overwrite usage/accounting data.
           skippedProtectedFiles++;
           continue;
         }
