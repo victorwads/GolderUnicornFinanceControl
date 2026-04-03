@@ -3,6 +3,8 @@ import { XMLParser } from "fast-xml-parser";
 export interface ParsedOfxTransaction {
   fitId?: string;
   date: Date;
+  hasTime: boolean;
+  hasSeconds: boolean;
   amount: number;
   description: string;
   memo?: string;
@@ -180,8 +182,8 @@ function toParsedTransaction(raw: Record<string, string>): ParsedOfxTransaction 
     return null;
   }
 
-  const date = parseOfxDate(dateRaw);
-  if (!date) return null;
+  const dateInfo = parseOfxDate(dateRaw);
+  if (!dateInfo) return null;
 
   const amount = parseOfxAmount(amountRaw);
   if (!Number.isFinite(amount) || amount === 0) return null;
@@ -191,7 +193,9 @@ function toParsedTransaction(raw: Record<string, string>): ParsedOfxTransaction 
 
   return {
     fitId,
-    date,
+    date: dateInfo.date,
+    hasTime: dateInfo.hasTime,
+    hasSeconds: dateInfo.hasSeconds,
     amount,
     description,
     memo: raw.MEMO || raw.NAME || raw.PAYEE,
@@ -215,7 +219,7 @@ function parseOfxAmount(value: string): number {
   return parseFloat(sanitized);
 }
 
-function parseOfxDate(value: string): Date | null {
+function parseOfxDate(value: string): { date: Date; hasTime: boolean; hasSeconds: boolean } | null {
   const digits = value.replace(/\D/g, "");
   if (digits.length < 8) return null;
 
@@ -238,7 +242,11 @@ function parseOfxDate(value: string): Date | null {
     return null;
   }
 
-  return new Date(year, month, day, hour, minute, second);
+  return {
+    date: new Date(year, month, day, hour, minute, second),
+    hasTime: digits.length >= 10,
+    hasSeconds: digits.length >= 14,
+  };
 }
 
 function buildDescription(raw: Record<string, string>): string {
