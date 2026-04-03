@@ -51,6 +51,10 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
     setFilterAccounts,
     timeFilterMode,
     setTimeFilterMode,
+    filterMonthLabel,
+    filterMonthRange,
+    goToPreviousFilterMonth,
+    goToNextFilterMonth,
     filterSince,
     setFilterSince,
     filterUntil,
@@ -298,10 +302,10 @@ export default function Timeline({ model, embedded = false }: TimelineProps) {
 
               {timeFilterMode === "month" && (
                 <TimelineMonthNavigator
-                  monthLabel={monthLabel}
-                  monthRange={monthRange}
-                  onPrevious={goToPreviousMonth}
-                  onNext={goToNextMonth}
+                  monthLabel={filterMonthLabel}
+                  monthRange={filterMonthRange}
+                  onPrevious={goToPreviousFilterMonth}
+                  onNext={goToNextFilterMonth}
                   className="rounded-lg border border-border/70 bg-background px-2 py-2"
                 />
               )}
@@ -549,6 +553,10 @@ export interface TimelineViewModel {
   setFilterAccounts: (value: string[]) => void;
   timeFilterMode: "month" | "range" | "last-days" | "last-records";
   setTimeFilterMode: (value: "month" | "range" | "last-days" | "last-records") => void;
+  filterMonthLabel: string;
+  filterMonthRange: string;
+  goToPreviousFilterMonth: () => void;
+  goToNextFilterMonth: () => void;
   filterSince?: Date;
   setFilterSince: (value?: Date) => void;
   filterUntil?: Date;

@@ -128,6 +128,7 @@ export function useTimelineModel(): TimelineViewModel {
   const [isCompact, setIsCompact] = useState(() => localStorage.getItem("timeline-compact-mode") === "true");
   const [filterAccounts, setFilterAccounts] = useState<string[]>([]);
   const [timeFilterMode, setTimeFilterMode] = useState<TimelineTimeFilterMode>("month");
+  const [filterMonth, setFilterMonth] = useState<Month>(() => new FinancialMonthPeriod().getMonthForDate(new Date()));
   const [filterSince, setFilterSince] = useState<Date | undefined>();
   const [filterUntil, setFilterUntil] = useState<Date | undefined>();
   const [filterLastDays, setFilterLastDays] = useState<number>(30);
@@ -223,6 +224,7 @@ export function useTimelineModel(): TimelineViewModel {
   useEffect(() => {
     setFilterAccounts(routeState.accountIds);
     setTimeFilterMode(routeState.timeMode);
+    setFilterMonth(routeState.month);
     setFilterSince(routeState.filterSince);
     setFilterUntil(routeState.filterUntil);
     setFilterLastDays(routeState.lastDays || 30);
@@ -398,7 +400,7 @@ export function useTimelineModel(): TimelineViewModel {
 
       case "month":
       default:
-        params.set(TimelineParam.MONTH, routeState.month.key);
+        params.set(TimelineParam.MONTH, filterMonth.key);
         break;
     }
 
@@ -488,6 +490,8 @@ export function useTimelineModel(): TimelineViewModel {
     applyFiltersLabel: Lang.timeline.applyFiltersLabel,
   };
 
+  const filterMonthPeriod = getServices().timeline.period.getMonthPeriod(filterMonth);
+
   return {
     navigate: handleNavigation,
     texts,
@@ -529,6 +533,10 @@ export function useTimelineModel(): TimelineViewModel {
     setFilterAccounts,
     timeFilterMode,
     setTimeFilterMode,
+    filterMonthLabel: new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(filterMonthPeriod.start),
+    filterMonthRange: `${filterMonthPeriod.start.toLocaleDateString(locale)} - ${filterMonthPeriod.end.toLocaleDateString(locale)}`,
+    goToPreviousFilterMonth: () => setFilterMonth((value) => value.minusOneMonth()),
+    goToNextFilterMonth: () => setFilterMonth((value) => value.plusOneMonth()),
     filterSince,
     setFilterSince,
     filterUntil,
