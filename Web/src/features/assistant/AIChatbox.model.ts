@@ -13,7 +13,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
   const navigate = useNavigate();
 
   const { 
-    processing, penddingAnswer, isOpen, setIsOpen,
+    processing, isOpen, setIsOpen,
     conversationId, history, sendUserAnswer, isFinished, startNewConversation
   } = useAssistantContext();
 
@@ -21,6 +21,12 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     setDraft("");
     clearAutoSend();
     stopMic();
+  }
+
+  const closeChatbox = () => {
+    clearAutoSend();
+    stopMic();
+    setIsOpen(false);
   }
 
   const onSend = () => {
@@ -37,7 +43,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     autoSendProgress, isListening,
     toggleMic, startPressMic, endPressMic, stopMic, clearAutoSend, startMicIfLive,
   } = useAIChatboxMicrophoneModel({
-    penddingAnswer, draft,
+    processing, draft,
     setDraft, onAutoSend: onSend
   });
 
@@ -47,7 +53,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     setIsOpen(false);
   }, [isFinished]);
   
-  const visibleEntries = isOpen
+  const visibleEntries = true
     ? history
     : history.slice(-ACTIVE_COLLAPSED_MESSAGES_COUNT);
 
@@ -65,7 +71,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     toggleMic,
     onMicrophonePressStart: startPressMic,
     onMicrophonePressEnd: endPressMic,
-    onClose: () => setIsOpen(false),
+    onClose: closeChatbox,
     onToggle: () => {
       const nextOpen = !isOpen;
       setIsOpen(nextOpen);

@@ -8,7 +8,6 @@ import AssistantController, { setPendingAiContext } from "./AssistantController"
 type AssistantContextValue = {
   conversationId: string | null;
   history: AssistantTimelineEntry[];
-  penddingAnswer: boolean;
   processing: boolean;
   isFinished: boolean;
   isOpen: boolean;
@@ -65,7 +64,6 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     isFinished,
     isOpen,
     setIsOpen,
-    penddingAnswer: !!sendUserAnswerRef,
     sendUserAnswer: (answer: string) => {
       if (isFinished) {
         return;

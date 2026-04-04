@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Bot, Expand, Mic, PanelLeftClose, SendHorizontal } from "lucide-react";
+import { Bot, Expand, Mic, SendHorizontal, X } from "lucide-react";
 
 import { AssistantTimelineFeed } from "@components/AssistantTimelineFeed";
 import { Button } from "@components/ui/button";
@@ -47,47 +47,14 @@ export default function AIChatbox({ model }: AIChatboxProps) {
           "flex h-full w-full flex-col lg:w-[26rem]",
           "transition-all duration-300",
           model.open
-            ? "pointer-events-auto overflow-hidden rounded-[2rem] border border-border/40 bg-background/80 shadow-[0_24px_80px_rgba(15,23,42,0.14)] scale-100"
+            ? "pointer-events-auto overflow-hidden rounded-[2rem] border border-border/60 bg-background/95 shadow-[0_24px_80px_rgba(15,23,42,0.14)] scale-100"
             : "pointer-events-none overflow-visible bg-transparent shadow-none justify-end"
         )}
       >
-        {model.open && (
-          <div className="flex items-center justify-between px-3 pb-1 pt-3">
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="h-9 w-9 rounded-2xl bg-background/70 backdrop-blur-sm"
-                onClick={model.onClose}
-                aria-label={Lang.assistant.voiceOverlay.closeLabel}
-              >
-                <PanelLeftClose className="h-4 w-4" />
-              </Button>
-              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-                <Bot className="h-4 w-4" />
-              </div>
-            </div>
-            {canOpenFullConversation ? (
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="h-9 w-9 rounded-2xl bg-background/70 backdrop-blur-sm"
-                onClick={model.onOpenFullConversation}
-              >
-                <Expand className="h-4 w-4" />
-              </Button>
-            ) : (
-              <div className="h-9 w-9" aria-hidden="true" />
-            )}
-          </div>
-        )}
-
         <div
           ref={scrollRef}
           className={cn(
-            "min-h-0 px-3 pt-1",
+            "min-h-0 px-3 pt-3",
             model.open
               ? "pointer-events-auto flex-1 overflow-y-auto pb-3"
               : "pointer-events-none flex-none overflow-hidden pb-2"
@@ -124,8 +91,8 @@ export default function AIChatbox({ model }: AIChatboxProps) {
             className={cn(
               "rounded-[1.8rem] p-3 transition-all duration-300",
               model.open
-                ? "border border-border/50 bg-background/92 shadow-sm"
-                : "border border-border/20 bg-background/70 shadow-[0_10px_30px_rgba(15,23,42,0.10)] backdrop-blur-sm"
+                ? "border border-border/60 bg-background shadow-sm"
+                : "border border-border/30 bg-background/95 shadow-[0_10px_30px_rgba(15,23,42,0.10)]"
             )}
           >
             {model.isFinished ? (
@@ -142,6 +109,30 @@ export default function AIChatbox({ model }: AIChatboxProps) {
                   placeholder={Lang.assistant.voiceOverlay.inputPlaceholder}
                 />
                 <div className="mt-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-9 w-9 rounded-2xl bg-muted/70 text-muted-foreground hover:bg-muted"
+                      onClick={model.onClose}
+                      title={Lang.assistant.voiceOverlay.closeLabel}
+                      aria-label={Lang.assistant.voiceOverlay.closeLabel}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    {canOpenFullConversation ? (
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className="h-9 w-9 rounded-2xl bg-muted/70 text-muted-foreground hover:bg-muted"
+                        onClick={model.onOpenFullConversation}
+                      >
+                        <Expand className="h-4 w-4" />
+                      </Button>
+                    ) : null}
+                  </div>
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
@@ -172,8 +163,6 @@ export default function AIChatbox({ model }: AIChatboxProps) {
                         <Mic className="h-4 w-4" />
                       )}
                     </Button>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <Button
                       type="button"
                       size="icon"

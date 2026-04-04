@@ -11,13 +11,13 @@ const TIMERS = {
 
 type Params = {
   draft: string;
-  penddingAnswer: boolean;
+  processing: boolean;
   setDraft: Dispatch<SetStateAction<string>>;
   onAutoSend: () => void;
 };
 
 export function useAIChatboxMicrophoneModel({ 
-  draft, setDraft, onAutoSend, penddingAnswer
+  draft, setDraft, onAutoSend, processing
 }: Params) {
   const { transcript, interimTranscript, finalTranscript, resetTranscript, listening } = useSpeechRecognition();
   const [ autoSendProgress, setAutoSendProgress ] = useState(0);
@@ -57,8 +57,8 @@ export function useAIChatboxMicrophoneModel({
   // Auto start listening when assistant is open and waiting for answer
   useEffect(() => {
     if (getAssistantMicrophoneMode() !== 'live') return;
-    if(penddingAnswer && !listening) startSpeechListening();
-  }, [penddingAnswer, listening]);
+    if(processing && !listening) startSpeechListening();
+  }, [processing, listening]);
 
   useEffect(() => {
     // TODO: handle interim transcript better, maybe show it in the UI with a different style
