@@ -5,7 +5,7 @@ import { AiCallContext, type AiModel } from "@models";
 import type { Repositories } from "@repositories";
 import getRepositories from "@repositories";
 import { getAssistantModel, setAssistantModel } from "@features/assistant/AssistantController";
-import { getCurrentMonthAiCostBRL, MONTHLY_AI_COST_LIMIT_BRL } from "@features/assistant/costControl";
+import { MONTHLY_AI_COST_LIMIT_BRL } from "@features/assistant/costControl";
 import { isDeveloperOptionsEnabled } from "@pages/settings/developerOptions";
 import {
   AssistantHistoryListViewModel,
@@ -36,14 +36,14 @@ export function useAssistantHistoryModel(): AssistantHistoryListViewModel {
     if (!repositories) return;
 
     let cancelled = false;
-    const syncMonthlyCost = async () => {
-      const value = await getCurrentMonthAiCostBRL(repositories).catch(() => 0);
+    const syncMonthlyCost = () => {
+      const value = getLast30DaysAiCostBRL(repositories.aiCalls.getCache());
       if (!cancelled) setMonthlyCostBRL(Number(value.toFixed(2)));
     };
 
-    void syncMonthlyCost();
+    syncMonthlyCost();
     const unsubscribe = repositories.aiCalls.addUpdatedEventListenner(() => {
-      void syncMonthlyCost();
+      syncMonthlyCost();
     });
 
     return () => {
@@ -89,6 +89,27 @@ export function useAssistantHistoryModel(): AssistantHistoryListViewModel {
       setAssistantModel(model as AiModel);
     },
   };
+}
+
+function getLast30DaysAiCostBRL(calls: AiCallContext[]): number {
+  const now = new Date();
+  const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  return calls.reduce((total, call) => {
+    const timestamp = getRelevantTimestamp(call);
+    if (!timestamp) return total;
+    if (timestamp < start || timestamp > now) return total;
+    return total + call.getCostBRL();
+  }, 0);
+}
+
+function getRelevantTimestamp(context: AiCallContext): Date | null {
+  const finishedAt = context.finishedAt instanceof Date ? context.finishedAt : null;
+  if (finishedAt) return finishedAt;
+  const updatedAt = context._updatedAt instanceof Date ? context._updatedAt : null;
+  if (updatedAt) return updatedAt;
+  const createdAt = context._createdAt instanceof Date ? context._createdAt : null;
+  return createdAt;
 }
 
 function useRepositories(): Repositories | null {
