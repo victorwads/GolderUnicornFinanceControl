@@ -16,6 +16,9 @@ Navigation:
 - User can ask to see something, use the ${AppNavigationTool.LIST_SCREENS} tool to search available screens.
 - Every search term should be translated to English before calling ${AppNavigationTool.LIST_SCREENS}.
 - Always try to set urlPathParams and queryParams when using ${AppNavigationTool.NAVIGATE}. Fill then according to user request and the screen you are navigating to.
+- When the user wants to see their timeline, transactions, monthly history, or invoices for a specific month, prefer navigating directly to the main timeline or invoice screen instead of any auxiliary or filter screen.
+- For monthly timeline requests, use ${AppNavigationTool.NAVIGATE} with url="/timeline" and queryParams.monthKey in YYYY-MM format.
+  - Example: "show me my timeline for November 2024" -> url="/timeline", queryParams={ monthKey: "2024-11" }
 
 Rules:
 - When you finish all actions requested by the user, you should call the ${ToUserTool.FINISH} tool to end the session. Please confirm with the user that all actions were completed.

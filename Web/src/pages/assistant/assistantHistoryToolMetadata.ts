@@ -159,7 +159,7 @@ export function buildToolChips(toolName: string, args: PrimitiveRecord, result: 
 export function buildArgumentsPreview(toolName: string, args: PrimitiveRecord): string {
   switch (true) {
     case toolName === "navigate_to_screen": {
-      const url = stringifyValue(args.url);
+      const url = buildNavigationPreviewUrl(args);
       const query = isObject(args.queryParams)
         ? new URLSearchParams(Object.entries(args.queryParams).map(([key, value]) => [key, stringifyValue(value)])).toString()
         : "";
@@ -305,6 +305,16 @@ function getRouteLabel(route: string): string {
     default:
       return route || "";
   }
+}
+
+function buildNavigationPreviewUrl(args: PrimitiveRecord): string {
+  const url = stringifyValue(args.url);
+  if (!url || !isObject(args.urlPathParams)) return url;
+
+  return url.replace(/\{([^}:?]+)(?::[^}?]+)?\??\}/g, (_, key: string) => {
+    const value = args.urlPathParams?.[key];
+    return value == null || value === "" ? `{${key}}` : stringifyValue(value);
+  });
 }
 
 function humanizeTechnicalName(value: string): string {

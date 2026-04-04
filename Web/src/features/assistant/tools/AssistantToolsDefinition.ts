@@ -18,12 +18,21 @@ import {
 
 export class AssistantTools extends AssistantToolsBase {
 
-  public isOnboarding: boolean = false;
+  private onboardingEnabled = false;
+
+  public get isOnboarding() {
+    return this.onboardingEnabled;
+  }
+
+  public setOnboarding(enabled: boolean) {
+    if (this.onboardingEnabled === enabled) return;
+    this.onboardingEnabled = enabled;
+    this.setDefinitions(this.createDefinitions());
+  }
 
   constructor(repositories: Repositories) {
     super(repositories);
     this.setDefinitions(this.createDefinitions());
-    console.log(this);
   }
 
   protected createDefinitions(): AssistantToolDefinition[] {
@@ -172,7 +181,12 @@ export class AssistantTools extends AssistantToolsBase {
         parameters: {
           type: "object",
           properties: {
-            url: { type: "string", description: "The built url path to navigate to a screen." },
+            url: { type: "string", description: "The route template returned by search_screens, or a fully built url path." },
+            urlPathParams: {
+              type: "object",
+              description: "Path params used to fill route placeholders like {id:string}.",
+              additionalProperties: true,
+            },
             queryParams: { 
               type: "object",
               description: "query parameters to be added to the url to filter or config the screen.",
@@ -217,7 +231,7 @@ export class AssistantTools extends AssistantToolsBase {
           return { success: true, result: "Pedido concluído contexto resetado." };
         },
       },
-      ...(this.isOnboarding ? [{
+      ...(this.onboardingEnabled ? [{
         name: ToUserTool.FINISH_ONBOARDING,
         description: "End user conversation when all onboarding are completed. Confirm with user before executing it.",
         parameters: emptyParamsSchema,

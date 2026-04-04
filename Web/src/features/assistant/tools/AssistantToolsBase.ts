@@ -122,7 +122,6 @@ export abstract class AssistantToolsBase {
         const updates = Array.isArray(result.result) ? result.result : [result.result];
         updates.forEach(item => {
           repository.set(item, true)
-          console.log("Saved item from repo" + repository.constructor.name, item)
         });
 
         return result
@@ -194,7 +193,6 @@ export abstract class AssistantToolsBase {
         const updates = Array.isArray(result.result) ? result.result : [result.result];
         updates.forEach(item => {
           repository.set(item, true)
-          console.log("Updated item from repo" + repository.constructor.name, item)
         });
 
         return result

@@ -16,7 +16,13 @@ type RouteParams = Record<string, RouteParamsInfo>;
 type RouteParamsInfo = {
   description: string;
   required: boolean;
-  validation?: (value: any) => Result;
+  validation?: (value: unknown) => Result;
+};
+
+type NavigateToRouteArgs = {
+  url: string;
+  urlPathParams?: Record<string, unknown>;
+  queryParams?: Record<string, unknown>;
 };
 
 export type RoutesDefinition = {
@@ -27,204 +33,483 @@ export type RoutesDefinition = {
   queryParams?: RouteParams;
 };
 
-const timeLineDomains: RepoName[] = ['accountTransactions', 'creditCardsInvoices'];
+const timelineDomains: RepoName[] = ["accountTransactions", "creditCardsInvoices"];
 
 export const routesDefinition: RoutesDefinition[] = [
   {
-    domains: timeLineDomains,
-    url: '/timeline',
-    description: 'See transactions history of financial records, you mainlly use month key to filter the transactions by month, but you can also use other filters like categories, accounts and date range.',
+    domains: timelineDomains,
+    url: "/timeline",
+    description: "Main screen to see the user's timeline of transactions and invoices. Use this route for requests like 'show my timeline', 'show November 2024', 'show this month's records' or similar. For month-based requests, use queryParams.monthKey in YYYY-MM format instead of sending the user to any auxiliary filter screen.",
     queryParams: {
-      [TimelineParam.MONTH]: { description: 'View a specific month period, value should be a "month key" (e.g., 2024-09) YYYY-MM', required: false },
-      account: { description: 'Account ID to filter the timeline', required: false },
-      [TimelineParam.CATEGORY]: { description: 'categories IDs to filter, separated by commas', required: false },
-      [TimelineParam.FROM]: { description: 'filter register since date x YYYY-MM-DD, should be used with `until` param', required: false },
-      [TimelineParam.TO]: { description: 'filter register until date y YYYY-MM-DD, should be used with `from` param', required: false },
+      [TimelineParam.MONTH]: {
+        description: 'Main month selector for the timeline. Use YYYY-MM format, for example "2024-11" or "2026-04".',
+        required: false,
+      },
+      account: {
+        description: "Comma-separated account IDs to filter the timeline.",
+        required: false,
+      },
+      [TimelineParam.CATEGORY]: {
+        description: "Comma-separated category IDs to filter the timeline.",
+        required: false,
+      },
+      [TimelineParam.TAGS]: {
+        description: "Comma-separated tags to filter the timeline.",
+        required: false,
+      },
+      [TimelineParam.FROM]: {
+        description: "Start date in YYYY-MM-DD format for range mode.",
+        required: false,
+      },
+      [TimelineParam.TO]: {
+        description: "End date in YYYY-MM-DD format for range mode.",
+        required: false,
+      },
+      [TimelineParam.TIME_MODE]: {
+        description: 'Advanced time filter mode: "month", "range", "last-days" or "last-records". Leave it unset for common month-based timeline requests.',
+        required: false,
+      },
+      [TimelineParam.LAST_DAYS]: {
+        description: "Number of days to show when timeMode is last-days.",
+        required: false,
+      },
+      [TimelineParam.RECORD_LIMIT]: {
+        description: "Maximum number of records when timeMode is last-records.",
+        required: false,
+      },
     },
   },
   // {
-  //   domains: timeLineDomains,
-  //   name: '/timeline/import',
-  //   description: 'MUST use query params. Use files to import transactions. Required one IDs of an account or a card.'+
-  //   'When load with the query params, the screen will automatically prompt the file selection.',
-  //   queryParams: {
-  //     account: { description: 'Account ID to import into (search the id on accounts domain)', required: false },
-  //     card: { description: 'Credit card ID to import into (search the id on creditcards domain)', required: false },
+  //   domains: timelineDomains,
+  //   url: "/timeline/filters",
+  //   description: "Open the timeline filters screen.",
+  // },
+  {
+    domains: ["accounts", "creditCards"],
+    url: "/timeline/import",
+    description: "Import transactions from a file into an account or credit card.",
+    queryParams: {
+      account: { description: "Account ID preselected for the import.", required: false },
+      card: { description: "Credit card ID preselected for the import.", required: false },
+    },
+  },
+  {
+    domains: ["accounts", "accountTransactions"],
+    url: "/timeline/entry/account/expense/create",
+    description: "Create a new account expense from timeline detail view.",
+  },
+  {
+    domains: ["accounts", "accountTransactions"],
+    url: "/timeline/entry/account/income/create",
+    description: "Create a new account income from timeline detail view.",
+  },
+  {
+    domains: ["accounts", "accountTransactions"],
+    url: "/timeline/entry/account/{id:string}",
+    description: "Open an account transaction in timeline detail view.",
+    pathParams: {
+      id: { description: "Account transaction ID.", required: true },
+    },
+  },
+  {
+    domains: ["creditCards", "creditCardsTransactions"],
+    url: "/timeline/entry/credit/create",
+    description: "Create a new credit card transaction from timeline detail view.",
+    queryParams: {
+      card: { description: "Credit card ID preselected in the form.", required: false },
+      category: { description: "Category ID preselected in the form.", required: false },
+      [TimelineParam.MONTH]: {
+        description: 'Month key in YYYY-MM format to preserve timeline context.',
+        required: false,
+      },
+    },
+  },
+  {
+    domains: ["creditCards", "creditCardsTransactions"],
+    url: "/timeline/entry/credit/{id:string}",
+    description: "Open a credit card transaction in timeline detail view.",
+    pathParams: {
+      id: { description: "Credit card transaction ID.", required: true },
+    },
+  },
+  {
+    domains: ["accounts", "accountTransactions"],
+    url: "/timeline/entry/transfer/create",
+    description: "Create a new transfer from timeline detail view.",
+    queryParams: {
+      account: { description: "Origin account ID preselected in the form.", required: false },
+      [TimelineParam.MONTH]: {
+        description: 'Month key in YYYY-MM format to preserve timeline context.',
+        required: false,
+      },
+    },
+  },
+  {
+    domains: ["accounts", "accountTransactions"],
+    url: "/timeline/entry/transfer/{id:string}",
+    description: "Open a transfer transaction in timeline detail view.",
+    pathParams: {
+      id: { description: "Transfer transaction ID.", required: true },
+    },
+  },
+  {
+    domains: ["creditCards", "creditCardsInvoices", "creditCardsTransactions"],
+    url: "/timeline/entry/creditcards/{cardId:string}/invoices/{selected?:string}",
+    description: "Open credit card invoices inside the timeline detail view.",
+    pathParams: {
+      cardId: { description: "Credit card ID.", required: true },
+      selected: {
+        description: 'Selected invoice cycle in YYYYMM format, for example "202604".',
+        required: false,
+      },
+    },
+  },
+  {
+    domains: ["recurrentTransactions"],
+    url: "/recurrents",
+    description: "View the recurring transactions list.",
+  },
+  {
+    domains: ["recurrentTransactions"],
+    url: "/recurrents/create",
+    description: "Create a new recurring transaction.",
+  },
+  {
+    domains: ["recurrentTransactions"],
+    url: "/recurrents/{id:string}",
+    description: "Edit an existing recurring transaction.",
+    pathParams: {
+      id: { description: "Recurring transaction ID.", required: true },
+    },
+  },
+  // {
+  //   domains: ["groceries"],
+  //   url: "/groceries",
+  //   description: "View the grocery list.",
+  // },
+  // {
+  //   domains: ["groceries"],
+  //   url: "/groceries/removed",
+  //   description: "View removed grocery items.",
+  // },
+  // {
+  //   domains: ["groceries"],
+  //   url: "/groceries/create",
+  //   description: "Create a grocery item.",
+  // },
+  // {
+  //   domains: ["groceries"],
+  //   url: "/groceries/{id:string}/edit",
+  //   description: "Edit a grocery item.",
+  //   pathParams: {
+  //     id: { description: "Grocery item ID.", required: true },
   //   },
   // },
   {
-    domains: ['recurrentTransactions'],
-    url: '/recurrents',
-    description: 'View the list of recurring registries with their schedule information',
-  },
-  // {
-  //   name: '/timeline/filters',
-  //   description: 'Timeline filter screen for manual adjustment of filters',
-  // },
-  // {
-  //   url: '/groceries',
-  //   description: 'Grocery list/pantry, here you can manage your shopping items market',
-  // },
-  // {
-  //   url: '/groceries/removed',
-  //   description: 'Removed items from the grocery/pantry list',
-  // },
-  {
-    url: '/settings',
-    description: 'Settings and application configuration',
+    url: "/assistant",
+    description: "View assistant conversations history.",
   },
   {
-    url: '/assistant',
-    description: 'View conversations history with the AI assistant with information about tokens used and cost',
-  },
-  {
-    url: '/me/resource-usage',
-    description: 'Resource usage statistics to see how many tokens you have used in the current month and the cost',
-  },
-  {
-    url: '/accounts',
-    description: 'Bank accounts listing and manual management',
-  },
-  // {
-  //   name: '/accounts/{id:string}/edit',
-  //   description: 'Edit a especific bank account info manually',
-  //   pathParams: { id: { description: 'ID da conta bancária', required: true } },
-  // },
-  {
-    domains: ['creditCards'],
-    url: '/creditcards',
-    description: 'View credit cards list for managing and viewing details like limits, due dates and etc...',
-  },
-  {
-    domains: ['creditCards'],
-    url: '/creditcards/{id:string}',
-    description: 'View a specific credit card details like limits, due dates and etc... or edit it manually',
-  },
-  {
-    domains: ['creditCards', 'creditCardsTransactions', 'creditCardsInvoices'],
-    url: '/creditcards/{id:string}/invoices/{year-month?:string}',
-    description: 'View credit card invoices, list all invoices and details or the selected one',
+    url: "/assistant/{conversationId:string}",
+    description: "Open a specific assistant conversation.",
     pathParams: {
-      id: { description: 'credit card ID', required: true },
-      selected: { description: 'ID of the selected invoice as Month key (e.g., 2025-09)', required: false },
-    }
+      conversationId: { description: "Assistant conversation ID.", required: true },
+    },
   },
   {
-    domains: ['accounts', 'accountTransactions'],
-    url: '/timeline/entry/account/{id:string}',
-    description: 'Open an account registry inside timeline detail view',
-    pathParams: { id: { description: 'ID of the account registry', required: true } }
+    url: "/settings",
+    description: "Open the settings hub screen.",
   },
   {
-    domains: ['accounts', 'categories'],
-    url: '/timeline/entry/account/expense/create',
-    description: 'Create a new expense inside the timeline detail view',
+    url: "/settings/app",
+    description: "Open app settings.",
+  },
+  {
+    url: "/settings/language",
+    description: "Open language settings.",
+  },
+  // {
+  //   url: "/settings/developer",
+  //   description: "Open developer settings.",
+  // },
+  {
+    url: "/me/linkedaccounts",
+    description: "Open linked auth accounts settings.",
+  },
+  {
+    url: "/me/resource-usage",
+    description: "Open resource usage and token consumption statistics.",
+  },
+  {
+    url: "/me/privacy",
+    description: "Open privacy settings.",
+  },
+  // {
+  //   url: "/me/privacy/delete",
+  //   description: "Open the delete account screen.",
+  // },
+  {
+    url: "/me/privacy/export",
+    description: "Open the export personal data screen.",
+  },
+  {
+    domains: ["accounts"],
+    url: "/accounts",
+    description: "View the bank accounts list.",
+  },
+  {
+    domains: ["accounts"],
+    url: "/accounts/create",
+    description: "Create a new bank account.",
+  },
+  {
+    domains: ["accounts"],
+    url: "/accounts/{id:string}",
+    description: "Edit an existing bank account.",
+    pathParams: {
+      id: { description: "Bank account ID.", required: true },
+    },
+  },
+  {
+    domains: ["creditCards"],
+    url: "/creditcards",
+    description: "View the credit cards list.",
+  },
+  {
+    domains: ["creditCards"],
+    url: "/creditcards/create",
+    description: "Create a new credit card.",
+  },
+  {
+    domains: ["creditCards"],
+    url: "/creditcards/{id:string}",
+    description: "Edit an existing credit card.",
+    pathParams: {
+      id: { description: "Credit card ID.", required: true },
+    },
+  },
+  {
+    domains: ["creditCards", "creditCardsInvoices", "creditCardsTransactions"],
+    url: "/creditcards/{cardId:string}/invoices/{selected?:string}",
+    description: "View credit card invoices and optionally select one invoice cycle.",
+    pathParams: {
+      cardId: { description: "Credit card ID.", required: true },
+      selected: {
+        description: 'Selected invoice cycle in YYYYMM format, for example "202604".',
+        required: false,
+      },
+    },
+  },
+  {
+    domains: ["creditCards", "creditCardsInvoices", "creditCardsTransactions"],
+    url: "/creditcards/{cardId:string}/invoices/{selected?:string}/entry/credit/{registryId:string}",
+    description: "Open a credit card transaction inside a specific invoice detail view.",
+    pathParams: {
+      cardId: { description: "Credit card ID.", required: true },
+      selected: {
+        description: 'Selected invoice cycle in YYYYMM format, for example "202604".',
+        required: false,
+      },
+      registryId: { description: "Credit card transaction ID.", required: true },
+    },
+  },
+  {
+    domains: ["categories"],
+    url: "/categories",
+    description: "View the categories list.",
+  },
+  {
+    domains: ["categories"],
+    url: "/categories/create",
+    description: "Create a new category.",
     queryParams: {
-      account: { description: 'Account ID preselected in the form', required: false },
-      category: { description: 'Category ID preselected in the form', required: false },
-      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
-    }
+      parentCategory: { description: "Parent category ID preselected in the form.", required: false },
+    },
   },
   {
-    domains: ['accounts', 'categories'],
-    url: '/timeline/entry/account/income/create',
-    description: 'Create a new income inside the timeline detail view',
-    queryParams: {
-      account: { description: 'Account ID preselected in the form', required: false },
-      category: { description: 'Category ID preselected in the form', required: false },
-      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
-    }
+    domains: ["categories"],
+    url: "/categories/{id:string}",
+    description: "Edit an existing category.",
+    pathParams: {
+      id: { description: "Category ID.", required: true },
+    },
   },
   {
-    domains: ['creditCards', 'creditCardsTransactions'],
-    url: '/timeline/entry/credit/{id:string}',
-    description: 'Open a credit card transaction inside timeline detail view',
-    pathParams: { id: { description: 'ID of the credit card registry', required: true } }
+    url: "/subscriptions",
+    description: "Open the subscriptions area.",
   },
-  {
-    domains: ['creditCards', 'categories'],
-    url: '/timeline/entry/credit/create',
-    description: 'Create a new credit card transaction inside the timeline detail view',
-    queryParams: {
-      card: { description: 'Credit card ID preselected in the form', required: false },
-      category: { description: 'Category ID preselected in the form', required: false },
-      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
-    }
-  },
-  {
-    domains: ['accounts', 'accountTransactions'],
-    url: '/timeline/entry/transfer/{id:string}',
-    description: 'Open an account transfer inside timeline detail view',
-    pathParams: { id: { description: 'ID of the transfer registry', required: true } }
-  },
-  {
-    domains: ['accounts'],
-    url: '/timeline/entry/transfer/create',
-    description: 'Create a new account transfer inside the timeline detail view',
-    queryParams: {
-      account: { description: 'Origin account ID preselected in the form', required: false },
-      [TimelineParam.MONTH]: { description: 'Month key to preserve timeline context', required: false },
-    }
-  },
-  {
-    url: '/categories',
-    description: 'View the categories listing or manage it manually',
-  },
-  {
-    url: '/subscriptions',
-    description: 'See avalilable subscriptions plans and manage your current plan',
-  }
+  // {
+  //   url: "/privacy/terms",
+  //   description: "Open the terms of service screen.",
+  // },
+  // {
+  //   url: "/privacy/policy",
+  //   description: "Open the privacy policy screen.",
+  // },
 ];
 
+function isRouteParamSegment(segment: string): boolean {
+  return /^\{[^}]+\}$/.test(segment);
+}
+
+function isOptionalRouteParamSegment(segment: string): boolean {
+  return /^\{[^}]+\?\}$/.test(segment);
+}
+
+function normalizeRoutePath(path: string): string {
+  const [pathname] = path.split("?");
+  const trimmed = pathname.trim();
+  if (!trimmed) return "/";
+
+  const normalized = trimmed.replace(/\/+/g, "/");
+  if (normalized === "/") return normalized;
+  return normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+}
+
 function routeMatch(knownRoute: string, aiRoute: string): boolean {
-  const goRoute = aiRoute.split('?')[0];
-  const configRoute = knownRoute
-    .replace(/\{[\w\:\?]+\}/g, '([^\]*)*')
-  const regex = new RegExp(`^${configRoute}$`);
-  return regex.test(goRoute);
-}
+  const knownSegments = normalizeRoutePath(knownRoute).split("/").filter(Boolean);
+  const aiSegments = normalizeRoutePath(aiRoute).split("/").filter(Boolean);
 
-export function getDefinitionByExactName(name: string): RoutesDefinition | undefined {
-  return routesDefinition.find(route => route.url === name);
-}
+  let knownIndex = 0;
+  let aiIndex = 0;
 
-export const navigateToRoute: AssistantToolExecution = async (
-  { url, queryParams, ...other }: { url: string, queryParams?: Record<string, any> }
-) => {
-  if(other && Object.keys(other).length) {
-    return { success: false, errors: `Parâmetros inválidos: ${Object.keys(other).join(", ")}. use o { route: '${url}', queryParams: { key: value } } para navegar.` };
+  while (knownIndex < knownSegments.length) {
+    const knownSegment = knownSegments[knownIndex];
+    const aiSegment = aiSegments[aiIndex];
+
+    if (isRouteParamSegment(knownSegment)) {
+      if (aiSegment == null) {
+        if (isOptionalRouteParamSegment(knownSegment)) {
+          knownIndex += 1;
+          continue;
+        }
+        return false;
+      }
+
+      knownIndex += 1;
+      aiIndex += 1;
+      continue;
+    }
+
+    if (knownSegment !== aiSegment) return false;
+    knownIndex += 1;
+    aiIndex += 1;
   }
 
-  if(!url) return { success: false, errors: `route is required. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.` };
-  const match = routesDefinition.find(r => routeMatch(r.url, url));
-  if(!match) {
-    return { success: false, errors: `Route '${url}' not found. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.` };
-  }
-
-  const validationError = validateParams('query', match, queryParams);
-  if (validationError) {
-    return { success: false, errors: validationError };
-  }
-
-  return { success: true, result: url };
+  return aiIndex === aiSegments.length;
 }
 
-function validateParams(type: 'path' | 'query', match: RoutesDefinition, params?: any): string | null {
-  const parameters = Object.entries(match.queryParams ?? {});
+function validateParams(type: "path" | "query", match: RoutesDefinition, params?: Record<string, unknown>): string | null {
+  const definition = type === "path" ? match.pathParams : match.queryParams;
+  const parameters = Object.entries(definition ?? {});
   const allParams = parameters.map(([key]) => key);
-  const requiredParams = parameters.filter(([_, param]) => param.required).map(([key]) => key);
-  const missingParams = requiredParams.filter(param => !params || !(param in params));
-  if(missingParams.length) {
-    return `Required ${type} parameters missing: ${missingParams.join(", ")}.`
+  const requiredParams = parameters.filter(([, param]) => param.required).map(([key]) => key);
+  const missingParams = requiredParams.filter((param) => {
+    const value = params?.[param];
+    return value === undefined || value === null || value === "";
+  });
+
+  if (missingParams.length) {
+    return `Required ${type} parameters missing: ${missingParams.join(", ")}.`;
   }
 
-  const remainingParams = Object.keys(params || {}).filter(key => !allParams.includes(key));
-  if(remainingParams.length) {
-    return `Invalid ${type} parameters: ${remainingParams.join(", ")}. Valid parameters are: ${allParams.join(", ")}.`
+  const remainingParams = Object.keys(params || {}).filter((key) => !allParams.includes(key));
+  if (remainingParams.length) {
+    return `Invalid ${type} parameters: ${remainingParams.join(", ")}. Valid parameters are: ${allParams.join(", ")}.`;
+  }
+
+  for (const [key, info] of parameters) {
+    if (!info.validation || params?.[key] == null || params[key] === "") continue;
+    const validation = info.validation(params[key]);
+    if (!validation.success) return validation.error;
   }
 
   return null;
 }
+
+function buildRoutePath(route: string, pathParams?: Record<string, unknown>): string {
+  const params = pathParams ?? {};
+
+  const resolved = route.replace(/\{([^}:?]+)(?::[^}?]+)?(\?)?\}/g, (_, key: string, optional: string | undefined) => {
+    const value = params[key];
+    if (value === undefined || value === null || value === "") {
+      return optional ? "" : `{${key}}`;
+    }
+
+    return encodeURIComponent(String(value));
+  });
+
+  return normalizeRoutePath(resolved);
+}
+
+function buildUrlWithQuery(path: string, queryParams?: Record<string, unknown>): string {
+  if (!queryParams || Object.keys(queryParams).length === 0) return path;
+
+  const searchParams = new URLSearchParams();
+  Object.entries(queryParams).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    searchParams.set(key, String(value));
+  });
+
+  const query = searchParams.toString();
+  return query ? `${path}?${query}` : path;
+}
+
+export function getDefinitionByExactName(name: string): RoutesDefinition | undefined {
+  return routesDefinition.find((route) => route.url === name);
+}
+
+export const navigateToRoute: AssistantToolExecution = async ({
+  url,
+  urlPathParams,
+  queryParams,
+  ...other
+}: NavigateToRouteArgs) => {
+  if (other && Object.keys(other).length) {
+    return {
+      success: false,
+      errors: `Parâmetros inválidos: ${Object.keys(other).join(", ")}. use o { url: "${url}", urlPathParams: { key: value }, queryParams: { key: value } } para navegar.`,
+    };
+  }
+
+  if (!url) {
+    return {
+      success: false,
+      errors: `route is required. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.`,
+    };
+  }
+
+  const match = routesDefinition.find((route) => routeMatch(route.url, url));
+  if (!match) {
+    return {
+      success: false,
+      errors: `Route '${url}' not found. use ${AppNavigationTool.LIST_SCREENS} to obtain the list of available screens.`,
+    };
+  }
+
+  const shouldBuildPath = normalizeRoutePath(url) === normalizeRoutePath(match.url);
+  if (shouldBuildPath) {
+    const pathValidationError = validateParams("path", match, urlPathParams);
+    if (pathValidationError) {
+      return { success: false, errors: pathValidationError };
+    }
+  }
+
+  const queryValidationError = validateParams("query", match, queryParams);
+  if (queryValidationError) {
+    return { success: false, errors: queryValidationError };
+  }
+
+  const finalPath = shouldBuildPath ? buildRoutePath(match.url, urlPathParams) : normalizeRoutePath(url);
+  if (finalPath.includes("{")) {
+    return {
+      success: false,
+      errors: `Invalid path parameters for route '${match.url}'. Use urlPathParams to fill the required path params.`,
+    };
+  }
+
+  return { success: true, result: buildUrlWithQuery(finalPath, queryParams) };
+};
 
 export enum AppNavigationTool {
   LIST_SCREENS = "search_screens",

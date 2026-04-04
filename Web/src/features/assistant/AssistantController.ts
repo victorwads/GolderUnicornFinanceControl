@@ -84,7 +84,7 @@ export default class AssistantController {
 
   private setPrompt(onboarding: boolean) {
     this.model = onboarding ? DEFAULT_ONBOARDING_MODEL : getAssistantModel();
-    this.toolRegistry.isOnboarding = onboarding;
+    this.toolRegistry.setOnboarding(onboarding);
   }
 
   private buildMessageProcessing(model: string, usage?: { input?: number; output?: number }): AIMessageProcessing {
@@ -181,17 +181,23 @@ export default class AssistantController {
 
         if (!toolCalls.length) {context.finishReason = "assistant_no_tool_calls"; break; }
 
+        const hasFinishTool = toolCalls.some((call) =>
+          call.function.name === ToUserTool.FINISH || call.function.name === ToUserTool.FINISH_ONBOARDING
+        );
+
         for (const call of toolCalls) {
           if (call.function.name === ToUserTool.FINISH || call.function.name === ToUserTool.FINISH_ONBOARDING) {
             context.finishReason = "finished_by_assistant";
             run = false;
             if (call.function.name === ToUserTool.FINISH_ONBOARDING) {
-              this.toolRegistry.isOnboarding = false;
+              this.toolRegistry.setOnboarding(false);
               await this.repositories.user.updateUserData({ onboardingDone: true });
               context.finishReason += "_onboarding";
             }
           } else {
-            await this.executeToolCall(call, context);
+            await this.executeToolCall(call, context, {
+              nonBlockingSayToUser: hasFinishTool,
+            });
           }
         }
       }
@@ -391,7 +397,10 @@ export default class AssistantController {
 
   private async executeToolCall(
     call: ChatCompletionMessageFunctionToolCall,
-    context: AiCallContext
+    context: AiCallContext,
+    options?: {
+      nonBlockingSayToUser?: boolean;
+    }
   ): Promise<unknown> {
     const args = call.function.arguments
       ? JSON.parse(call.function.arguments)
@@ -417,16 +426,20 @@ export default class AssistantController {
       args,
     });
     if (call.function.name === ToUserTool.SAY) {
-      result = await this.onAskAnditionalInfo?.(args.message)
-        .then((response) => ({ success: true, result: response }))
-        ?? { success: false, errors: "No onAskAnditionalInfo handler provided." };
+      if (options?.nonBlockingSayToUser) {
+        result = { success: true, result: args.message };
+      } else {
+        result = await this.onAskAnditionalInfo?.(args.message)
+          .then((response) => ({ success: true, result: response }))
+          ?? { success: false, errors: "No onAskAnditionalInfo handler provided." };
+      }
     } else {
       result = await this.toolRegistry.execute(name, args );
       context.sharedDomains = Array.from(this.toolRegistry.sharedDomains);
 
       if(name === AppNavigationTool.NAVIGATE && result.success === true) {
-        const { url, queryParams } = args as { url: string, queryParams?: Record<string, string> };
-        this.onNavigate?.(url, queryParams);
+        const { url } = args as { url: string };
+        this.onNavigate?.(typeof result.result === "string" ? result.result : url);
       }
     }
 
