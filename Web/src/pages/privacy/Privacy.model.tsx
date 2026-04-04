@@ -7,11 +7,10 @@ import {
   deleteAllUserData,
   exportUserData,
   importUserData,
-  ImportPasswordRequiredError,
   type ImportUserDataResult,
   type ExportUserDataResult,
-  type ExportJsonMode,
 } from "@features/settings/settingsActions";
+import { downloadEncryptionKeyFile } from "@features/security/downloadEncryptionKey";
 
 export function usePrivacyModel(): PrivacyViewModel {
   const navigate = useNavigate();
@@ -24,18 +23,12 @@ export function usePrivacyModel(): PrivacyViewModel {
   const [showDeleteDataDialog, setShowDeleteDataDialog] = useState(false);
   const [deleteDataConfirmation, setDeleteDataConfirmation] = useState("");
   const [deleteDataPhrase, setDeleteDataPhrase] = useState("");
-  const [showImportPasswordDialog, setShowImportPasswordDialog] = useState(false);
-  const [importPassword, setImportPassword] = useState("");
-  const [pendingImportFiles, setPendingImportFiles] = useState<File[]>([]);
 
-  const runImport = async (files: File[], password?: string) => {
+  const runImport = async (files: File[]) => {
     setProgressType("import");
     setLastImportResult(null);
-    const result = await importUserData(files, setProgress, { password });
+    const result = await importUserData(files, setProgress);
     setLastImportResult(result);
-    setPendingImportFiles([]);
-    setImportPassword("");
-    setShowImportPasswordDialog(false);
 
     if (result.failedFiles.length > 0) {
       toast({
@@ -51,11 +44,11 @@ export function usePrivacyModel(): PrivacyViewModel {
     }
   };
 
-  const handleExport = async (format: "json" | "csv", jsonMode: ExportJsonMode = "decrypted") => {
+  const handleExport = async (format: "json" | "csv", password?: string) => {
     try {
       setProgressType("export");
       setLastExportResult(null);
-      const result = await exportUserData(format, setProgress, { jsonMode });
+      const result = await exportUserData(format, setProgress, { password });
       setLastExportResult(result);
 
       if (result.failedDomains.length > 0) {
@@ -87,22 +80,29 @@ export function usePrivacyModel(): PrivacyViewModel {
     try {
       await runImport(files);
     } catch (error) {
-      if (error instanceof ImportPasswordRequiredError) {
-        const encryptedNames = new Set(error.files);
-        setPendingImportFiles(files.filter((file) => encryptedNames.has(file.name)));
-        setShowImportPasswordDialog(true);
-        toast({
-          title: LocalLang.importPasswordRequiredTitle,
-          description: LocalLang.importPasswordRequiredDescription(error.files.length),
-        });
-        return;
-      }
       console.error("Failed to import data", error);
       setLastImportResult(null);
       toast({
         variant: "destructive",
         title: LocalLang.importErrorTitle,
         description: error instanceof Error ? error.message : LocalLang.importErrorDescription,
+      });
+    }
+  };
+
+  const handleDownloadEncryptionKey = async () => {
+    try {
+      await downloadEncryptionKeyFile();
+      toast({
+        title: LocalLang.downloadEncryptionKeyTitle,
+        description: LocalLang.downloadEncryptionKeySuccessDescription,
+      });
+    } catch (error) {
+      console.error("Failed to download encryption key", error);
+      toast({
+        variant: "destructive",
+        title: LocalLang.downloadEncryptionKeyErrorTitle,
+        description: error instanceof Error ? error.message : LocalLang.downloadEncryptionKeyErrorDescription,
       });
     }
   };
@@ -115,15 +115,12 @@ export function usePrivacyModel(): PrivacyViewModel {
     lastExportResult,
     handleExport,
     handleImportFiles,
+    handleDownloadEncryptionKey,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
     deleteDataPhrase,
     deleteDataConfirmation,
     setDeleteDataConfirmation,
-    showImportPasswordDialog,
-    setShowImportPasswordDialog,
-    importPassword,
-    setImportPassword,
     openDeleteDataDialog: () => {
       const phrases = Lang.settings.deleteDataPhrases();
       const phrase = phrases[Math.floor(Math.random() * phrases.length)] || phrases[0] || Lang.settings.deleteData;
@@ -151,23 +148,6 @@ export function usePrivacyModel(): PrivacyViewModel {
           variant: "destructive",
           title: LocalLang.deleteErrorTitle,
           description: Lang.settings.deleteDataError,
-        });
-      }
-    },
-    confirmImportPassword: async () => {
-      if (pendingImportFiles.length === 0) {
-        setShowImportPasswordDialog(false);
-        return;
-      }
-
-      try {
-        await runImport(pendingImportFiles, importPassword);
-      } catch (error) {
-        console.error("Failed to import encrypted data", error);
-        toast({
-          variant: "destructive",
-          title: LocalLang.importErrorTitle,
-          description: error instanceof Error ? error.message : LocalLang.importErrorDescription,
         });
       }
     },

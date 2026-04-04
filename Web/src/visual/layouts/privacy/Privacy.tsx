@@ -1,12 +1,16 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@components/ui/card";
 import { Input } from "@components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
-import { ArrowLeft, FileJson, FileSpreadsheet, FileText, ShieldCheck, Download, Trash2, Upload, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, FileText, ShieldCheck, Download, Trash2, Upload, AlertCircle, CheckCircle2, Lock, UserCog, KeyRound } from "lucide-react";
 import { DataProgress } from "@components/DataProgress";
 import type { DataProgressInfo } from "@components/DataProgress";
 import type { ExportUserDataResult, ImportUserDataResult } from "@features/settings/settingsActions";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@components/ui/accordion";
+import { RadioGroup, RadioGroupItem } from "@components/ui/radio-group";
+import { Switch } from "@components/ui/switch";
+import { Label } from "@components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +29,10 @@ interface PrivacyProps {
 export default function Privacy({ model }: PrivacyProps) {
   const LocalLang = Lang.visual.privacy;
   const importInputRef = useRef<HTMLInputElement | null>(null);
+  const [exportExpanded, setExportExpanded] = useState(false);
+  const [exportFormat, setExportFormat] = useState<"json" | "csv">("json");
+  const [exportPasswordEnabled, setExportPasswordEnabled] = useState(false);
+  const [exportPassword, setExportPassword] = useState("");
   const { 
     navigate, 
     progress,
@@ -33,18 +41,14 @@ export default function Privacy({ model }: PrivacyProps) {
     lastExportResult,
     handleExport,
     handleImportFiles,
+    handleDownloadEncryptionKey,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
     deleteDataPhrase,
     deleteDataConfirmation,
     setDeleteDataConfirmation,
-    showImportPasswordDialog,
-    setShowImportPasswordDialog,
-    importPassword,
-    setImportPassword,
     openDeleteDataDialog,
     confirmDeleteData,
-    confirmImportPassword,
   } = model;
 
   return (
@@ -67,136 +71,6 @@ export default function Privacy({ model }: PrivacyProps) {
         </header>
 
         <div className="p-4 space-y-6 animate-fade-in">
-          <Card className="border-border/50">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Download className="h-5 w-5 text-primary" />
-                <CardTitle>{LocalLang.dataTitle}</CardTitle>
-              </div>
-              <CardDescription>
-                {LocalLang.dataDescription}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-16"
-                  onClick={() => handleExport('json', 'decrypted')}
-                  disabled={!!progress}
-                >
-                  <FileJson className="h-5 w-5 mr-3" />
-                  <div className="text-left">
-                    <p className="font-medium">{LocalLang.exportJsonTitle}</p>
-                    <p className="text-xs text-muted-foreground">{LocalLang.exportJsonDescription}</p>
-                  </div>
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-16"
-                  onClick={() => handleExport('json', 'encrypted')}
-                  disabled={!!progress}
-                >
-                  <ShieldCheck className="h-5 w-5 mr-3" />
-                  <div className="text-left">
-                    <p className="font-medium">{LocalLang.exportEncryptedJsonTitle}</p>
-                    <p className="text-xs text-muted-foreground">{LocalLang.exportEncryptedJsonDescription}</p>
-                  </div>
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-16"
-                  onClick={() => handleExport('csv')}
-                  disabled={!!progress}
-                >
-                  <FileSpreadsheet className="h-5 w-5 mr-3" />
-                  <div className="text-left">
-                    <p className="font-medium">{LocalLang.exportCsvTitle}</p>
-                    <p className="text-xs text-muted-foreground">{LocalLang.exportCsvDescription}</p>
-                  </div>
-                </Button>
-              </div>
-
-              <>
-                <input
-                  ref={importInputRef}
-                  type="file"
-                  multiple
-                  accept="application/json,.json"
-                  className="hidden"
-                  onChange={(event) => {
-                    const files = Array.from(event.target.files ?? []);
-                    void handleImportFiles(files);
-                    event.currentTarget.value = "";
-                  }}
-                />
-                <Button
-                  variant="secondary"
-                  className="w-full justify-start h-16"
-                  onClick={() => importInputRef.current?.click()}
-                  disabled={!!progress}
-                >
-                  <Upload className="h-5 w-5 mr-3" />
-                  <div className="text-left">
-                    <p className="font-medium">{LocalLang.importJsonTitle}</p>
-                    <p className="text-xs text-muted-foreground">{LocalLang.importJsonDescription}</p>
-                  </div>
-                </Button>
-              </>
-
-              <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                  {LocalLang.exportHint}
-                </p>
-              </div>
-
-              {lastImportResult && (
-                <ImportResultSummary
-                  result={lastImportResult}
-                  title={LocalLang.importSuccessTitle}
-                  countLabel={LocalLang.importSuccessCount(lastImportResult.totalImportedCount)}
-                />
-              )}
-
-              {lastExportResult && (
-                <ExportResultSummary
-                  result={lastExportResult}
-                  title={lastExportResult.failedDomains.length > 0
-                    ? LocalLang.exportPartialTitle
-                    : LocalLang.exportSuccessTitle}
-                  successLabel={LocalLang.exportSuccessCount(lastExportResult.exportedDomains.length)}
-                  errorLabel={LocalLang.exportErrorCount(lastExportResult.failedDomains.length)}
-                  fileLabel={LocalLang.exportFileLabel(lastExportResult.fileName)}
-                />
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle>{LocalLang.deleteDataTitle}</CardTitle>
-              <CardDescription>
-                {LocalLang.deleteDataDescription}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                variant="outline"
-                className="w-full justify-start h-14 text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={openDeleteDataDialog}
-                disabled={!!progress}
-              >
-                <Trash2 className="h-4 w-4 mr-3" />
-                <div className="text-left">
-                  <p className="font-medium">{LocalLang.deleteOnlyDataTitle}</p>
-                  <p className="text-xs text-muted-foreground">{LocalLang.deleteOnlyDataDescription}</p>
-                </div>
-              </Button>
-            </CardContent>
-          </Card>
-
           <Card className="border-border/50">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -236,24 +110,226 @@ export default function Privacy({ model }: PrivacyProps) {
 
           <Card className="border-border/50">
             <CardHeader>
-              <CardTitle>{LocalLang.manageAccountTitle}</CardTitle>
+              <div className="flex items-center gap-2">
+                <Download className="h-5 w-5 text-primary" />
+                <CardTitle>{LocalLang.dataTitle}</CardTitle>
+              </div>
+              <CardDescription>
+                {LocalLang.dataDescription}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button
+                variant="secondary"
+                className="w-full justify-start h-14"
+                onClick={() => importInputRef.current?.click()}
+                disabled={!!progress}
+              >
+                <Upload className="h-5 w-5 mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">{LocalLang.importJsonTitle}</p>
+                  <p className="text-xs text-muted-foreground">{LocalLang.importJsonDescription}</p>
+                </div>
+              </Button>
+
+              <Accordion
+                type="single"
+                collapsible
+                value={exportExpanded ? "export" : ""}
+                onValueChange={(value) => setExportExpanded(value === "export")}
+                className="rounded-lg border border-border"
+              >
+                <AccordionItem value="export" className="border-0">
+                  <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-accent/30 transition-colors">
+                    <div className="flex items-center gap-3 text-left">
+                      <Download className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">{LocalLang.exportActionTitle}</p>
+                        <p className="text-xs text-muted-foreground">{LocalLang.exportActionDescription}</p>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-foreground">{LocalLang.exportFormatTitle}</p>
+                        <RadioGroup
+                          value={exportFormat}
+                          onValueChange={(value) => {
+                            const nextValue = value as "json" | "csv";
+                            setExportFormat(nextValue);
+                          }}
+                          className="flex flex-wrap gap-2"
+                        >
+                          <label
+                            htmlFor="privacy-export-json"
+                            className="flex min-w-[220px] flex-1 items-start gap-3 rounded-lg border border-border px-3 py-3 cursor-pointer"
+                          >
+                            <RadioGroupItem value="json" id="privacy-export-json" className="mt-1" />
+                            <div>
+                              <p className="text-sm font-medium">{LocalLang.exportJsonTitle}</p>
+                              <p className="text-xs text-muted-foreground">{LocalLang.exportJsonDescription}</p>
+                            </div>
+                          </label>
+
+                          <label
+                            htmlFor="privacy-export-csv"
+                            className="flex min-w-[220px] flex-1 items-start gap-3 rounded-lg border border-border px-3 py-3 cursor-pointer"
+                          >
+                            <RadioGroupItem value="csv" id="privacy-export-csv" className="mt-1" />
+                            <div>
+                              <p className="text-sm font-medium">{LocalLang.exportCsvTitle}</p>
+                              <p className="text-xs text-muted-foreground">{LocalLang.exportCsvDescription}</p>
+                            </div>
+                          </label>
+                        </RadioGroup>
+                      </div>
+
+                      <div className="rounded-lg bg-muted/40 px-3 py-3">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="pr-4">
+                            <Label htmlFor="privacy-export-password-toggle" className="text-sm font-medium">
+                              <span className="inline-flex items-center gap-2">
+                                <Lock className="h-4 w-4" />
+                                {LocalLang.exportPasswordToggleTitle}
+                              </span>
+                            </Label>
+                            <p className="text-xs text-muted-foreground">
+                              {LocalLang.exportPasswordToggleDescription}
+                            </p>
+                          </div>
+                          <Switch
+                            id="privacy-export-password-toggle"
+                            checked={exportPasswordEnabled}
+                            onCheckedChange={(checked) => {
+                              setExportPasswordEnabled(checked);
+                              if (!checked) {
+                                setExportPassword("");
+                              }
+                            }}
+                            disabled={!!progress}
+                          />
+                        </div>
+
+                        {exportPasswordEnabled && (
+                          <div className="mt-3 space-y-2">
+                            <Label htmlFor="privacy-export-password">{LocalLang.exportPasswordFieldTitle}</Label>
+                            <Input
+                              id="privacy-export-password"
+                              type="password"
+                              value={exportPassword}
+                              onChange={(event) => setExportPassword(event.target.value)}
+                              placeholder={LocalLang.exportPasswordFieldPlaceholder}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <Button
+                        className="w-full"
+                        onClick={() => handleExport(exportFormat, exportPasswordEnabled ? exportPassword : undefined)}
+                        disabled={!!progress || (exportPasswordEnabled && exportPassword.trim().length === 0)}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {LocalLang.exportActionTitle}
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              <>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  multiple
+                  accept="application/json,.json"
+                  className="hidden"
+                  onChange={(event) => {
+                    const files = Array.from(event.target.files ?? []);
+                    void handleImportFiles(files);
+                    event.currentTarget.value = "";
+                  }}
+                />
+              </>
+
+              <div className="rounded-lg bg-muted/50 p-4">
+                <p className="text-sm text-muted-foreground">
+                  {LocalLang.exportHint}
+                </p>
+              </div>
+
+              {lastImportResult && (
+                <ImportResultSummary
+                  result={lastImportResult}
+                  title={LocalLang.importSuccessTitle}
+                  countLabel={LocalLang.importSuccessCount(lastImportResult.totalImportedCount)}
+                />
+              )}
+
+              {lastExportResult && (
+                <ExportResultSummary
+                  result={lastExportResult}
+                  title={lastExportResult.failedDomains.length > 0
+                    ? LocalLang.exportPartialTitle
+                    : LocalLang.exportSuccessTitle}
+                  successLabel={LocalLang.exportSuccessCount(lastExportResult.exportedDomains.length)}
+                  errorLabel={LocalLang.exportErrorCount(lastExportResult.failedDomains.length)}
+                  fileLabel={LocalLang.exportFileLabel(lastExportResult.fileName)}
+                />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <UserCog className="h-5 w-5 text-primary" />
+                <CardTitle>{LocalLang.manageAccountTitle}</CardTitle>
+              </div>
               <CardDescription>
                 {LocalLang.manageAccountDescription}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button
-                variant="outline"
-                className="w-full justify-start h-14 text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={() => navigate("/me/privacy/delete")}
-                disabled={!!progress}
-              >
-                <Trash2 className="h-4 w-4 mr-3" />
-                <div className="text-left">
-                  <p className="font-medium">{LocalLang.deleteMyAccountTitle}</p>
-                  <p className="text-xs text-muted-foreground">{LocalLang.deleteMyAccountDescription}</p>
-                </div>
-              </Button>
+            <CardContent className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-14"
+                  onClick={() => void handleDownloadEncryptionKey()}
+                  disabled={!!progress}
+                >
+                  <KeyRound className="h-4 w-4 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">{LocalLang.downloadEncryptionKeyTitle}</p>
+                    <p className="text-xs text-muted-foreground">{LocalLang.downloadEncryptionKeyDescription}</p>
+                  </div>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-14 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={openDeleteDataDialog}
+                  disabled={!!progress}
+                >
+                  <Trash2 className="h-4 w-4 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">{LocalLang.deleteOnlyDataTitle}</p>
+                    <p className="text-xs text-muted-foreground">{LocalLang.deleteOnlyDataDescription}</p>
+                  </div>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-14 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => navigate("/me/privacy/delete")}
+                  disabled={!!progress}
+                >
+                  <Trash2 className="h-4 w-4 mr-3" />
+                  <div className="text-left">
+                    <p className="font-medium">{LocalLang.deleteMyAccountTitle}</p>
+                    <p className="text-xs text-muted-foreground">{LocalLang.deleteMyAccountDescription}</p>
+                  </div>
+                </Button>
             </CardContent>
           </Card>
         </div>
@@ -293,30 +369,6 @@ export default function Privacy({ model }: PrivacyProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showImportPasswordDialog} onOpenChange={setShowImportPasswordDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{LocalLang.importPasswordDialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {LocalLang.importPasswordDialogDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <Input
-            type="password"
-            value={importPassword}
-            onChange={(event) => setImportPassword(event.target.value)}
-            placeholder={LocalLang.importPasswordDialogPlaceholder}
-          />
-
-          <AlertDialogFooter>
-            <AlertDialogCancel>{LocalLang.importPasswordDialogCancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void confirmImportPassword()}>
-              {LocalLang.importPasswordDialogConfirm}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
@@ -327,20 +379,16 @@ export interface PrivacyViewModel {
   progressType: "export" | "delete" | "import";
   lastImportResult: ImportUserDataResult | null;
   lastExportResult: ExportUserDataResult | null;
-  handleExport: (format: 'json' | 'csv', jsonMode?: 'decrypted' | 'encrypted') => void;
+  handleExport: (format: 'json' | 'csv', password?: string) => void;
   handleImportFiles: (files: File[]) => Promise<void>;
+  handleDownloadEncryptionKey: () => Promise<void>;
   showDeleteDataDialog: boolean;
   setShowDeleteDataDialog: (open: boolean) => void;
   deleteDataPhrase: string;
   deleteDataConfirmation: string;
   setDeleteDataConfirmation: (value: string) => void;
-  showImportPasswordDialog: boolean;
-  setShowImportPasswordDialog: (open: boolean) => void;
-  importPassword: string;
-  setImportPassword: (value: string) => void;
   openDeleteDataDialog: () => void;
   confirmDeleteData: () => void;
-  confirmImportPassword: () => Promise<void>;
 }
 
 function ImportResultSummary({
