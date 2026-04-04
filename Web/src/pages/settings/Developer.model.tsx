@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useToast } from "@hooks/use-toast";
@@ -15,6 +15,7 @@ import {
   DeveloperViewModel,
   ToMoreRoute,
 } from "@layouts/settings/Developer";
+import { isDeveloperOptionsEnabled, setDeveloperOptionsEnabled } from "./developerOptions";
 
 const LEGACY_THEME_KEY = `${ProjectStorage.PREFIX}theme`;
 const LEGACY_DENSITY_KEY = `${ProjectStorage.PREFIX}densityV2`;
@@ -69,6 +70,12 @@ export function useDeveloperModel(): DeveloperViewModel {
   );
   const [resaveProgress, setResaveProgress] = useState<DataProgressInfo | null>(null);
 
+  useEffect(() => {
+    if (!isDeveloperOptionsEnabled()) {
+      navigate("/settings");
+    }
+  }, [navigate]);
+
   function onNavigate(route: DeveloperRoute) {
     if (route instanceof ToMoreRoute) {
       navigate("/settings");
@@ -117,6 +124,14 @@ export function useDeveloperModel(): DeveloperViewModel {
     setKillAccountId,
     resaveProgress,
     openSubscriptions: () => navigate("/subscriptions"),
+    disableDeveloperOptions: () => {
+      setDeveloperOptionsEnabled(false);
+      toast({
+        title: "Developer options disabled",
+        description: "Advanced options were hidden again.",
+      });
+      navigate("/settings");
+    },
     clearVisualSettings: () => {
       confirmAndClearStorage({
         title: "Preferências visuais limpas",

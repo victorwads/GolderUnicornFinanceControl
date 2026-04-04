@@ -1,9 +1,11 @@
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getCurrentUser } from "@configs";
 import { clearSession } from "@utils/clearSession";
 import { useAppUpdates } from "@componentsDeprecated/AppUpdatesProvider";
 import { useToast } from "@hooks/use-toast";
+import { isDeveloperOptionsEnabled, setDeveloperOptionsEnabled } from "./developerOptions";
 
 import {
   MoreRoute,
@@ -15,6 +17,9 @@ import { Calendar, CreditCard, FileCode2, FileText, Link2, Receipt, Sparkles, Wa
 export function useMoreModel(): MoreViewModel {
   const router = useNavigate();
   const { toast } = useToast();
+  const versionTapCountRef = useRef(0);
+  const versionTapResetTimerRef = useRef<number | null>(null);
+  const [developerOptionsEnabled, setDeveloperOptionsEnabledState] = useState(() => isDeveloperOptionsEnabled());
 
   function navigate(route: MoreRoute | string) {
     if (typeof route === "string") {
@@ -57,15 +62,48 @@ export function useMoreModel(): MoreViewModel {
           { label: "Privacidade e Segurança", icon: Lock, route: "/me/privacy" },
         ],
       },
-      {
+      ...(developerOptionsEnabled ? [{
         title: "Developer Options / Beta",
         items: [
           { label: "Subscrições", icon: Sparkles, route: "/subscriptions" },
           { label: "Utilitários de Desenvolvedor", icon: FileCode2, route: "/settings/developer" },
         ],
-      },
+      }] : []),
     ],
     navigate,
+    onVersionPress: () => {
+      if (developerOptionsEnabled) {
+        return;
+      }
+
+      versionTapCountRef.current += 1;
+
+      if (versionTapResetTimerRef.current !== null) {
+        window.clearTimeout(versionTapResetTimerRef.current);
+      }
+
+      versionTapResetTimerRef.current = window.setTimeout(() => {
+        versionTapCountRef.current = 0;
+        versionTapResetTimerRef.current = null;
+      }, 4000);
+
+      if (versionTapCountRef.current < 10) {
+        return;
+      }
+
+      setDeveloperOptionsEnabled(true);
+      setDeveloperOptionsEnabledState(true);
+      versionTapCountRef.current = 0;
+      if (versionTapResetTimerRef.current !== null) {
+        window.clearTimeout(versionTapResetTimerRef.current);
+        versionTapResetTimerRef.current = null;
+      }
+
+      toast({
+        title: "Developer options enabled",
+        description: "Advanced options are now available in settings.",
+      });
+    },
     handleLogout: clearSession,
     handleUpdateCheck: async () => {
       const result = await checkForUpdates({ applyIfAvailable: true });

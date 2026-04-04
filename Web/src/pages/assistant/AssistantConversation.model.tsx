@@ -6,6 +6,7 @@ import type { Repositories } from "@repositories";
 import getRepositories from "@repositories";
 import { getAssistantModel } from "@features/assistant/AssistantController";
 import { useAssistantContext } from "@features/assistant/AssistantContext";
+import { isDeveloperOptionsEnabled } from "@pages/settings/developerOptions";
 import {
   AssistantHistoryDetailRoute,
   AssistantHistoryDetailViewModel,
@@ -19,7 +20,7 @@ export function useAssistantConversationModel(): AssistantHistoryDetailViewModel
   const repositories = useRepositories();
   const { openWithConversation } = useAssistantContext();
   const [contexts, setContexts] = useState<AiCallContext[]>([]);
-  const isDeveloperMode = window.isDevelopment === true;
+  const isDeveloperMode = isDeveloperOptionsEnabled();
 
   useEffect(() => {
     if (!repositories) return;

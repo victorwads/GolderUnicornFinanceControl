@@ -14,6 +14,7 @@ interface DeveloperProps {
 export default function Developer({ model }: DeveloperProps) {
   const {
     navigate,
+    disableDeveloperOptions,
     encryptionDisabled,
     killAccountId,
     setKillAccountId,
@@ -45,6 +46,19 @@ export default function Developer({ model }: DeveloperProps) {
         </header>
 
         <div className="p-4 space-y-6 animate-fade-in">
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle>{LocalLang.title}</CardTitle>
+              <CardDescription>{LocalLang.subtitle}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full justify-start h-14" onClick={disableDeveloperOptions}>
+                <Trash2 className="h-4 w-4 mr-3" />
+                Disable developer options
+              </Button>
+            </CardContent>
+          </Card>
+
           <Card className="border-border/50">
           <CardHeader>
             <CardTitle>{LocalLang.toolsTitle}</CardTitle>
@@ -168,6 +182,7 @@ export class ToMoreRoute extends DeveloperRoute {}
 
 export interface DeveloperViewModel {
   navigate: (route: DeveloperRoute) => void;
+  disableDeveloperOptions: () => void;
   encryptionDisabled: boolean;
   killAccountId: string;
   setKillAccountId: (value: string) => void;

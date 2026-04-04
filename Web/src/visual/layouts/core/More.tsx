@@ -10,7 +10,7 @@ interface MoreProps {
 }
 
 export default function More({ model }: MoreProps) {
-  const { navigate, handleLogout, sections = [], lang = {} as MoreLang, user, handleUpdateCheck, checkingForUpdate } = model;
+  const { navigate, handleLogout, sections = [], lang = {} as MoreLang, user, handleUpdateCheck, checkingForUpdate, onVersionPress } = model;
   const LocalLang = Lang.visual.more;
 
   function resolveSectionTitle(section: MoreViewModel["sections"][number]) {
@@ -132,7 +132,7 @@ export default function More({ model }: MoreProps) {
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
-              <div className="flex items-center justify-between p-4">
+              <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-accent/50 transition-colors" onClick={onVersionPress}>
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Info className="h-5 w-5 text-primary" />
@@ -201,6 +201,7 @@ export interface MoreViewModel {
     }[];
   }[];
   navigate: (route: MoreRoute | string) => void;
+  onVersionPress: () => void;
   handleUpdateCheck: () => void | Promise<void>;
   checkingForUpdate?: boolean;
   handleLogout: () => void;

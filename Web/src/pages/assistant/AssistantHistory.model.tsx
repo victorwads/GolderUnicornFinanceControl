@@ -6,6 +6,7 @@ import type { Repositories } from "@repositories";
 import getRepositories from "@repositories";
 import { getAssistantModel, setAssistantModel } from "@features/assistant/AssistantController";
 import { getCurrentMonthAiCostBRL, MONTHLY_AI_COST_LIMIT_BRL } from "@features/assistant/costControl";
+import { isDeveloperOptionsEnabled } from "@pages/settings/developerOptions";
 import {
   AssistantHistoryListViewModel,
   AssistantHistoryRoute,
@@ -20,7 +21,7 @@ export function useAssistantHistoryModel(): AssistantHistoryListViewModel {
   const repositories = useRepositories();
   const [contexts, setContexts] = useState<AiCallContext[]>([]);
   const [monthlyCostBRL, setMonthlyCostBRL] = useState(0);
-  const isDeveloperMode = window.isDevelopment === true;
+  const isDeveloperMode = isDeveloperOptionsEnabled();
 
   useEffect(() => {
     if (!repositories) return;
