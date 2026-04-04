@@ -22,9 +22,14 @@ export class ProjectStorage {
   }
 
   static clear() {
-    const keys = Object.keys(localStorage);
+    let keys: string[];
+    keys = Object.keys(localStorage);
     keys.forEach(key => {
       localStorage.removeItem(key);
+    });
+    keys = Object.keys(sessionStorage);
+    keys.forEach(key => {
+      sessionStorage.removeItem(key);
     });
   }
 }
