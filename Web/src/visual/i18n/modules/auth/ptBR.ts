@@ -10,6 +10,7 @@ const ptBR: AuthModuleTranslation = {
     notFoundTitle: "Página não encontrada",
     notFoundDescription: "Não encontramos a tela que você tentou abrir.",
     backToHome: "Voltar para a home",
+    encryptionKeyFileNamePrefix: "gu-chave",
     encryptionSetup: {
       title: "Configurar criptografia",
       description: "Crie uma senha para proteger e descriptografar seus dados locais neste dispositivo.",
@@ -35,7 +36,20 @@ const ptBR: AuthModuleTranslation = {
       description: "Digite sua senha para acessar seus dados locais.",
       password: "Senha",
       helper: "Sem a senha correta, o app não consegue descriptografar as informações salvas localmente.",
-      unlock: "Desbloquear"
+      unlock: "Desbloquear",
+      forgotPassword: "Não lembro minha senha",
+      recoveryTitle: "Recupere o acesso com seu arquivo da chave",
+      recoveryDescription: "Não existe forma de recuperar sua senha. Se você tiver o arquivo da chave de criptografia, podemos desbloquear este dispositivo com ele.",
+      recoveryWarning: "Sem esse arquivo, a recuperação é impossível. Você vai precisar dele sempre que entrar em um dispositivo novo.",
+      recoveryUploadLabel: "Enviar arquivo da chave",
+      recoveryFileExample: (fileName) => `O arquivo esperado tem este formato de nome: ${fileName}`,
+      recoveryFileSelected: (fileName) => `Arquivo enviado: ${fileName}`,
+      recoveryPending: "Envie o arquivo da chave para continuar.",
+      backToPassword: "Voltar para a senha",
+      recoveryWrongAccount: "Esse arquivo de chave pertence a outra conta.",
+      recoverySuccessTitle: "Criptografia desbloqueada",
+      recoverySuccessDescription: "A chave foi validada e seus dados locais foram carregados.",
+      recoveryErrorTitle: "Falha ao recuperar acesso"
     }
   }
 };

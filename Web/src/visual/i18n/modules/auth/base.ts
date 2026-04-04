@@ -10,6 +10,7 @@ export default interface AuthModuleTranslation extends Translation {
     notFoundTitle: string;
     notFoundDescription: string;
     backToHome: string;
+    encryptionKeyFileNamePrefix: string;
     encryptionSetup: {
       title: string;
       description: string;
@@ -36,6 +37,19 @@ export default interface AuthModuleTranslation extends Translation {
       password: string;
       helper: string;
       unlock: string;
+      forgotPassword: string;
+      recoveryTitle: string;
+      recoveryDescription: string;
+      recoveryWarning: string;
+      recoveryUploadLabel: string;
+      recoveryFileExample: (fileName: string) => string;
+      recoveryFileSelected: (fileName: string) => string;
+      recoveryPending: string;
+      backToPassword: string;
+      recoveryWrongAccount: string;
+      recoverySuccessTitle: string;
+      recoverySuccessDescription: string;
+      recoveryErrorTitle: string;
     };
   };
 }

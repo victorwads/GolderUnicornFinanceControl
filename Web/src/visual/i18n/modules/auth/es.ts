@@ -10,6 +10,7 @@ const es: AuthModuleTranslation = {
     notFoundTitle: "Page not found",
     notFoundDescription: "We could not find the screen you tried to open.",
     backToHome: "Back to home",
+    encryptionKeyFileNamePrefix: "gu-clave",
     encryptionSetup: {
       title: "Set up encryption",
       description: "Create a password to protect and unlock your local data on this device.",
@@ -35,7 +36,20 @@ const es: AuthModuleTranslation = {
       description: "Enter your password to access your local data.",
       password: "Password",
       helper: "Without the correct password, the app cannot decrypt the information stored locally.",
-      unlock: "Unlock"
+      unlock: "Unlock",
+      forgotPassword: "No recuerdo mi contraseña",
+      recoveryTitle: "Recupera el acceso con tu archivo de clave",
+      recoveryDescription: "No hay forma de recuperar tu contraseña. Si todavía tienes el archivo de la clave de cifrado, podemos desbloquear este dispositivo con él.",
+      recoveryWarning: "Sin este archivo, la recuperación es imposible. Lo necesitarás cada vez que inicies sesión en un dispositivo nuevo.",
+      recoveryUploadLabel: "Subir archivo de clave",
+      recoveryFileExample: (fileName) => `El nombre esperado del archivo se parece a este: ${fileName}`,
+      recoveryFileSelected: (fileName) => `Archivo enviado: ${fileName}`,
+      recoveryPending: "Sube el archivo de clave para continuar.",
+      backToPassword: "Volver a la contraseña",
+      recoveryWrongAccount: "Este archivo de clave pertenece a otra cuenta.",
+      recoverySuccessTitle: "Cifrado desbloqueado",
+      recoverySuccessDescription: "El archivo de clave fue validado y tus datos locales ya están disponibles.",
+      recoveryErrorTitle: "No se pudo recuperar el acceso"
     }
   }
 };
