@@ -11,14 +11,15 @@ const startSpeechRecognition = () => SpeechRecognition.startListening({
 export const startListening = (options?: StartListeningOptions) => {
   clearTimeout(timeOut!);
   timeOut = setTimeout(() => 
-    startSpeechRecognition()
+    startSpeechRecognition().catch(console.error)
   , 50);
+  console.log('Starting listening with options', options);
 };
 
 export const stopListening = () => {
-  console.log('Stopping listening');
   clearTimeout(timeOut!);
   timeOut = setTimeout(() => 
-    SpeechRecognition.stopListening()
+    SpeechRecognition.stopListening().catch(console.error)
   , 50);
+  console.log('Stopping listening');
 };

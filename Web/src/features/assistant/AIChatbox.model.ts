@@ -2,19 +2,40 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAssistantContext } from "@features/assistant/AssistantContext";
+import { useAIChatboxMicrophoneModel } from "@features/assistant/AIChatboxMicrophone.model";
 import type { AIChatboxViewModel } from "@layouts/assistant/AIChatbox";
 
 const ACTIVE_COLLAPSED_MESSAGES_COUNT = 4;
 
 export function useAssistantChatboxModel(): AIChatboxViewModel {
   const [draft, setDraft] = useState("");
-  const [isListening, setIsListening] = useState(false);
   const navigate = useNavigate();
 
   const { 
     processing, penddingAnswer, isOpen, setIsOpen,
     conversationId, history, sendUserAnswer
   } = useAssistantContext();
+
+  const onSend = () => {
+    const nextDraft = draft.trim();
+    if (!nextDraft || processing) {
+      return;
+    }
+
+    clearAutoSend();
+    setDraft("");
+    sendUserAnswer(nextDraft);
+    stopMic();
+  }
+
+  const {
+    autoSendProgress, isListening,
+    toggleMic, stopMic, clearAutoSend,
+  } = useAIChatboxMicrophoneModel({
+    penddingAnswer, draft,
+    setDraft, onAutoSend: onSend
+  });
+  
   const isActive = isListening || processing || penddingAnswer;
   const visibleEntries = isOpen
     ? history
@@ -26,22 +47,14 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     conversationId,
     visibleEntries,
     draft,
-    isListening,
-    autoSendProgress: 0,
+    isListening: isListening,
+    autoSendProgress,
     loading: processing,
     onDraftChange: setDraft,
-    onMicrophoneToggle: () => setIsListening((current) => !current),
+    toggleMic,
     onClose: () => setIsOpen(false),
     onToggle: () => setIsOpen(!isOpen),
-    onSend: () => {
-      const nextDraft = draft.trim();
-      if (!nextDraft || processing) {
-        return;
-      }
-
-      setDraft("");
-      sendUserAnswer(nextDraft);
-    },
+    onSend,
     onOpenFullConversation: () => {
       setIsOpen(false);
       navigate(`/assistant/${conversationId}`);

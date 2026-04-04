@@ -17,6 +17,7 @@ export default function AIChatbox({ model }: AIChatboxProps) {
   const canOpenFullConversation = Boolean(model.conversationId && entries.length > 0);
   const isCompactActive = !model.open && model.isActive;
   const shouldRender = model.open || isCompactActive;
+  const autoSendProgress = normalizeProgress(model.autoSendProgress);
 
   useEffect(() => {
     if (!shouldRender) {
@@ -146,7 +147,7 @@ export default function AIChatbox({ model }: AIChatboxProps) {
                       ? "bg-destructive/12 text-destructive hover:bg-destructive/18"
                       : "bg-primary/8 text-primary hover:bg-primary/12"
                   )}
-                  onClick={model.onMicrophoneToggle}
+                  onClick={model.toggleMic}
                   title={model.isListening ? Lang.assistant.micStop : Lang.assistant.micStart}
                   aria-label={model.isListening ? Lang.assistant.micStop : Lang.assistant.micStart}
                 >
@@ -168,10 +169,14 @@ export default function AIChatbox({ model }: AIChatboxProps) {
                   disabled={!model.draft.trim() || model.loading}
                   onClick={model.onSend}
                 >
+                  <div
+                    className="absolute inset-y-0 left-0 bg-primary-foreground/20 transition-all duration-150"
+                    style={{ width: `${autoSendProgress}%` }}
+                  />
                   <SendHorizontal className="relative z-10 h-4 w-4" />
                   <div
-                    className="absolute inset-y-0 left-0 bg-primary/20 transition-all duration-150"
-                    style={{ width: `${model.autoSendProgress}%` }}
+                    className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-primary-foreground/10"
+                    aria-hidden="true"
                   />
                 </Button>
               </div>
@@ -193,7 +198,7 @@ export interface AIChatboxViewModel {
   autoSendProgress: number;
   loading: boolean;
   onDraftChange: (value: string) => void;
-  onMicrophoneToggle: () => void;
+  toggleMic: () => void;
   onClose: () => void;
   onToggle: () => void;
   onSend: () => void;
@@ -211,4 +216,13 @@ function ThinkingLoader() {
       <span className="h-1.5 w-1.5 rounded-full bg-primary/80 animate-[thinking-wave_0.9s_cubic-bezier(0.55,0,0.45,1)_infinite_alternate] [animation-delay:0.45s]" />
     </div>
   );
+}
+
+function normalizeProgress(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  const normalized = value <= 1 ? value * 100 : value;
+  return Math.max(0, Math.min(100, normalized));
 }
