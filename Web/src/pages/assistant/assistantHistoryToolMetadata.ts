@@ -294,8 +294,6 @@ function getRouteLabel(route: string): string {
       return labels.accounts;
     case "/creditcards":
       return labels.creditCards;
-    case "/dashboard":
-      return labels.dashboard;
     case "/recurrent":
       return labels.recurrent;
     case "/settings":

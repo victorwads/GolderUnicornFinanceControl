@@ -6,7 +6,7 @@ import { Density, useCssVars } from "@componentsDeprecated/Vars";
 import { useDensity } from "@contexts/DensityContext";
 import { getServices } from "@services";
 import { ProjectStorage } from "@utils/ProjectStorage";
-import { getVoices, speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
+import { getVoices, speak } from "@features/assistant/speechSynthesis";
 import {
   getAssistantMicrophoneMode,
   getAssistantMode,
@@ -23,7 +23,7 @@ import {
   SettingsRoute,
   ToMoreRoute,
   ToLanguageRoute,
-  SettingsViewModel
+  SettingsViewModel,
 } from "@layouts/settings/Settings";
 
 export function useSettingsModel(): SettingsViewModel {

@@ -31,11 +31,6 @@ const timeLineDomains: RepoName[] = ['accountTransactions', 'creditCardsInvoices
 
 export const routesDefinition: RoutesDefinition[] = [
   {
-    domains: ['accounts', "creditCardsInvoices", 'creditCards'],
-    url: '/dashboard',
-    description: 'Home page with balances by account, listing cards for invoice access. main place to view sumarized information',
-  },
-  {
     domains: timeLineDomains,
     url: '/timeline',
     description: 'See transactions history of financial records, you mainlly use month key to filter the transactions by month, but you can also use other filters like categories, accounts and date range.',
@@ -83,7 +78,7 @@ export const routesDefinition: RoutesDefinition[] = [
     description: 'View conversations history with the AI assistant with information about tokens used and cost',
   },
   {
-    url: '/resource-usage',
+    url: '/me/resource-usage',
     description: 'Resource usage statistics to see how many tokens you have used in the current month and the cost',
   },
   {
