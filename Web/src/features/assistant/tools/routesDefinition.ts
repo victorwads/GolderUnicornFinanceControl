@@ -54,7 +54,7 @@ export const routesDefinition: RoutesDefinition[] = [
   // },
   {
     domains: ['recurrentTransactions'],
-    url: '/recurrent',
+    url: '/recurrents',
     description: 'View the list of recurring registries with their schedule information',
   },
   // {

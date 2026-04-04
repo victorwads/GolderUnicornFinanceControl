@@ -36,14 +36,13 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     setDraft, onAutoSend: onSend
   });
   
-  const isActive = isListening || processing || penddingAnswer;
   const visibleEntries = isOpen
     ? history
     : history.slice(-ACTIVE_COLLAPSED_MESSAGES_COUNT);
 
   return {
     open: isOpen && !processing,
-    isActive,
+    isActive: isListening || processing, // || penddingAnswer,
     conversationId,
     visibleEntries,
     draft,

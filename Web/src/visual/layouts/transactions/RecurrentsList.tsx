@@ -14,7 +14,7 @@ export default function RecurrentsList({
 }) {
   return (
     <div className="min-h-full bg-background">
-      <div className="max-w-4xl mx-auto">
+      <div className="min-h-full w-full">
         <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

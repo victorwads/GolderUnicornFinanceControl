@@ -2,7 +2,7 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useSpeechRecognition } from "react-speech-recognition";
 
 import { startListening as startSpeechListening, stopListening as stopSpeechListening } from "../../components/voice/microfone";
-import { getAssistantMicrophoneMode, getAssistantMode } from "./preferences";
+import { getAssistantMicrophoneMode } from "./preferences";
 
 const AUTO_SEND_TIMEOUT = 2500;
 const TIMERS = {
@@ -35,7 +35,7 @@ export function useAIChatboxMicrophoneModel({
 
   // Auto send when user stops talking for a certain time
   useEffect(() => {
-    if (getAssistantMode() !== 'live' || !listening || draft.trim() === '') {
+    if (getAssistantMicrophoneMode() !== 'live' || !listening || draft.trim() === '') {
       clearAutoSend();
       return;
     }
@@ -56,7 +56,7 @@ export function useAIChatboxMicrophoneModel({
 
   // Auto start listening when assistant is open and waiting for answer
   useEffect(() => {
-    if (getAssistantMode() !== 'live') return;
+    if (getAssistantMicrophoneMode() !== 'live') return;
     if(penddingAnswer && !listening) startSpeechListening();
   }, [penddingAnswer, listening]);
 
@@ -77,19 +77,18 @@ export function useAIChatboxMicrophoneModel({
     setAutoSendProgress,
     clearAutoSend,
     toggleMic: () => {
-      if (getAssistantMode() === "manual" && getAssistantMicrophoneMode() === "hold") return;
+      if (getAssistantMicrophoneMode() === "hold") return;
       if (listening) {
         stopSpeechListening();
-        if (getAssistantMode() === "manual" && getAssistantMicrophoneMode() === "click")
-          autoSend();
+        if (getAssistantMicrophoneMode() === "click") autoSend();
       } else startSpeechListening();
     },
     startPressMic: () => {
-      if (getAssistantMode() === "manual" || getAssistantMicrophoneMode() === "hold")
+      if (getAssistantMicrophoneMode() !== "hold") return;
       startSpeechListening();
     },
     endPressMic: () => {
-      if (getAssistantMode() === "manual" || getAssistantMicrophoneMode() == "hold")
+      if (getAssistantMicrophoneMode() !== "hold") return;
       stopSpeechListening();
       autoSend();
     },

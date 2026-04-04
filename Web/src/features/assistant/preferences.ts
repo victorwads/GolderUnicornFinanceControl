@@ -1,4 +1,5 @@
 import { ProjectStorage } from "@utils/ProjectStorage";
+import { get } from "http";
 
 const ASSISTANT_MODE_KEY = "assistantMode";
 const MICROPHONE_MODE_KEY = "assistantMicrophoneMode";
@@ -7,7 +8,7 @@ const VOICE_NAME_KEY = "voiceNameV2";
 const USE_SPEECH_KEY = "useSpeech";
 
 export type AssistantMode = "live" | "manual";
-export type AssistantMicrophoneMode = "hold" | "click";
+export type AssistantMicrophoneMode = "hold" | "click" | "live";
 
 export function getAssistantMode(): AssistantMode {
   return (ProjectStorage.get(ASSISTANT_MODE_KEY) as AssistantMode) || "live";
@@ -18,6 +19,8 @@ export function setAssistantMode(mode: AssistantMode) {
 }
 
 export function getAssistantMicrophoneMode(): AssistantMicrophoneMode {
+  const mode = getAssistantMode();
+  if (mode === "live") return "live";
   return (ProjectStorage.get(MICROPHONE_MODE_KEY) as AssistantMicrophoneMode) || "click";
 }
 
