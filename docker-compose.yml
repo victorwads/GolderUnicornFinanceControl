@@ -19,7 +19,9 @@ services:
       - ./Web:/app
       - ./Site/resources/:/app/resources
       - .git:/app/.git
-      - web_node_modules:/app/node_modules
+      - web_temp:/app/node_modules
+      - web_temp:/tmp
+      - web_temp:/usr/local/share/.cache
     command:
       - sh
       - -c
@@ -30,7 +32,9 @@ services:
     image: node:24-alpine
     working_dir: /app
     volumes:
-      - proxy_node_modules:/app/node_modules
+      - proxy_temp:/app/node_modules
+      - proxy_temp:/tmp
+      - proxy_temp:/usr/local/share/.cache
       - ./firebase.json:/firebase.json:ro
       - ./Web/proxy:/app
     ports:
@@ -46,7 +50,7 @@ services:
     working_dir: /app/Backend
     volumes:
       - ./Backend:/app/Backend
-      - backend_node_modules:/app/Backend/node_modules
+      - backend_temp:/app/Backend/node_modules
     command: yarn docker
 
   firebase:
@@ -58,7 +62,9 @@ services:
       - ./Firebase:/app/Firebase
       - ./Backend:/app/Backend
       - ./Backend/.env.local:/app/.env.local
-      - backend_node_modules:/app/Backend/node_modules
+      - backend_temp:/app/Backend/node_modules
+      - backend_temp:/tmp
+      - backend_temp:/usr/local/share/.cache
     ports:
       - "8004:8004" # Auth
       - "8006:8006" # Functions
@@ -72,7 +78,7 @@ services:
     command: sh /app/Firebase/start-emulators.sh
 
 volumes:
-  proxy_node_modules:
-  web_node_modules:
+  proxy_temp:
+  web_temp:
   prototype_node_modules:
-  backend_node_modules:
+  backend_temp:
