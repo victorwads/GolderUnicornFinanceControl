@@ -280,7 +280,7 @@ export default class AssistantController {
     pendingToolCalls.forEach((call) => {
       const result: Result<unknown> = isBlockingAskTool(call.name)
         ? { success: true, result: text }
-        : { success: false, errors: "Try again." };
+        : { success: false, errors: "Call this tool again." };
 
       context.history.push(
         this.enrichHistoryMessage(

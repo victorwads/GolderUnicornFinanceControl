@@ -32,19 +32,21 @@ function toVisualRecurrents(): Recurrent[] {
         ? repositories.categories.getLocalById(registry.categoryId)
         : undefined;
       const metadata = registry.recurrentMetadata;
-      const account = metadata.isCreditCard
-        ? repositories.creditCards.getLocalById(metadata.cardId)?.name
-        : repositories.accounts.getLocalById(metadata.accountId)?.name;
+      const isCreditCard = metadata?.isCreditCard ?? false;
+      const account = isCreditCard
+        ? repositories.creditCards.getLocalById(metadata?.cardId || metadata?.recurrentId)?.name
+        : repositories.accounts.getLocalById(metadata?.accountId || metadata?.recurrentId)?.name;
 
       return {
         id: String(registry.id),
         title: registry.description,
         amount: registry.value,
-        type: registry.value >= 0 ? "income" : "expense",
+        type: isCreditCard ? "expense" : registry.value >= 0 ? "income" : "expense",
         frequency: "monthly",
-        nextDate: getNextOccurrence(metadata.recurrentDay).toLocaleDateString(CurrentLangInfo.short),
+        nextDate: getNextOccurrence(metadata?.recurrentDay || 1).toLocaleDateString(CurrentLangInfo.short),
         category: category?.name || Lang.categories.title,
-        account: account || (metadata.isCreditCard ? Lang.creditcards.title : Lang.accounts.title),
+        account: account || (isCreditCard ? Lang.creditcards.title : Lang.accounts.title),
+        accountType: isCreditCard ? "creditCard" : "account",
         tags: registry.tags,
       };
     })

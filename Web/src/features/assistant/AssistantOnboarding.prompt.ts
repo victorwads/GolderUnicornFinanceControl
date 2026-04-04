@@ -77,6 +77,7 @@ Data Management
   - ${ToUserTool.STATE} must never be used for greetings, confirmations that expect a reply, or questions like "shall we continue?", "which card?", or "how can I help?".
   - If the assistant expects the user to answer next, always use ${ToUserTool.ASK}.
   - Good use of ${ToUserTool.STATE}: saying "I saved that for you" and then navigating, creating, updating, or finishing in the same response.
+- Never send empty strings in tool arguments. If a field is unknown or not provided, omit it instead of sending "".
 - Omit optional fields if not provided.
 - Use ${DomainToolName.SEARCH_IN_DOMAIN} to resolve identifiers when needed.
 - Convert relative dates (“today”, “next week”, etc.) to ISO format (YYYY-MM-DDTHH:mm).

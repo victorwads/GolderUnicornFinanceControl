@@ -72,7 +72,7 @@ export abstract class AssistantToolsBase {
     result?: unknown
   ): string | undefined {
     const tool = this.toolMap.get(name);
-    return tool?.userInfo ? tool.userInfo(args, result) : undefined;
+    return tool?.userInfo ? tool.userInfo(normalizeToolArgs(args), result) : undefined;
   }
 
   async execute(
@@ -82,7 +82,7 @@ export abstract class AssistantToolsBase {
     const tool = this.toolMap.get(name);
     if (!tool) return { success: false, errors: `Tool '${name}' not found.` }
 
-    return tool.execute( args);
+    return tool.execute(normalizeToolArgs(args));
   }
 
   protected getRepository<T extends DocumentModel>(name: RepoName): BaseRepository<T> {
@@ -322,6 +322,29 @@ export enum DomainToolName {
   LIST_ACTIONS = "list_domain_actions",
   SEARCH_IN_DOMAIN = "search_id_in_domain",
   LIST_ICONS = "search_icon_by_name",
+}
+
+function normalizeToolArgs<T>(value: T): T {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return (trimmed.length === 0 ? undefined : trimmed) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => normalizeToolArgs(item))
+      .filter((item) => item !== undefined) as T;
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .map(([key, item]) => [key, normalizeToolArgs(item)])
+        .filter(([, item]) => item !== undefined)
+    ) as T;
+  }
+
+  return value;
 }
 export type DomainAction<T = string> = T;
 export type Domain<Name extends RepoName> = {

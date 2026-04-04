@@ -14,6 +14,7 @@ interface TransactionItemProps {
   compact?: boolean;
   account?: string;
   isPaid?: boolean;
+  accountType?: "account" | "creditCard";
   transactionType?: "transfer" | "debit" | "recurring" | "credit" | "invoice";
   tags?: string[];
   categoryIconName?: string;
@@ -40,7 +41,8 @@ export const TransactionItem = ({
   type,
   compact = false,
   account,
-  isPaid = false,
+  isPaid,
+  accountType,
   transactionType,
   tags = [],
   categoryIconName,
@@ -116,9 +118,9 @@ export const TransactionItem = ({
             </div>
             {/* Setinha pequena indicando entrada/saída */}
             {isIncome ? (
-              <ArrowDownLeft className="w-3 h-3 text-success" />
+              <ArrowDownLeft className="w-3 h-3 text-success" title="Receita" aria-label="Receita" />
             ) : (
-              <ArrowUpRight className="w-3 h-3 text-destructive" />
+              <ArrowUpRight className="w-3 h-3 text-destructive" title="Despesa" aria-label="Despesa" />
             )}
           </div>
         </div>
@@ -147,15 +149,19 @@ export const TransactionItem = ({
               {isPaid !== undefined && (
                 <div className="flex items-center gap-1">
                   {isPaid ? (
-                    <CheckCircle2 className="h-4 w-4 text-success" />
+                    <CheckCircle2 className="h-4 w-4 text-success" title="Pago" aria-label="Pago" />
                   ) : (
-                    <Clock className="h-4 w-4 text-warning" />
+                    <Clock className="h-4 w-4 text-warning" title="Pendente" aria-label="Pendente" />
                   )}
                 </div>
               )}
 
+              {accountType === "creditCard" && (
+                <CreditCard className="h-4 w-4 text-muted-foreground" title="Cartão de crédito" aria-label="Cartão de crédito" />
+              )}
+
               {TypeIcon && (
-                <TypeIcon className="h-4 w-4 text-muted-foreground" />
+                <TypeIcon className="h-4 w-4 text-muted-foreground" title={typeConfig?.label} aria-label={typeConfig?.label} />
               )}
             </div>
           </div>

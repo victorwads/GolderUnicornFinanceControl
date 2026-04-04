@@ -19,20 +19,30 @@ export type RecurrentTransactionMetadata = {
     }
 );
 
+function getRegistryTypeFromRecurrentMetadata(metadata?: Partial<RecurrentTransactionMetadata>) {
+  return metadata?.isCreditCard ? RegistryType.CREDIT_RECURRENT : RegistryType.ACCOUNT_RECURRENT;
+}
+
 export class RecurrentTransaction extends Transaction {
   constructor(
-    id: string,
-    public recurrentMetadata: RecurrentTransactionMetadata,
-    value: number,
-    description: string,
-    date: Date,
+    id: string = "",
+    public recurrentMetadata: RecurrentTransactionMetadata = {
+      isCreditCard: false,
+      accountId: "",
+      recurrentId: "",
+      recurrentType: "monthly",
+      recurrentDay: 1,
+    },
+    value: number = 0,
+    description: string = "",
+    date: Date = new Date(),
     categoryId?: string,
     observation?: string,
     tags: string[] = [],
   ) {
     super(
       id,
-      RegistryType.ACCOUNT_RECURRENT,
+      getRegistryTypeFromRecurrentMetadata(recurrentMetadata),
       false,
       value,
       description,

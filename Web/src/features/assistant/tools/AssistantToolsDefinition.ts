@@ -92,13 +92,13 @@ export class AssistantTools extends AssistantToolsBase {
     this.createSearchMetadata(
       RecurrentTransaction.metadata2, 'Lançamento recorrente', 'recurrentTransactions',
       (item) => `${item.description}, ${item.observation} - ${item.value}`,
-      ({ id, description, value, categoryId, recurrentMetadata: { isCreditCard, recurrentId, recurrentDay } }) => ({ 
+      ({ id, description, value, categoryId, recurrentMetadata }) => ({ 
         id, description, value,
-        day: recurrentDay,
-        ...(isCreditCard ?{
-          card: this.repositories.creditCards.getLocalById(recurrentId)?.name,
+        day: recurrentMetadata?.recurrentDay,
+        ...((recurrentMetadata?.isCreditCard ?? false) ?{
+          card: this.repositories.creditCards.getLocalById(recurrentMetadata?.cardId || recurrentMetadata?.recurrentId)?.name,
         } : {
-          account: this.repositories.accounts.getLocalById(recurrentId)?.name,
+          account: this.repositories.accounts.getLocalById(recurrentMetadata?.accountId || recurrentMetadata?.recurrentId)?.name,
         }),
         category: this.repositories.categories.getLocalById(categoryId)?.name,
       }),

@@ -49,7 +49,13 @@ export interface ModelMetadata<M, R extends string = Extract<keyof M, string>, D
 export function validateRequiredFields<T extends RawData<any>>(data: T, requiredFields: (keyof T)[]): Result<T> {
   const missing: string[] = [];
   for (const field of requiredFields) {
-    if (!(field in data)) {
+    const value = data[field];
+    if (
+      !(field in data) ||
+      value === undefined ||
+      value === null ||
+      (typeof value === "string" && value.trim().length === 0)
+    ) {
       missing.push(String(field));
     }
   }

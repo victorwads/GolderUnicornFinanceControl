@@ -61,6 +61,7 @@ export default function RecurrentsList({
                     date={item.nextDate}
                     type={item.type}
                     account={item.account}
+                    accountType={item.accountType}
                     transactionType="recurring"
                     tags={item.tags}
                   />
@@ -90,6 +91,7 @@ export default function RecurrentsList({
                     date={item.nextDate}
                     type={item.type}
                     account={item.account}
+                    accountType={item.accountType}
                     transactionType="recurring"
                     tags={item.tags}
                   />
@@ -112,6 +114,7 @@ export interface Recurrent {
   nextDate: string;
   category: string;
   account: string;
+  accountType?: "account" | "creditCard";
   tags?: string[];
 }
 
