@@ -2,9 +2,9 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useSpeechRecognition } from "react-speech-recognition";
 
 import { startListening as startSpeechListening, stopListening as stopSpeechListening } from "../../components/voice/microfone";
-import { getAssistantMode } from "./preferences";
+import { getAssistantMicrophoneMode, getAssistantMode } from "./preferences";
 
-const AUTO_SEND_TIMEOUT = 2000;
+const AUTO_SEND_TIMEOUT = 2500;
 const TIMERS = {
   autoLastUpdate: null as Date | null
 }
@@ -33,6 +33,7 @@ export function useAIChatboxMicrophoneModel({
     onAutoSend();
   }
 
+  // Auto send when user stops talking for a certain time
   useEffect(() => {
     if (getAssistantMode() !== 'live' || !listening || draft.trim() === '') {
       clearAutoSend();
@@ -53,7 +54,16 @@ export function useAIChatboxMicrophoneModel({
     }
   }, [draft, listening]);
 
+  // Auto start listening when assistant is open and waiting for answer
   useEffect(() => {
+    if (getAssistantMode() !== 'live') return;
+    if(penddingAnswer && !listening) startSpeechListening();
+  }, [penddingAnswer, listening]);
+
+  useEffect(() => {
+    // TODO: handle interim transcript better, maybe show it in the UI with a different style
+    // Need to merge interimTranscript and finalTranscript in a better way,
+    // no lose the draft manually typed when finalTranscript is updated
     console.log('Transcript updated:', {
       transcript, interimTranscript, finalTranscript,
       listening, draft,
@@ -61,36 +71,28 @@ export function useAIChatboxMicrophoneModel({
     setDraft(transcript)
   }, [transcript, interimTranscript, finalTranscript, listening]);
 
-  useEffect(() => {
-    if (getAssistantMode() !== 'live') return;
-    if(penddingAnswer && !listening) {
-      startSpeechListening();
-    }
-  }, [penddingAnswer, listening]);
-
   return {
     isListening: listening,
     autoSendProgress,
     setAutoSendProgress,
     clearAutoSend,
     toggleMic: () => {
-      if (listening) stopSpeechListening(); else startSpeechListening();
+      if (getAssistantMode() === "manual" && getAssistantMicrophoneMode() === "hold") return;
+      if (listening) {
+        stopSpeechListening();
+        if (getAssistantMode() === "manual" && getAssistantMicrophoneMode() === "click")
+          autoSend();
+      } else startSpeechListening();
+    },
+    startPressMic: () => {
+      if (getAssistantMode() === "manual" || getAssistantMicrophoneMode() === "hold")
+      startSpeechListening();
+    },
+    endPressMic: () => {
+      if (getAssistantMode() === "manual" || getAssistantMicrophoneMode() == "hold")
+      stopSpeechListening();
+      autoSend();
     },
     stopMic: () => stopSpeechListening()
   };
-}
-
-function buildDraftWithTranscript(baseDraft: string, transcript: string): string {
-  const nextTranscript = transcript.trim();
-  const nextBase = baseDraft.trimEnd();
-
-  if (!nextTranscript) {
-    return nextBase;
-  }
-
-  if (!nextBase) {
-    return nextTranscript;
-  }
-
-  return `${nextBase} ${nextTranscript}`;
 }

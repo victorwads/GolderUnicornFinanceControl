@@ -30,7 +30,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
 
   const {
     autoSendProgress, isListening,
-    toggleMic, stopMic, clearAutoSend,
+    toggleMic, startPressMic, endPressMic, stopMic, clearAutoSend,
   } = useAIChatboxMicrophoneModel({
     penddingAnswer, draft,
     setDraft, onAutoSend: onSend
@@ -42,7 +42,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     : history.slice(-ACTIVE_COLLAPSED_MESSAGES_COUNT);
 
   return {
-    open: isOpen,
+    open: isOpen && !processing,
     isActive,
     conversationId,
     visibleEntries,
@@ -52,6 +52,8 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     loading: processing,
     onDraftChange: setDraft,
     toggleMic,
+    onMicrophonePressStart: startPressMic,
+    onMicrophonePressEnd: endPressMic,
     onClose: () => setIsOpen(false),
     onToggle: () => setIsOpen(!isOpen),
     onSend,

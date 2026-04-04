@@ -148,6 +148,12 @@ export default function AIChatbox({ model }: AIChatboxProps) {
                       : "bg-primary/8 text-primary hover:bg-primary/12"
                   )}
                   onClick={model.toggleMic}
+                  onMouseDown={model.onMicrophonePressStart}
+                  onMouseUp={model.onMicrophonePressEnd}
+                  onMouseLeave={model.onMicrophonePressEnd}
+                  onTouchStart={model.onMicrophonePressStart}
+                  onTouchEnd={model.onMicrophonePressEnd}
+                  onTouchCancel={model.onMicrophonePressEnd}
                   title={model.isListening ? Lang.assistant.micStop : Lang.assistant.micStart}
                   aria-label={model.isListening ? Lang.assistant.micStop : Lang.assistant.micStart}
                 >
@@ -199,6 +205,8 @@ export interface AIChatboxViewModel {
   loading: boolean;
   onDraftChange: (value: string) => void;
   toggleMic: () => void;
+  onMicrophonePressStart: () => void;
+  onMicrophonePressEnd: () => void;
   onClose: () => void;
   onToggle: () => void;
   onSend: () => void;
