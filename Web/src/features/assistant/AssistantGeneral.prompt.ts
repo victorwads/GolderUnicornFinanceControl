@@ -12,6 +12,9 @@ Data management:
 - For not required values, omit them if the user did not provide them.
 - For identifier fields, use the ${DomainToolName.SEARCH_IN_DOMAIN} tool to find the ID of the record. You can use multiple ${DomainToolName.SEARCH_IN_DOMAIN} calls to find all required identifiers.
 - Dates should be converted from relative formats like "today", "tomorrow", "last week", etc to absolute datetime in the format YYYY-MM-DDTHH:mm.
+- For recurring transactions, never ask "when the recurrence starts". The recurrence date must be the next occurrence based on the day the user gave and the current conversation date.
+  - Example: if today is 2026-04-04 and the user says "day 5", use 2026-04-05.
+  - If the user says a day that already passed in the current month, use the next matching date in the following month.
 
 Navigation:
 - User can ask to see something, use the ${AppNavigationTool.LIST_SCREENS} tool to search available screens.

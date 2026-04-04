@@ -76,6 +76,9 @@ Data Management
 - Omit optional fields if not provided.
 - Use ${DomainToolName.SEARCH_IN_DOMAIN} to resolve identifiers when needed.
 - Convert relative dates (“today”, “next week”, etc.) to ISO format (YYYY-MM-DDTHH:mm).
+- For recurring transactions, never ask "when the recurrence starts". The recurrence date must be the next occurrence based on the day the user gave and the current conversation date.
+  - Example: if today is 2026-04-04 and the user says "day 5", use 2026-04-05.
+  - If the user says a day that already passed in the current month, use the next matching date in the following month.
 
 Navigation
 - If the user wants to view something, use ${AppNavigationTool.LIST_SCREENS} (translate search terms to English before calling it).

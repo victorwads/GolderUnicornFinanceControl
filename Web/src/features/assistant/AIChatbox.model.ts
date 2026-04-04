@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAssistantContext } from "@features/assistant/AssistantContext";
 import { useAIChatboxMicrophoneModel } from "@features/assistant/AIChatboxMicrophone.model";
+import { getAssistantMicrophoneMode } from "@features/assistant/preferences";
 import type { AIChatboxViewModel } from "@layouts/assistant/AIChatbox";
 
-const ACTIVE_COLLAPSED_MESSAGES_COUNT = 4;
+const ACTIVE_COLLAPSED_MESSAGES_COUNT = 6;
 
 export function useAssistantChatboxModel(): AIChatboxViewModel {
   const [draft, setDraft] = useState("");
@@ -16,16 +17,20 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     conversationId, history, sendUserAnswer, isFinished, startNewConversation
   } = useAssistantContext();
 
+  const clear = () => {
+    setDraft("");
+    clearAutoSend();
+    stopMic();
+  }
+
   const onSend = () => {
     const nextDraft = draft.trim();
     if (!nextDraft || processing) {
       return;
     }
 
-    clearAutoSend();
-    setDraft("");
+    clear();
     sendUserAnswer(nextDraft);
-    stopMic();
   }
 
   const {
@@ -35,6 +40,12 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     penddingAnswer, draft,
     setDraft, onAutoSend: onSend
   });
+
+  useEffect(() => {
+    if (!isFinished || getAssistantMicrophoneMode() !== "live") return;
+    clear();
+    setIsOpen(false);
+  }, [isFinished]);
   
   const visibleEntries = isOpen
     ? history
@@ -58,7 +69,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     onToggle: () => {
       const nextOpen = !isOpen;
       setIsOpen(nextOpen);
-      if (nextOpen) startMicIfLive();
+      if (nextOpen && !isFinished) startMicIfLive();
     },
     onSend,
     onOpenFullConversation: () => {

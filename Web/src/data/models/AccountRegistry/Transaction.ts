@@ -60,7 +60,7 @@ export abstract class Transaction extends DocumentModel {
         },
         date: {
           type: "string",
-          description: "Data do lançamento",
+          description: "Date of the transaction in YYYY-MM-DDTHH:mm format. Consider the current conversation date and the user's wording to infer whether it refers to this month or the next matching date.",
         },
         categoryId: {
           type: "string",

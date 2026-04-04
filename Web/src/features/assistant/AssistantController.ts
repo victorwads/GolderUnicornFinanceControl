@@ -35,8 +35,8 @@ import { createLogger } from "@utils/logger";
 
 const logger = createLogger("assistant");
 
-export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-5.4-nano";
-const DEFAULT_ONBOARDING_MODEL: AiModel = "gpt-5.4-mini";
+export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-5.4-mini";
+const DEFAULT_ONBOARDING_MODEL: AiModel = "gpt-5.4";
 
 const AIModelStorageKey = "assistant_model";
 
