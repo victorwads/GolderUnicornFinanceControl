@@ -2,7 +2,7 @@ import type { AiCallContext } from "@models";
 
 export type PrimitiveRecord = Record<string, unknown>;
 
-export type AssistantToolStatus = "done" | "warning";
+export type AssistantToolStatus = "done" | "warning" | "pending";
 
 export type AssistantToolKind =
   | "search"
@@ -19,6 +19,7 @@ export type AssistantTimelineEntry =
       type: "system" | "user" | "assistant";
       timestamp: string;
       content: string;
+      derivedFromToolCall?: boolean;
     }
   | {
       id: string;

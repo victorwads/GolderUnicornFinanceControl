@@ -59,6 +59,12 @@ export function buildTimelineEntries(context: AiCallContext): AssistantTimelineE
   const history = Array.isArray(context.history) ? context.history : [];
   const entries: AssistantTimelineEntry[] = [];
   const pendingToolCalls = new Map<string, PendingToolCall>();
+  const resolvedToolCallIds = new Set(
+    history
+      .filter((entry): entry is { role: "tool"; tool_call_id?: string } => !!entry && typeof entry === "object" && entry.role === "tool")
+      .map((entry) => entry.tool_call_id)
+      .filter((toolCallId): toolCallId is string => typeof toolCallId === "string" && toolCallId.length > 0)
+  );
   const baseDate = getContextBaseDate(context);
 
   history.forEach((entry, index) => {
@@ -104,6 +110,7 @@ export function buildTimelineEntries(context: AiCallContext): AssistantTimelineE
             type: "assistant",
             timestamp,
             content: content || pendingAssistantPrompt || "",
+            derivedFromToolCall: !content && Boolean(pendingAssistantPrompt),
           });
         }
 
@@ -117,6 +124,18 @@ export function buildTimelineEntries(context: AiCallContext): AssistantTimelineE
             name: toolName,
             args: parseJsonRecord(toolCall.function?.arguments),
           });
+
+          if (toolName === "say_to_user" && !resolvedToolCallIds.has(toolId)) {
+            entries.push(
+              buildToolTimelineEntry(
+                `pending-tool-${toolId}`,
+                timestamp,
+                toolName,
+                parseJsonRecord(toolCall.function?.arguments),
+                { pending: true }
+              )
+            );
+          }
         });
         return;
       }
@@ -185,7 +204,7 @@ function buildToolTimelineEntry(
     timestamp,
     toolKind,
     toolName,
-    status: result.success === false ? "warning" : "done",
+    status: result.pending === true ? "pending" : result.success === false ? "warning" : "done",
     title,
     description,
     chips: buildToolChips(toolName, args, result),

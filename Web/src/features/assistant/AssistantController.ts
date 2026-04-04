@@ -6,6 +6,7 @@ import {
   ChatCompletionMessageFunctionToolCall,
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
+  ChatCompletionToolMessageParam,
 } from "openai/resources/index";
 
 import { ProjectStorage } from '@utils/ProjectStorage';
@@ -34,7 +35,8 @@ import { createLogger } from "@utils/logger";
 
 const logger = createLogger("assistant");
 
-export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-4.1-nano"; // "@preset/gu-daily-assistant";
+export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+const DEFAULT_ONBOARDING_MODEL: AiModel = "gpt-5.4-mini";
 
 const AIModelStorageKey = "assistant_model";
 
@@ -53,6 +55,11 @@ export function setAssistantModel(model: AiModel) {
 
 export type ToolEventListener = (event: AssistantToolCallLog, context: AiCallContext) => void;
 export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
+
+type PendingToolCall = {
+  id: string;
+  name: string;
+};
 
 export default class AssistantController {
   private openai: OpenAI | null = null;
@@ -76,7 +83,7 @@ export default class AssistantController {
   }
 
   private setPrompt(onboarding: boolean) {
-    this.model = onboarding ? "gpt-4.1-mini" : getAssistantModel();
+    this.model = onboarding ? DEFAULT_ONBOARDING_MODEL : getAssistantModel();
     this.toolRegistry.isOnboarding = onboarding;
   }
 
@@ -206,14 +213,10 @@ export default class AssistantController {
   }
 
   private createRunContext(text: string, userLanguage: string): AiCallContext {
-    if (pendingContext.context) {
-      const { context} = pendingContext;
+    const pending = pendingContext.context;
+    if (pending) {
       pendingContext.context = null;
-      context.history.push(
-        this.enrichHistoryMessage({ role: "user", content: text }, this.model)
-      );
-      this.onContextChanged?.(context);
-      return context;
+      return this.initFromPendingContext(pending, text);
     }
 
     const context = new AiCallContext(
@@ -235,6 +238,57 @@ export default class AssistantController {
     );
     this.persistAiCall(context);
     return context;
+  }
+
+  private initFromPendingContext(context: AiCallContext, text: string): AiCallContext {
+    const pendingToolCalls = this.getPendingToolCalls(context);
+    pendingToolCalls.forEach((call) => {
+      const result: Result<unknown> = call.name === ToUserTool.SAY
+        ? { success: true, result: text }
+        : { success: false, errors: "Try again." };
+
+      context.history.push(
+        this.enrichHistoryMessage(
+          {
+            role: "tool",
+            tool_call_id: call.id,
+            content: JSON.stringify(result),
+          },
+          context.model || this.model
+        )
+      );
+    });
+
+    if (pendingToolCalls.length === 0) {
+      context.history.push(
+        this.enrichHistoryMessage({ role: "user", content: text }, this.model)
+      );
+    }
+
+    this.onContextChanged?.(context);
+    return context;
+  }
+
+  private getPendingToolCalls(context: AiCallContext): PendingToolCall[] {
+    const pending = new Map<string, PendingToolCall>();
+    const history = context.history as (
+      ChatCompletionAssistantMessageParam|ChatCompletionToolMessageParam
+    )[];
+
+    history.forEach((entry) => {
+      if (entry.role === "assistant" && Array.isArray(entry.tool_calls)) {
+        entry.tool_calls.forEach((toolCall) => {
+          if (toolCall?.type !== "function" || !toolCall.id || !toolCall.function?.name) return;
+
+          const { id, function: { name } } = toolCall;
+          pending.set(id, { id, name});
+        });
+      } else if (entry.role === "tool") {
+        pending.delete(entry.tool_call_id);
+      }
+    });
+
+    return Array.from(pending.values());
   }
 
   private async requestCompletion(

@@ -54,12 +54,19 @@ function TimelineEntryCard({
 }) {
   if (entry.type === "tool") {
     if (entry.toolKind === "ask") {
+      if (mode === "user") {
+        return null;
+      }
       return <AssistantToolMessageCard entry={entry} mode={mode} session={session} />;
     }
     return <ToolEntryCard entry={entry} mode={mode} session={session} />;
   }
 
   if (entry.type === "system" && mode !== "developer") {
+    return null;
+  }
+
+  if (entry.type === "assistant" && mode === "developer" && entry.derivedFromToolCall) {
     return null;
   }
 

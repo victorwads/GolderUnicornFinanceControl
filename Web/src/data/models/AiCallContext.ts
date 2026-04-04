@@ -9,6 +9,8 @@ const MILION = 1000000;
 export class AiCallContext extends DocumentModel {
   private static TOKEN_PRICES: AIUses<Dolar, AiModel> = {
     "gpt-5.4": { input: 2.50, output: 22.5 },
+    "gpt-5.4-mini": { input: 0.75, output: 4.5 },
+    "gpt-5.4-nano": { input: 0.20, output: 1.25 },
     "gpt-5.2": { input: 1.75, output: 14.0 },
     "gpt-5.1": { input: 1.25, output: 10.0 },
     "gpt-5": { input: 1.25, output: 10.0 },
@@ -48,7 +50,7 @@ export class AiCallContext extends DocumentModel {
     }, 0);
 
     const tokens = this.tokens ?? { input: 0, output: 0 };
-    const model = (this.model || "gpt-4.1-mini") as AiModel;
+    const model = (this.model || "gpt-5.4-nano") as AiModel;
     const { dolars } = AiCallContext.getByModelCosts(model, tokens);
     const cost = historyCost > dolars ? historyCost : dolars
     return cost * USD_TO_BRL;
@@ -58,7 +60,9 @@ export class AiCallContext extends DocumentModel {
     const pricesNames: string[] = AiCallContext.PriceModels;
     const modelPriceName: string | undefined =
       pricesNames.find(name => name === model) ||
-      pricesNames.find(name => model.includes(name));
+      [...pricesNames]
+        .sort((a, b) => b.length - a.length)
+        .find(name => model.includes(name));
 
     if (!modelPriceName) {
       return null;

@@ -11,8 +11,11 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
   const [isListening, setIsListening] = useState(false);
   const navigate = useNavigate();
 
-  const { isOpen, setIsOpen, history, conversationId, sendUserAnswer, processing } = useAssistantContext();
-  const isActive = isListening || processing;
+  const { 
+    processing, penddingAnswer, isOpen, setIsOpen,
+    conversationId, history, sendUserAnswer
+  } = useAssistantContext();
+  const isActive = isListening || processing || penddingAnswer;
   const visibleEntries = isOpen
     ? history
     : history.slice(-ACTIVE_COLLAPSED_MESSAGES_COUNT);

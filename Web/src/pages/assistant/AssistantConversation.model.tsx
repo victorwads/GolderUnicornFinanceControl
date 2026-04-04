@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { AiCallContext, type AiModel } from "@models";
+import { AiCallContext } from "@models";
 import type { Repositories } from "@repositories";
 import getRepositories from "@repositories";
-import { getAssistantModel, setAssistantModel } from "@features/assistant/AssistantController";
+import { getAssistantModel } from "@features/assistant/AssistantController";
 import { useAssistantContext } from "@features/assistant/AssistantContext";
 import {
   AssistantHistoryDetailRoute,
@@ -51,12 +51,6 @@ export function useAssistantConversationModel(): AssistantHistoryDetailViewModel
     navigate,
     conversation: selectedConversation ?? createEmptyConversation(),
     isDeveloperMode,
-    modelOptions: AiCallContext.PriceModels,
-    selectedModel: getAssistantModel(),
-    onModelChange: (model) => {
-      if (!isDeveloperMode) return;
-      setAssistantModel(model as AiModel);
-    },
     onResumeConversation: () => {
       if (!selectedConversation) return;
       openWithConversation(selectedConversation);
