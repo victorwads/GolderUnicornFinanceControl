@@ -51,7 +51,7 @@ export function setAssistantModel(model: AiModel) {
   window.location.reload();
 }
 
-export type ToolEventListener = (event: AssistantToolCallLog) => void;
+export type ToolEventListener = (event: AssistantToolCallLog, context: AiCallContext) => void;
 export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
 
 export default class AssistantController {
@@ -126,7 +126,7 @@ export default class AssistantController {
       arguments: { text },
       result: null,
       executedAt: Date.now(),
-    });
+    }, context);
 
     let run = true;
     let limitResult: AssistantLimitResult | undefined;
@@ -233,8 +233,7 @@ export default class AssistantController {
         this.enrichHistoryMessage({ role: "user", content: text }, this.model)
       ],
     );
-    this.repositories.aiCalls.set(context);
-    this.onContextChanged?.(context);
+    this.persistAiCall(context);
     return context;
   }
 
@@ -281,6 +280,7 @@ export default class AssistantController {
 
     const { id, history, warnings, sharedDomains, tokens, model } = context;
     this.repositories.aiCalls.set({ id, history, warnings, sharedDomains, tokens, model }, true);
+    this.onContextChanged?.(context);
     return message.tool_calls || [];
   }
 
@@ -317,6 +317,7 @@ export default class AssistantController {
       historyLength: context.history.length,
     });
     await this.repositories.aiCalls.set(context);
+    this.onContextChanged?.(context);
   }
 
   private async executeToolCall(
@@ -337,7 +338,7 @@ export default class AssistantController {
       result: null,
       userInfo,
       executedAt: Date.now(),
-    });
+    }, context);
 
     let result: Result<unknown>;
     logger.debug("executeToolCall:start", {
@@ -372,7 +373,7 @@ export default class AssistantController {
       result,
       userInfo: resultInfo,
       executedAt: Date.now(),
-    });
+    }, context);
 
     const toolMessage: ChatCompletionMessageParam = {
       role: "tool",

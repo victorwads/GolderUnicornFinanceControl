@@ -22,6 +22,7 @@ interface AssistantTimelineFeedProps {
   mode?: "user" | "developer";
   limit?: number;
   className?: string;
+  session?: boolean;
 }
 
 export function AssistantTimelineFeed({
@@ -29,13 +30,14 @@ export function AssistantTimelineFeed({
   mode = "user",
   limit,
   className,
+  session = false,
 }: AssistantTimelineFeedProps) {
   const visibleEntries = limit ? entries.slice(-limit) : entries;
 
   return (
     <div className={cn("space-y-3", className)}>
       {visibleEntries.map((entry) => (
-        <TimelineEntryCard key={entry.id} entry={entry} mode={mode} />
+        <TimelineEntryCard key={entry.id} entry={entry} mode={mode} session={session} />
       ))}
     </div>
   );
@@ -44,15 +46,17 @@ export function AssistantTimelineFeed({
 function TimelineEntryCard({
   entry,
   mode,
+  session,
 }: {
   entry: AssistantTimelineEntry;
   mode: "user" | "developer";
+  session: boolean;
 }) {
   if (entry.type === "tool") {
     if (entry.toolKind === "ask") {
-      return <AssistantToolMessageCard entry={entry} mode={mode} />;
+      return <AssistantToolMessageCard entry={entry} mode={mode} session={session} />;
     }
-    return <ToolEntryCard entry={entry} mode={mode} />;
+    return <ToolEntryCard entry={entry} mode={mode} session={session} />;
   }
 
   if (entry.type === "system" && mode !== "developer") {
@@ -75,26 +79,32 @@ function TimelineEntryCard({
           isAssistant && "bg-accent/40",
         )}
       >
-        <div className="mb-2 flex items-center gap-2">
-          <Badge variant="outline" className="bg-background/60">
-            {isSystem
-              ? Lang.visual.assistant.systemLabel
-              : isUser
-                ? Lang.visual.assistant.userLabel
-                : Lang.visual.assistant.assistantLabel}
-          </Badge>
-          <span className="text-xs opacity-70">{entry.timestamp}</span>
-          {shouldClampSystem && (
-            <button
-              type="button"
-              className="ml-auto flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
-              onClick={() => setExpanded((current) => !current)}
-              aria-label={Lang.visual.assistant.developerDetailsLabel}
-            >
-              {expanded ? <X className="h-3.5 w-3.5" /> : <Info className="h-3.5 w-3.5" />}
-            </button>
-          )}
-        </div>
+        {(!session || shouldClampSystem) && (
+          <div className="mb-2 flex items-center gap-2">
+            {!session && (
+              <>
+                <Badge variant="outline" className="bg-background/60">
+                  {isSystem
+                    ? Lang.visual.assistant.systemLabel
+                    : isUser
+                      ? Lang.visual.assistant.userLabel
+                      : Lang.visual.assistant.assistantLabel}
+                </Badge>
+                <span className="text-xs opacity-70">{entry.timestamp}</span>
+              </>
+            )}
+            {shouldClampSystem && (
+              <button
+                type="button"
+                className="ml-auto flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
+                onClick={() => setExpanded((current) => !current)}
+                aria-label={Lang.visual.assistant.developerDetailsLabel}
+              >
+                {expanded ? <X className="h-3.5 w-3.5" /> : <Info className="h-3.5 w-3.5" />}
+              </button>
+            )}
+          </div>
+        )}
         <div className={cn(shouldClampSystem && !expanded && "max-h-20 overflow-hidden")}>
           <p className="whitespace-pre-wrap text-sm leading-6">{entry.content}</p>
         </div>
@@ -106,9 +116,11 @@ function TimelineEntryCard({
 function AssistantToolMessageCard({
   entry,
   mode,
+  session,
 }: {
   entry: Extract<AssistantTimelineEntry, { type: "tool" }>;
   mode: "user" | "developer";
+  session: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const isWarning = entry.status === "warning";
@@ -116,12 +128,14 @@ function AssistantToolMessageCard({
   return (
     <div className="flex justify-start">
       <Card className={cn("max-w-3xl bg-accent/40 px-4 py-3", isWarning ? "border-destructive/40" : "border-border/50")}>
-        <div className="mb-2 flex items-center gap-2">
-          <Badge variant="outline" className="bg-background/60">
-            {Lang.visual.assistant.assistantLabel}
-          </Badge>
-          <span className="text-xs opacity-70">{entry.timestamp}</span>
-        </div>
+        {!session && (
+          <div className="mb-2 flex items-center gap-2">
+            <Badge variant="outline" className="bg-background/60">
+              {Lang.visual.assistant.assistantLabel}
+            </Badge>
+            <span className="text-xs opacity-70">{entry.timestamp}</span>
+          </div>
+        )}
         <p className="whitespace-pre-wrap text-sm leading-6">{entry.description}</p>
         {mode === "developer" && (
           <>
@@ -158,12 +172,14 @@ function AssistantToolMessageCard({
 function ToolEntryCard({
   entry,
   mode,
+  session,
 }: {
   entry: Extract<AssistantTimelineEntry, { type: "tool" }>;
   mode: "user" | "developer";
+  session: boolean;
 }) {
   if (mode === "user") {
-    return <CompactToolEntryRow entry={entry} />;
+    return <CompactToolEntryRow entry={entry} session={session} />;
   }
 
   const [expanded, setExpanded] = useState(false);
@@ -235,14 +251,16 @@ function ToolEntryCard({
 
 function CompactToolEntryRow({
   entry,
+  session,
 }: {
   entry: Extract<AssistantTimelineEntry, { type: "tool" }>;
+  session: boolean;
 }) {
   const Icon = getToolIcon(entry.toolKind);
   const isWarning = entry.status === "warning";
 
   return (
-    <div className="mx-6 py-1.5 sm:mx-10">
+    <div className={cn("py-1.5", session ? "mx-3" : "mx-6 sm:mx-10")}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2.5">
           <div
@@ -253,7 +271,9 @@ function CompactToolEntryRow({
           >
             <Icon className="h-3.5 w-3.5" />
           </div>
-          <span className="whitespace-nowrap pt-0.5 text-[11px] text-muted-foreground">{entry.timestamp}</span>
+          {!session && (
+            <span className="whitespace-nowrap pt-0.5 text-[11px] text-muted-foreground">{entry.timestamp}</span>
+          )}
           <div className="min-w-0">
             <p className="truncate text-xs text-muted-foreground">{entry.description}</p>
           </div>

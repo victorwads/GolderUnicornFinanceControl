@@ -33,9 +33,15 @@ function isMoreSection(pathname: string) {
   ].some((path) => isNestedPath(pathname, path));
 }
 
-export function useTabBarModel(): TabBarViewModel {
+interface UseTabBarModelOptions {
+  isAssistantOpen?: boolean;
+  onAssistantToggle?: () => void;
+}
+
+export function useTabBarModel(options?: UseTabBarModelOptions): TabBarViewModel {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAssistantOpen, onAssistantToggle } = options ?? {};
 
   function onNavigate(route: TabBarRoute) {
     switch (true) {
@@ -71,6 +77,17 @@ export function useTabBarModel(): TabBarViewModel {
       icon: tabBarIcons.timeline,
       isActive: isNestedPath(location.pathname, "/timeline"),
       onClick: () => onNavigate(new ToTimelineRoute()),
+    },
+    {
+      name: Lang.visual.assistant.assistantLabel,
+      path: "/assistant",
+      icon: tabBarIcons.assistant,
+      isActive: Boolean(isAssistantOpen),
+      onClick: () => {
+        if (onAssistantToggle) {
+          onAssistantToggle();
+        }
+      },
     },
     {
       name: Lang.visual.more.title,

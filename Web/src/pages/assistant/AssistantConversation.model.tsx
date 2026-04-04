@@ -4,7 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AiCallContext, type AiModel } from "@models";
 import type { Repositories } from "@repositories";
 import getRepositories from "@repositories";
-import { getAssistantModel, setAssistantModel, setPendingAiContext } from "@features/assistant/AssistantController";
+import { getAssistantModel, setAssistantModel } from "@features/assistant/AssistantController";
+import { useAssistantContext } from "@features/assistant/AssistantContext";
 import {
   AssistantHistoryDetailRoute,
   AssistantHistoryDetailViewModel,
@@ -16,6 +17,7 @@ export function useAssistantConversationModel(): AssistantHistoryDetailViewModel
   const router = useNavigate();
   const { conversationId } = useParams<{ conversationId?: string }>();
   const repositories = useRepositories();
+  const { openWithConversation } = useAssistantContext();
   const [contexts, setContexts] = useState<AiCallContext[]>([]);
   const isDeveloperMode = window.isDevelopment === true;
 
@@ -57,8 +59,8 @@ export function useAssistantConversationModel(): AssistantHistoryDetailViewModel
     },
     onResumeConversation: () => {
       if (!selectedConversation) return;
-      setPendingAiContext(selectedConversation.context);
-      router("/home");
+      openWithConversation(selectedConversation);
+      router("/");
     },
   };
 }

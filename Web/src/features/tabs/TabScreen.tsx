@@ -8,13 +8,16 @@ import {
 } from "@containers";
 
 import { TabBar } from "@components/TabBar";
-import { VoiceAssistant } from "@components/VoiceAssistant";
+import { useAssistantChatboxModel } from "@features/assistant/AIChatbox.model";
+import AIChatbox from "@layouts/assistant/AIChatbox";
 import { useTabBarModel } from "@pages/core/TabBar.model";
-import { useVoiceAssistantModel } from "@pages/assistant/VoiceAssistant.model";
 
 const TabScreen = () => {
-  const model = useTabBarModel();
-  const voiceAssistantModel = useVoiceAssistantModel();
+  const chatboxModel = useAssistantChatboxModel();
+  const model = useTabBarModel({
+    isAssistantOpen: chatboxModel.open,
+    onAssistantToggle: chatboxModel.onToggle,
+  });
 
   return (
     <Container wide full>
@@ -22,8 +25,8 @@ const TabScreen = () => {
         <Outlet />
       </ContainerScrollContent>
       <ContainerFixedContent>
-          <VoiceAssistant model={voiceAssistantModel} />
-          <TabBar model={model} />
+        <AIChatbox model={chatboxModel} />
+        <TabBar model={model} />
       </ContainerFixedContent>
     </Container>
   );

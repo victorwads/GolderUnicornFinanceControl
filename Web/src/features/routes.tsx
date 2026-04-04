@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 
 import { withRepos } from '@componentsDeprecated/WithRepo';
 
+import { AssistantProvider } from '@features/assistant/AssistantContext';
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
 import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
@@ -43,7 +44,7 @@ import AssistantConversationPage from '@pages/assistant/AssistantConversation.pa
 
 export const privateRouter = createBrowserRouter([
   {
-    path: '/', element: withRepos(<TabScreen />, 'user'), children: [
+    path: '/', element: withRepos(<AssistantProvider><TabScreen /></AssistantProvider>, 'user', 'aiCalls'), children: [
       { path: '/', element: <HomePage /> },
       { path: 'timeline/filters', element: <TimelinePage /> },
       { path: 'timeline/import', element: <TimelineImportPage /> },
