@@ -14,17 +14,25 @@ export default class ModelContext<Model extends DocumentModel> {
     public data: RawData<Model> = {}
   ) {}
 
-  ensureUnique = (fieldNames: (keyof Model)[], repo: BaseRepository<Model>, values: unknown[]) => {
-    if (this.update) return;
+  ensureUnique = (
+    fieldNames: (keyof Model)[],
+    repo: BaseRepository<Model>,
+    values: unknown[],
+    options?: {
+      ignoreId?: unknown;
+    }
+  ) => {
     if (!values.length) return;
-    const value = values.map(v => String(v).trim()).join("|");
+    const ignoreId = options?.ignoreId == null ? null : String(options.ignoreId);
+    const value = values.map((v) => normalizeUniqueValue(v)).join("|");
 
     const existing = repo.getCache().find((item: any) =>
-      fieldNames.map(f => String(item[f]).trim()).join("|") === value
+      String(item.id) !== ignoreId &&
+      fieldNames.map((field) => normalizeUniqueValue(item[field])).join("|") === value
     );
     if (existing) {
       this.errors.push(`The item with ${
-        fieldNames.map(f => `${f as string}=${String(existing[f]).trim()}`).join(", ")
+        fieldNames.map((field) => `${field as string}=${normalizeUniqueValue(existing[field])}`).join(", ")
       } already exists with id ${existing.id}, use this Id to update it.`);
     }
   }
@@ -139,4 +147,10 @@ export default class ModelContext<Model extends DocumentModel> {
       this.data[fieldName] = new Date(input + append);
     }
   }
+}
+
+function normalizeUniqueValue(value: unknown): string {
+  return String(value ?? "")
+    .trim()
+    .toLocaleLowerCase();
 }

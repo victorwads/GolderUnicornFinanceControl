@@ -35,6 +35,10 @@ export type RoutesDefinition = {
 
 const timelineDomains: RepoName[] = ["accountTransactions", "creditCardsInvoices"];
 
+// Important:
+// Assistant navigation should prefer stable listing/detail screens that help the user see the current domain state.
+// Do not expose create form routes here just to create data, because the assistant should create/update records with tools,
+// while navigating the user to the domain listing screen.
 export const routesDefinition: RoutesDefinition[] = [
   {
     domains: timelineDomains,
@@ -95,16 +99,6 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     domains: ["accounts", "accountTransactions"],
-    url: "/timeline/entry/account/expense/create",
-    description: "Create a new account expense from timeline detail view.",
-  },
-  {
-    domains: ["accounts", "accountTransactions"],
-    url: "/timeline/entry/account/income/create",
-    description: "Create a new account income from timeline detail view.",
-  },
-  {
-    domains: ["accounts", "accountTransactions"],
     url: "/timeline/entry/account/{id:string}",
     description: "Open an account transaction in timeline detail view.",
     pathParams: {
@@ -113,35 +107,10 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     domains: ["creditCards", "creditCardsTransactions"],
-    url: "/timeline/entry/credit/create",
-    description: "Create a new credit card transaction from timeline detail view.",
-    queryParams: {
-      card: { description: "Credit card ID preselected in the form.", required: false },
-      category: { description: "Category ID preselected in the form.", required: false },
-      [TimelineParam.MONTH]: {
-        description: 'Month key in YYYY-MM format to preserve timeline context.',
-        required: false,
-      },
-    },
-  },
-  {
-    domains: ["creditCards", "creditCardsTransactions"],
     url: "/timeline/entry/credit/{id:string}",
     description: "Open a credit card transaction in timeline detail view.",
     pathParams: {
       id: { description: "Credit card transaction ID.", required: true },
-    },
-  },
-  {
-    domains: ["accounts", "accountTransactions"],
-    url: "/timeline/entry/transfer/create",
-    description: "Create a new transfer from timeline detail view.",
-    queryParams: {
-      account: { description: "Origin account ID preselected in the form.", required: false },
-      [TimelineParam.MONTH]: {
-        description: 'Month key in YYYY-MM format to preserve timeline context.',
-        required: false,
-      },
     },
   },
   {
@@ -168,11 +137,6 @@ export const routesDefinition: RoutesDefinition[] = [
     domains: ["recurrentTransactions"],
     url: "/recurrents",
     description: "View the recurring transactions list.",
-  },
-  {
-    domains: ["recurrentTransactions"],
-    url: "/recurrents/create",
-    description: "Create a new recurring transaction.",
   },
   {
     domains: ["recurrentTransactions"],
@@ -259,11 +223,6 @@ export const routesDefinition: RoutesDefinition[] = [
   },
   {
     domains: ["accounts"],
-    url: "/accounts/create",
-    description: "Create a new bank account.",
-  },
-  {
-    domains: ["accounts"],
     url: "/accounts/{id:string}",
     description: "Edit an existing bank account.",
     pathParams: {
@@ -274,11 +233,6 @@ export const routesDefinition: RoutesDefinition[] = [
     domains: ["creditCards"],
     url: "/creditcards",
     description: "View the credit cards list.",
-  },
-  {
-    domains: ["creditCards"],
-    url: "/creditcards/create",
-    description: "Create a new credit card.",
   },
   {
     domains: ["creditCards"],
@@ -317,14 +271,6 @@ export const routesDefinition: RoutesDefinition[] = [
     domains: ["categories"],
     url: "/categories",
     description: "View the categories list.",
-  },
-  {
-    domains: ["categories"],
-    url: "/categories/create",
-    description: "Create a new category.",
-    queryParams: {
-      parentCategory: { description: "Parent category ID preselected in the form.", required: false },
-    },
   },
   {
     domains: ["categories"],

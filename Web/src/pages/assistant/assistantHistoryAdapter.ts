@@ -125,7 +125,7 @@ export function buildTimelineEntries(context: AiCallContext): AssistantTimelineE
             args: parseJsonRecord(toolCall.function?.arguments),
           });
 
-          if (toolName === "say_to_user" && !resolvedToolCallIds.has(toolId)) {
+          if (isAskTool(toolName) && !resolvedToolCallIds.has(toolId)) {
             entries.push(
               buildToolTimelineEntry(
                 `pending-tool-${toolId}`,
@@ -337,7 +337,7 @@ function buildEntryTimestamp(baseDate: Date, index: number): string {
 }
 
 function extractUserReplyFromToolResult(toolName: string | undefined, result: PrimitiveRecord): string | null {
-  if (toolName !== "say_to_user" || result.success !== true) {
+  if (!isAskTool(toolName) || result.success !== true) {
     return null;
   }
 
@@ -351,7 +351,7 @@ function extractAssistantPromptFromToolCalls(
   if (!Array.isArray(toolCalls)) return null;
 
   for (const toolCall of toolCalls) {
-    if (toolCall?.function?.name !== "say_to_user") continue;
+    if (!isTalkTool(toolCall?.function?.name)) continue;
     const args = parseJsonRecord(toolCall.function.arguments);
     const message = args.message;
     if (typeof message === "string" && message.trim().length > 0) {
@@ -360,6 +360,14 @@ function extractAssistantPromptFromToolCalls(
   }
 
   return null;
+}
+
+function isAskTool(toolName: string | undefined): boolean {
+  return toolName === "ask_to_user" || toolName === "say_to_user";
+}
+
+function isTalkTool(toolName: string | undefined): boolean {
+  return toolName === "state_to_user" || isAskTool(toolName);
 }
 
 function normalizeDate(value: unknown): Date | null {

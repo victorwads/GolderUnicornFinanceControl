@@ -76,6 +76,10 @@ export function useAIChatboxMicrophoneModel({
     autoSendProgress,
     setAutoSendProgress,
     clearAutoSend,
+    startMicIfLive: () => {
+      if (getAssistantMicrophoneMode() !== "live" || listening) return;
+      startSpeechListening();
+    },
     toggleMic: () => {
       if (getAssistantMicrophoneMode() === "hold") return;
       if (listening) {

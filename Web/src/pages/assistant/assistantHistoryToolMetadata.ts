@@ -44,7 +44,7 @@ export function describeTool(toolName: string, args: PrimitiveRecord, result: Pr
       };
     }
 
-    case toolName === "say_to_user": {
+    case toolName === "ask_to_user" || toolName === "say_to_user" || toolName === "state_to_user": {
       const message = stringifyValue(args.message) || LocalLang.askForInfoFallback;
       return {
         toolKind: "ask",

@@ -312,7 +312,10 @@ export abstract class AssistantToolsBase {
 export enum ToUserTool {
   FINISH = "finish_conversation",
   FINISH_ONBOARDING = "finish_onboarding",
-  SAY = "say_to_user",
+  ASK = "ask_to_user",
+  STATE = "state_to_user",
+  /** @deprecated Legacy blocking ask tool kept only for backwards compatibility with old assistant histories. */
+  LEGACY_SAY = "say_to_user",
 };
 export enum DomainToolName {
   LIST_ALL = "list_domains",

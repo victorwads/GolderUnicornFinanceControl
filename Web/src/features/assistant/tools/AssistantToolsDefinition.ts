@@ -215,8 +215,17 @@ export class AssistantTools extends AssistantToolsBase {
         userInfo: (args) => `Procurando telas sobre '${args.query}'`
       },
       {
-        name: ToUserTool.SAY,
-        description: "Ask user for additional information to proceed in his native language.",
+        name: ToUserTool.ASK,
+        description: "Ask the user for additional information in the user's native language. This tool is blocking: execution pauses and waits for the user's answer before the assistant continues.",
+        parameters: {
+          type: "object", required: ["message"],
+          properties: { message: { type: "string" } },
+          additionalProperties: false,
+        }, execute: async () => ({ success: false }),
+      },
+      {
+        name: ToUserTool.STATE,
+        description: "Say something to the user in the user's native language without waiting for an answer. This tool is non-blocking and execution continues immediately after it.",
         parameters: {
           type: "object", required: ["message"],
           properties: { message: { type: "string" } },

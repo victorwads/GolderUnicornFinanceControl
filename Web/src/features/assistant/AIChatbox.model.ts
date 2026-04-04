@@ -30,7 +30,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
 
   const {
     autoSendProgress, isListening,
-    toggleMic, startPressMic, endPressMic, stopMic, clearAutoSend,
+    toggleMic, startPressMic, endPressMic, stopMic, clearAutoSend, startMicIfLive,
   } = useAIChatboxMicrophoneModel({
     penddingAnswer, draft,
     setDraft, onAutoSend: onSend
@@ -55,7 +55,11 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     onMicrophonePressStart: startPressMic,
     onMicrophonePressEnd: endPressMic,
     onClose: () => setIsOpen(false),
-    onToggle: () => setIsOpen(!isOpen),
+    onToggle: () => {
+      const nextOpen = !isOpen;
+      setIsOpen(nextOpen);
+      if (nextOpen) startMicIfLive();
+    },
     onSend,
     onOpenFullConversation: () => {
       setIsOpen(false);
@@ -66,6 +70,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
       stopMic();
       setDraft("");
       startNewConversation();
+      startMicIfLive();
     },
   };
 }

@@ -35,7 +35,7 @@ import { createLogger } from "@utils/logger";
 
 const logger = createLogger("assistant");
 
-export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-4.1-mini";
+export const DEFAULT_ASSISTANT_MODEL: AiModel = "gpt-5.4-nano";
 const DEFAULT_ONBOARDING_MODEL: AiModel = "gpt-5.4-mini";
 
 const AIModelStorageKey = "assistant_model";
@@ -181,10 +181,6 @@ export default class AssistantController {
 
         if (!toolCalls.length) {context.finishReason = "assistant_no_tool_calls"; break; }
 
-        const hasFinishTool = toolCalls.some((call) =>
-          call.function.name === ToUserTool.FINISH || call.function.name === ToUserTool.FINISH_ONBOARDING
-        );
-
         for (const call of toolCalls) {
           if (call.function.name === ToUserTool.FINISH || call.function.name === ToUserTool.FINISH_ONBOARDING) {
             context.finishReason = "finished_by_assistant";
@@ -195,9 +191,7 @@ export default class AssistantController {
               context.finishReason += "_onboarding";
             }
           } else {
-            await this.executeToolCall(call, context, {
-              nonBlockingSayToUser: hasFinishTool,
-            });
+            await this.executeToolCall(call, context);
           }
         }
       }
@@ -249,7 +243,7 @@ export default class AssistantController {
   private initFromPendingContext(context: AiCallContext, text: string): AiCallContext {
     const pendingToolCalls = this.getPendingToolCalls(context);
     pendingToolCalls.forEach((call) => {
-      const result: Result<unknown> = call.name === ToUserTool.SAY
+      const result: Result<unknown> = isBlockingAskTool(call.name)
         ? { success: true, result: text }
         : { success: false, errors: "Try again." };
 
@@ -397,10 +391,7 @@ export default class AssistantController {
 
   private async executeToolCall(
     call: ChatCompletionMessageFunctionToolCall,
-    context: AiCallContext,
-    options?: {
-      nonBlockingSayToUser?: boolean;
-    }
+    context: AiCallContext
   ): Promise<unknown> {
     const args = call.function.arguments
       ? JSON.parse(call.function.arguments)
@@ -425,14 +416,12 @@ export default class AssistantController {
       callId: call.id,
       args,
     });
-    if (call.function.name === ToUserTool.SAY) {
-      if (options?.nonBlockingSayToUser) {
-        result = { success: true, result: args.message };
-      } else {
-        result = await this.onAskAnditionalInfo?.(args.message)
-          .then((response) => ({ success: true, result: response }))
-          ?? { success: false, errors: "No onAskAnditionalInfo handler provided." };
-      }
+    if (isBlockingAskTool(call.function.name)) {
+      result = await this.onAskAnditionalInfo?.(args.message)
+        .then((response) => ({ success: true, result: response }))
+        ?? { success: false, errors: "No onAskAnditionalInfo handler provided." };
+    } else if (call.function.name === ToUserTool.STATE) {
+      result = { success: true, result: args.message };
     } else {
       result = await this.toolRegistry.execute(name, args );
       context.sharedDomains = Array.from(this.toolRegistry.sharedDomains);
@@ -482,4 +471,8 @@ const pendingContext: {
 
 export const setPendingAiContext = (context: AiCallContext) => {
   pendingContext.context = context;
+}
+
+function isBlockingAskTool(toolName: string) {
+  return toolName === ToUserTool.ASK || toolName === ToUserTool.LEGACY_SAY;
 }

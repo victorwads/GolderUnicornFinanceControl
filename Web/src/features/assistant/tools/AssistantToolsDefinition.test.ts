@@ -296,7 +296,7 @@ describe('AssistantTools - Domain and Action Listings', async () => {
   });
 
   describe('buildToolSchema', () => {
-    const expectedNames = ['list_domains', 'list_domain_actions', 'search_id_in_domain', 'navigate_to_screen', 'search_screens', 'say_to_user', 'finish_conversation'];
+    const expectedNames = ['list_domains', 'list_domain_actions', 'search_id_in_domain', 'navigate_to_screen', 'search_screens', 'ask_to_user', 'state_to_user', 'finish_conversation'];
 
     it('should return correct tool names', () => {
       const actualNames = assistantTools.buildToolSchema().map(t => t.function.name);

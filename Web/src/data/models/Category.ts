@@ -43,7 +43,12 @@ export class Category extends DocumentModel {
         update
       );
 
-      ensureUnique(["parentId", "name"], repositories.categories, [params.parentId, params.name]);
+      ensureUnique(
+        ["parentId", "name"],
+        repositories.categories,
+        [params.parentId, params.name],
+        { ignoreId: update ? params.id : undefined }
+      );
       assignId("parentId", repositories.categories, params.parentId);
       assignString("name", params.name);
       assignString("icon", params.icon);
