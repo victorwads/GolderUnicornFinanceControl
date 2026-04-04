@@ -37,6 +37,8 @@ const en: SettingsModuleTranslation = {
     installUpdate: "Reload to update",
     upToDate: "You are on the latest version",
     offlineReady: "Available offline",
+    updateCheckUnavailable: "Update checks only work once the PWA service worker is active in this browser.",
+    updateCheckFailed: "The app could not verify whether a new version exists right now. Try again.",
     speechRate: "Speech Rate",
     speechRateSlow: "Slow",
     speechRateNormal: "Normal",

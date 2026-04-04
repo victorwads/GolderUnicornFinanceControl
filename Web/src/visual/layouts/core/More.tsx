@@ -202,7 +202,7 @@ export interface MoreViewModel {
     }[];
   }[];
   navigate: (route: MoreRoute | string) => void;
-  handleUpdateCheck: () => void;
+  handleUpdateCheck: () => void | Promise<void>;
   checkingForUpdate?: boolean;
   handleLogout: () => void;
 }

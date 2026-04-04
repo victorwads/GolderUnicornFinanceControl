@@ -37,6 +37,8 @@ const hi: SettingsModuleTranslation = {
     installUpdate: "अभी अपडेट करें",
     upToDate: "आप नवीनतम संस्करण पर हैं",
     offlineReady: "ऑफ़लाइन उपलब्ध",
+    updateCheckUnavailable: "अपडेट जांच तभी काम करती है जब इस ब्राउज़र में PWA service worker पहले से सक्रिय हो.",
+    updateCheckFailed: "अभी यह जांचना संभव नहीं था कि नया संस्करण उपलब्ध है या नहीं. कृपया फिर से कोशिश करें.",
     speechRate: "बोलने की गति",
     speechRateSlow: "धीमी",
     speechRateNormal: "सामान्य",

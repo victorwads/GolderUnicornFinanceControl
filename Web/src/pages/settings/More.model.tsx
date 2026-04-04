@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@configs";
 import { clearSession } from "@utils/clearSession";
 import { useAppUpdates } from "@componentsDeprecated/AppUpdatesProvider";
+import { useToast } from "@hooks/use-toast";
 
 import {
   MoreRoute,
@@ -13,6 +14,7 @@ import { Calendar, CreditCard, FileCode2, FileText, Link2, Receipt, Sparkles, Wa
 
 export function useMoreModel(): MoreViewModel {
   const router = useNavigate();
+  const { toast } = useToast();
 
   function navigate(route: MoreRoute | string) {
     if (typeof route === "string") {
@@ -65,7 +67,34 @@ export function useMoreModel(): MoreViewModel {
     ],
     navigate,
     handleLogout: clearSession,
-    handleUpdateCheck: checkForUpdates,
+    handleUpdateCheck: async () => {
+      const result = await checkForUpdates({ applyIfAvailable: true });
+
+      if (result === "no-update") {
+        toast({
+          title: Lang.settings.checkUpdates,
+          description: Lang.settings.upToDate,
+        });
+        return;
+      }
+
+      if (result === "unsupported") {
+        toast({
+          variant: "destructive",
+          title: Lang.settings.checkUpdates,
+          description: Lang.settings.updateCheckUnavailable,
+        });
+        return;
+      }
+
+      if (result === "error") {
+        toast({
+          variant: "destructive",
+          title: Lang.settings.checkUpdates,
+          description: Lang.settings.updateCheckFailed,
+        });
+      }
+    },
     checkingForUpdate,
   };
 }
