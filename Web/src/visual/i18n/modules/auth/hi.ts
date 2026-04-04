@@ -41,6 +41,7 @@ const hi: AuthModuleTranslation = {
       recoveryTitle: "अपनी key file से access वापस पाएं",
       recoveryDescription: "आपका पासवर्ड वापस पाने का कोई तरीका नहीं है। अगर आपके पास encryption key file अभी भी है, तो हम उससे इस डिवाइस को अनलॉक कर सकते हैं।",
       recoveryWarning: "इस फ़ाइल के बिना recovery असंभव है। नए डिवाइस पर साइन इन करते समय आपको यह फ़ाइल हमेशा चाहिए होगी।",
+      recoveryLoggedInHint: "अगर आपकी account अभी भी किसी दूसरे device पर logged in है, तो वहाँ Settings > Privacy में जाकर अपनी key download करें और फिर यहाँ लौटें।",
       recoveryUploadLabel: "Key file अपलोड करें",
       recoveryFileExample: (fileName) => `अपेक्षित फ़ाइल नाम कुछ ऐसा दिखता है: ${fileName}`,
       recoveryFileSelected: (fileName) => `अपलोड की गई फ़ाइल: ${fileName}`,

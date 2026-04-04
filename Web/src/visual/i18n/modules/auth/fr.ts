@@ -41,6 +41,7 @@ const fr: AuthModuleTranslation = {
       recoveryTitle: "Récupérez l'accès avec votre fichier de clé",
       recoveryDescription: "Il n'existe aucun moyen de récupérer votre mot de passe. Si vous avez encore le fichier de clé de chiffrement, nous pouvons déverrouiller cet appareil avec lui.",
       recoveryWarning: "Sans ce fichier, la récupération est impossible. Vous en aurez besoin à chaque connexion sur un nouvel appareil.",
+      recoveryLoggedInHint: "Si vous êtes encore connecté sur un autre appareil, ouvrez Réglages > Confidentialité là-bas et téléchargez votre clé avant de continuer.",
       recoveryUploadLabel: "Téléverser le fichier de clé",
       recoveryFileExample: (fileName) => `Le nom attendu du fichier ressemble à ceci : ${fileName}`,
       recoveryFileSelected: (fileName) => `Fichier téléversé : ${fileName}`,

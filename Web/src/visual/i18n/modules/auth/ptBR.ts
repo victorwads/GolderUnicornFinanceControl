@@ -41,6 +41,7 @@ const ptBR: AuthModuleTranslation = {
       recoveryTitle: "Recupere o acesso com seu arquivo da chave",
       recoveryDescription: "Não existe forma de recuperar sua senha. Se você tiver o arquivo da chave de criptografia, podemos desbloquear este dispositivo com ele.",
       recoveryWarning: "Sem esse arquivo, a recuperação é impossível. Você vai precisar dele sempre que entrar em um dispositivo novo.",
+      recoveryLoggedInHint: "Se você ainda estiver com a conta aberta em outro dispositivo, entre em Configurações > Privacidade e baixe sua chave por lá antes de continuar.",
       recoveryUploadLabel: "Enviar arquivo da chave",
       recoveryFileExample: (fileName) => `O arquivo esperado tem este formato de nome: ${fileName}`,
       recoveryFileSelected: (fileName) => `Arquivo enviado: ${fileName}`,

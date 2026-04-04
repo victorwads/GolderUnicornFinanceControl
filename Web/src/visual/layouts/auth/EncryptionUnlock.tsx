@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { Input } from "@components/ui/input";
@@ -10,6 +11,7 @@ interface EncryptionUnlockProps {
 }
 
 export default function EncryptionUnlock({ model }: EncryptionUnlockProps) {
+  const recoveryInputRef = useRef<HTMLInputElement | null>(null);
   const {
     mode,
     password,
@@ -120,65 +122,73 @@ export default function EncryptionUnlock({ model }: EncryptionUnlockProps) {
                       <p className="text-sm leading-6 text-muted-foreground">
                         {LocalLang.recoveryWarning}
                       </p>
+                      <p className="rounded-xl border border-border/60 bg-background/70 px-3 py-2 text-xs leading-5 text-muted-foreground">
+                        {LocalLang.recoveryLoggedInHint}
+                      </p>
                       <p className="rounded-xl border border-dashed border-border/70 bg-background/70 px-3 py-2 text-xs text-muted-foreground">
                         {LocalLang.recoveryFileExample(recoveryExampleFileName)}
                       </p>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="recovery-file" className="text-foreground">
-                        {LocalLang.recoveryUploadLabel}
-                      </Label>
-                      <Input
-                        id="recovery-file"
-                        type="file"
-                        accept="text/plain,.txt"
-                        disabled={loading}
-                        onChange={(event) => {
-                          const file = event.target.files?.[0] ?? null;
-                          void handleRecoveryFile(file);
-                          event.target.value = "";
-                        }}
-                      />
-                      {recoveryFileName && (
-                        <p className="text-xs text-muted-foreground">
-                          {LocalLang.recoveryFileSelected(recoveryFileName)}
-                        </p>
-                      )}
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="h-auto px-0 text-sm text-muted-foreground"
-                      onClick={closeRecovery}
+                    <input
+                      ref={recoveryInputRef}
+                      id="recovery-file"
+                      className="hidden"
+                      type="file"
+                      accept="text/plain,.txt"
                       disabled={loading}
-                    >
-                      {LocalLang.backToPassword}
-                    </Button>
+                      onChange={(event) => {
+                        const file = event.target.files?.[0] ?? null;
+                        void handleRecoveryFile(file);
+                        event.target.value = "";
+                      }}
+                    />
+                    {recoveryFileName && (
+                      <p className="text-xs text-muted-foreground">
+                        {LocalLang.recoveryFileSelected(recoveryFileName)}
+                      </p>
+                    )}
                   </div>
                 )}
 
                 <div className="grid gap-3 pt-2 sm:grid-cols-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={handleLogout}
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    {Lang.settings.logout}
-                  </Button>
                   {mode === "password" ? (
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {LocalLang.unlock}
-                    </Button>
+                    <>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={handleLogout}
+                        className="w-full"
+                        disabled={loading}
+                      >
+                        {Lang.settings.logout}
+                      </Button>
+                      <Button type="submit" className="w-full" disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {LocalLang.unlock}
+                      </Button>
+                    </>
                   ) : (
-                    <div className="flex items-center justify-end text-sm text-muted-foreground">
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {LocalLang.recoveryPending}
-                    </div>
+                    <>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={closeRecovery}
+                        className="w-full"
+                        disabled={loading}
+                      >
+                        {LocalLang.backToPassword}
+                      </Button>
+                      <Button
+                        type="button"
+                        className="w-full"
+                        disabled={loading}
+                        onClick={() => recoveryInputRef.current?.click()}
+                      >
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {Lang.commons.uploadFile}
+                      </Button>
+                    </>
                   )}
                 </div>
               </form>

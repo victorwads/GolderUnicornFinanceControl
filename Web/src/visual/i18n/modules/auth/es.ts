@@ -41,6 +41,7 @@ const es: AuthModuleTranslation = {
       recoveryTitle: "Recupera el acceso con tu archivo de clave",
       recoveryDescription: "No hay forma de recuperar tu contraseña. Si todavía tienes el archivo de la clave de cifrado, podemos desbloquear este dispositivo con él.",
       recoveryWarning: "Sin este archivo, la recuperación es imposible. Lo necesitarás cada vez que inicies sesión en un dispositivo nuevo.",
+      recoveryLoggedInHint: "Si todavía tienes la sesión abierta en otro dispositivo, entra allí en Configuración > Privacidad y descarga tu clave antes de continuar.",
       recoveryUploadLabel: "Subir archivo de clave",
       recoveryFileExample: (fileName) => `El nombre esperado del archivo se parece a este: ${fileName}`,
       recoveryFileSelected: (fileName) => `Archivo enviado: ${fileName}`,

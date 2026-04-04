@@ -41,6 +41,7 @@ const zh: AuthModuleTranslation = {
       recoveryTitle: "使用密钥文件恢复访问",
       recoveryDescription: "你的密码无法被恢复。如果你还保留着加密密钥文件，我们可以用它来解锁这个设备。",
       recoveryWarning: "没有这个文件，恢复就是不可能的。你每次在新设备上登录时都需要它。",
+      recoveryLoggedInHint: "如果你仍然在另一台设备上保持登录，请先在那里打开“设置 > 隐私”并下载你的密钥，再回到这里继续。",
       recoveryUploadLabel: "上传密钥文件",
       recoveryFileExample: (fileName) => `预期的文件名类似这样：${fileName}`,
       recoveryFileSelected: (fileName) => `已上传文件：${fileName}`,

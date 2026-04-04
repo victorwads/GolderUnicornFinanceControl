@@ -41,6 +41,7 @@ export default interface AuthModuleTranslation extends Translation {
       recoveryTitle: string;
       recoveryDescription: string;
       recoveryWarning: string;
+      recoveryLoggedInHint: string;
       recoveryUploadLabel: string;
       recoveryFileExample: (fileName: string) => string;
       recoveryFileSelected: (fileName: string) => string;

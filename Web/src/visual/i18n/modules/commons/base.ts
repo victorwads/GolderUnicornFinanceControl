@@ -11,6 +11,7 @@ export default interface CommonsModuleTranslation extends Translation {
     confirm: string;
     select: string;
     clear: string;
+    uploadFile: string;
     loading: string;
     fillAllFields: string;
     currentPath: string;

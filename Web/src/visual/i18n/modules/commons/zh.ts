@@ -11,6 +11,7 @@ const zh: CommonsModuleTranslation = {
     confirm: "确认",
     select: "选择",
     clear: "清除",
+    uploadFile: "上传文件",
     loading: "加载中...",
     fillAllFields: "填写所有字段",
     currentPath: "当前路径",

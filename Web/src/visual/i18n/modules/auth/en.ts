@@ -41,6 +41,7 @@ const en: AuthModuleTranslation = {
       recoveryTitle: "Recover access with your key file",
       recoveryDescription: "There is no way to recover your password. If you still have the encryption key file, we can unlock this device with it.",
       recoveryWarning: "Without this file, recovery is impossible. You will need it whenever you sign in on a new device.",
+      recoveryLoggedInHint: "If you are still signed in on another device, open Settings > Privacy there and download your key before continuing.",
       recoveryUploadLabel: "Upload key file",
       recoveryFileExample: (fileName) => `The expected file name looks like this: ${fileName}`,
       recoveryFileSelected: (fileName) => `Uploaded file: ${fileName}`,

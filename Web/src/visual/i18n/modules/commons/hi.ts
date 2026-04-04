@@ -11,6 +11,7 @@ const hi: CommonsModuleTranslation = {
     confirm: "पुष्टि करें",
     select: "चुनें",
     clear: "साफ करें",
+    uploadFile: "फ़ाइल अपलोड करें",
     loading: "लोड हो रहा है...",
     fillAllFields: "सभी फ़ील्ड भरें",
     currentPath: "वर्तमान पथ",
