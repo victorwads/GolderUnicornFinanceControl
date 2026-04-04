@@ -5,7 +5,6 @@ import { withRepos } from '@componentsDeprecated/WithRepo';
 import { AssistantProvider } from '@features/assistant/AssistantContext';
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
-import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
@@ -27,6 +26,7 @@ import HomePage from '@pages/core/Home.page';
 import TimelinePage from '@pages/core/Timeline.page';
 import TimelineImportPage from '@pages/core/TimelineImport.page';
 import CreateRecurrentPage from '@pages/transactions/CreateRecurrent.page';
+import RecurrentsListPage from '@pages/transactions/RecurrentsList.page';
 import InvoicesListPage from '@pages/transactions/InvoicesList.page';
 import CreateTransferPage from '@pages/transactions/CreateTransfer.page';
 import PrivacyPage from '@pages/privacy/Privacy.page';
@@ -71,7 +71,21 @@ export const privateRouter = createBrowserRouter([
           },
         ],
       },
-      { path: 'recurrents', element: withRepos(<RecurrentRegistriesScreen />, 'recurrentTransactions', 'accounts', 'creditCards', 'categories') },
+      {
+        path: 'recurrents',
+        element: withRepos(
+          <MasterDetailShell
+            basePath="/recurrents"
+            listPane={<RecurrentsListPage />}
+          />,
+          'recurrentTransactions', 'accounts', 'creditCards', 'categories'
+        ),
+        children: [
+          { index: true, element: <RecurrentsListPage /> },
+          { path: 'create', element: <CreateRecurrentPage /> },
+          { path: ':id', element: <CreateRecurrentPage /> },
+        ],
+      },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },
       { path: 'groceries/removed', element: withRepos(<GroceriesTrashScreen />, 'groceries') },
       {
@@ -157,8 +171,6 @@ export const privateRouter = createBrowserRouter([
       },
       { path: '/groceries/create', element: <GroceryItemForm /> },
       { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
-      { path: '/recurrents/create', element: withRepos(<CreateRecurrentPage />, 'recurrentTransactions') },
-      { path: '/recurrents/:id', element: withRepos(<CreateRecurrentPage />, 'recurrentTransactions') },
       { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
     ]
   },
