@@ -26,7 +26,7 @@ import type {
 } from "@pages/assistant/assistantHistoryAdapter";
 
 export default function AssistantHistoryDetail({
-  model: { navigate, conversation, isDeveloperMode, onResumeConversation },
+  model: { navigate, conversation, isDeveloperMode, onResumeConversation, canResumeConversation },
 }: {
   model: AssistantHistoryDetailViewModel;
 }) {
@@ -105,15 +105,17 @@ export default function AssistantHistoryDetail({
           ))}
         </div>
 
-        <Card className="border-dashed border-border/60 p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">{LocalLang.resumeConversationTitle}</p>
-              <p className="text-sm text-muted-foreground">{LocalLang.resumeConversationDescription}</p>
+        {canResumeConversation && (
+          <Card className="border-dashed border-border/60 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">{LocalLang.resumeConversationTitle}</p>
+                <p className="text-sm text-muted-foreground">{LocalLang.resumeConversationDescription}</p>
+              </div>
+              <Button onClick={onResumeConversation}>{LocalLang.resumeConversationAction}</Button>
             </div>
-            <Button onClick={onResumeConversation}>{LocalLang.resumeConversationAction}</Button>
-          </div>
-        </Card>
+          </Card>
+        )}
       </div>
     </div>
   );
@@ -438,6 +440,7 @@ export interface AssistantHistoryDetailViewModel {
   navigate: (route: AssistantHistoryDetailRoute) => void;
   conversation: AssistantHistoryConversation;
   isDeveloperMode: boolean;
+  canResumeConversation: boolean;
   onResumeConversation: () => void;
 }
 

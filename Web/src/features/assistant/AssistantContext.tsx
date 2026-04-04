@@ -10,10 +10,12 @@ type AssistantContextValue = {
   history: AssistantTimelineEntry[];
   penddingAnswer: boolean;
   processing: boolean;
+  isFinished: boolean;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   sendUserAnswer: (answer: string) => void;
   openWithConversation: (conversation: AssistantHistoryConversation) => void;
+  startNewConversation: () => void;
 };
 
 let sendUserAnswerRef: ((answer: string) => void) | null = null;
@@ -25,6 +27,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [history, setHistory] = useState<AssistantTimelineEntry[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isFinished, setIsFinished] = useState(false);
   const navigate = useNavigate();
   
   const controller = useMemo(() => 
@@ -49,6 +52,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       (context) => {
         setConversationId(context.id);
         setHistory(buildTimelineEntries(context));
+        setIsFinished(Boolean(context.finishReason?.startsWith("finished_by_assistant")));
       },
     ),
     []
@@ -58,10 +62,14 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     conversationId,
     history,
     processing,
+    isFinished,
     isOpen,
     setIsOpen,
     penddingAnswer: !!sendUserAnswerRef,
     sendUserAnswer: (answer: string) => {
+      if (isFinished) {
+        return;
+      }
       setProcessing(true);
       if (sendUserAnswerRef) {
         sendUserAnswerRef?.(answer);
@@ -77,8 +85,17 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       setConversationId(conversation.id);
       setPendingAiContext(conversation.context);
       setHistory(conversation.entries);
+      setIsFinished(Boolean(conversation.finishReason?.startsWith("finished_by_assistant")));
       setIsOpen(true);
-    }
+    },
+    startNewConversation: () => {
+      sendUserAnswerRef = null;
+      setConversationId(null);
+      setHistory([]);
+      setIsFinished(false);
+      setProcessing(false);
+      setIsOpen(true);
+    },
   }}>{children}</AssistantContext.Provider>;
 }
 

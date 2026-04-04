@@ -13,7 +13,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
 
   const { 
     processing, penddingAnswer, isOpen, setIsOpen,
-    conversationId, history, sendUserAnswer
+    conversationId, history, sendUserAnswer, isFinished, startNewConversation
   } = useAssistantContext();
 
   const onSend = () => {
@@ -46,6 +46,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     conversationId,
     visibleEntries,
     draft,
+    isFinished,
     isListening: isListening,
     autoSendProgress,
     loading: processing,
@@ -59,6 +60,12 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     onOpenFullConversation: () => {
       setIsOpen(false);
       navigate(`/assistant/${conversationId}`);
+    },
+    onStartNewConversation: () => {
+      clearAutoSend();
+      stopMic();
+      setDraft("");
+      startNewConversation();
     },
   };
 }

@@ -52,6 +52,9 @@ export function useAssistantConversationModel(): AssistantHistoryDetailViewModel
     navigate,
     conversation: selectedConversation ?? createEmptyConversation(),
     isDeveloperMode,
+    canResumeConversation: selectedConversation
+      ? !selectedConversation.finishReason.startsWith("finished_by_assistant")
+      : false,
     onResumeConversation: () => {
       if (!selectedConversation) return;
       openWithConversation(selectedConversation);
