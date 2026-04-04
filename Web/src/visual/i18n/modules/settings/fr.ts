@@ -37,6 +37,8 @@ const fr: SettingsModuleTranslation = {
     installUpdate: "Mettre à jour maintenant",
     upToDate: "Vous utilisez la dernière version",
     offlineReady: "Disponible hors ligne",
+    updateCheckUnavailable: "La recherche de mises à jour ne fonctionne que lorsque le service worker de la PWA est déjà actif dans ce navigateur.",
+    updateCheckFailed: "Impossible de vérifier s'il existe une nouvelle version pour le moment. Réessayez.",
     speechRate: "Vitesse de Parole",
     speechRateSlow: "Lent",
     speechRateNormal: "Normal",

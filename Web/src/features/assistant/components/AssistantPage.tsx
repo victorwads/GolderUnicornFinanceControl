@@ -24,7 +24,7 @@ import "./AssistantPage.css";
 import Icon, { Icons } from "@componentsDeprecated/Icons";
 import { startListening, stopListening } from "@componentsDeprecated/voice/microfone";
 import { AiCallContext, AIUse } from "@models";
-import { speak } from "@features/tabs/settings/sections/VoicePreferencesSection";
+import { speak } from "../speechSynthesis";
 import { subscribeAssistantEvent } from "../utils/assistantEvents";
 import { getAssistantMicrophoneMode, getAssistantMode } from "../preferences";
 import type { AssistantTimelineEntry } from "@pages/assistant/assistantHistoryAdapter";

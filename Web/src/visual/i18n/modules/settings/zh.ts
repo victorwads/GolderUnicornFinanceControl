@@ -37,6 +37,8 @@ const zh: SettingsModuleTranslation = {
     installUpdate: "立即更新",
     upToDate: "当前已是最新版本",
     offlineReady: "可离线使用",
+    updateCheckUnavailable: "只有当该浏览器中的 PWA service worker 已经激活时，才能检查更新。",
+    updateCheckFailed: "当前无法确认是否存在新版本，请稍后再试。",
     speechRate: "语音速度",
     speechRateSlow: "慢速",
     speechRateNormal: "正常",

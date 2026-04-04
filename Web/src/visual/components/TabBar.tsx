@@ -1,4 +1,4 @@
-import { Home, Clock, MoreHorizontal } from "lucide-react";
+import { Home, Clock, Bot, MoreHorizontal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@lib/utils";
@@ -12,7 +12,7 @@ export const TabBar = ({ model }: TabBarProps) => {
 
   return (
     <nav className="shrink-0 border-t border-border bg-card pb-safe">
-      <div className="grid grid-cols-3 items-center h-16 max-w-lg mx-auto">
+      <div className="grid grid-cols-4 items-center h-16 max-w-xl mx-auto">
         {tabs.map((tab) => {
           const isActive = tab.isActive;
           const Icon = tab.icon;
@@ -54,6 +54,7 @@ export class TabBarRoute {}
 
 export class ToHomeRoute extends TabBarRoute {}
 export class ToTimelineRoute extends TabBarRoute {}
+export class ToAssistantRoute extends TabBarRoute {}
 export class ToMoreRoute extends TabBarRoute {}
 
 export interface TabBarItem {
@@ -71,5 +72,6 @@ export interface TabBarViewModel {
 export const tabBarIcons = {
   home: Home,
   timeline: Clock,
+  assistant: Bot,
   more: MoreHorizontal,
 };

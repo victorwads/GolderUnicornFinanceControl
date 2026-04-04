@@ -11,6 +11,7 @@ const ptBR: CommonsModuleTranslation = {
     confirm: "Confirmar",
     select: "Selecionar",
     clear: "Limpar",
+    uploadFile: "Enviar arquivo",
     loading: "Carregando...",
     fillAllFields: "Preencha todos os campos",
     currentPath: "Caminho Atual",

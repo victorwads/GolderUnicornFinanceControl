@@ -37,6 +37,8 @@ const ptBR: SettingsModuleTranslation = {
     installUpdate: "Atualizar agora",
     upToDate: "Você está usando a versão mais recente",
     offlineReady: "Disponível offline",
+    updateCheckUnavailable: "A busca por atualizações só funciona quando a PWA e o service worker já estão ativos neste navegador.",
+    updateCheckFailed: "Não foi possível verificar se existe uma nova versão agora. Tente novamente.",
     speechRate: "Velocidade da Fala",
     speechRateSlow: "Lento",
     speechRateNormal: "Normal",

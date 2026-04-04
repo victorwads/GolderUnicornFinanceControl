@@ -1,11 +1,8 @@
-import JSZip from "jszip";
-
 import { DocumentModel } from "@models";
 import { getCurrentUser } from "@configs";
 import getRepositories, {
   RepoName,
   Repositories,
-  RepositoryWithCrypt,
 } from "@repositories";
 import type { DataProgressInfo } from "@components/DataProgress";
 import { ProjectStorage } from "@utils/ProjectStorage";
@@ -16,13 +13,17 @@ import { dispatchAssistantEvent } from "@features/assistant/utils/assistantEvent
 
 const RESAVE_CHUNK_SIZE = 100;
 const FIREBASE_BATCH_MAX_WRITES = 500;
-const DELETE_DATA_IGNORED_REPOS: RepoName[] = ["banks"];
+const PROTECTED_USER_DATA_REPOS: RepoName[] = ["banks", "resourcesUse"];
 
 export type ExportFormat = "json" | "csv" | "all";
 export type ProgressUpdater = (progress: DataProgressInfo | null) => void;
 export type ExportFailure = {
   domain: string;
   message: string;
+};
+
+type ExportUserDataOptions = {
+  password?: string;
 };
 
 export type ExportUserDataResult = {
@@ -44,17 +45,24 @@ export type ImportUserDataResult = {
   totalImportedCount: number;
 };
 
+export function isProtectedUserDataRepo(repoName: RepoName): boolean {
+  return PROTECTED_USER_DATA_REPOS.includes(repoName);
+}
+
 export async function exportUserData(
   format: ExportFormat,
   setProgress?: ProgressUpdater,
+  options: ExportUserDataOptions = {},
 ): Promise<ExportUserDataResult> {
   const allRepos = getRepositories();
   const repoKeys = Object.keys(allRepos) as RepoName[];
-  const zip = new JSZip();
   const exportedDomains: RepoName[] = [];
   const failedDomains: ExportFailure[] = [];
   const date = new Date().toISOString().split("T")[0];
-  const fileName = buildExportZipFileName(format, date);
+  const password = options.password?.trim();
+  const fileName = buildExportZipFileName(format, date, Boolean(password));
+  const { BlobWriter, TextReader, ZipWriter } = await import("@zip.js/zip.js");
+  const zipWriter = new ZipWriter(new BlobWriter("application/zip"));
 
   try {
     for (const [index, key] of repoKeys.entries()) {
@@ -72,10 +80,12 @@ export async function exportUserData(
 
         const data = await repo.getAll();
         if (format === "json" || format === "all") {
-          zip.file(
+          await zipWriter.add(
             `${key}.json`,
-            JSON.stringify(
+            new TextReader(
+              JSON.stringify(
               {
+                schemaVersion: 2,
                 collection: key,
                 date: new Date().toISOString(),
                 documents: data,
@@ -83,10 +93,16 @@ export async function exportUserData(
               null,
               2,
             ),
+            ),
+            password ? { password } : undefined,
           );
         }
         if (format === "csv" || format === "all") {
-          zip.file(`${key}.csv`, toCSV(data));
+          await zipWriter.add(
+            `${key}.csv`,
+            new TextReader(toCSV(data)),
+            password ? { password } : undefined,
+          );
         }
         exportedDomains.push(key);
       } catch (error) {
@@ -96,9 +112,10 @@ export async function exportUserData(
       }
     }
 
-    zip.file(
+    await zipWriter.add(
       "export-report.json",
-      JSON.stringify(
+      new TextReader(
+        JSON.stringify(
         {
           generatedAt: new Date().toISOString(),
           format,
@@ -108,9 +125,11 @@ export async function exportUserData(
         null,
         2,
       ),
+      ),
+      password ? { password } : undefined,
     );
 
-    const blob = await zip.generateAsync({ type: "blob" });
+    const blob = await zipWriter.close();
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
@@ -129,16 +148,21 @@ export async function exportUserData(
   }
 }
 
-function buildExportZipFileName(format: ExportFormat, date: string): string {
+function buildExportZipFileName(
+  format: ExportFormat,
+  date: string,
+  passwordProtected: boolean,
+): string {
   const userEmail = getCurrentUser()?.email || "unknown";
   const formatPart = format.toUpperCase();
-  return `GUMyFinances ${userEmail} ${date} ${formatPart}.zip`;
+  const modePart = passwordProtected ? " PROTECTED" : "";
+  return `GUMyFinances ${userEmail} ${date} ${formatPart}${modePart}.zip`;
 }
 
 export async function deleteAllUserData(setProgress?: ProgressUpdater): Promise<void> {
   const repositories = getRepositories();
   const entries = Object.entries(repositories).filter(
-    ([key]) => !DELETE_DATA_IGNORED_REPOS.includes(key as RepoName),
+    ([key]) => !isProtectedUserDataRepo(key as RepoName),
   ) as [RepoName, Repositories[RepoName]][];
 
   try {
@@ -174,6 +198,7 @@ export async function importUserData(
   const repoNames = Object.keys(allRepos) as RepoName[];
   const importedFiles: ImportUserDataResult["importedFiles"] = [];
   const failedFiles: ImportUserDataResult["failedFiles"] = [];
+  let skippedProtectedFiles = 0;
   let totalImportedCount = 0;
 
   try {
@@ -181,6 +206,13 @@ export async function importUserData(
       try {
         const text = await file.text();
         const payload = parseImportPayload(text, file.name, repoNames);
+        if (isEncryptedImport(payload)) {
+          throw new Error("Backups JSON criptografados não são mais suportados. Exporte novamente no formato padrão.");
+        }
+        if (isProtectedUserDataRepo(payload.collection)) {
+          skippedProtectedFiles++;
+          continue;
+        }
         const repo = allRepos[payload.collection];
 
         if (!repo.isReady) {
@@ -231,7 +263,7 @@ export async function importUserData(
       }
     }
 
-    if (importedFiles.length === 0) {
+    if (importedFiles.length === 0 && skippedProtectedFiles === 0) {
       throw new Error(
         failedFiles[0]?.message || "Nenhum arquivo válido foi importado.",
       );
@@ -374,12 +406,13 @@ function formatExportError(error: unknown): string {
 }
 
 type ImportPayload = {
+  schemaVersion?: number;
   collection: RepoName;
   date: string;
   documents: DocumentModel[];
 };
 
-function parseImportPayload(rawContent: string, fileName: string, repoNames: RepoName[]): ImportPayload {
+export function parseImportPayload(rawContent: string, fileName: string, repoNames: RepoName[]): ImportPayload {
   const parsed = JSON.parse(rawContent, importJsonReviver) as unknown;
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error(`Formato inválido em "${fileName}". Esperado: objeto JSON.`);
@@ -433,4 +466,25 @@ function importJsonReviver(_key: string, value: unknown): unknown {
 
 function isIsoDateString(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value);
+}
+
+export function isEncryptedImport(
+  payload: Pick<ImportPayload, "documents"> & { encryption?: { isEncrypted?: boolean } },
+  documents: Record<string, unknown>[] = payload.documents as Record<string, unknown>[],
+): boolean {
+  if (payload.encryption?.isEncrypted) {
+    return true;
+  }
+  return documents.some((document) => isEncryptedRecord(document));
+}
+
+function isEncryptedRecord(value: unknown): value is Record<string, unknown> & { encrypted: boolean | number } {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    Object.prototype.hasOwnProperty.call(value, "encrypted") &&
+    (typeof (value as { encrypted?: unknown }).encrypted === "boolean" ||
+      typeof (value as { encrypted?: unknown }).encrypted === "number"),
+  );
 }

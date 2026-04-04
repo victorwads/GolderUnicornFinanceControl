@@ -10,6 +10,7 @@ import {
   type ImportUserDataResult,
   type ExportUserDataResult,
 } from "@features/settings/settingsActions";
+import { downloadEncryptionKeyFile } from "@features/security/downloadEncryptionKey";
 
 export function usePrivacyModel(): PrivacyViewModel {
   const navigate = useNavigate();
@@ -23,11 +24,31 @@ export function usePrivacyModel(): PrivacyViewModel {
   const [deleteDataConfirmation, setDeleteDataConfirmation] = useState("");
   const [deleteDataPhrase, setDeleteDataPhrase] = useState("");
 
-  const handleExport = async (format: "json" | "csv") => {
+  const runImport = async (files: File[]) => {
+    setProgressType("import");
+    setLastImportResult(null);
+    const result = await importUserData(files, setProgress);
+    setLastImportResult(result);
+
+    if (result.failedFiles.length > 0) {
+      toast({
+        variant: "destructive",
+        title: LocalLang.importPartialTitle,
+        description: LocalLang.importPartialDescription(result.totalImportedCount, result.failedFiles.length),
+      });
+    } else {
+      toast({
+        title: LocalLang.importSuccessTitle,
+        description: LocalLang.importSuccessDescription(result.totalImportedCount),
+      });
+    }
+  };
+
+  const handleExport = async (format: "json" | "csv", password?: string) => {
     try {
       setProgressType("export");
       setLastExportResult(null);
-      const result = await exportUserData(format, setProgress);
+      const result = await exportUserData(format, setProgress, { password });
       setLastExportResult(result);
 
       if (result.failedDomains.length > 0) {
@@ -57,22 +78,7 @@ export function usePrivacyModel(): PrivacyViewModel {
     if (files.length === 0) return;
 
     try {
-      setProgressType("import");
-      setLastImportResult(null);
-      const result = await importUserData(files, setProgress);
-      setLastImportResult(result);
-      if (result.failedFiles.length > 0) {
-        toast({
-          variant: "destructive",
-          title: LocalLang.importPartialTitle,
-          description: LocalLang.importPartialDescription(result.totalImportedCount, result.failedFiles.length),
-        });
-      } else {
-        toast({
-          title: LocalLang.importSuccessTitle,
-          description: LocalLang.importSuccessDescription(result.totalImportedCount),
-        });
-      }
+      await runImport(files);
     } catch (error) {
       console.error("Failed to import data", error);
       setLastImportResult(null);
@@ -80,6 +86,23 @@ export function usePrivacyModel(): PrivacyViewModel {
         variant: "destructive",
         title: LocalLang.importErrorTitle,
         description: error instanceof Error ? error.message : LocalLang.importErrorDescription,
+      });
+    }
+  };
+
+  const handleDownloadEncryptionKey = async () => {
+    try {
+      await downloadEncryptionKeyFile();
+      toast({
+        title: LocalLang.downloadEncryptionKeyTitle,
+        description: LocalLang.downloadEncryptionKeySuccessDescription,
+      });
+    } catch (error) {
+      console.error("Failed to download encryption key", error);
+      toast({
+        variant: "destructive",
+        title: LocalLang.downloadEncryptionKeyErrorTitle,
+        description: error instanceof Error ? error.message : LocalLang.downloadEncryptionKeyErrorDescription,
       });
     }
   };
@@ -92,6 +115,7 @@ export function usePrivacyModel(): PrivacyViewModel {
     lastExportResult,
     handleExport,
     handleImportFiles,
+    handleDownloadEncryptionKey,
     showDeleteDataDialog,
     setShowDeleteDataDialog,
     deleteDataPhrase,

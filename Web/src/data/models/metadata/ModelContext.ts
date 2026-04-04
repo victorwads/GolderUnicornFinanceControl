@@ -25,7 +25,7 @@ export default class ModelContext<Model extends DocumentModel> {
     if (existing) {
       this.errors.push(`The item with ${
         fieldNames.map(f => `${f as string}=${String(existing[f]).trim()}`).join(", ")
-      } already exists with id ${existing.id}, use this Id.`);
+      } already exists with id ${existing.id}, use this Id to update it.`);
     }
   }
 
@@ -107,7 +107,7 @@ export default class ModelContext<Model extends DocumentModel> {
       if (fieldName) { this.data[fieldName] = id; }
       return item;
     } else {
-      this.errors.push(`Invalid ${repo.entityName} id`);
+      this.errors.push(`Invalid identifier '${id}' for ${repo.entityName}. use the tools to search for a valid id.`);
     }
   };
 

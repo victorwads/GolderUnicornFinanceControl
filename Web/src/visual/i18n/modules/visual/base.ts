@@ -187,6 +187,13 @@ export default interface VisualModuleTranslation extends Translation {
       dataDescription: string;
       exportJsonTitle: string;
       exportJsonDescription: string;
+      exportActionTitle: string;
+      exportActionDescription: string;
+      exportFormatTitle: string;
+      exportPasswordToggleTitle: string;
+      exportPasswordToggleDescription: string;
+      exportPasswordFieldTitle: string;
+      exportPasswordFieldPlaceholder: string;
       exportCsvTitle: string;
       exportCsvDescription: string;
       exportHint: string;
@@ -219,6 +226,11 @@ export default interface VisualModuleTranslation extends Translation {
       policyDescription: string;
       manageAccountTitle: string;
       manageAccountDescription: string;
+      downloadEncryptionKeyTitle: string;
+      downloadEncryptionKeyDescription: string;
+      downloadEncryptionKeySuccessDescription: string;
+      downloadEncryptionKeyErrorTitle: string;
+      downloadEncryptionKeyErrorDescription: string;
       deleteMyAccountTitle: string;
       deleteMyAccountDescription: string;
       deleteDialogTitle: string;

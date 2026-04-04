@@ -74,6 +74,10 @@ export default class CryptoPassRepository {
     if (!pass) throw new Error('Informe uma senha de criptografia.');
 
     const secretHash = await Encryptor.createHash(pass);
+    await this.initSessionWithHash(secretHash);
+  }
+
+  public async initSessionWithHash(secretHash: Hash): Promise<void> {
     const { user } = getRepositories();
     
     await getEncryptor().initWithHash(secretHash);

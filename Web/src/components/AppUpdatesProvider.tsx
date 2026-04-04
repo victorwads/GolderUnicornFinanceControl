@@ -1,18 +1,26 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { registerSW } from 'virtual:pwa-register';
 
+export type AppUpdateCheckResult =
+  | 'unsupported'
+  | 'no-update'
+  | 'update-available'
+  | 'updated'
+  | 'error';
+
 export interface AppUpdatesContextValue {
   version: string;
   updateAvailable: boolean;
   offlineReady: boolean;
   checkingForUpdate: boolean;
-  checkForUpdates: () => Promise<void>;
+  checkForUpdates: (options?: { applyIfAvailable?: boolean }) => Promise<AppUpdateCheckResult>;
   applyUpdate: () => Promise<void>;
 }
 
 const AppUpdatesContext = createContext<AppUpdatesContextValue | undefined>(undefined);
 
 const ONE_HOUR = 1000 * 60 * 60;
+const UPDATE_CHECK_TIMEOUT = 5000;
 
 declare global {
   interface Window {
@@ -32,30 +40,127 @@ export function AppUpdatesProvider({ children }: { children: ReactNode }) {
 
   const updateSWRef = useRef<((reloadPage?: boolean) => Promise<void>) | null>(null);
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
+  const swUrlRef = useRef<string | null>(null);
   const updateIntervalRef = useRef<number>();
   const detachRegistrationListenerRef = useRef<(() => void) | undefined>();
 
-  const checkForUpdates = useCallback(async () => {
-    if (!import.meta.env.PROD || typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
-      return;
+  const waitForUpdate = useCallback(async (registration: ServiceWorkerRegistration) => {
+    if (registration.waiting) {
+      return true;
+    }
+
+    return await new Promise<boolean>((resolve) => {
+      const cleanups: Array<() => void> = [];
+      let settled = false;
+
+      const finish = (result: boolean) => {
+        if (settled) {
+          return;
+        }
+
+        settled = true;
+        cleanups.forEach((cleanup) => cleanup());
+        resolve(result || Boolean(registration.waiting));
+      };
+
+      const observeWorker = (worker: ServiceWorker | null) => {
+        if (!worker) {
+          return;
+        }
+
+        const handleStateChange = () => {
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            finish(true);
+            return;
+          }
+
+          if (worker.state === 'redundant') {
+            finish(Boolean(registration.waiting));
+          }
+        };
+
+        worker.addEventListener('statechange', handleStateChange);
+        cleanups.push(() => {
+          worker.removeEventListener('statechange', handleStateChange);
+        });
+
+        handleStateChange();
+      };
+
+      const handleUpdateFound = () => {
+        observeWorker(registration.installing);
+      };
+
+      registration.addEventListener('updatefound', handleUpdateFound);
+      cleanups.push(() => {
+        registration.removeEventListener('updatefound', handleUpdateFound);
+      });
+
+      observeWorker(registration.installing);
+
+      const timeoutId = window.setTimeout(() => {
+        finish(Boolean(registration.waiting));
+      }, UPDATE_CHECK_TIMEOUT);
+
+      cleanups.push(() => {
+        window.clearTimeout(timeoutId);
+      });
+    });
+  }, []);
+
+  const checkForUpdates = useCallback(async (options?: { applyIfAvailable?: boolean }) => {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+      return 'unsupported';
     }
 
     setCheckingForUpdate(true);
     try {
-      if (registrationRef.current) {
-        await registrationRef.current.update();
-      } else if (updateSWRef.current) {
-        await updateSWRef.current();
+      const registration = registrationRef.current ?? await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        return 'unsupported';
       }
+
+      registrationRef.current = registration;
+
+      if (swUrlRef.current) {
+        await fetch(swUrlRef.current, {
+          cache: 'no-store',
+          headers: {
+            'cache-control': 'no-cache',
+          },
+        }).catch(() => undefined);
+      }
+
+      await registration.update();
+
+      const hasUpdate = registration.waiting || await waitForUpdate(registration);
+      if (!hasUpdate) {
+        setUpdateAvailable(false);
+        return 'no-update';
+      }
+
+      setUpdateAvailable(true);
+
+      if (options?.applyIfAvailable && updateSWRef.current) {
+        await updateSWRef.current(true);
+        return 'updated';
+      }
+
+      return 'update-available';
     } catch (error) {
       console.error('Failed to check for updates', error);
+      return 'error';
     } finally {
       setCheckingForUpdate(false);
     }
-  }, []);
+  }, [waitForUpdate]);
 
   const applyUpdate = useCallback(async () => {
-    if (!import.meta.env.PROD || typeof window === 'undefined' || !updateSWRef.current) {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (!updateSWRef.current) {
       window.location.reload();
       return;
     }
@@ -69,7 +174,7 @@ export function AppUpdatesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!import.meta.env.PROD || typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
       return;
     }
 
@@ -123,7 +228,8 @@ export function AppUpdatesProvider({ children }: { children: ReactNode }) {
 
     const updateSW = registerSW({
       immediate: true,
-      onRegisteredSW(_url, registration) {
+      onRegisteredSW(url, registration) {
+        swUrlRef.current = url;
         handleRegistration(registration);
       },
       onNeedRefresh() {
@@ -148,6 +254,7 @@ export function AppUpdatesProvider({ children }: { children: ReactNode }) {
       isCancelled = true;
       updateSWRef.current = null;
       registrationRef.current = null;
+      swUrlRef.current = null;
       detachRegistrationListenerRef.current?.();
       detachRegistrationListenerRef.current = undefined;
       navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);

@@ -26,7 +26,7 @@ import type {
 } from "@pages/assistant/assistantHistoryAdapter";
 
 export default function AssistantHistoryDetail({
-  model: { navigate, conversation, isDeveloperMode, selectedModel, modelOptions, onModelChange, onResumeConversation },
+  model: { navigate, conversation, isDeveloperMode, onResumeConversation },
 }: {
   model: AssistantHistoryDetailViewModel;
 }) {
@@ -69,21 +69,6 @@ export default function AssistantHistoryDetail({
               </>
             )}
             <div className="ml-auto flex flex-wrap gap-2">
-              {isDeveloperMode && (
-                <div className="min-w-[180px]">
-                  <select
-                    className="h-9 rounded-md border border-border bg-card px-3 text-sm text-foreground"
-                    value={selectedModel}
-                    onChange={(event) => onModelChange(event.target.value)}
-                  >
-                    {modelOptions.map((model) => (
-                      <option key={model} value={model}>
-                        {model}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
               <Badge variant="outline">{LocalLang.costLabel} R$ {conversation.cost.toFixed(4)}</Badge>
               <Badge variant="outline">{LocalLang.tokenLabel} {conversation.tokensIn + conversation.tokensOut}</Badge>
             </div>
@@ -92,27 +77,27 @@ export default function AssistantHistoryDetail({
       </header>
 
       <div className="mx-auto max-w-5xl space-y-4 p-4 animate-fade-in">
-        <Card className="border-border/50 bg-gradient-card p-5">
-          <div className="space-y-4">
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{LocalLang.summaryLabel}</p>
-              <p className="text-base leading-7 text-foreground">
-                {effectiveMode === "user" ? conversation.userSummary : conversation.developerSummary}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {conversation.sharedDomains.map((domain) => (
-                  <Badge key={domain} variant="secondary">{domain}</Badge>
-                ))}
+        {effectiveMode === "developer" && (
+          <Card className="border-border/50 bg-gradient-card p-5">
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">{LocalLang.summaryLabel}</p>
+                <p className="text-base leading-7 text-foreground">{conversation.developerSummary}</p>
+                <div className="flex flex-wrap gap-2">
+                  {conversation.sharedDomains.map((domain) => (
+                    <Badge key={domain} variant="secondary">{domain}</Badge>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <MetricCard label={LocalLang.actionsLabel} value={String(conversation.toolCallsCount)} />
+                <MetricCard label={LocalLang.finishReasonLabel} value={conversation.finishReason} />
+                <MetricCard label={LocalLang.inputTokensLabel} value={String(conversation.tokensIn)} />
+                <MetricCard label={LocalLang.outputTokensLabel} value={String(conversation.tokensOut)} />
               </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <MetricCard label={LocalLang.actionsLabel} value={String(conversation.toolCallsCount)} />
-              <MetricCard label={LocalLang.finishReasonLabel} value={conversation.finishReason} />
-              <MetricCard label={LocalLang.inputTokensLabel} value={String(conversation.tokensIn)} />
-              <MetricCard label={LocalLang.outputTokensLabel} value={String(conversation.tokensOut)} />
-            </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         <div className="space-y-3">
           {conversation.entries.map((entry) => (
@@ -171,12 +156,19 @@ function TimelineEntryCard({
 }) {
   if (entry.type === "tool") {
     if (entry.toolKind === "ask") {
+      if (mode === "user") {
+        return null;
+      }
       return <AssistantToolMessageCard entry={entry} mode={mode} />;
     }
     return <ToolEntryCard entry={entry} mode={mode} />;
   }
 
   if (entry.type === "system" && mode !== "developer") {
+    return null;
+  }
+
+  if (entry.type === "assistant" && mode === "developer" && entry.derivedFromToolCall) {
     return null;
   }
 
@@ -446,9 +438,6 @@ export interface AssistantHistoryDetailViewModel {
   navigate: (route: AssistantHistoryDetailRoute) => void;
   conversation: AssistantHistoryConversation;
   isDeveloperMode: boolean;
-  modelOptions: string[];
-  selectedModel: string;
-  onModelChange: (model: string) => void;
   onResumeConversation: () => void;
 }
 

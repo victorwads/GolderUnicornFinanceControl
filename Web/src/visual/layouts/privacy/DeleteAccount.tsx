@@ -20,7 +20,20 @@ interface DeleteAccountProps {
 }
 
 export default function DeleteAccount({ model }: DeleteAccountProps) {
-  const { navigate, deleteProgress, confirmText, setConfirmText, showDeleteDialog, setShowDeleteDialog, handleDelete, confirmDelete } = model;
+  const {
+    navigate,
+    deleteProgress,
+    deleteProgressType,
+    confirmText,
+    setConfirmText,
+    showBackupDialog,
+    setShowBackupDialog,
+    showDeleteDialog,
+    setShowDeleteDialog,
+    handleDelete,
+    handleBackupDownload,
+    confirmDelete,
+  } = model;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -92,7 +105,24 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
         </Card>
       </div>
 
-      <DataProgress progress={deleteProgress} type="delete" />
+      <DataProgress progress={deleteProgress} type={deleteProgressType} />
+
+      <AlertDialog open={showBackupDialog} onOpenChange={setShowBackupDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Baixe seus dados antes de excluir</AlertDialogTitle>
+            <AlertDialogDescription>
+              Antes de apagar sua conta, faça o download de um backup em JSON. Quando o download terminar, você verá a confirmação final da exclusão.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBackupDownload}>
+              Baixar meus dados
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -118,10 +148,14 @@ export default function DeleteAccount({ model }: DeleteAccountProps) {
 export interface DeleteAccountViewModel {
   navigate: (path: string) => void;
   deleteProgress: DataProgressInfo | null;
+  deleteProgressType: "export" | "delete";
   confirmText: string;
   setConfirmText: (text: string) => void;
+  showBackupDialog: boolean;
+  setShowBackupDialog: (show: boolean) => void;
   showDeleteDialog: boolean;
   setShowDeleteDialog: (show: boolean) => void;
   handleDelete: () => void;
+  handleBackupDownload: () => void;
   confirmDelete: () => void;
 }

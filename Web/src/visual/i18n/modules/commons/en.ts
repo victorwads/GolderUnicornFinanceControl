@@ -11,6 +11,7 @@ const en: CommonsModuleTranslation = {
     confirm: "Confirm",
     select: "Select",
     clear: "Clear",
+    uploadFile: "Upload file",
     loading: "Loading...",
     fillAllFields: "Fill all fields",
     currentPath: "Current Path",

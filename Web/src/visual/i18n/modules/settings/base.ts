@@ -37,6 +37,8 @@ export default interface SettingsModuleTranslation extends Translation {
     installUpdate: string;
     upToDate: string;
     offlineReady: string;
+    updateCheckUnavailable: string;
+    updateCheckFailed: string;
     speechRate: string;
     speechRateSlow: string;
     speechRateNormal: string;

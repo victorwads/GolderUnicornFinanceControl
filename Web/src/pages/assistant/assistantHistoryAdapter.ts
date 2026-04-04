@@ -55,10 +55,16 @@ export function buildAssistantHistoryConversation(context: AiCallContext): Assis
   };
 }
 
-function buildTimelineEntries(context: AiCallContext): AssistantTimelineEntry[] {
+export function buildTimelineEntries(context: AiCallContext): AssistantTimelineEntry[] {
   const history = Array.isArray(context.history) ? context.history : [];
   const entries: AssistantTimelineEntry[] = [];
   const pendingToolCalls = new Map<string, PendingToolCall>();
+  const resolvedToolCallIds = new Set(
+    history
+      .filter((entry): entry is { role: "tool"; tool_call_id?: string } => !!entry && typeof entry === "object" && entry.role === "tool")
+      .map((entry) => entry.tool_call_id)
+      .filter((toolCallId): toolCallId is string => typeof toolCallId === "string" && toolCallId.length > 0)
+  );
   const baseDate = getContextBaseDate(context);
 
   history.forEach((entry, index) => {
@@ -96,13 +102,15 @@ function buildTimelineEntries(context: AiCallContext): AssistantTimelineEntry[] 
           tool_calls?: Array<{ id?: string; function?: { name?: string; arguments?: string } }>;
         };
         const content = formatMessageContent(assistantEntry.content);
+        const pendingAssistantPrompt = extractAssistantPromptFromToolCalls(assistantEntry.tool_calls);
 
-        if (content) {
+        if (content || pendingAssistantPrompt) {
           entries.push({
             id: `assistant-${index}`,
             type: "assistant",
             timestamp,
-            content,
+            content: content || pendingAssistantPrompt || "",
+            derivedFromToolCall: !content && Boolean(pendingAssistantPrompt),
           });
         }
 
@@ -116,6 +124,18 @@ function buildTimelineEntries(context: AiCallContext): AssistantTimelineEntry[] 
             name: toolName,
             args: parseJsonRecord(toolCall.function?.arguments),
           });
+
+          if (toolName === "say_to_user" && !resolvedToolCallIds.has(toolId)) {
+            entries.push(
+              buildToolTimelineEntry(
+                `pending-tool-${toolId}`,
+                timestamp,
+                toolName,
+                parseJsonRecord(toolCall.function?.arguments),
+                { pending: true }
+              )
+            );
+          }
         });
         return;
       }
@@ -125,15 +145,27 @@ function buildTimelineEntries(context: AiCallContext): AssistantTimelineEntry[] 
         if (!toolCallId) return;
 
         const pendingToolCall = pendingToolCalls.get(toolCallId);
+        const toolResult = parseJsonRecord((entry as { content?: unknown }).content);
+
         entries.push(
           buildToolTimelineEntry(
             `tool-${toolCallId}`,
             timestamp,
             pendingToolCall?.name || "tool",
             pendingToolCall?.args || {},
-            parseJsonRecord((entry as { content?: unknown }).content)
+            toolResult
           )
         );
+
+        const userReply = extractUserReplyFromToolResult(pendingToolCall?.name, toolResult);
+        if (userReply) {
+          entries.push({
+            id: `tool-user-reply-${toolCallId}`,
+            type: "user",
+            timestamp: buildEntryTimestamp(baseDate, index + 0.5),
+            content: userReply,
+          });
+        }
         return;
       }
 
@@ -172,7 +204,7 @@ function buildToolTimelineEntry(
     timestamp,
     toolKind,
     toolName,
-    status: result.success === false ? "warning" : "done",
+    status: result.pending === true ? "pending" : result.success === false ? "warning" : "done",
     title,
     description,
     chips: buildToolChips(toolName, args, result),
@@ -302,6 +334,32 @@ function buildEntryTimestamp(baseDate: Date, index: number): string {
     minute: "2-digit",
     second: "2-digit",
   });
+}
+
+function extractUserReplyFromToolResult(toolName: string | undefined, result: PrimitiveRecord): string | null {
+  if (toolName !== "say_to_user" || result.success !== true) {
+    return null;
+  }
+
+  const value = result.result;
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function extractAssistantPromptFromToolCalls(
+  toolCalls: Array<{ id?: string; function?: { name?: string; arguments?: string } }> | undefined
+): string | null {
+  if (!Array.isArray(toolCalls)) return null;
+
+  for (const toolCall of toolCalls) {
+    if (toolCall?.function?.name !== "say_to_user") continue;
+    const args = parseJsonRecord(toolCall.function.arguments);
+    const message = args.message;
+    if (typeof message === "string" && message.trim().length > 0) {
+      return message;
+    }
+  }
+
+  return null;
 }
 
 function normalizeDate(value: unknown): Date | null {

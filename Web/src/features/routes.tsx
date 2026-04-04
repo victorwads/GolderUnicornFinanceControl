@@ -2,12 +2,10 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 
 import { withRepos } from '@componentsDeprecated/WithRepo';
 
+import { AssistantProvider } from '@features/assistant/AssistantContext';
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
-import SettingsScreen from '@features/tabs/settings/SettingsScreen';
-import ResourceUsageScreen from '@features/tabs/resourceUsage/ResourceUsageScreen';
 import RecurrentRegistriesScreen from '@features/recurrent/RecurrentRegistriesScreen';
-import DashboardScreen from '@features/tabs/dashboard/DashboardScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
 import GroceryItemForm from '@features/groceries/GroceryItemForm';
 import GroceriesMainScreen from '@features/groceries/GroceriesMainScreen';
@@ -46,9 +44,8 @@ import AssistantConversationPage from '@pages/assistant/AssistantConversation.pa
 
 export const privateRouter = createBrowserRouter([
   {
-    path: '/', element: withRepos(<TabScreen />, 'user'), children: [
+    path: '/', element: withRepos(<AssistantProvider><TabScreen /></AssistantProvider>, 'user', 'aiCalls'), children: [
       { path: '/', element: <HomePage /> },
-      { path: 'old/dashboard', element: <DashboardScreen />},
       { path: 'timeline/filters', element: <TimelinePage /> },
       { path: 'timeline/import', element: <TimelineImportPage /> },
       {
@@ -100,8 +97,6 @@ export const privateRouter = createBrowserRouter([
       { path: 'settings/app', element: <SettingsPage /> },
       { path: 'settings/language', element: <LanguagePage /> },
       { path: 'settings/developer', element: <DeveloperPage /> },
-      { path: 'old/settings', element: <SettingsScreen /> },
-      { path: 'old/resource-usage', element: withRepos(<ResourceUsageScreen />,  'resourcesUse') },
       {
         path: 'accounts',
         element: withRepos(

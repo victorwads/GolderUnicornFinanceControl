@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { AiCallContext, type AiModel } from "@models";
+import { AiCallContext } from "@models";
 import type { Repositories } from "@repositories";
 import getRepositories from "@repositories";
-import { getAssistantModel, setAssistantModel, setPendingAiContext } from "@features/assistant/AssistantController";
+import { getAssistantModel } from "@features/assistant/AssistantController";
+import { useAssistantContext } from "@features/assistant/AssistantContext";
 import {
   AssistantHistoryDetailRoute,
   AssistantHistoryDetailViewModel,
@@ -16,6 +17,7 @@ export function useAssistantConversationModel(): AssistantHistoryDetailViewModel
   const router = useNavigate();
   const { conversationId } = useParams<{ conversationId?: string }>();
   const repositories = useRepositories();
+  const { openWithConversation } = useAssistantContext();
   const [contexts, setContexts] = useState<AiCallContext[]>([]);
   const isDeveloperMode = window.isDevelopment === true;
 
@@ -49,16 +51,10 @@ export function useAssistantConversationModel(): AssistantHistoryDetailViewModel
     navigate,
     conversation: selectedConversation ?? createEmptyConversation(),
     isDeveloperMode,
-    modelOptions: AiCallContext.PriceModels,
-    selectedModel: getAssistantModel(),
-    onModelChange: (model) => {
-      if (!isDeveloperMode) return;
-      setAssistantModel(model as AiModel);
-    },
     onResumeConversation: () => {
       if (!selectedConversation) return;
-      setPendingAiContext(selectedConversation.context);
-      router("/home");
+      openWithConversation(selectedConversation);
+      router("/");
     },
   };
 }

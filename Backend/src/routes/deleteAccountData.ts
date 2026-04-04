@@ -5,7 +5,6 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {ensureAuth} from "../utils/auth";
 
 const USER_COLLECTION = "Users";
-const RESOURCES_USE_COLLECTION = "ResourcesUse";
 const OPEN_ROUTER_KEYS_COLLECTION = "OpenRouterKeys";
 
 export const deleteAccountData = onCall(async (request) => {
@@ -15,12 +14,10 @@ export const deleteAccountData = onCall(async (request) => {
 
   try {
     const userDocRef = db.collection(USER_COLLECTION).doc(uid);
-    const resourcesDocRef = db.collection(RESOURCES_USE_COLLECTION).doc(uid);
     const openRouterDocRef = db.collection(OPEN_ROUTER_KEYS_COLLECTION).doc(uid);
 
     await Promise.all([
       db.recursiveDelete(userDocRef),
-      db.recursiveDelete(resourcesDocRef),
       db.recursiveDelete(openRouterDocRef),
     ]);
 

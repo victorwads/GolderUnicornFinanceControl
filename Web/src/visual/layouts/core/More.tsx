@@ -20,7 +20,7 @@ export default function More({ model }: MoreProps) {
       return LocalLang.financeSection;
     }
 
-    if (routes.some((route) => ["/assistant", "/connected-accounts", "/me/linkedaccounts", "/resource-usage", "/me/resource-usage", "/me/privacy"].includes(route))) {
+    if (routes.some((route) => ["/assistant", "/connected-accounts", "/me/linkedaccounts", "/me/resource-usage", "/me/privacy"].includes(route))) {
       return LocalLang.accountSection;
     }
 
@@ -46,7 +46,6 @@ export default function More({ model }: MoreProps) {
       case "/connected-accounts":
       case "/me/linkedaccounts":
         return LocalLang.connectedAccounts;
-      case "/resource-usage":
       case "/me/resource-usage":
         return LocalLang.resourceUsage;
       case "/me/privacy":
@@ -202,7 +201,7 @@ export interface MoreViewModel {
     }[];
   }[];
   navigate: (route: MoreRoute | string) => void;
-  handleUpdateCheck: () => void;
+  handleUpdateCheck: () => void | Promise<void>;
   checkingForUpdate?: boolean;
   handleLogout: () => void;
 }
