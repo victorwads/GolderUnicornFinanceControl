@@ -278,14 +278,15 @@ A peça central de voz continua em:
 
 - `Web/src/components/voice/AIMicrophone.tsx`
 - `Web/src/components/voice/AIMicrophoneOnboarding*`
-- `Web/src/features/assistant/components/AssistantPage.tsx`
 
-Mesmo quando há layouts novos com `MicButton`, o fluxo real ainda depende do microfone legado.
+O runtime legado `Web/src/features/assistant/components/AssistantPage.tsx` foi removido depois da entrada do AI Box no shell principal.
+
+Mesmo com essa remoção, o fluxo real ainda depende do microfone legado.
 
 Consequência:
 
-- a feature de voz pode parecer nova na UI, mas executar com contratos antigos
-- onboarding, eventos e processamento ficam difíceis de reutilizar nas telas novas
+- a feature de voz usa shell novo, mas ainda executa com contratos antigos
+- onboarding, eventos e processamento continuam difíceis de reutilizar nas telas novas
 
 ### 4. Migração parcial e inconsistente
 
@@ -337,9 +338,9 @@ Não reimplementar a lógica de voz do zero durante a migração de telas.
 
 Direção recomendada:
 
-- preservar o motor atual de microfone enquanto a UI migra
+- preservar e encapsular o motor atual de microfone enquanto a UI migra
 - isolar melhor o contrato de voz
-- fazer a nova UI consumir esse contrato, em vez de importar diretamente blocos legados
+- fazer a nova UI consumir esse contrato, em vez de reintroduzir runtimes legados
 
 ## Fluxo de Sincronização Visual
 
