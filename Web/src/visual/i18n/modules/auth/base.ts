@@ -17,6 +17,17 @@ export default interface AuthModuleTranslation extends Translation {
       confirmPassword: string;
       deviceOnly: string;
       noRecovery: string;
+      stepPasswordTitle: string;
+      stepPasswordDescription: string;
+      stepDownloadTitle: string;
+      stepDownloadDescription: string;
+      stepDownloadWarning: string;
+      continueToBackup: string;
+      downloadKey: string;
+      continueToApp: string;
+      keyDownloaded: string;
+      keyDownloadRequired: string;
+      keyDownloadErrorTitle: string;
       savePassword: string;
     };
     encryptionUnlock: {

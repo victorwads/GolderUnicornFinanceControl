@@ -17,6 +17,17 @@ const ptBR: AuthModuleTranslation = {
       confirmPassword: "Confirmar senha",
       deviceOnly: "A senha é usada localmente para abrir seus dados sempre que este dispositivo perder a sessão criptográfica.",
       noRecovery: "Não existe recuperação automática dessa senha. Guarde-a em um lugar seguro.",
+      stepPasswordTitle: "Crie sua senha",
+      stepPasswordDescription: "Defina a senha que vai proteger e destravar seus dados neste dispositivo.",
+      stepDownloadTitle: "Baixe sua chave de criptografia",
+      stepDownloadDescription: "Antes de entrar no app, salve um arquivo com sua chave de criptografia em um local seguro.",
+      stepDownloadWarning: "Você precisa baixar esse arquivo antes de continuar. Sem ele, a recuperação futura é impossível.",
+      continueToBackup: "Continuar",
+      downloadKey: "Baixar arquivo da chave",
+      continueToApp: "Entrar no aplicativo",
+      keyDownloaded: "Arquivo baixado",
+      keyDownloadRequired: "Baixe o arquivo da chave antes de continuar.",
+      keyDownloadErrorTitle: "Falha ao baixar a chave",
       savePassword: "Salvar senha"
     },
     encryptionUnlock: {

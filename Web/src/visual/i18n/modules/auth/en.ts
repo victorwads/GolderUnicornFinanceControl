@@ -17,6 +17,17 @@ const en: AuthModuleTranslation = {
       confirmPassword: "Confirm password",
       deviceOnly: "This password is only used locally whenever this device needs to unlock your encrypted data again.",
       noRecovery: "There is no automatic recovery for this password. Keep it somewhere safe.",
+      stepPasswordTitle: "Create your password",
+      stepPasswordDescription: "Set the password that will protect and unlock your data on this device.",
+      stepDownloadTitle: "Download your encryption key",
+      stepDownloadDescription: "Before entering the app, save a file with your encryption key somewhere safe.",
+      stepDownloadWarning: "You must download this file before continuing. Without it, future recovery is impossible.",
+      continueToBackup: "Continue",
+      downloadKey: "Download key file",
+      continueToApp: "Enter the app",
+      keyDownloaded: "File downloaded",
+      keyDownloadRequired: "Download the key file before continuing.",
+      keyDownloadErrorTitle: "Failed to download key",
       savePassword: "Save password"
     },
     encryptionUnlock: {

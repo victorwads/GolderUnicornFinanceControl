@@ -2,7 +2,7 @@ import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
-import { AlertCircle, KeyRound, Loader2, ShieldCheck } from "lucide-react";
+import { AlertCircle, Download, KeyRound, Loader2, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription } from "@components/ui/alert";
 
 interface EncryptionSetupProps {
@@ -15,6 +15,10 @@ export default function EncryptionSetup({ model }: EncryptionSetupProps) {
     setPassword,
     confirmPassword,
     setConfirmPassword,
+    step,
+    keyDownloaded,
+    handleDownloadKey,
+    handleContinueAfterDownload,
     handleSubmit,
     handleSkip,
     loading,
@@ -80,62 +84,120 @@ export default function EncryptionSetup({ model }: EncryptionSetupProps) {
                 </Alert>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-foreground">
-                    {LocalLang.createPassword}
-                  </Label>
-                  <div className="relative">
-                    <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={LocalLang.createPassword}
-                      className="bg-background/50 pl-9"
-                      autoFocus
+              {step === "password" ? (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">{LocalLang.stepPasswordTitle}</p>
+                    <p className="text-sm text-muted-foreground">{LocalLang.stepPasswordDescription}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-foreground">
+                      {LocalLang.createPassword}
+                    </Label>
+                    <div className="relative">
+                      <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder={LocalLang.createPassword}
+                        className="bg-background/50 pl-9"
+                        autoFocus
+                        disabled={loading}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-foreground">
+                      {LocalLang.confirmPassword}
+                    </Label>
+                    <div className="relative">
+                      <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder={LocalLang.confirmPassword}
+                        className="bg-background/50 pl-9"
+                        disabled={loading}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 pt-2 sm:grid-cols-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleSkip}
+                      className="w-full"
                       disabled={loading}
-                      required
-                    />
+                    >
+                      {Lang.settings.logout}
+                    </Button>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {LocalLang.continueToBackup}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">{LocalLang.stepDownloadTitle}</p>
+                    <p className="text-sm text-muted-foreground">{LocalLang.stepDownloadDescription}</p>
+                  </div>
+
+                  <Alert className="border-primary/20 bg-primary/8">
+                    <Download className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-foreground/85">
+                      {LocalLang.stepDownloadWarning}
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="rounded-2xl border border-border/60 bg-muted/35 p-4">
+                    <Button
+                      type="button"
+                      variant={keyDownloaded ? "outline" : "default"}
+                      onClick={() => void handleDownloadKey()}
+                      className="w-full"
+                      disabled={loading}
+                    >
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {!loading && <Download className="mr-2 h-4 w-4" />}
+                      {LocalLang.downloadKey}
+                    </Button>
+                    {keyDownloaded && (
+                      <p className="mt-3 text-sm text-primary">{LocalLang.keyDownloaded}</p>
+                    )}
+                  </div>
+
+                  <div className="grid gap-3 pt-2 sm:grid-cols-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleSkip}
+                      className="w-full"
+                      disabled={loading}
+                    >
+                      {Lang.settings.logout}
+                    </Button>
+                    <Button
+                      type="button"
+                      className="w-full"
+                      onClick={handleContinueAfterDownload}
+                      disabled={loading || !keyDownloaded}
+                    >
+                      {LocalLang.continueToApp}
+                    </Button>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-foreground">
-                    {LocalLang.confirmPassword}
-                  </Label>
-                  <div className="relative">
-                    <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder={LocalLang.confirmPassword}
-                      className="bg-background/50 pl-9"
-                      disabled={loading}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-3 pt-2 sm:grid-cols-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={handleSkip}
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    {Lang.settings.logout}
-                  </Button>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {LocalLang.savePassword}
-                  </Button>
-                </div>
-              </form>
+              )}
             </div>
           </Card>
         </div>
@@ -149,6 +211,10 @@ export interface EncryptionSetupViewModel {
   setPassword: (value: string) => void;
   confirmPassword: string;
   setConfirmPassword: (value: string) => void;
+  step: "password" | "backup";
+  keyDownloaded: boolean;
+  handleDownloadKey: () => Promise<void>;
+  handleContinueAfterDownload: () => void;
   handleSubmit: (e: React.FormEvent) => void;
   handleSkip: () => void;
   loading: boolean;
