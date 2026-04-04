@@ -17,6 +17,10 @@ export class ProjectStorage {
     return sessionStorage.getItem(this.PREFIX + key);
   }
 
+  static removeSession(key: string) {
+    sessionStorage.removeItem(this.PREFIX + key);
+  }
+
   static remove(key: string) {
     localStorage.removeItem(this.PREFIX + key);
   }

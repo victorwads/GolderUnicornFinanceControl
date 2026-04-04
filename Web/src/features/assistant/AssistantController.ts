@@ -14,7 +14,7 @@ import getRepositories, { Repositories } from "@repositories";
 import { AiCallContext, type AiModel, type AIHistoryMessage, type AIMessageProcessing } from "@models";
 import { addResourceUse } from "@resourceUse";
 
-import { createOpenAIClient } from "./createOpenAIClient";
+import { clearOpenRouterSessionCache, createOpenAIClient } from "./createOpenAIClient";
 import { AssistantTools } from "./tools/AssistantToolsDefinition";
 import type {
   AssistantRunResult,
@@ -297,16 +297,31 @@ export default class AssistantController {
   ) {
     addResourceUse({ ai: { [this.model]: { requests: 1 } } });
     const openai = await this.getOpenAIClient();
-    return openai.chat.completions.create({
-      model: this.model,
-      messages,
-      tools,
-      tool_choice: "required",
-      parallel_tool_calls: true,
-      ...(this.model.includes("gpt-5")
-        ? { reasoning_effort: "none" }
-        : { temperature: 0.1 }),
-    });
+    try {
+      return await openai.chat.completions.create({
+        model: this.model,
+        messages,
+        tools,
+        tool_choice: "required",
+        parallel_tool_calls: true,
+        ...(this.model.includes("gpt-5")
+          ? { reasoning_effort: "none" }
+          : { temperature: 0.1 }),
+      });
+    } catch (error) {
+      this.handleCompletionError(error);
+      throw error;
+    }
+  }
+
+  private handleCompletionError(error: unknown) {
+    logger.error("requestCompletion:error", { error });
+    this.openai = null;
+    clearOpenRouterSessionCache();
+
+    Object.keys(sessionStorage)
+      .filter((key) => key.startsWith(`${ProjectStorage.PREFIX}crypto.`))
+      .forEach((key) => sessionStorage.removeItem(key));
   }
 
   private appendAssistantResponse(

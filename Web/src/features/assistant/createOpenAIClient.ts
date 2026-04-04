@@ -7,6 +7,10 @@ import { ProjectStorage } from '@utils/ProjectStorage';
 const OPENROUTER_API_KEY_STORAGE_KEY = 'ai_api_key';
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 
+export function clearOpenRouterSessionCache() {
+  ProjectStorage.removeSession(OPENROUTER_API_KEY_STORAGE_KEY);
+}
+
 function normalizeOpenRouterUrl(url?: string | null): string {
   if (typeof url !== "string") {
     return OPENROUTER_BASE_URL;
