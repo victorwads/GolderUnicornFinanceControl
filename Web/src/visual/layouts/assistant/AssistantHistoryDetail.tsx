@@ -157,6 +157,9 @@ function TimelineEntryCard({
   mode: "user" | "developer";
 }) {
   if (entry.type === "tool") {
+    if (entry.developerOnly && mode === "user") {
+      return null;
+    }
     if (entry.toolKind === "ask") {
       if (mode === "user") {
         return null;

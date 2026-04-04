@@ -25,6 +25,7 @@ export type AssistantTimelineEntry =
       id: string;
       type: "tool";
       timestamp: string;
+      developerOnly?: boolean;
       toolKind: AssistantToolKind;
       toolName: string;
       status: AssistantToolStatus;

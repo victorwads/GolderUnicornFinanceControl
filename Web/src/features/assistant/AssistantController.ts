@@ -180,9 +180,29 @@ export default class AssistantController {
         });
 
         if (!toolCalls.length) {context.finishReason = "assistant_no_tool_calls"; break; }
+        const onlyStateToUser = toolCalls.every((call) => call.function.name === ToUserTool.STATE);
 
         for (const call of toolCalls) {
           if (call.function.name === ToUserTool.FINISH || call.function.name === ToUserTool.FINISH_ONBOARDING) {
+            const args = call.function.arguments
+              ? JSON.parse(call.function.arguments)
+              : {};
+
+            this.onToolCalled?.({
+              id: call.id,
+              name: call.function.name,
+              arguments: args,
+              result: null,
+              executedAt: Date.now(),
+            }, context);
+
+            const result: Result<string> = {
+              success: true,
+              result: call.function.name === ToUserTool.FINISH_ONBOARDING
+                ? "Onboarding finished."
+                : "Conversation finished.",
+            };
+
             context.finishReason = "finished_by_assistant";
             run = false;
             if (call.function.name === ToUserTool.FINISH_ONBOARDING) {
@@ -190,9 +210,24 @@ export default class AssistantController {
               await this.repositories.user.updateUserData({ onboardingDone: true });
               context.finishReason += "_onboarding";
             }
+
+            this.onToolCalled?.({
+              id: call.id,
+              name: call.function.name,
+              arguments: args,
+              result,
+              executedAt: Date.now(),
+            }, context);
+
+            this.appendToolResult(call.id, result, context);
           } else {
             await this.executeToolCall(call, context);
           }
+        }
+
+        if (run && onlyStateToUser) {
+          context.finishReason = "assistant_waiting_next_message";
+          break;
         }
       }
     } catch (error) {
@@ -389,6 +424,17 @@ export default class AssistantController {
     this.onContextChanged?.(context);
   }
 
+  private appendToolResult(toolCallId: string, result: Result<unknown>, context: AiCallContext) {
+    const toolMessage: ChatCompletionMessageParam = {
+      role: "tool",
+      tool_call_id: toolCallId,
+      content: JSON.stringify(result ?? null),
+    };
+
+    context.history.push(this.enrichHistoryMessage(toolMessage, context.model || this.model));
+    this.onContextChanged?.(context);
+  }
+
   private async executeToolCall(
     call: ChatCompletionMessageFunctionToolCall,
     context: AiCallContext
@@ -446,12 +492,7 @@ export default class AssistantController {
       executedAt: Date.now(),
     }, context);
 
-    const toolMessage: ChatCompletionMessageParam = {
-      role: "tool",
-      tool_call_id: call.id,
-      content: JSON.stringify(result ?? null),
-    };
-    context.history.push(this.enrichHistoryMessage(toolMessage, context.model || this.model));
+    this.appendToolResult(call.id, result, context);
     logger.debug("executeToolCall:done", {
       contextId: context.id,
       tool: call.function.name,

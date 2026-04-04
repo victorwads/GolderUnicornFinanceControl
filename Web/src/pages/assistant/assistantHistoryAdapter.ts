@@ -16,6 +16,7 @@ type PendingToolCall = {
   id: string;
   name: string;
   args: PrimitiveRecord;
+  timestamp: string;
 };
 
 export function buildAssistantHistoryConversations(contexts: AiCallContext[]): AssistantHistoryConversation[] {
@@ -59,6 +60,7 @@ export function buildTimelineEntries(context: AiCallContext): AssistantTimelineE
   const history = Array.isArray(context.history) ? context.history : [];
   const entries: AssistantTimelineEntry[] = [];
   const pendingToolCalls = new Map<string, PendingToolCall>();
+  const shownPendingToolCallIds = new Set<string>();
   const resolvedToolCallIds = new Set(
     history
       .filter((entry): entry is { role: "tool"; tool_call_id?: string } => !!entry && typeof entry === "object" && entry.role === "tool")
@@ -123,9 +125,11 @@ export function buildTimelineEntries(context: AiCallContext): AssistantTimelineE
             id: toolId,
             name: toolName,
             args: parseJsonRecord(toolCall.function?.arguments),
+            timestamp,
           });
 
           if (isAskTool(toolName) && !resolvedToolCallIds.has(toolId)) {
+            shownPendingToolCallIds.add(toolId);
             entries.push(
               buildToolTimelineEntry(
                 `pending-tool-${toolId}`,
@@ -174,6 +178,23 @@ export function buildTimelineEntries(context: AiCallContext): AssistantTimelineE
     }
   });
 
+  pendingToolCalls.forEach((pendingToolCall) => {
+    if (resolvedToolCallIds.has(pendingToolCall.id) || shownPendingToolCallIds.has(pendingToolCall.id)) {
+      return;
+    }
+
+    entries.push(
+      buildToolTimelineEntry(
+        `pending-tool-${pendingToolCall.id}`,
+        pendingToolCall.timestamp,
+        pendingToolCall.name,
+        pendingToolCall.args,
+        { pending: true },
+        { developerOnly: true }
+      )
+    );
+  });
+
   const internalErrors = (Array.isArray(context.warnings) ? context.warnings : [])
     .filter((warning): warning is string => typeof warning === "string" && warning.startsWith("internal_error:"));
 
@@ -194,7 +215,10 @@ function buildToolTimelineEntry(
   timestamp: string,
   toolName: string,
   args: PrimitiveRecord,
-  result: PrimitiveRecord
+  result: PrimitiveRecord,
+  options?: {
+    developerOnly?: boolean;
+  }
 ): Extract<AssistantTimelineEntry, { type: "tool" }> {
   const { title, description, toolKind } = describeTool(toolName, args, result);
 
@@ -202,6 +226,7 @@ function buildToolTimelineEntry(
     id,
     type: "tool",
     timestamp,
+    developerOnly: options?.developerOnly,
     toolKind,
     toolName,
     status: result.pending === true ? "pending" : result.success === false ? "warning" : "done",

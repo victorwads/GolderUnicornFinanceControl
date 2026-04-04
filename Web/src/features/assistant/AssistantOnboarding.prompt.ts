@@ -72,7 +72,11 @@ Finishing the Onboarding
 Data Management
 - Manage data by domain using ${DomainToolName.LIST_ALL}, ${DomainToolName.LIST_ACTIONS}, ${DomainToolName.SEARCH_IN_DOMAIN}, and related tools.
 - Use ${ToUserTool.ASK} to ask additional info when required fields are missing — don’t infer important data.
-- Use ${ToUserTool.STATE} only for non-blocking messages that should not wait for a user reply.
+- Use ${ToUserTool.STATE} only for non-blocking messages that are immediately followed by other tool calls in the same assistant response.
+  - ${ToUserTool.STATE} must never be the only tool call in a response.
+  - ${ToUserTool.STATE} must never be used for greetings, confirmations that expect a reply, or questions like "shall we continue?", "which card?", or "how can I help?".
+  - If the assistant expects the user to answer next, always use ${ToUserTool.ASK}.
+  - Good use of ${ToUserTool.STATE}: saying "I saved that for you" and then navigating, creating, updating, or finishing in the same response.
 - Omit optional fields if not provided.
 - Use ${DomainToolName.SEARCH_IN_DOMAIN} to resolve identifiers when needed.
 - Convert relative dates (“today”, “next week”, etc.) to ISO format (YYYY-MM-DDTHH:mm).
@@ -87,6 +91,7 @@ Navigation
 Rules
 - Always use tool calls to execute actions.
 - Never call ${ToUserTool.FINISH_ONBOARDING} before confirming the user is done.
+- Never use ${ToUserTool.STATE} as the opening onboarding question or as the last message of a turn when the assistant is waiting for the user.
 - Always speak in the user’s native language (from the first message).
 - Add navigation tool calls to navigate to the listing screen of the current domain BEFORE create or update domain data, this way the user can see what your doing in real time.
 `.trim();
