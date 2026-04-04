@@ -1,12 +1,8 @@
-import JSZip from "jszip";
-
 import { DocumentModel } from "@models";
 import { getCurrentUser } from "@configs";
 import getRepositories, {
-  CryptoPassRepository,
   RepoName,
   Repositories,
-  RepositoryWithCrypt,
 } from "@repositories";
 import type { DataProgressInfo } from "@components/DataProgress";
 import { ProjectStorage } from "@utils/ProjectStorage";
@@ -14,14 +10,12 @@ import { clearSession } from "@utils/clearSession";
 import { clearAIMicrophoneOnboardingFlags } from "@componentsDeprecated/voice/AIMicrophoneOnboarding.model";
 import { clearAssistantOnboardingDismissal } from "@features/assistant/utils/onboardingStorage";
 import { dispatchAssistantEvent } from "@features/assistant/utils/assistantEvents";
-import Encryptor, { Hash } from "../../data/crypt/Encryptor";
 
 const RESAVE_CHUNK_SIZE = 100;
 const FIREBASE_BATCH_MAX_WRITES = 500;
 const PROTECTED_USER_DATA_REPOS: RepoName[] = ["banks", "resourcesUse"];
 
 export type ExportFormat = "json" | "csv" | "all";
-export type ExportJsonMode = "decrypted" | "encrypted";
 export type ProgressUpdater = (progress: DataProgressInfo | null) => void;
 export type ExportFailure = {
   domain: string;
@@ -29,17 +23,7 @@ export type ExportFailure = {
 };
 
 type ExportUserDataOptions = {
-  jsonMode?: ExportJsonMode;
-};
-
-type ImportUserDataOptions = {
   password?: string;
-};
-
-type ExportEncryptionMetadata = {
-  isEncrypted: boolean;
-  source: "memory" | "firestore";
-  version: boolean | number | null;
 };
 
 export type ExportUserDataResult = {
@@ -65,16 +49,6 @@ export function isProtectedUserDataRepo(repoName: RepoName): boolean {
   return PROTECTED_USER_DATA_REPOS.includes(repoName);
 }
 
-export class ImportPasswordRequiredError extends Error {
-  constructor(
-    public readonly files: string[],
-    message: string = "O arquivo importado está criptografado. Informe a senha para continuar.",
-  ) {
-    super(message);
-    this.name = "ImportPasswordRequiredError";
-  }
-}
-
 export async function exportUserData(
   format: ExportFormat,
   setProgress?: ProgressUpdater,
@@ -82,12 +56,13 @@ export async function exportUserData(
 ): Promise<ExportUserDataResult> {
   const allRepos = getRepositories();
   const repoKeys = Object.keys(allRepos) as RepoName[];
-  const zip = new JSZip();
   const exportedDomains: RepoName[] = [];
   const failedDomains: ExportFailure[] = [];
   const date = new Date().toISOString().split("T")[0];
-  const jsonMode = options.jsonMode ?? "decrypted";
-  const fileName = buildExportZipFileName(format, date, jsonMode);
+  const password = options.password?.trim();
+  const fileName = buildExportZipFileName(format, date, Boolean(password));
+  const { BlobWriter, TextReader, ZipWriter } = await import("@zip.js/zip.js");
+  const zipWriter = new ZipWriter(new BlobWriter("application/zip"));
 
   try {
     for (const [index, key] of repoKeys.entries()) {
@@ -105,27 +80,29 @@ export async function exportUserData(
 
         const data = await repo.getAll();
         if (format === "json" || format === "all") {
-          const encryption = getExportEncryptionMetadata(repo, jsonMode);
-          const documents = encryption.isEncrypted
-            ? await repo.getAllRaw()
-            : data;
-          zip.file(
+          await zipWriter.add(
             `${key}.json`,
-            JSON.stringify(
+            new TextReader(
+              JSON.stringify(
               {
                 schemaVersion: 2,
                 collection: key,
                 date: new Date().toISOString(),
-                encryption,
-                documents,
+                documents: data,
               },
               null,
               2,
             ),
+            ),
+            password ? { password } : undefined,
           );
         }
         if (format === "csv" || format === "all") {
-          zip.file(`${key}.csv`, toCSV(data));
+          await zipWriter.add(
+            `${key}.csv`,
+            new TextReader(toCSV(data)),
+            password ? { password } : undefined,
+          );
         }
         exportedDomains.push(key);
       } catch (error) {
@@ -135,9 +112,10 @@ export async function exportUserData(
       }
     }
 
-    zip.file(
+    await zipWriter.add(
       "export-report.json",
-      JSON.stringify(
+      new TextReader(
+        JSON.stringify(
         {
           generatedAt: new Date().toISOString(),
           format,
@@ -147,9 +125,11 @@ export async function exportUserData(
         null,
         2,
       ),
+      ),
+      password ? { password } : undefined,
     );
 
-    const blob = await zip.generateAsync({ type: "blob" });
+    const blob = await zipWriter.close();
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
@@ -171,11 +151,11 @@ export async function exportUserData(
 function buildExportZipFileName(
   format: ExportFormat,
   date: string,
-  jsonMode: ExportJsonMode,
+  passwordProtected: boolean,
 ): string {
   const userEmail = getCurrentUser()?.email || "unknown";
   const formatPart = format.toUpperCase();
-  const modePart = format === "csv" ? "" : ` ${jsonMode.toUpperCase()}`;
+  const modePart = passwordProtected ? " PROTECTED" : "";
   return `GUMyFinances ${userEmail} ${date} ${formatPart}${modePart}.zip`;
 }
 
@@ -213,7 +193,6 @@ export async function deleteAllUserData(setProgress?: ProgressUpdater): Promise<
 export async function importUserData(
   files: File[],
   setProgress?: ProgressUpdater,
-  options: ImportUserDataOptions = {},
 ): Promise<ImportUserDataResult> {
   const allRepos = getRepositories();
   const repoNames = Object.keys(allRepos) as RepoName[];
@@ -221,13 +200,15 @@ export async function importUserData(
   const failedFiles: ImportUserDataResult["failedFiles"] = [];
   let skippedProtectedFiles = 0;
   let totalImportedCount = 0;
-  const encryptedFilesPendingPassword: string[] = [];
 
   try {
     for (const [index, file] of files.entries()) {
       try {
         const text = await file.text();
         const payload = parseImportPayload(text, file.name, repoNames);
+        if (isEncryptedImport(payload)) {
+          throw new Error("Backups JSON criptografados não são mais suportados. Exporte novamente no formato padrão.");
+        }
         if (isProtectedUserDataRepo(payload.collection)) {
           skippedProtectedFiles++;
           continue;
@@ -255,9 +236,7 @@ export async function importUserData(
           );
         }
 
-        const documents = await resolveImportDocuments(payload, file.name, options.password);
-
-        await repo.saveAll(documents as any[]);
+        await repo.saveAll(payload.documents as any[]);
 
         setProgress?.({
           domain: payload.collection,
@@ -276,20 +255,12 @@ export async function importUserData(
         });
         totalImportedCount += payload.documents.length;
       } catch (error) {
-        if (error instanceof ImportPasswordRequiredError) {
-          encryptedFilesPendingPassword.push(...error.files);
-          continue;
-        }
         const message = error instanceof Error ? error.message : "Unknown import error";
         failedFiles.push({
           fileName: file.name,
           message,
         });
       }
-    }
-
-    if (encryptedFilesPendingPassword.length > 0) {
-      throw new ImportPasswordRequiredError(encryptedFilesPendingPassword);
     }
 
     if (importedFiles.length === 0 && skippedProtectedFiles === 0) {
@@ -438,7 +409,6 @@ type ImportPayload = {
   schemaVersion?: number;
   collection: RepoName;
   date: string;
-  encryption?: ExportEncryptionMetadata;
   documents: DocumentModel[];
 };
 
@@ -466,8 +436,6 @@ export function parseImportPayload(rawContent: string, fileName: string, repoNam
   if (!Array.isArray(payload.documents)) {
     throw new Error(`Formato inválido em "${fileName}": campo "documents" deve ser um array.`);
   }
-
-  const encryption = parseEncryptionMetadata(payload.encryption);
   for (const [index, document] of payload.documents.entries()) {
     if (!document || typeof document !== "object") {
       throw new Error(`Formato inválido em "${fileName}": documento ${index + 1} inválido.`);
@@ -485,7 +453,6 @@ export function parseImportPayload(rawContent: string, fileName: string, repoNam
     date: payload.date instanceof Date
       ? payload.date.toISOString()
       : payload.date,
-    encryption,
     documents: payload.documents as DocumentModel[],
   };
 }
@@ -501,106 +468,14 @@ function isIsoDateString(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value);
 }
 
-function parseEncryptionMetadata(value: unknown): ExportEncryptionMetadata | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return undefined;
-  }
-
-  const encryption = value as Partial<ExportEncryptionMetadata>;
-  return {
-    isEncrypted: encryption.isEncrypted === true,
-    source: encryption.source === "firestore" ? "firestore" : "memory",
-    version: typeof encryption.version === "number" || typeof encryption.version === "boolean"
-      ? encryption.version
-      : null,
-  };
-}
-
-function getExportEncryptionMetadata(
-  repo: Repositories[RepoName],
-  jsonMode: ExportJsonMode,
-): ExportEncryptionMetadata {
-  const isCryptRepo = repo instanceof RepositoryWithCrypt;
-  const shouldExportEncrypted = jsonMode === "encrypted" && isCryptRepo;
-
-  return {
-    isEncrypted: shouldExportEncrypted,
-    source: shouldExportEncrypted ? "firestore" : "memory",
-    version: shouldExportEncrypted ? CryptoPassRepository.ENCRYPTION_VERSION : null,
-  };
-}
-
-async function resolveImportDocuments(
-  payload: ImportPayload,
-  fileName: string,
-  password?: string,
-): Promise<DocumentModel[]> {
-  const encryption = payload.encryption;
-  const documents = payload.documents as Record<string, unknown>[];
-  if (!isEncryptedImport(payload, documents)) {
-    return payload.documents;
-  }
-
-  const importHash = await resolveImportHash(password);
-  if (!importHash) {
-    throw new ImportPasswordRequiredError([fileName]);
-  }
-
-  return await decryptImportedDocuments(documents, importHash, encryption?.version ?? true) as DocumentModel[];
-}
-
 export function isEncryptedImport(
-  payload: Pick<ImportPayload, "encryption" | "documents">,
+  payload: Pick<ImportPayload, "documents"> & { encryption?: { isEncrypted?: boolean } },
   documents: Record<string, unknown>[] = payload.documents as Record<string, unknown>[],
 ): boolean {
   if (payload.encryption?.isEncrypted) {
     return true;
   }
   return documents.some((document) => isEncryptedRecord(document));
-}
-
-async function resolveImportHash(
-  password?: string,
-): Promise<Hash | null> {
-  const currentHash = getCurrentSyncHash();
-  if (currentHash) {
-    return currentHash;
-  }
-
-  const normalizedPassword = password?.trim();
-  if (!normalizedPassword) {
-    return null;
-  }
-
-  const passwordHash = await Encryptor.createHash(normalizedPassword);
-  return passwordHash;
-}
-
-async function decryptImportedDocuments(
-  documents: Record<string, unknown>[],
-  hash: Hash,
-  version: boolean | number,
-): Promise<Record<string, unknown>[]> {
-  const encryptor = new Encryptor(version);
-  await encryptor.initWithHash(hash, version);
-
-  return await Promise.all(
-    documents.map(async (document) => {
-      const decrypted = await encryptor.decrypt(document);
-      if (isEncryptedRecord(decrypted)) {
-        throw new Error("Não foi possível descriptografar o arquivo importado com a senha informada.");
-      }
-      return decrypted;
-    }),
-  );
-}
-
-function getCurrentSyncHash(): Hash | null {
-  const uid = getCurrentUser()?.uid;
-  if (!uid) {
-    return null;
-  }
-  return CryptoPassRepository.getSyncHash(uid);
 }
 
 function isEncryptedRecord(value: unknown): value is Record<string, unknown> & { encrypted: boolean | number } {

@@ -22,23 +22,18 @@ beforeAll(async () => {
 });
 
 describe("settingsActions import payload", () => {
-  const repoNames = ["accounts", "user"] as never[];
+  const repoNames = ["accounts", "user", "resourcesUse"] as never[];
 
-  it("parses encrypted metadata from exported files", () => {
+  it("parses the standard export format", () => {
     const payload = parseImportPayload(
       JSON.stringify({
         schemaVersion: 2,
         collection: "accounts",
         date: "2026-04-03T12:00:00.000Z",
-        encryption: {
-          isEncrypted: true,
-          source: "firestore",
-          version: 1,
-        },
         documents: [
           {
             id: "account-1",
-            encrypted: 1,
+            name: "Main account",
           },
         ],
       }),
@@ -46,19 +41,19 @@ describe("settingsActions import payload", () => {
       repoNames,
     );
 
-    expect(payload.encryption).toEqual({
-      isEncrypted: true,
-      source: "firestore",
-      version: 1,
-    });
-    expect(isEncryptedImport(payload)).toBe(true);
+    expect(payload.collection).toBe("accounts");
+    expect(payload.documents).toHaveLength(1);
+    expect(isEncryptedImport(payload)).toBe(false);
   });
 
-  it("detects encrypted documents even without explicit metadata", () => {
+  it("detects legacy encrypted payloads so they can be rejected safely", () => {
     const payload = parseImportPayload(
       JSON.stringify({
         collection: "accounts",
         date: "2026-04-03T12:00:00.000Z",
+        encryption: {
+          isEncrypted: true,
+        },
         documents: [
           {
             id: "account-1",
@@ -70,7 +65,6 @@ describe("settingsActions import payload", () => {
       repoNames,
     );
 
-    expect(payload.encryption?.isEncrypted).not.toBe(true);
     expect(isEncryptedImport(payload)).toBe(true);
   });
 
