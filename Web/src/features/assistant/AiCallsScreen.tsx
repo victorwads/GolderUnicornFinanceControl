@@ -159,6 +159,9 @@ function normalizeConversations(items: AiCallContext[]): Conversation[] {
 }
 
 function deriveTitle(context: AiCallContext): string {
+  const explicitTitle = typeof context.title === 'string' ? context.title.trim() : '';
+  if (explicitTitle) return explicitTitle;
+
   const history = Array.isArray(context.history) ? context.history : [];
   const userEntry = [...history].reverse().find((entry) => entry?.role === 'user');
   if (!userEntry) return '';

@@ -234,18 +234,46 @@ export class AssistantTools extends AssistantToolsBase {
       },
       {
         name: ToUserTool.FINISH,
-        description: "End user conversation when all requests are completed. Confirm with user before executing it.",
-        parameters: emptyParamsSchema,
-        execute: async () => {
-          return { success: true, result: "Pedido concluído contexto resetado." };
+        description: "End the conversation only after the user's request was fully resolved. Always include a short conversation title and a concise summary of what was done in this conversation.",
+        parameters: {
+          type: "object",
+          required: ["title", "summary"],
+          properties: {
+            title: {
+              type: "string",
+              description: "Short title for this conversation, ideally 3 to 8 words.",
+            },
+            summary: {
+              type: "string",
+              description: "Concise summary focused on what the user needed and what was resolved, created, updated, or decided. Do not include internal search steps, tool orchestration, or navigation details.",
+            },
+          },
+          additionalProperties: false,
+        },
+        execute: async ({ summary }) => {
+          return { success: true, result: summary || "Conversation finished." };
         },
       },
       ...(this.onboardingEnabled ? [{
         name: ToUserTool.FINISH_ONBOARDING,
-        description: "End user conversation when all onboarding are completed. Confirm with user before executing it.",
-        parameters: emptyParamsSchema,
-        execute: async () => {
-          return { success: true, result: "Pedido concluído contexto resetado." };
+        description: "End onboarding only after it was fully completed. Always include a short conversation title and a concise summary of what was created, configured, or checked during onboarding.",
+        parameters: {
+          type: "object",
+          required: ["title", "summary"],
+          properties: {
+            title: {
+              type: "string",
+              description: "Short title for this onboarding conversation, ideally 3 to 8 words.",
+            },
+            summary: {
+              type: "string",
+              description: "Concise summary focused on what the user needed and what was resolved, created, updated, or decided during onboarding. Do not include internal search steps, tool orchestration, or navigation details.",
+            },
+          },
+          additionalProperties: false,
+        },
+        execute: async ({ summary }) => {
+          return { success: true, result: summary || "Onboarding finished." };
         },
       }]:[]),
     ]

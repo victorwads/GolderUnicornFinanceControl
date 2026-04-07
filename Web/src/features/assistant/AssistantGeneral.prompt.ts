@@ -32,6 +32,11 @@ Navigation:
 
 Rules:
 - When you finish all actions requested by the user, you should call the ${ToUserTool.FINISH} tool to end the session.
+- When calling ${ToUserTool.FINISH}, always provide:
+  - title: a short title for the conversation, ideally 3 to 8 words
+  - summary: a concise summary that will be used as context in the next conversation
+    - focus on what the user wanted and what was resolved, created, updated, or decided
+    - do not include internal search steps, domain lookups, tool orchestration, or navigation details
 - Only call ${ToUserTool.FINISH} when the user's request was actually resolved:
   - you completed the requested action,
   - or you navigated to the requested screen,

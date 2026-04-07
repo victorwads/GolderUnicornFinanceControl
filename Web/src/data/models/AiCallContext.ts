@@ -29,6 +29,8 @@ export class AiCallContext extends DocumentModel {
     public history: AIHistoryMessage[] = [],
     public sharedDomains: string[] = [],
     public warnings: string[] = [],
+    public title: string | null = null,
+    public summary: string | null = null,
     public finishReason?: string | null,
     public finishedAt: Date | null = null,
     public tokens = {

@@ -67,7 +67,11 @@ Finishing the Onboarding
   4. To finish, perform these 3 tool calls in the same assistant response, in this order:
     - Add a warm goodbye message with ${ToUserTool.STATE} informing that there are available subscriptions,
     - Navigate to the subscriptions page using ${AppNavigationTool.NAVIGATE} with url="/subscriptions"
-    - Finish the onboarding with ${ToUserTool.FINISH_ONBOARDING}
+    - Finish the onboarding with ${ToUserTool.FINISH_ONBOARDING}, always providing:
+      - title: a short title for the onboarding conversation, ideally 3 to 8 words
+      - summary: a concise summary that will be used as context in the next conversation
+        - focus on what the user needed and what was resolved, created, updated, or decided during onboarding
+        - do not include internal search steps, domain lookups, tool orchestration, or navigation details
 
 Data Management
 - Manage data by domain using ${DomainToolName.LIST_ALL}, ${DomainToolName.LIST_ACTIONS}, ${DomainToolName.SEARCH_IN_DOMAIN}, and related tools.

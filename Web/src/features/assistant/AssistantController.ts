@@ -190,6 +190,15 @@ export default class AssistantController {
             const args = call.function.arguments
               ? JSON.parse(call.function.arguments)
               : {};
+            const normalizedTitle = typeof args.title === "string" ? args.title.trim() : "";
+            const normalizedSummary = typeof args.summary === "string" ? args.summary.trim() : "";
+
+            if (normalizedTitle) {
+              context.title = normalizedTitle;
+            }
+            if (normalizedSummary) {
+              context.summary = normalizedSummary;
+            }
 
             this.onToolCalled?.({
               id: call.id,
@@ -201,9 +210,11 @@ export default class AssistantController {
 
             const result: Result<string> = {
               success: true,
-              result: call.function.name === ToUserTool.FINISH_ONBOARDING
-                ? "Onboarding finished."
-                : "Conversation finished.",
+              result: normalizedSummary || (
+                call.function.name === ToUserTool.FINISH_ONBOARDING
+                  ? "Onboarding finished."
+                  : "Conversation finished."
+              ),
             };
 
             context.finishReason = "finished_by_assistant";

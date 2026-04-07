@@ -278,6 +278,11 @@ function deriveConversationTitle(
   meaningfulUserEntries: Extract<AssistantTimelineEntry, { type: "user" }>[],
   userEntries: Extract<AssistantTimelineEntry, { type: "user" }>[]
 ): string {
+  const explicitTitle = typeof context.title === "string" ? context.title.trim() : "";
+  if (explicitTitle) {
+    return explicitTitle;
+  }
+
   const LocalLang = Lang.visual.assistant.adapter;
   const bestEntry =
     meaningfulUserEntries.find((entry) => isGoodConversationTitle(entry.content)) ||
