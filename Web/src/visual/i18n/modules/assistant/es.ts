@@ -79,6 +79,8 @@ const es: AssistantModuleTranslation = {
       userLabel: "tú:",
       assistantLabel: "asistente:",
       infoLabel: "info:",
+      setupModeTitle: "Asistente de configuración",
+      setupModeDescription: "Te guío en los primeros pasos de configuración.",
       listeningPlaceholder: "Hablando...",
       inputPlaceholder: "Escribe tu mensaje aquí...",
       continuePrompt: "Responde con el micrófono o escribe para continuar.",

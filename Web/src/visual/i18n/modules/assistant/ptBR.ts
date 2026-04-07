@@ -79,6 +79,8 @@ const ptBR: AssistantModuleTranslation = {
       userLabel: "você:",
       assistantLabel: "assistente:",
       infoLabel: "info:",
+      setupModeTitle: "Assistente de configuração",
+      setupModeDescription: "Estou guiando você nos primeiros passos da sua configuração.",
       listeningPlaceholder: "Falando...",
       inputPlaceholder: "Escreva sua mensagem aqui...",
       continuePrompt: "Responda pelo microfone ou escreva para continuar.",

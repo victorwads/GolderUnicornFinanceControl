@@ -79,6 +79,8 @@ const en: AssistantModuleTranslation = {
       userLabel: "you:",
       assistantLabel: "assistant:",
       infoLabel: "info:",
+      setupModeTitle: "Setup assistant",
+      setupModeDescription: "I am guiding you through the first setup steps.",
       listeningPlaceholder: "Speaking...",
       inputPlaceholder: "Type your message here...",
       continuePrompt: "Reply with your microphone or type to continue.",

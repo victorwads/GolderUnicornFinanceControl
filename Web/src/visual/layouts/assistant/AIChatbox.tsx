@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Bot, Expand, Mic, SendHorizontal, X } from "lucide-react";
+import { Bot, Expand, Mic, SendHorizontal, Sparkles, X } from "lucide-react";
 
 import { AssistantTimelineFeed } from "@components/AssistantTimelineFeed";
 import { Button } from "@components/ui/button";
@@ -61,6 +61,23 @@ export default function AIChatbox({ model }: AIChatboxProps) {
           )}
         >
           <div className="flex min-h-full flex-col justify-end">
+            {model.open && model.isOnboardingMode ? (
+              <div className="mb-3 rounded-[1.5rem] border border-primary/15 bg-primary/6 p-3">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground">
+                      {Lang.assistant.voiceOverlay.setupModeTitle}
+                    </p>
+                    <p className="text-xs leading-5 text-muted-foreground">
+                      {Lang.assistant.voiceOverlay.setupModeDescription}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
             {entries.length > 0 ? (
               <>
                 <AssistantTimelineFeed entries={entries} className="space-y-2" session />
@@ -196,6 +213,7 @@ export interface AIChatboxViewModel {
   isActive: boolean;
   conversationId: string | null;
   visibleEntries: AssistantHistoryConversation["entries"];
+  isOnboardingMode: boolean;
   draft: string;
   isFinished: boolean;
   isListening: boolean;

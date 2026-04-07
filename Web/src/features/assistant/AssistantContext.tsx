@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { AssistantHistoryConversation, AssistantTimelineEntry } from "@pages/assistant/assistantHistory.types";
 import { buildAssistantHistoryConversation, buildTimelineEntries } from "@pages/assistant/assistantHistoryAdapter";
+import AssistantOnboardingPrompt from "./AssistantOnboarding.prompt";
 import AssistantController, { setPendingAiContext } from "./AssistantController";
 
 type AssistantContextValue = {
@@ -10,6 +11,7 @@ type AssistantContextValue = {
   history: AssistantTimelineEntry[];
   processing: boolean;
   isFinished: boolean;
+  isOnboardingMode: boolean;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   sendUserAnswer: (answer: string) => void;
@@ -27,6 +29,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   const [history, setHistory] = useState<AssistantTimelineEntry[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [isOnboardingMode, setIsOnboardingMode] = useState(false);
   const navigate = useNavigate();
   
   const controller = useMemo(() => 
@@ -53,6 +56,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         setHistory(buildTimelineEntries(context));
         setIsFinished(Boolean(context.finishReason?.startsWith("finished_by_assistant")));
       },
+      (onboarding) => {
+        setIsOnboardingMode(onboarding);
+      },
     ),
     []
   );
@@ -62,6 +68,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     history,
     processing,
     isFinished,
+    isOnboardingMode,
     isOpen,
     setIsOpen,
     sendUserAnswer: (answer: string) => {
@@ -84,6 +91,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       setPendingAiContext(conversation.context);
       setHistory(conversation.entries);
       setIsFinished(Boolean(conversation.finishReason?.startsWith("finished_by_assistant")));
+      setIsOnboardingMode(isOnboardingConversation(conversation));
       setIsOpen(true);
     },
     startNewConversation: () => {
@@ -104,4 +112,9 @@ export function useAssistantContext() {
   }
 
   return context;
+}
+
+function isOnboardingConversation(conversation: AssistantHistoryConversation): boolean {
+  const firstEntry = conversation.context?.history?.[0];
+  return firstEntry?.role === "system" && firstEntry.content === AssistantOnboardingPrompt;
 }

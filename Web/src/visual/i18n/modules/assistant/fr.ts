@@ -79,6 +79,8 @@ const fr: AssistantModuleTranslation = {
       userLabel: "vous :",
       assistantLabel: "assistant :",
       infoLabel: "info :",
+      setupModeTitle: "Assistant de configuration",
+      setupModeDescription: "Je vous guide dans les premières étapes de configuration.",
       listeningPlaceholder: "Je vous écoute...",
       inputPlaceholder: "Écrivez votre message ici...",
       continuePrompt: "Répondez avec le micro ou écrivez pour continuer.",

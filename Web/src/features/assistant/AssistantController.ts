@@ -55,6 +55,7 @@ export function setAssistantModel(model: AiModel) {
 
 export type ToolEventListener = (event: AssistantToolCallLog, context: AiCallContext) => void;
 export type AskAnditionalInfoCallback = (message: string) => Promise<string>;
+export type OnboardingModeListener = (isOnboarding: boolean) => void;
 
 type PendingToolCall = {
   id: string;
@@ -73,6 +74,7 @@ export default class AssistantController {
     public onToolCalled?: ToolEventListener,
     public onNavigate?: (route: string, queryParams?: Record<string, string>) => void,
     public onContextChanged?: (context: AiCallContext) => void,
+    public onOnboardingModeChanged?: OnboardingModeListener,
     public model: string = getAssistantModel(),
     private readonly repositories: Repositories = getRepositories(),
   ) {
@@ -85,6 +87,7 @@ export default class AssistantController {
   private setPrompt(onboarding: boolean) {
     this.model = onboarding ? DEFAULT_ONBOARDING_MODEL : getAssistantModel();
     this.toolRegistry.setOnboarding(onboarding);
+    this.onOnboardingModeChanged?.(onboarding);
   }
 
   private buildMessageProcessing(model: string, usage?: { input?: number; output?: number }): AIMessageProcessing {

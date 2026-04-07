@@ -14,7 +14,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
 
   const { 
     processing, isOpen, setIsOpen,
-    conversationId, history, sendUserAnswer, isFinished, startNewConversation
+    conversationId, history, sendUserAnswer, isFinished, isOnboardingMode, startNewConversation
   } = useAssistantContext();
 
   const clear = () => {
@@ -62,6 +62,7 @@ export function useAssistantChatboxModel(): AIChatboxViewModel {
     isActive: isListening || processing, // || penddingAnswer,
     conversationId,
     visibleEntries,
+    isOnboardingMode,
     draft,
     isFinished,
     isListening: isListening,

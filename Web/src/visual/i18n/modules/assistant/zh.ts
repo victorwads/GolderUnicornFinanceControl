@@ -79,6 +79,8 @@ const zh: AssistantModuleTranslation = {
       userLabel: "你：",
       assistantLabel: "助手：",
       infoLabel: "信息：",
+      setupModeTitle: "设置助手",
+      setupModeDescription: "我会带你完成最初的设置步骤。",
       listeningPlaceholder: "正在聆听...",
       inputPlaceholder: "在这里输入你的消息...",
       continuePrompt: "用麦克风回复或继续输入。",

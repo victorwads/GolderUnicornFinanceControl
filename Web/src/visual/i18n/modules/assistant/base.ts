@@ -72,6 +72,8 @@ export default interface AssistantModuleTranslation extends Translation {
       userLabel: string;
       assistantLabel: string;
       infoLabel: string;
+      setupModeTitle: string;
+      setupModeDescription: string;
       listeningPlaceholder: string;
       inputPlaceholder: string;
       continuePrompt: string;
