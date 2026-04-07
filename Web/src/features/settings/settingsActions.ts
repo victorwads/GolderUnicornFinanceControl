@@ -342,6 +342,22 @@ export async function resetAssistantOnboarding(): Promise<void> {
   dispatchAssistantEvent("assistant:onboarding-reset");
 }
 
+export async function getAssistantOnboardingEnabled(): Promise<boolean> {
+  const user = await getRepositories().user.getUserData();
+  return !user.onboardingDone;
+}
+
+export async function setAssistantOnboardingEnabled(enabled: boolean): Promise<void> {
+  if (enabled) {
+    await getRepositories().user.clearOnboardingFlag();
+    clearAssistantOnboardingDismissal();
+    dispatchAssistantEvent("assistant:onboarding-reset");
+    return;
+  }
+
+  await getRepositories().user.updateUserData({ onboardingDone: true });
+}
+
 export function resetMicrophoneOnboarding(): void {
   clearAIMicrophoneOnboardingFlags();
 }

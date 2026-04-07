@@ -5,9 +5,10 @@ import { useToast } from "@hooks/use-toast";
 import type { DataProgressInfo } from "@components/DataProgress";
 import { ProjectStorage } from "@utils/ProjectStorage";
 import {
+  getAssistantOnboardingEnabled,
   killAccountRegisters,
-  resetAssistantOnboarding,
   resetMicrophoneOnboarding,
+  setAssistantOnboardingEnabled,
   toggleEncryptionAndResave,
 } from "@features/settings/settingsActions";
 import {
@@ -65,6 +66,9 @@ export function useDeveloperModel(): DeveloperViewModel {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [killAccountId, setKillAccountId] = useState("");
+  const [assistantOnboardingEnabled, setAssistantOnboardingEnabledState] = useState(false);
+  const [assistantOnboardingLoading, setAssistantOnboardingLoading] = useState(true);
+  const [assistantOnboardingPending, setAssistantOnboardingPending] = useState(false);
   const [encryptionDisabled, setEncryptionDisabled] = useState(
     ProjectStorage.get("disableEncryption") === "true",
   );
@@ -75,6 +79,37 @@ export function useDeveloperModel(): DeveloperViewModel {
       navigate("/settings");
     }
   }, [navigate]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setAssistantOnboardingLoading(true);
+    getAssistantOnboardingEnabled()
+      .then((enabled) => {
+        if (!cancelled) {
+          setAssistantOnboardingEnabledState(enabled);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load assistant onboarding status", error);
+        if (!cancelled) {
+          toast({
+            variant: "destructive",
+            title: "Falha ao carregar onboarding",
+            description: "Não foi possível consultar o estado do onboarding do assistente.",
+          });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setAssistantOnboardingLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [toast]);
 
   function onNavigate(route: DeveloperRoute) {
     if (route instanceof ToMoreRoute) {
@@ -160,12 +195,37 @@ export function useDeveloperModel(): DeveloperViewModel {
         sessionStoragePrefixes: [CRYPTO_SECRET_HASH_PREFIX],
       });
     },
-    resetAssistantOnboarding: async () => {
-      await resetAssistantOnboarding();
-      toast({
-        title: "Onboarding do assistente resetado",
-        description: "O fluxo de onboarding do assistente foi liberado novamente.",
-      });
+    assistantOnboardingEnabled,
+    assistantOnboardingLoading,
+    assistantOnboardingPending,
+    toggleAssistantOnboarding: async (enabled: boolean) => {
+      setAssistantOnboardingPending(true);
+
+      try {
+        await setAssistantOnboardingEnabled(enabled);
+        setAssistantOnboardingEnabledState(enabled);
+        toast({
+          title: enabled
+            ? "Onboarding do assistente ativado"
+            : "Onboarding do assistente desativado",
+          description: enabled
+            ? "Novas conversas voltam a iniciar no fluxo de onboarding."
+            : "Novas conversas deixam de iniciar no fluxo de onboarding.",
+        });
+
+        window.setTimeout(() => {
+          window.location.reload();
+        }, 900);
+      } catch (error) {
+        console.error("Failed to toggle assistant onboarding", error);
+        toast({
+          variant: "destructive",
+          title: "Falha ao atualizar onboarding",
+          description: "Não foi possível salvar o estado do onboarding do assistente.",
+        });
+      } finally {
+        setAssistantOnboardingPending(false);
+      }
     },
     resetMicrophoneOnboarding: () => {
       resetMicrophoneOnboarding();

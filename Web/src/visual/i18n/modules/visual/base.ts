@@ -112,7 +112,9 @@ export default interface VisualModuleTranslation extends Translation {
         localDataHint: string;
         onboardingTitle: string;
         onboardingDescription: string;
-        resetAssistant: string;
+        assistantOnboardingToggle: string;
+        assistantOnboardingToggleDescription: string;
+        assistantOnboardingLoading: string;
         resetMicrophone: string;
         encryptionTitle: string;
         encryptionDescription: string;

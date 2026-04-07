@@ -15,6 +15,9 @@ export default function Developer({ model }: DeveloperProps) {
   const {
     navigate,
     disableDeveloperOptions,
+    assistantOnboardingEnabled,
+    assistantOnboardingLoading,
+    assistantOnboardingPending,
     encryptionDisabled,
     killAccountId,
     setKillAccountId,
@@ -23,8 +26,8 @@ export default function Developer({ model }: DeveloperProps) {
     clearVisualSettings,
     clearUserSettings,
     clearAllLocalSettings,
-    resetAssistantOnboarding,
     resetMicrophoneOnboarding,
+    toggleAssistantOnboarding,
     toggleEncryption,
     killAccountRegisters,
   } = model;
@@ -100,10 +103,24 @@ export default function Developer({ model }: DeveloperProps) {
               <CardDescription>{LocalLang.onboardingDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start h-14" onClick={resetAssistantOnboarding}>
-                <Bot className="h-4 w-4 mr-3" />
-                {LocalLang.resetAssistant}
-              </Button>
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 p-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Bot className="h-4 w-4 text-foreground" />
+                    <p className="text-sm font-medium text-foreground">{LocalLang.assistantOnboardingToggle}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {assistantOnboardingLoading
+                      ? LocalLang.assistantOnboardingLoading
+                      : LocalLang.assistantOnboardingToggleDescription}
+                  </p>
+                </div>
+                <Switch
+                  checked={assistantOnboardingEnabled}
+                  disabled={assistantOnboardingLoading || assistantOnboardingPending}
+                  onCheckedChange={(checked) => void toggleAssistantOnboarding(checked)}
+                />
+              </div>
               <Button variant="outline" className="w-full justify-start h-14" onClick={resetMicrophoneOnboarding}>
                 <Mic className="h-4 w-4 mr-3" />
                 {LocalLang.resetMicrophone}
@@ -183,6 +200,9 @@ export class ToMoreRoute extends DeveloperRoute {}
 export interface DeveloperViewModel {
   navigate: (route: DeveloperRoute) => void;
   disableDeveloperOptions: () => void;
+  assistantOnboardingEnabled: boolean;
+  assistantOnboardingLoading: boolean;
+  assistantOnboardingPending: boolean;
   encryptionDisabled: boolean;
   killAccountId: string;
   setKillAccountId: (value: string) => void;
@@ -191,7 +211,7 @@ export interface DeveloperViewModel {
   clearVisualSettings: () => void;
   clearUserSettings: () => void;
   clearAllLocalSettings: () => void;
-  resetAssistantOnboarding: () => Promise<void>;
+  toggleAssistantOnboarding: (enabled: boolean) => Promise<void>;
   resetMicrophoneOnboarding: () => void;
   toggleEncryption: () => Promise<void>;
   killAccountRegisters: () => Promise<void>;
