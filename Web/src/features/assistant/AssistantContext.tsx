@@ -42,7 +42,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         setHistory(buildTimelineEntries(context));
       },
       (route: string, queryParams?: Record<string, string>) => {
-        const url = new URL("u:" + route);
+        const url = new URL(route, window.location.origin);
         Object.entries(queryParams || {}).forEach(([key, value]) => {
           url.searchParams.set(key, value);
         });
