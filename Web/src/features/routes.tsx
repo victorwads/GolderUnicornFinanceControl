@@ -1,8 +1,7 @@
-import { Navigate, createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 
 import { withRepos } from '@componentsDeprecated/WithRepo';
 
-import { AssistantProvider } from '@features/assistant/AssistantContext';
 import TabScreen from '@features/tabs/TabScreen';
 import EmptyScreen from '@features/commons/EmptyScreen';
 import RegistryScreenForm from '@features/accounts/RegistryScreenForm';
@@ -41,11 +40,13 @@ import CreateCreditCardPage from '@pages/credit-cards/CreateCreditCard.page';
 import AddCreditCardTransactionPage from '@pages/credit-cards/AddCreditCardTransaction.page';
 import AssistantHistoryPage from '@pages/assistant/AssistantHistory.page';
 import AssistantConversationPage from '@pages/assistant/AssistantConversation.page';
+import AssistantSessionRoot from './assistant/AIChatbox.page';
 
-export const privateRouter = createBrowserRouter([
+const privateRouterRoutes = [
   {
-    path: '/', element: withRepos(<AssistantProvider><TabScreen /></AssistantProvider>, 'user', 'aiCalls'), children: [
-      { path: '/', element: <HomePage /> },
+    element: <TabScreen />,
+    children: [
+      { index: true, element: <HomePage /> },
       { path: 'timeline/filters', element: <TimelinePage /> },
       { path: 'timeline/import', element: <TimelineImportPage /> },
       {
@@ -172,12 +173,20 @@ export const privateRouter = createBrowserRouter([
       { path: '/groceries/create', element: <GroceryItemForm /> },
       { path: '/groceries/:id/edit', element: withRepos(<GroceryItemForm />, 'groceries') },
       { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
-    ]
+    ],
   },
   { path: '/subscriptions/*', element: <SubscriptionsRouter /> },
   { path: '/privacy/terms', element: <TermsPage /> },
   { path: '/privacy/policy', element: <PolicyPage /> },
   { path: '*', element: <EmptyScreen title='Not Found' /> },
+];
+
+export const privateRouter = createBrowserRouter([
+  {
+    path: '/',
+    element: <AssistantSessionRoot />,
+    children: privateRouterRoutes,
+  },
 ])
 
 export const publicRouter = createBrowserRouter([

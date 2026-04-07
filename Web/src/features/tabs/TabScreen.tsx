@@ -8,15 +8,14 @@ import {
 } from "@containers";
 
 import { TabBar } from "@components/TabBar";
-import { useAssistantChatboxModel } from "@features/assistant/AIChatbox.model";
-import AIChatbox from "@layouts/assistant/AIChatbox";
+import { useAssistantContext } from "@features/assistant/AssistantContext";
 import { useTabBarModel } from "@pages/core/TabBar.model";
 
 const TabScreen = () => {
-  const chatboxModel = useAssistantChatboxModel();
+  const { isOpen, setIsOpen } = useAssistantContext();
   const model = useTabBarModel({
-    isAssistantOpen: chatboxModel.open,
-    onAssistantToggle: chatboxModel.onToggle,
+    isAssistantOpen: isOpen,
+    onAssistantToggle: () => setIsOpen(!isOpen),
   });
 
   return (
@@ -25,7 +24,6 @@ const TabScreen = () => {
         <Outlet />
       </ContainerScrollContent>
       <ContainerFixedContent>
-        <AIChatbox model={chatboxModel} />
         <TabBar model={model} />
       </ContainerFixedContent>
     </Container>
