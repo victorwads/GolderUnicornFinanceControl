@@ -7,6 +7,7 @@ import {
   ToHomeRoute,
   ToMoreRoute,
   ToTimelineRoute,
+  ToWishlistRoute,
   tabBarIcons,
 } from "@components/TabBar";
 
@@ -53,6 +54,10 @@ export function useTabBarModel(options?: UseTabBarModelOptions): TabBarViewModel
         navigate("/timeline");
         break;
 
+      case route instanceof ToWishlistRoute:
+        navigate("/wishlist");
+        break;
+
       case route instanceof ToMoreRoute:
         navigate("/settings");
         break;
@@ -77,6 +82,13 @@ export function useTabBarModel(options?: UseTabBarModelOptions): TabBarViewModel
       icon: tabBarIcons.timeline,
       isActive: isNestedPath(location.pathname, "/timeline"),
       onClick: () => onNavigate(new ToTimelineRoute()),
+    },
+    {
+      name: Lang.wishlist.tabLabel,
+      path: "/wishlist",
+      icon: tabBarIcons.wishlist,
+      isActive: isNestedPath(location.pathname, "/wishlist"),
+      onClick: () => onNavigate(new ToWishlistRoute()),
     },
     {
       name: Lang.visual.assistant.assistantLabel,

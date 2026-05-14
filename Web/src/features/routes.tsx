@@ -40,6 +40,8 @@ import CreateCreditCardPage from '@pages/credit-cards/CreateCreditCard.page';
 import AddCreditCardTransactionPage from '@pages/credit-cards/AddCreditCardTransaction.page';
 import AssistantHistoryPage from '@pages/assistant/AssistantHistory.page';
 import AssistantConversationPage from '@pages/assistant/AssistantConversation.page';
+import WishlistListPage from '@pages/wishlist/WishlistList.page';
+import CreateWishlistItemPage from '@pages/wishlist/CreateWishlistItem.page';
 import AssistantSessionRoot from './assistant/AIChatbox.page';
 
 const privateRouterRoutes = [
@@ -85,6 +87,21 @@ const privateRouterRoutes = [
           { index: true, element: <RecurrentsListPage /> },
           { path: 'create', element: <CreateRecurrentPage /> },
           { path: ':id', element: <CreateRecurrentPage /> },
+        ],
+      },
+      {
+        path: 'wishlist',
+        element: withRepos(
+          <MasterDetailShell
+            basePath="/wishlist"
+            listPane={<WishlistListPage />}
+          />,
+          'wishlistItems', 'categories'
+        ),
+        children: [
+          { index: true, element: <WishlistListPage /> },
+          { path: 'create', element: <CreateWishlistItemPage /> },
+          { path: ':id', element: <CreateWishlistItemPage /> },
         ],
       },
       { path: 'groceries', element: withRepos(<GroceriesMainScreen />, 'groceries', 'products') },

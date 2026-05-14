@@ -14,4 +14,5 @@ export const Collections = {
     ResourcesUse: "ResourcesUse",
     AiCalls: "AiCalls",
     RecurrentRegistries: "RecurrentRegistries",
+    WishlistItems: "WishlistItems",
 };
