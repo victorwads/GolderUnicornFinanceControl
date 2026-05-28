@@ -32,6 +32,12 @@ export abstract class OverrideRules {
     req?: ClientRequest
     res?: IncomingMessage
   }, req: IncomingMessage, res: ServerResponse<IncomingMessage>): boolean;
+
+  /**
+   * Runs before the request is proxied to the target.
+   * Return false when the hook already handled the response and the proxy must stop.
+   */
+  onRequest?(req: IncomingMessage, res: ServerResponse<IncomingMessage>): boolean | void;
   abstract onProxyReq?(proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse<IncomingMessage>): void;
   abstract onProxyRes?(proxyRes: IncomingMessage, req: IncomingMessage, res: ServerResponse<IncomingMessage>): void;
 }

@@ -44,6 +44,8 @@ services:
       - sh
       - -c
       - yarn install && yarn proxy
+    env_file:
+      - ./.basicAuth.env
 
   backend-builder:
     image: node:24-alpine

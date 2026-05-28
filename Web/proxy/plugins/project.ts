@@ -4,8 +4,8 @@ import { ServiceRules } from "../proxy";
 const isDocker = !process.argv.includes("--local");
 
 export const serviceRules: ServiceRules = {
-  layout: (host) => host.includes("layout.local"),
-  finance: (host) => host.includes("finance.local"),
+  layout: (host) => host.startsWith("layout"),
+  finance: (host) => host.startsWith("finance"),
 };
 
 export const routeTable: RouteTable = {

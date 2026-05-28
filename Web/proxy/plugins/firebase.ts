@@ -14,7 +14,7 @@ export const serviceRules: ServiceRules = {
     pathname.includes("emulator/auth/"),
   extensions: (_, pathname) =>
     pathname.includes("backends"),
-  ui: (host) => host.includes("firebase.local"),
+  ui: (host) => host.startsWith("firebase"),
 };
 
 function getFirebaseConfig(fileName: string): FirebaseConfig {
