@@ -75,3 +75,5 @@ node_modules/
 .dev/
 serviceAccountKey.ts
 LanguageConverter
+
+.basicAuth.env

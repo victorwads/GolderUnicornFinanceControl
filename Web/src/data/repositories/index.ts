@@ -20,6 +20,7 @@ import RepositoryWithCrypt from "./RepositoryWithCrypt";
 import CryptoPassRepository from "./CryptoPassRepository";
 import AiCallsRepository from "./AiCallsRepository";
 import RecurrentTransactionsRepository from "./RecurrentRegistryRepository";
+import WishlistItemsRepository from "./WishlistItemsRepository";
 export { default as AiCallsRepository } from './AiCallsRepository';
 export { default as CryptoPassRepository } from './CryptoPassRepository';
 export { default as RepositoryWithCrypt } from './RepositoryWithCrypt';
@@ -40,6 +41,7 @@ export class Repositories {
     public readonly groceries: GroceriesRepository,
     public readonly resourcesUse: ResourcesUseRepository,
     public readonly aiCalls: AiCallsRepository,
+    public readonly wishlistItems: WishlistItemsRepository,
   ) {}
 }
 
@@ -77,6 +79,7 @@ export async function resetRepositories(uid: string, secretHash?: Hash | null): 
     new GroceriesRepository(),
     new ResourcesUseRepository(),
     new AiCallsRepository(),
+    new WishlistItemsRepository(),
   )
 
   const encryptor = new Encryptor(CryptoPassRepository.ENCRYPTION_VERSION);

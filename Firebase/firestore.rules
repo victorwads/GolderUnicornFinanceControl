@@ -32,7 +32,8 @@ service cloud.firestore {
           'CreditCardInvoices',
           'GroceriesItems',
           'GroceriesProducts',
-          'RecurrentRegistries'
+          'RecurrentRegistries',
+          'WishlistItems'
           ];
       }
 

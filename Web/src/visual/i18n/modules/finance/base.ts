@@ -168,6 +168,31 @@ export default interface FinanceModuleTranslation extends Translation {
     icon: string;
     categoryCreated: string;
   };
+  wishlist: {
+    title: string;
+    tabLabel: string;
+    itemCount: (count: number) => string;
+    emptyTitle: string;
+    emptyDescription: string;
+    newItem: string;
+    editItem: string;
+    fallbackTitle: string;
+    descriptionPlaceholder: string;
+    targetDate: string;
+    targetDateDescription: string;
+    priority: {
+      label: string;
+      high: string;
+      medium: string;
+      low: string;
+    };
+    sort: {
+      label: string;
+      priority: string;
+      value: string;
+      targetDate: string;
+    };
+  };
   recurrent: {
     title: string;
     empty: string;

@@ -87,14 +87,26 @@ export class ProxyManager {
     this.knownDomains.push(domain);
     this.certInfo = await getCerts(Array.from(this.knownDomains));
 
-    this.restartServers();
+    await this.restartServers();
   }
 
-  restartServers(): void {
-    console.log("🔄 Restarting servers to apply new certificate...");
-    this.shutdown();
-    this.addRedirect();
-    this.addMultiplexedProxy();
+  private restarting?: Promise<void>;
+
+  async restartServers(): Promise<void> {
+    if (this.restarting) return this.restarting;
+
+    this.restarting = (async () => {
+      console.log("🔄 Restarting servers to apply new certificate...");
+      await this.shutdown();
+      await this.addRedirect();
+      await this.addMultiplexedProxy();
+    })();
+
+    try {
+      await this.restarting;
+    } finally {
+      this.restarting = undefined;
+    }
   }
 
   getTargetName(domain: string, pathname: string): [string, any] {
@@ -109,7 +121,7 @@ export class ProxyManager {
     return (req?.headers["x-forwarded-host"] as string) || host;
   }
 
-  logDomainChange(req: IncomingMessage): string {
+  async logDomainChange(req: IncomingMessage): Promise<string> {
     const sourceDomain = this.getHostName(req);
 
     if (this.lastDomain !== sourceDomain) {
@@ -117,7 +129,7 @@ export class ProxyManager {
       console.log(`\n🔗 Source domain: ${sourceDomain}`);
 
       // Verifica se o domínio é conhecido
-      this.handleUnknownDomain(sourceDomain);
+      await this.handleUnknownDomain(sourceDomain);
     }
     return sourceDomain;
   }
@@ -140,8 +152,8 @@ export class ProxyManager {
         secure: false,
       });
 
-      proxy.on("proxyReq", (proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-        const domain = this.logDomainChange(req);
+      proxy.on("proxyReq", async (proxyReq: ClientRequest, req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+        const domain = await this.logDomainChange(req);
 
         if (!ProxyManager.requestPerDomain[domain])
           ProxyManager.requestPerDomain[domain] = {};
@@ -172,8 +184,8 @@ export class ProxyManager {
           override.onProxyRes(proxyRes, req, res);
       });
 
-      proxy.on("error", (err, req, res) => {
-        this.logDomainChange(req);
+      proxy.on("error", async (err, req, res) => {
+        await this.logDomainChange(req);
         console.error(`❌ Proxy error: ${err.message}`, req?.url, req?.headers);
         res?.end(`Proxy error: ${err.message}`);
       });
@@ -188,10 +200,29 @@ export class ProxyManager {
     };
   }
 
+
+  private applyRequestOverrides(req: IncomingMessage, res: ServerResponse<IncomingMessage>): boolean {
+    for (const override of this.overrides) {
+      if (!override.onRequest) continue;
+      if (!override.matches({}, req, res)) continue;
+
+      const result = override.onRequest(req, res);
+      if (result === false || res.headersSent || res.writableEnded) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   async addMultiplexedProxy(port: number = 443): Promise<void> {
     await Promise.all(this.plugins);
     const { cert, key } = this.certInfo;
-    const server = https.createServer({ key, cert }, (req, res) => {
+    const server = https.createServer({ key, cert }, async (req, res) => {
+      await this.logDomainChange(req);
+
+      if (!this.applyRequestOverrides(req, res)) return;
+
       const { proxy } = this.getOrCreateProxy(
         this.getHostName(req),
         req?.url || ""
@@ -199,8 +230,8 @@ export class ProxyManager {
       proxy.web(req, res);
     });
 
-    server.on("upgrade", (req, socket, head) => {
-      this.logDomainChange(req);
+    server.on("upgrade", async (req, socket, head) => {
+      await this.logDomainChange(req);
 
       const { proxy, name } = this.getOrCreateProxy(
         this.getHostName(req),
@@ -209,8 +240,8 @@ export class ProxyManager {
       proxy.ws(req, socket, head);
       console.log(`🛜 Proxying WebSocket ${name} -> ${req?.url}`);
 
-      socket.on("close", () => {
-        this.logDomainChange(req);
+      socket.on("close", async () => {
+        await this.logDomainChange(req);
         console.log(`❌ WebSocket disconnected from ${name}: ${req?.url}`);
       });
     });
@@ -237,16 +268,25 @@ export class ProxyManager {
     this.proxies.push({ server, port });
   }
 
-  shutdown(): void {
+  async shutdown(): Promise<void> {
     for (const [target, proxy] of Object.entries(this.routeProxies)) {
       console.log(`🛑 Stopping proxy for ${target}`);
       proxy.close?.();
     }
 
-    for (const { server, port } of this.proxies) {
-      console.log(`🛑 Stopping server on port ${port}`);
-      server.close();
-    }
+    await Promise.all(
+      this.proxies.map(({ server, port }) => {
+        console.log(`🛑 Stopping server on port ${port}`);
+
+        return new Promise<void>((resolve, reject) => {
+          server.close((err) => {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+      })
+    );
+
     this.proxies = [];
     this.routeProxies = {};
   }
