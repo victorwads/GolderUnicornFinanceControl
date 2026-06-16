@@ -19,8 +19,14 @@ struct MainContentView: View {
     var body: some View {
         VStack {
             if authManager.loggedUser {
-                TabsScreen(authManager: authManager)
-                    .environmentObject(router)
+                if let provider = RepositoriesProvider(uid: authManager.auth.currentUser?.uid) {
+                    TabsScreen(authManager: authManager)
+                        .environmentObject(router)
+                        .environmentObject(provider)
+                } else {
+                    TabsScreen(authManager: authManager)
+                        .environmentObject(router)
+                }
             } else {
                 LoginScreen(authManager: authManager)
             }

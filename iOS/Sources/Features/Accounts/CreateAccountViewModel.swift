@@ -13,12 +13,12 @@ class CreateAccountViewModel: ObservableObject {
     @Published var account: Account = Account()
     @Published var state: ScreenState = .initial
     
-    let accountsRepository = AccountsRepository()
+    var provider: RepositoriesProvider?
     
     func save(onSuccess: @escaping () -> Void) {
         state = .loading
         account.bankId = selectedBank?.id
-        accountsRepository.add(account: account) { success in
+        provider?.addAccount(account) { success in
             if(success) {
                 self.state = .success
                 onSuccess()

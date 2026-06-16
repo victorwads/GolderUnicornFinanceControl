@@ -33,7 +33,7 @@ class BalanceService {
 
     private var cache: [String: [String: Snapshot]] = [:]
 
-    init(timeline: TimelineService = TimelineService(), period: FinancialMonthPeriod = FinancialMonthPeriod(1)) {
+    init(timeline: TimelineService, period: FinancialMonthPeriod = FinancialMonthPeriod(1)) {
         self.timeline = timeline
         self.period = period
     }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TimelineScreen: View {
+    @EnvironmentObject var repos: RepositoriesProvider
     @StateObject private var viewModel = TimelineViewModel()
     @State private var showAccountPicker = false
 
@@ -66,7 +67,7 @@ struct TimelineScreen: View {
         .sheet(isPresented: $showAccountPicker) {
             AccountPickerSheet(viewModel: viewModel, isPresented: $showAccountPicker)
         }
-        .onAppear { viewModel.load() }
+        .onAppear { viewModel.load(provider: repos) }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
@@ -130,12 +131,10 @@ private class TimelineViewModel: ObservableObject {
     // Month period
     @Published private var currentMonth: Date = Date()
 
-    // Repositories
-    private let accountsRepo = AccountsRepository()
-    private let banksRepo = BanksRepository()
-    private let registriesRepo = AccountsRegistryRepository()
+    private var provider: RepositoriesProvider?
 
-    func load() {
+    func load(provider: RepositoriesProvider?) {
+        self.provider = provider
         loadAccountsIfNeeded()
         loadRegistries()
     }
@@ -143,15 +142,13 @@ private class TimelineViewModel: ObservableObject {
     func loadAccountsIfNeeded() {
         if !accounts.isEmpty { return }
         // Warm banks cache so logos resolve in the selector
-        banksRepo.getAll(forceCache: false) { [weak self] _ in
-            self?.accountsRepo.getAll { accounts in
-                self?.accounts = accounts
-            }
+        provider?.loadBanks(forceCache: false) { [weak self] _ in
+            self?.provider?.loadAccounts { accounts in self?.accounts = accounts }
         }
     }
 
     func loadRegistries() {
-        registriesRepo.getAll { [weak self] regs in
+        provider?.loadAccountsRegistries { [weak self] regs in
             self?.allRegistries = regs
             self?.applyFilters()
         }
@@ -192,9 +189,7 @@ private class TimelineViewModel: ObservableObject {
             .sorted { $0.date > $1.date }
     }
 
-    func bankLogo(for account: Account) -> String {
-        banksRepo.getById(bankId: account.bankId)?.logoUrl ?? ""
-    }
+    func bankLogo(for account: Account) -> String { provider?.bankById(account.bankId)?.logoUrl ?? "" }
 
     // MARK: - Date helpers with cut-off day
     private var cutOffDay: Int { max(1, min(28, UserDefaults.standard.integer(forKey: "financeDay"))) }
@@ -229,4 +224,5 @@ private class TimelineViewModel: ObservableObject {
 
 #Preview {
     TimelineScreen()
+        .environmentObject(RepositoriesProvider(uid: "preview")!)
 }

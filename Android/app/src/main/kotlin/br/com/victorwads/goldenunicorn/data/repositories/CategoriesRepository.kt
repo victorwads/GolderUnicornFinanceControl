@@ -6,9 +6,10 @@ import br.com.victorwads.goldenunicorn.data.models.RootCategory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 
-class CategoriesRepository(
-    userId: String? = FirebaseAuth.getInstance().currentUser?.uid
-) : BaseRepository<Category>(Category::class.java) {
+internal class CategoriesRepository(
+    userId: String? = FirebaseAuth.getInstance().currentUser?.uid,
+    encryptor: br.com.victorwads.goldenunicorn.data.crypt.Encryptor,
+) : RepositoryWithCrypt<Category>(Category::class.java, encryptor) {
 
     override val cacheDuration: Long = 0
     override val ref: CollectionReference

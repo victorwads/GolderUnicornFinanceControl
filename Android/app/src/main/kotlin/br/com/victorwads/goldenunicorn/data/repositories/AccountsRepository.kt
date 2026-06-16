@@ -53,9 +53,10 @@ public add = async (account: Account) => addDoc(this.ref, account)
 
  */
 
-class AccountsRepository(
-    userId: String? = FirebaseAuth.getInstance().currentUser?.uid
-) : BaseRepository<Account>(Account::class.java) {
+internal class AccountsRepository(
+    userId: String? = FirebaseAuth.getInstance().currentUser?.uid,
+    encryptor: br.com.victorwads.goldenunicorn.data.crypt.Encryptor,
+) : RepositoryWithCrypt<Account>(Account::class.java, encryptor) {
 
     override val cacheDuration: Long = 0
     override val ref: CollectionReference
@@ -78,7 +79,7 @@ class AccountsRepository(
     // Mirror Web: getCache(showArchived?: boolean)
     fun getCache(showArchived: Boolean = false): List<Account> =
         cache.values.filter {
-            val archived = br.com.victorwads.goldenunicorn.crypt.NumericDecryptor.decryptBoolean(it.archived) ?: false
+            val archived = encryptor.decryptBoolean(it.archived) ?: false
             showArchived || !archived
         }.toList()
 
@@ -88,9 +89,8 @@ class AccountsRepository(
     }
 
     private fun decryptAccount(model: Account): Account {
-        val crypto = br.com.victorwads.goldenunicorn.crypt.CryptoService
-        val decryptedName = crypto.decryptIfNeeded(model.name) ?: model.name
-        val decryptedBankId = crypto.decryptIfNeeded(model.bankId)
+        val decryptedName = encryptor.decryptIfNeeded(model.name) ?: model.name
+        val decryptedBankId = encryptor.decryptIfNeeded(model.bankId)
         return model.copy(name = decryptedName, bankId = decryptedBankId)
     }
 }

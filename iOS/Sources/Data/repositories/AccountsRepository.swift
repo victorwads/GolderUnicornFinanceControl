@@ -1,17 +1,11 @@
 import Foundation
 import FirebaseFirestore
-import FirebaseAuth
 import FirebaseCrashlytics
 
-class AccountsRepository: RepositoryBase<Account> {
+class AccountsRepository: RepositoryWithCrypt<Account> {
 
-    init(userId: String? = nil) {
-        guard let userId = userId ?? Auth.auth().currentUser?.uid else {
-            let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "Invalid userId"])
-            Crashlytics.crashlytics().record(error: error)
-            fatalError(error.localizedDescription)
-        }
-        super.init(collectionPath: "\(Collections.Users)/\(userId)/\(Collections.Accounts)")
+    init(userId: String, encryptor: Encryptor) {
+        super.init(collectionPath: "\(Collections.Users)/\(userId)/\(Collections.Accounts)", encryptor: encryptor)
     }
 
     func getAll(neededSource: FirestoreSource? = nil, _ completion: @escaping ([Account]) -> Void) {
@@ -26,11 +20,10 @@ class AccountsRepository: RepositoryBase<Account> {
             var items: [Account] = []
             snapshot?.documents.forEach { doc in
                 let raw = doc.data()
-                // Decrypt string fields
-                let name = CryptoService.shared.decryptStringIfNeeded(raw["name"] as? String ?? "")
-                let bankId = CryptoService.shared.decryptStringIfNeeded(raw["bankId"] as? String ?? "")
-                // Numeric/boolean fields may be encrypted
-                let initialBalanceAny = NumericDecryptorHelper.shared.decryptNumber(raw["initialBalance"] as? NSNumber ?? 0) ?? 0
+                // Decrypt fields using injected encryptor
+                let name = self.encryptor.decryptStringIfNeeded(raw["name"] as? String ?? "")
+                let bankId = self.encryptor.decryptStringIfNeeded(raw["bankId"] as? String ?? "")
+                let initialBalanceAny = self.encryptor.decryptNumber(raw["initialBalance"] as? NSNumber ?? 0) ?? 0
                 let initialBalance = (initialBalanceAny as? NSNumber)?.doubleValue ?? (initialBalanceAny as? Double) ?? 0
                 var account = Account()
                 account.id = doc.documentID

@@ -12,22 +12,16 @@ class BankSelectorViewModel: ObservableObject {
     @Published var showBanksSelector = false
     @Published var banks: [Bank] = []
     
-    let repository: BanksRepository
-    
-    init(repository: BanksRepository = BanksRepository()) {
-        self.repository = repository
-    }
+    private var provider: RepositoriesProvider?
+    init(provider: RepositoriesProvider? = nil) { self.provider = provider }
+    func setProvider(_ provider: RepositoriesProvider?) { self.provider = provider }
 
     func fetch() {
-        repository.getAll(forceCache: true) {result in
-            self.banks = result
-        }
+        provider?.loadBanks(forceCache: false) { self.banks = $0 }
     }
     
     func search(_ text: String) {
-        repository.getFiltered(search: text) {result in
-            self.banks = result
-        }
+        provider?.filterBanks(search: text) { self.banks = $0 }
     }
 
 }

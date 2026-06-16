@@ -12,4 +12,11 @@ sealed class Screens(val route: String, val deepLink: String) {
     data object Accounts : Screens("accounts", "goldenunicorn://accounts")
     data object CreditCards : Screens("creditcards", "goldenunicorn://creditcards")
     data object Categories : Screens("categories", "goldenunicorn://categories")
+    sealed class Subscriptions(route: String, deepLink: String) :
+        Screens("subscriptions/$route", "goldenunicorn://subscriptions/$deepLink") {
+        data object Plans : Subscriptions("plans", "plans")
+        data object Why : Subscriptions("why", "why")
+        data object Costs : Subscriptions("why/costs", "why/costs")
+        data object ThankYou : Subscriptions("thankyou", "thankyou")
+    }
 }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AccountsScreen: View {
+    @EnvironmentObject var repos: RepositoriesProvider
     @StateObject private var viewModel = AccountsCardViewModel()
 
     var body: some View {
@@ -8,7 +9,7 @@ struct AccountsScreen: View {
             ForEach(viewModel.accounts) { account in
                 BankInfo(bank: Bank(
                     name: account.name,
-                    logoUrl: viewModel.getLogo(account: account)
+                    logoUrl: repos.bankById(account.bankId)?.logoUrl ?? ""
                 ))
             }
             if viewModel.accounts.isEmpty {
@@ -17,13 +18,12 @@ struct AccountsScreen: View {
             NavigationLink("Adicionar Conta", value: Route.createAccount)
         }
         .navigationTitle("Contas")
-        .onAppear {
-            viewModel.load()
-        }
+        .onAppear { viewModel.load(provider: repos) }
     }
 }
 
 #Preview {
     AccountsScreen()
         .environmentObject(Router())
+        .environmentObject(RepositoriesProvider(uid: "preview")!)
 }

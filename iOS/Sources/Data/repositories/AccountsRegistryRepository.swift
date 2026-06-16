@@ -1,18 +1,12 @@
 import Foundation
-import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCrashlytics
 
-class AccountsRegistryRepository: RepositoryBase<AccountsRegistry> {
+class AccountsRegistryRepository: RepositoryWithCrypt<AccountsRegistry> {
     private var firstRegistryDate: Date = Date()
 
-    init(userId: String? = nil) {
-        guard let userId = userId ?? Auth.auth().currentUser?.uid else {
-            let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "Invalid userId"])
-            Crashlytics.crashlytics().record(error: error)
-            fatalError(error.localizedDescription)
-        }
-        super.init(collectionPath: "\(Collections.Users)/\(userId)/\(Collections.AccountsRegistries)")
+    init(userId: String, encryptor: Encryptor) {
+        super.init(collectionPath: "\(Collections.Users)/\(userId)/\(Collections.AccountsRegistries)", encryptor: encryptor)
     }
 
     override func getAll(source: FirestoreSource? = nil, forceCache: Bool = false, completion: @escaping ([AccountsRegistry]) -> Void) {
@@ -28,22 +22,22 @@ class AccountsRegistryRepository: RepositoryBase<AccountsRegistry> {
                 let raw = doc.data()
 
                 // Decrypt strings
-                let accountId = CryptoService.shared.decryptStringIfNeeded(raw["accountId"] as? String ?? "")
-                let description = CryptoService.shared.decryptStringIfNeeded(raw["description"] as? String ?? "")
-                let categoryId = CryptoService.shared.decryptStringIfNeeded(raw["categoryId"] as? String ?? "")
+                let accountId = self.encryptor.decryptStringIfNeeded(raw["accountId"] as? String ?? "")
+                let description = self.encryptor.decryptStringIfNeeded(raw["description"] as? String ?? "")
+                let categoryId = self.encryptor.decryptStringIfNeeded(raw["categoryId"] as? String ?? "")
 
                 // Decrypt numbers/bools/dates
-                let valueAny = NumericDecryptorHelper.shared.decryptNumber(raw["value"] as? NSNumber ?? 0) ?? 0
+                let valueAny = self.encryptor.decryptNumber(raw["value"] as? NSNumber ?? 0) ?? 0
                 let value = (valueAny as? NSNumber)?.doubleValue ?? (valueAny as? Double) ?? 0
 
-                let paid = NumericDecryptorHelper.shared.decryptBool(raw["paid"]) ?? (raw["paid"] as? Bool ?? false)
+                let paid = self.encryptor.decryptBool(raw["paid"]) ?? (raw["paid"] as? Bool ?? false)
 
                 // Date: Timestamp or encrypted number
                 var date: Date = Date()
                 if let ts = raw["date"] as? Timestamp {
                     date = ts.dateValue()
                 } else if let dn = raw["date"] as? NSNumber {
-                    if let d = NumericDecryptorHelper.shared.decryptNumber(dn) as? Date {
+                    if let d = self.encryptor.decryptNumber(dn) as? Date {
                         date = d
                     }
                 }

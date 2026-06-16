@@ -2,6 +2,7 @@ import SwiftUI
 import FirebaseFirestore
 
 struct SettingsScreen: View {
+    @EnvironmentObject var repos: RepositoriesProvider
     let authManager: AuthenticationManager
     @AppStorage("appTheme") private var appThemeRaw: String = AppTheme.system.rawValue
     @AppStorage("financeMode") private var financeMode: String = "start" // start | next
@@ -58,7 +59,7 @@ struct SettingsScreen: View {
 
                 // Beta
                 Section("Beta") {
-                    NavigationLink("Subscriptions (Only Informative)") { Text("Subscriptions") }
+                    NavigationLink("Subscriptions (Only Informative)") { SubscriptionsPlansInline() }
                 }
 
                 // Dev-only
@@ -89,24 +90,14 @@ struct SettingsScreen: View {
         var accounts: [Account] = []
         var creditCards: [CreditCard] = []
         var accountsRegistries: [AccountsRegistry] = []
-        var creditCardRegistries: [CreditCardRegistry] = []
-        var creditCardInvoices: [CreditCardInvoice] = []
+        let creditCardRegistries: [CreditCardRegistry] = []
+        let creditCardInvoices: [CreditCardInvoice] = []
 
-        let banksRepo = BanksRepository()
-        let categoriesRepo = CategoriesRepository()
-        let accountsRepo = AccountsRepository()
-        let creditCardsRepo = CreditCardsRepository()
-        let accRegsRepo = AccountsRegistryRepository()
-        let ccRegsRepo = CreditCardsRegistryRepository()
-        let ccInvRepo = CreditCardInvoicesRepository()
-
-        group.enter(); banksRepo.getAll(forceCache: true) { banks = $0; group.leave() }
-        group.enter(); categoriesRepo.getAll { cats in categories = cats; group.leave() }
-        group.enter(); accountsRepo.getAll { accounts = $0; group.leave() }
-        group.enter(); creditCardsRepo.getAll { creditCards = $0; group.leave() }
-        group.enter(); accRegsRepo.getAll { accountsRegistries = $0; group.leave() }
-        group.enter(); ccRegsRepo.getAll { creditCardRegistries = $0; group.leave() }
-        group.enter(); ccInvRepo.getAll { creditCardInvoices = $0; group.leave() }
+        group.enter(); repos.loadBanks(forceCache: true) { banks = $0; group.leave() }
+        group.enter(); repos.loadCategories { categories = $0; group.leave() }
+        group.enter(); repos.loadAccounts { accounts = $0; group.leave() }
+        group.enter(); repos.loadCreditCards { creditCards = $0; group.leave() }
+        group.enter(); repos.loadAccountsRegistries { accountsRegistries = $0; group.leave() }
 
         group.notify(queue: .main) {
             struct ExportBundle: Codable {
@@ -163,8 +154,53 @@ private struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
+// Inline subscriptions view to avoid project wiring issues
+private struct SubscriptionsPlansInline: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(subscriptionPlans) { plan in
+                            VStack(alignment: .leading, spacing: 8) {
+                                if let badge = plan.badge { Text(badge).foregroundColor(.blue).font(.footnote) }
+                                Text(plan.title).font(.title3).bold()
+                                Text(plan.price).font(.headline)
+                                Text(plan.description)
+                                VStack(alignment: .leading, spacing: 4) { ForEach(plan.bullets, id: \.self) { Text("• \($0)") } }
+                                Button(plan.cta) {}
+                            }
+                            .padding(16)
+                            .frame(maxWidth: 280)
+                            .background((plan.highlighted ? Color.blue.opacity(0.08) : Color.black.opacity(0.05)))
+                            .cornerRadius(12)
+                            .padding(.trailing, 8)
+                        }
+                    }.padding(.horizontal, 8)
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Recurso").font(.subheadline).bold().frame(maxWidth: .infinity, alignment: .leading)
+                        ForEach(subscriptionPlans) { p in Text(p.title).frame(maxWidth: .infinity, alignment: .leading) }
+                    }
+                    Divider()
+                    ForEach(comparisonRows) { row in
+                        HStack(alignment: .top) {
+                            Text(row.feature).frame(maxWidth: .infinity, alignment: .leading)
+                            ForEach(row.values, id: \.self) { v in Text(v).frame(maxWidth: .infinity, alignment: .leading) }
+                        }
+                        Divider()
+                    }
+                }
+                Text(transparencyNoteText)
+            }.padding(16)
+        }.navigationTitle("Assinaturas")
+    }
+}
+
 struct ResourceUsageScreen: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var repos: RepositoriesProvider
     @State private var summary: [(String, Int)] = []
 
     var body: some View {
@@ -179,27 +215,14 @@ struct ResourceUsageScreen: View {
     }
 
     private func load() {
-        let banksRepo = BanksRepository(); banksRepo.getAll(forceCache: true) { banks in
-            self.summary.append(("Bancos", banks.count))
-        }
-        let categoriesRepo = CategoriesRepository(); categoriesRepo.getAll { cats in
-            self.summary.append(("Categorias", cats.count))
-        }
-        let accountsRepo = AccountsRepository(); accountsRepo.getAll { accs in
-            self.summary.append(("Contas", accs.count))
-        }
-        let creditCardsRepo = CreditCardsRepository(); creditCardsRepo.getAll { cards in
-            self.summary.append(("Cartões", cards.count))
-        }
-        let accRegsRepo = AccountsRegistryRepository(); accRegsRepo.getAll { regs in
-            self.summary.append(("Lançamentos Conta", regs.count))
-        }
-        let ccRegsRepo = CreditCardsRegistryRepository(); ccRegsRepo.getAll { regs in
-            self.summary.append(("Lançamentos Cartão", regs.count))
-        }
-        let ccInvRepo = CreditCardInvoicesRepository(); ccInvRepo.getAll { invs in
-            self.summary.append(("Faturas", invs.count))
-        }
+        repos.loadBanks(forceCache: true) { banks in self.summary.append(("Bancos", banks.count)) }
+        repos.loadCategories { cats in self.summary.append(("Categorias", cats.count)) }
+        repos.loadAccounts { accs in self.summary.append(("Contas", accs.count)) }
+        repos.loadCreditCards { cards in self.summary.append(("Cartões", cards.count)) }
+        repos.loadAccountsRegistries { regs in self.summary.append(("Lançamentos Conta", regs.count)) }
+        // Ainda não exposto no provider
+        self.summary.append(("Lançamentos Cartão", 0))
+        self.summary.append(("Faturas", 0))
     }
 }
 

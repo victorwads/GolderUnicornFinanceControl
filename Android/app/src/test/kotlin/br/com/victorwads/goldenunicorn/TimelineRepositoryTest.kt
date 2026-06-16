@@ -1,8 +1,7 @@
 package br.com.victorwads.goldenunicorn
 
-import br.com.victorwads.goldenunicorn.data.repositories.TimelineRepository
-import br.com.victorwads.goldenunicorn.data.repositories.TimelineRepository.Companion.calculateFinancialMonthInterval
-import br.com.victorwads.goldenunicorn.data.repositories.TimelineRepository.Companion.getCurrentFinancialMonth
+import br.com.victorwads.goldenunicorn.data.repositories.calculateFinancialMonthInterval
+import br.com.victorwads.goldenunicorn.data.repositories.getCurrentFinancialMonth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test

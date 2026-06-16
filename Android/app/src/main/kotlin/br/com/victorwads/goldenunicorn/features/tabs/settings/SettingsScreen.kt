@@ -101,6 +101,8 @@ fun SettingsScreen(
         }
 
         Text("Beta"); Divider()
-        Text("Subscriptions (Only Informative)")
+        Button(onClick = { onNavigate(br.com.victorwads.goldenunicorn.features.Screens.Subscriptions.Plans) }) {
+            Text("Subscriptions (Only Informative)")
+        }
     }
 }
